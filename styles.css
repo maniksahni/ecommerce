@@ -194,6 +194,10 @@ h3 {
   line-height: 1.7;
 }
 
+.bio-lines p {
+  margin-bottom: 4px;
+}
+
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
@@ -356,11 +360,20 @@ h3 {
   align-items: start;
 }
 
-.intro > p {
+.bio-panel {
   margin-bottom: 0;
   color: var(--muted);
   font-size: 1.16rem;
   line-height: 1.8;
+}
+
+.bio-panel p {
+  margin-bottom: 6px;
+}
+
+.bio-panel p:first-child {
+  color: var(--ink);
+  font-weight: 950;
 }
 
 .product-edit {
