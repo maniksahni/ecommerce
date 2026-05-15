@@ -23,7 +23,7 @@ siteNav?.addEventListener("click", (event) => {
 });
 
 const revealTargets = document.querySelectorAll(
-  ".showcase-copy, .intro > *, .product-edit article, .section-heading, .feed-card, .custom-copy, .custom-list div, .order-band > *"
+  ".intro > *, .product-edit article, .section-heading, .feed-card, .custom-copy, .custom-list div, .order-band > *"
 );
 
 revealTargets.forEach((target, index) => {
