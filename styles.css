@@ -500,14 +500,16 @@ h3 {
   display: grid;
   width: 100%;
   max-width: 100vw;
-  min-height: 560px;
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.78fr);
+  min-height: 640px;
+  grid-template-columns: minmax(320px, 0.58fr) minmax(0, 1fr);
   align-items: center;
   overflow: hidden;
   padding: 74px max(24px, calc((100vw - 1240px) / 2 + 24px));
   background:
-    linear-gradient(115deg, #110d0a 0%, #1b1410 50%, #0d302f 100%);
-  color: #fff;
+    radial-gradient(circle at 80% 44%, rgba(8, 122, 120, 0.42), transparent 34%),
+    radial-gradient(circle at 58% 16%, rgba(245, 199, 111, 0.22), transparent 30%),
+    linear-gradient(105deg, #fff7ec 0 38%, #15100d 39% 100%);
+  color: var(--ink);
   isolation: isolate;
 }
 
@@ -516,11 +518,11 @@ h3 {
   inset: -18%;
   z-index: 1;
   background:
-    repeating-linear-gradient(82deg, transparent 0 72px, rgba(245, 199, 111, 0.12) 73px 75px, transparent 76px 150px),
-    linear-gradient(100deg, transparent 0 36%, rgba(255, 255, 255, 0.12) 46%, transparent 58% 100%);
+    repeating-linear-gradient(82deg, transparent 0 82px, rgba(245, 199, 111, 0.1) 83px 85px, transparent 86px 168px),
+    linear-gradient(100deg, transparent 0 38%, rgba(255, 255, 255, 0.18) 49%, transparent 60% 100%);
   content: "";
   mix-blend-mode: screen;
-  opacity: 0.62;
+  opacity: 0.5;
   pointer-events: none;
   transform: translateX(-16%) rotate(-5deg);
   animation: luxe-scan 12s linear infinite;
@@ -531,8 +533,8 @@ h3 {
   inset: 0;
   z-index: 2;
   background:
-    linear-gradient(90deg, rgba(17, 13, 10, 0.05), rgba(17, 13, 10, 0.5) 54%, rgba(17, 13, 10, 0.86)),
-    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 18px);
+    linear-gradient(90deg, rgba(255, 247, 236, 0.98) 0%, rgba(255, 247, 236, 0.9) 35%, rgba(17, 13, 10, 0.08) 55%, rgba(17, 13, 10, 0.42)),
+    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 18px);
   content: "";
   pointer-events: none;
 }
@@ -550,28 +552,28 @@ h3 {
 .luxe-motion-copy {
   position: relative;
   z-index: 3;
-  grid-column: 2;
+  grid-column: 1;
   min-width: 0;
-  max-width: 520px;
-  justify-self: end;
+  max-width: 470px;
+  justify-self: start;
   padding: 22px 0;
 }
 
 .luxe-motion-copy .eyebrow {
-  color: #e6b85c;
+  color: var(--teal);
 }
 
 .luxe-motion-copy h2 {
   margin-bottom: 18px;
-  color: #fff;
-  text-shadow: 0 18px 48px rgba(0, 0, 0, 0.5);
+  color: var(--ink);
+  text-shadow: none;
   text-wrap: balance;
   overflow-wrap: break-word;
 }
 
 .luxe-motion-copy > p {
   margin-bottom: 24px;
-  color: rgba(255, 255, 255, 0.84);
+  color: var(--muted);
   font-size: 1.04rem;
   line-height: 1.72;
 }
@@ -584,10 +586,10 @@ h3 {
 
 .motion-pills span {
   padding: 10px 13px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(24, 18, 14, 0.14);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.58);
+  color: var(--ink);
   font-size: 0.76rem;
   font-weight: 950;
   text-transform: uppercase;
@@ -1059,19 +1061,30 @@ h3 {
   }
 
   .luxe-motion {
-    min-height: 620px;
+    min-height: 660px;
     grid-template-columns: 1fr;
     align-items: end;
+    padding-top: 330px;
+    background:
+      radial-gradient(circle at 50% 28%, rgba(8, 122, 120, 0.46), transparent 36%),
+      radial-gradient(circle at 24% 24%, rgba(245, 199, 111, 0.2), transparent 30%),
+      linear-gradient(180deg, #15100d 0 54%, #fff7ec 55% 100%);
   }
 
   .luxe-motion::after {
     background:
-      linear-gradient(180deg, rgba(17, 13, 10, 0.06), rgba(17, 13, 10, 0.54) 52%, rgba(17, 13, 10, 0.94)),
+      linear-gradient(180deg, rgba(17, 13, 10, 0.1), rgba(17, 13, 10, 0.18) 42%, rgba(255, 247, 236, 0.92) 56%, rgba(255, 247, 236, 0.99)),
       repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 18px);
   }
 
   .luxe-motion::before {
-    opacity: 0.42;
+    opacity: 0.34;
+  }
+
+  #luxe-scene {
+    top: 0;
+    bottom: auto;
+    height: 56%;
   }
 
   .luxe-motion-copy {
@@ -1253,12 +1266,12 @@ h3 {
   .luxe-motion {
     width: 100%;
     max-width: 100vw;
-    min-height: 520px;
-    padding: 42px 14px;
+    min-height: 660px;
+    padding: 386px 14px 42px;
   }
 
   .luxe-motion::before {
-    opacity: 0.28;
+    opacity: 0.24;
     animation-duration: 15s;
   }
 
@@ -1270,10 +1283,10 @@ h3 {
   }
 
   .luxe-motion-copy h2 {
-    max-width: 12ch;
+    max-width: 14ch;
     margin-bottom: 12px;
     font-size: 1.82rem;
-    line-height: 1.04;
+    line-height: 1.06;
   }
 
   .luxe-motion-copy > p {
