@@ -10,6 +10,8 @@ The site uses the real profile positioning:
 - DM to shop, PAN India
 - WhatsApp ordering: +91-9457041215 / 7451995279
 - Feed sections based on recent public reel covers and captions
+- A custom Three.js jewellery motion section with gold rings and evil-eye beads
+- Scroll reveal, hover depth, and mobile sticky order actions
 
 ## Run locally
 

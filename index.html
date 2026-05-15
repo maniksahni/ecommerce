@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <div class="scroll-progress" aria-hidden="true"></div>
+
     <header class="site-header" id="top">
       <a class="brand" href="#top" aria-label="Shivara.luxe home">
         <img src="assets/instagram/profile.jpg" alt="Shivara.luxe profile logo" />
@@ -48,8 +50,8 @@
           <p class="eyebrow">Iconic | Custom | Limited</p>
           <h1>Statement jewellery for everyday slay.</h1>
           <p class="lead">
-            Designed to be noticed. Evil-eye bracelets, silver edits, custom gifts, and anti-tarnish pieces sourced
-            straight from the Shivara.luxe feed.
+            Designed to be noticed. Evil-eye bracelets, custom gifts, and anti-tarnish pieces from the Shivara.luxe
+            feed.
           </p>
 
           <div class="hero-actions">
@@ -96,9 +98,25 @@
         </div>
       </section>
 
+      <section class="luxe-motion" aria-label="Animated 3D jewellery experience">
+        <canvas id="luxe-scene" aria-hidden="true"></canvas>
+        <div class="luxe-motion-copy">
+          <p class="eyebrow">3D luxe preview</p>
+          <h2>Gold, evil-eye blue,<br />in motion.</h2>
+          <p>
+            A floating jewellery scene inspired by Shivara.luxe pieces, built for a richer mobile-first shopping feel.
+          </p>
+          <div class="motion-pills" aria-label="Motion highlights">
+            <span>Floating beads</span>
+            <span>Gold rings</span>
+            <span>Scroll motion</span>
+          </div>
+        </div>
+      </section>
+
       <section class="ticker" aria-label="Brand details">
         <span>Anti-tarnish jewellery</span>
-        <span>DM to order</span>
+        <span>DM orders</span>
         <span>Custom gifting</span>
         <span>Bareilly</span>
         <span>PAN India</span>
@@ -236,6 +254,12 @@
       <a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">@shivara.luxe</a>
     </footer>
 
+    <div class="mobile-shop-bar" aria-label="Quick order actions">
+      <a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">DM</a>
+      <a href="https://wa.me/919457041215" target="_blank" rel="noreferrer">WhatsApp</a>
+    </div>
+
     <script src="script.js"></script>
+    <script type="module" src="motion.js"></script>
   </body>
 </html>
