@@ -52,6 +52,23 @@ if (canvas && motionSection) {
     roughness: 0.32,
     metalness: 0.16
   });
+  const crystal = new THREE.MeshPhysicalMaterial({
+    color: 0xdaf7ff,
+    emissive: 0x0d5160,
+    emissiveIntensity: 0.08,
+    roughness: 0.18,
+    metalness: 0.04,
+    clearcoat: 1,
+    clearcoatRoughness: 0.08
+  });
+  const blush = new THREE.MeshPhysicalMaterial({
+    color: 0xe7a0a2,
+    emissive: 0x381111,
+    emissiveIntensity: 0.05,
+    roughness: 0.26,
+    metalness: 0.2,
+    clearcoat: 0.8
+  });
 
   scene.add(new THREE.AmbientLight(0xffead1, 1.2));
 
@@ -69,7 +86,10 @@ if (canvas && motionSection) {
 
   const torusLarge = new THREE.TorusGeometry(0.86, 0.045, 28, 128);
   const torusSmall = new THREE.TorusGeometry(0.34, 0.03, 20, 80);
+  const linkTorus = new THREE.TorusGeometry(0.16, 0.017, 16, 48);
   const bead = new THREE.SphereGeometry(0.095, 28, 18);
+  const miniBead = new THREE.SphereGeometry(0.055, 20, 14);
+  const gem = new THREE.OctahedronGeometry(0.12, 0);
   const eyeBase = new THREE.SphereGeometry(0.18, 38, 24);
   const blueIris = new THREE.SphereGeometry(0.095, 32, 18);
   const pupil = new THREE.SphereGeometry(0.045, 24, 14);
@@ -136,13 +156,50 @@ if (canvas && motionSection) {
   pendant.rotation.set(0.16, -0.34, 0.08);
   root.add(pendant);
 
+  const braceletOrbit = new THREE.Group();
+  const orbitPath = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.012, 10, 120), deepGold);
+  orbitPath.scale.y = 0.38;
+  orbitPath.rotation.z = 0.1;
+  braceletOrbit.add(orbitPath);
+
+  for (let i = 0; i < 36; i += 1) {
+    const angle = (i / 36) * Math.PI * 2;
+    const isCharm = i % 9 === 0;
+    const piece = isCharm
+      ? makeEye(0.38)
+      : new THREE.Mesh(i % 4 === 0 ? linkTorus : miniBead, i % 5 === 0 ? crystal : gold);
+
+    piece.position.set(Math.cos(angle) * 1.2, Math.sin(angle) * 0.46, Math.sin(angle * 2.1) * 0.1);
+    piece.rotation.set(angle * 0.32, angle, angle * 0.52);
+    piece.userData.floatPhase = i * 0.28;
+    piece.userData.baseY = piece.position.y;
+    braceletOrbit.add(piece);
+  }
+
+  braceletOrbit.position.set(1.42, 0.1, 0.9);
+  braceletOrbit.rotation.set(0.62, -0.78, 0.08);
+  root.add(braceletOrbit);
+
+  const gemBurst = new THREE.Group();
+  for (let i = 0; i < 18; i += 1) {
+    const angle = (i / 18) * Math.PI * 2;
+    const radius = 1.85 + (i % 4) * 0.34;
+    const sparkleGem = new THREE.Mesh(gem, i % 3 === 0 ? blush : crystal);
+    sparkleGem.position.set(Math.cos(angle) * radius, Math.sin(angle * 1.4) * 1.2, -0.75 + Math.sin(angle) * 0.42);
+    sparkleGem.rotation.set(angle, angle * 0.5, angle * 0.2);
+    sparkleGem.userData.floatPhase = i * 0.44;
+    sparkleGem.userData.baseY = sparkleGem.position.y;
+    gemBurst.add(sparkleGem);
+  }
+  root.add(gemBurst);
+
   const sparkleGeometry = new THREE.BufferGeometry();
   const sparklePositions = [];
-  for (let i = 0; i < 90; i += 1) {
+  for (let i = 0; i < 170; i += 1) {
     sparklePositions.push(
-      (Math.random() - 0.5) * 7,
-      (Math.random() - 0.5) * 4.8,
-      (Math.random() - 0.5) * 3.5
+      (Math.random() - 0.5) * 8.2,
+      (Math.random() - 0.5) * 5.4,
+      (Math.random() - 0.5) * 4.2
     );
   }
   sparkleGeometry.setAttribute("position", new THREE.Float32BufferAttribute(sparklePositions, 3));
@@ -150,8 +207,8 @@ if (canvas && motionSection) {
     sparkleGeometry,
     new THREE.PointsMaterial({
       color: 0xf5c76f,
-      opacity: 0.42,
-      size: 0.025,
+      opacity: 0.56,
+      size: 0.032,
       transparent: true
     })
   );
@@ -163,13 +220,16 @@ if (canvas && motionSection) {
   function resize() {
     const width = motionSection.clientWidth;
     const height = motionSection.clientHeight;
+    const isMobile = width < 700;
+
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.35 : 1.7));
     renderer.setSize(width, height, false);
     camera.aspect = width / Math.max(height, 1);
+    camera.fov = isMobile ? 43 : 38;
     camera.updateProjectionMatrix();
 
-    const isMobile = width < 700;
-    root.scale.setScalar(isMobile ? 0.78 : 1);
-    root.position.set(isMobile ? -0.35 : -1.05, isMobile ? 0.42 : 0.05, 0);
+    root.scale.setScalar(isMobile ? 0.68 : 1);
+    root.position.set(isMobile ? -0.3 : -1.05, isMobile ? 0.68 : 0.05, 0);
   }
 
   function animate(time = 0) {
@@ -177,8 +237,18 @@ if (canvas && motionSection) {
     const scrollRatio =
       window.scrollY / Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
 
-    root.rotation.y = Math.sin(t * 0.34) * 0.22 + pointer.x * 0.16 + scrollRatio * 0.8;
-    root.rotation.x = Math.cos(t * 0.28) * 0.08 - pointer.y * 0.08;
+    camera.position.x = Math.sin(t * 0.18) * 0.24 + pointer.x * 0.12;
+    camera.position.y = 0.15 + Math.cos(t * 0.2) * 0.12 - pointer.y * 0.06;
+    camera.lookAt(0, 0, 0);
+
+    keyLight.position.x = -4 + Math.sin(t * 0.38) * 0.8;
+    blueLight.intensity = 10 + Math.sin(t * 2.1) * 3.2;
+    rimLight.intensity = 6.5 + Math.cos(t * 1.7) * 1.6;
+    rimLight.position.x = -3.8 + Math.sin(t * 0.9) * 1.1;
+
+    root.rotation.y = Math.sin(t * 0.42) * 0.28 + pointer.x * 0.22 + scrollRatio * 1.08;
+    root.rotation.x = Math.cos(t * 0.34) * 0.1 - pointer.y * 0.1;
+    root.rotation.z = Math.sin(t * 0.24) * 0.035;
     chain.children.forEach((child) => {
       if (child.userData.floatPhase !== undefined) {
         child.position.y = child.userData.baseY + Math.sin(t * 1.6 + child.userData.floatPhase) * 0.035;
@@ -189,8 +259,25 @@ if (canvas && motionSection) {
       ring.rotation.y += 0.002;
       ring.position.y = ring.userData.baseY + Math.sin(t * 1.2 + ring.userData.floatPhase) * 0.045;
     });
+    braceletOrbit.rotation.z = 0.08 + t * 0.22;
+    braceletOrbit.rotation.y = -0.78 + Math.sin(t * 0.7) * 0.16 + pointer.x * 0.04;
+    braceletOrbit.children.forEach((child) => {
+      if (child.userData.floatPhase !== undefined) {
+        child.position.y = child.userData.baseY + Math.sin(t * 2.1 + child.userData.floatPhase) * 0.025;
+      }
+    });
+    gemBurst.rotation.y = -t * 0.08;
+    gemBurst.rotation.z = Math.sin(t * 0.34) * 0.08;
+    gemBurst.children.forEach((child) => {
+      child.rotation.x += 0.008;
+      child.rotation.y += 0.011;
+      child.position.y = child.userData.baseY + Math.sin(t * 1.7 + child.userData.floatPhase) * 0.035;
+    });
     pendant.rotation.y = -0.34 + Math.sin(t * 1.15) * 0.22;
-    sparkles.rotation.y -= 0.0008;
+    pendant.rotation.z = 0.08 + Math.cos(t * 1.35) * 0.08;
+    sparkles.rotation.y -= 0.0015;
+    sparkles.rotation.x += 0.0006;
+    sparkles.material.opacity = 0.44 + Math.sin(t * 2.5) * 0.14;
 
     renderer.render(scene, camera);
     if (!reducedMotion) {
