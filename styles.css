@@ -1323,15 +1323,18 @@ body.cart-open .cart-drawer {
 
 @media (max-width: 860px) {
   h1 {
-    font-size: 3.5rem;
+    font-size: 3.05rem;
   }
 
   h2 {
-    font-size: 2.35rem;
+    font-size: 2.18rem;
   }
 
   .site-header {
     grid-template-columns: auto auto auto;
+    min-height: 66px;
+    padding-top: 8px;
+    padding-bottom: 8px;
   }
 
   .nav-toggle {
@@ -1341,7 +1344,7 @@ body.cart-open .cart-drawer {
 
   .site-nav {
     position: fixed;
-    top: 74px;
+    top: 66px;
     right: 12px;
     left: 12px;
     display: grid;
@@ -1386,33 +1389,78 @@ body.cart-open .cart-drawer {
   }
 
   .hero {
-    gap: 28px;
-    padding-top: 34px;
+    gap: 18px;
+    padding-top: 24px;
+    padding-bottom: 34px;
   }
 
   .profile-chip {
     border-radius: 8px;
   }
 
+  .profile-chip img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .lead {
+    margin-bottom: 20px;
+    font-size: 1rem;
+    line-height: 1.58;
+  }
+
+  .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .hero-actions .button {
+    min-height: 46px;
+    padding-right: 12px;
+    padding-left: 12px;
+    text-align: center;
+  }
+
+  .profile-stats {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .profile-stats::-webkit-scrollbar {
+    display: none;
+  }
+
+  .profile-stats span {
+    flex: 0 0 auto;
+    min-width: 132px;
+    justify-content: center;
+    padding: 9px 12px;
+  }
+
   .shop-stage {
-    min-height: 500px;
+    min-height: 380px;
+    margin-top: -6px;
   }
 
   .stage-grid {
-    inset: 8% 0 7%;
+    inset: 9% 0 3%;
   }
 
   .stage-card-main {
-    left: 17%;
-    width: 260px;
-    height: 420px;
+    left: 18%;
+    width: 232px;
+    height: 350px;
   }
 
   .stage-card-ring,
   .stage-card-eye,
   .stage-card-gift {
-    width: 174px;
-    height: 238px;
+    width: 158px;
+    height: 214px;
   }
 
   .stage-card-ring {
@@ -1426,7 +1474,7 @@ body.cart-open .cart-drawer {
 
   .stage-card-gift {
     left: 0;
-    bottom: 54px;
+    bottom: 42px;
   }
 
   .section-kicker,
@@ -1443,8 +1491,12 @@ body.cart-open .cart-drawer {
   }
 
   .shop-controls {
-    position: static;
+    position: sticky;
+    top: 66px;
     grid-template-columns: 1fr;
+    margin-right: -8px;
+    margin-left: -8px;
+    padding: 10px;
   }
 
   .order-steps article {
@@ -1462,11 +1514,12 @@ body.cart-open .cart-drawer {
 
 @media (max-width: 560px) {
   h1 {
-    font-size: 2.86rem;
+    font-size: 2.42rem;
+    line-height: 0.98;
   }
 
   h2 {
-    font-size: 2.05rem;
+    font-size: 1.92rem;
   }
 
   .site-header {
@@ -1476,45 +1529,96 @@ body.cart-open .cart-drawer {
   }
 
   .brand span {
-    max-width: 118px;
+    max-width: 144px;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  .hero-actions .button {
+  .hero {
+    padding-top: 18px;
+  }
+
+  .profile-chip {
     width: 100%;
+    margin-bottom: 22px;
+  }
+
+  .profile-chip span {
+    font-size: 0.82rem;
+  }
+
+  .eyebrow {
+    margin-bottom: 8px;
+    font-size: 0.72rem;
+  }
+
+  .lead {
+    margin-bottom: 16px;
+    font-size: 0.96rem;
+    line-height: 1.5;
+  }
+
+  .profile-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    overflow: visible;
+    padding-bottom: 0;
   }
 
   .profile-stats span {
-    flex: 1 1 calc(50% - 10px);
-    justify-content: center;
-    text-align: center;
+    min-width: 0;
+    padding: 8px 9px;
+    font-size: 0.82rem;
   }
 
   .shop-stage {
-    min-height: 430px;
+    min-height: 318px;
+    margin-top: -2px;
   }
 
   .stage-card-main {
-    left: 10%;
-    width: 218px;
-    height: 350px;
+    left: 7%;
+    width: 182px;
+    height: 284px;
   }
 
   .stage-card-ring,
   .stage-card-eye,
   .stage-card-gift {
-    width: 142px;
-    height: 194px;
+    width: 124px;
+    height: 168px;
+  }
+
+  .stage-card-ring {
+    top: 18px;
+    right: 0;
+  }
+
+  .stage-card-eye {
+    right: 2%;
+    bottom: 10px;
+  }
+
+  .stage-card-gift {
+    bottom: 32px;
   }
 
   .stage-card span {
-    bottom: 42px;
+    bottom: 36px;
     font-size: 0.66rem;
   }
 
   .stage-card strong {
-    font-size: 0.88rem;
+    font-size: 0.82rem;
+  }
+
+  .drop-board,
+  .shop-panel,
+  .instagram-runway,
+  .order-band {
+    padding-top: 58px;
+    padding-bottom: 58px;
   }
 
   .drop-grid,
@@ -1534,21 +1638,41 @@ body.cart-open .cart-drawer {
   }
 
   .product-info {
-    padding: 12px;
+    padding: 11px;
+  }
+
+  .product-category {
+    font-size: 0.66rem;
+  }
+
+  .product-info h3 {
+    font-size: 0.96rem;
   }
 
   .product-info p {
-    min-height: 3.6em;
-    font-size: 0.82rem;
-    -webkit-line-clamp: 3;
+    min-height: 2.9em;
+    font-size: 0.8rem;
+    -webkit-line-clamp: 2;
+  }
+
+  .product-meta span:nth-child(2),
+  .product-meta span:nth-child(3) {
+    display: none;
   }
 
   .card-actions {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) 42px;
+    gap: 7px;
+  }
+
+  .add-button,
+  .view-button {
+    min-height: 38px;
+    font-size: 0.78rem;
   }
 
   .view-button {
-    min-height: 38px;
+    padding: 0;
   }
 
   .runway-item {
