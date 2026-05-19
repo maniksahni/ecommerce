@@ -71,7 +71,7 @@ const allProducts = (Array.isArray(shopData.products) ? shopData.products : [])
   const bRank = orderRank.has(b.id) ? orderRank.get(b.id) : 1000 + b.index;
   return aRank - bRank;
 });
-const products = allProducts.filter((product) => !duplicateProductIds.has(product.id));
+const products = allProducts.filter((product) => !duplicateProductIds.has(product.id) && product.views === 0);
 
 const navToggle = document.querySelector(".nav-toggle");
 const siteNav = document.querySelector(".site-nav");
