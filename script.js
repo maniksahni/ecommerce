@@ -392,7 +392,7 @@ document.addEventListener(
   (event) => {
     if (!finePointer || reducedMotion) return;
 
-    const card = closestFromEvent(event, ".product-card, .stage-card, .drop-card");
+    const card = closestFromEvent(event, ".product-card, .stage-card, .drop-card, .luxe-panel");
     if (card) {
       const bounds = card.getBoundingClientRect();
       const x = (event.clientX - bounds.left) / bounds.width - 0.5;
