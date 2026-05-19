@@ -286,6 +286,7 @@ function updateScrollProgress() {
   const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
   const progress = Math.min(window.scrollY / maxScroll, 1);
   progressBar?.style.setProperty("--scroll-progress", progress.toFixed(4));
+  document.body.classList.toggle("mobile-bar-visible", window.scrollY > Math.min(620, window.innerHeight * 0.72));
   ticking = false;
 }
 

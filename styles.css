@@ -1684,3 +1684,127 @@ body.cart-open .cart-drawer {
     padding: 16px;
   }
 }
+
+@media (max-width: 560px) {
+  .hero {
+    gap: 14px;
+    padding-bottom: 24px;
+  }
+
+  .profile-stats {
+    display: none;
+  }
+
+  .shop-stage {
+    display: grid;
+    min-height: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 4px;
+    padding: 10px;
+    border: 1px solid rgba(23, 17, 13, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.54);
+    box-shadow: 0 18px 50px rgba(52, 34, 22, 0.1);
+    transform: none;
+  }
+
+  .stage-grid {
+    display: none;
+  }
+
+  .stage-card,
+  .stage-card-main,
+  .stage-card-ring,
+  .stage-card-eye,
+  .stage-card-gift {
+    position: relative;
+    inset: auto;
+    width: auto;
+    height: 132px;
+    min-height: 0;
+    border-color: rgba(23, 17, 13, 0.12);
+    box-shadow: 0 10px 24px rgba(52, 34, 22, 0.12);
+    transform: none;
+    animation: none;
+  }
+
+  .stage-card-main {
+    grid-column: 1 / -1;
+    height: 180px;
+  }
+
+  .stage-card-gift {
+    display: none;
+  }
+
+  .stage-card img {
+    transform: none;
+  }
+
+  .stage-card:hover img {
+    transform: none;
+  }
+
+  .stage-card::after {
+    height: 64%;
+    background: linear-gradient(180deg, transparent 12%, rgba(0, 0, 0, 0.74));
+  }
+
+  .stage-card span,
+  .stage-card strong {
+    right: 12px;
+    left: 12px;
+  }
+
+  .stage-card span {
+    bottom: 36px;
+    font-size: 0.62rem;
+  }
+
+  .stage-card strong {
+    bottom: 12px;
+    font-size: 0.84rem;
+  }
+
+  .stage-card-main strong {
+    font-size: 1.02rem;
+  }
+
+  .mobile-shop-bar {
+    right: 14px;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    left: 14px;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(18px);
+    transition:
+      opacity 180ms ease,
+      transform 180ms ease;
+  }
+
+  body.mobile-bar-visible .mobile-shop-bar {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .mobile-shop-bar a,
+  .mobile-shop-bar button {
+    min-height: 42px;
+    font-size: 0.94rem;
+  }
+
+  .mobile-shop-bar span {
+    min-width: 21px;
+    height: 21px;
+    font-size: 0.72rem;
+  }
+
+  .site-footer {
+    padding-bottom: 78px;
+  }
+}
