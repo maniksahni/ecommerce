@@ -39,14 +39,39 @@ const productOverrides = {
   DYcf1ViBfkI: { title: "Blush Ring Gift", category: "Rings" },
   DYPpSpxhPO0: { title: "Evil Eye Protection Bracelet", category: "Evil Eye" }
 };
+const duplicateProductIds = new Set([
+  "DYKVkoiRRKO",
+  "DYFT4Jfhw5p",
+  "DYCvFefB7M-",
+  "DX7CBRqhpCo",
+  "DXt3fWXkRRT",
+  "DXrYH47xp1H",
+  "DXjb4FvRnBr",
+  "DXhSZihhguK",
+  "DXgQIktxtyJ",
+  "DXXB1vAgdZX",
+  "DXR62clhWZp",
+  "DXRFDglM27U",
+  "DXCOQ0_hnf0",
+  "DW-66E7R1z0",
+  "DW1NbAZRAVn",
+  "DWY2FmABOVM",
+  "DWYrFMnEePF",
+  "DWWVjE7BrMg",
+  "DWVjIp9xjU4",
+  "DWD6L0wEQ2g",
+  "DVtBynukTwQ",
+  "DVVyuaREdE-"
+]);
 const orderRank = new Map(productHeroOrder.map((id, index) => [id, index]));
-const products = (Array.isArray(shopData.products) ? shopData.products : [])
+const allProducts = (Array.isArray(shopData.products) ? shopData.products : [])
   .map((product) => ({ ...product, ...(productOverrides[product.id] || {}) }))
   .sort((a, b) => {
   const aRank = orderRank.has(a.id) ? orderRank.get(a.id) : 1000 + a.index;
   const bRank = orderRank.has(b.id) ? orderRank.get(b.id) : 1000 + b.index;
   return aRank - bRank;
 });
+const products = allProducts.filter((product) => !duplicateProductIds.has(product.id));
 
 const navToggle = document.querySelector(".nav-toggle");
 const siteNav = document.querySelector(".site-nav");
@@ -180,7 +205,7 @@ function renderProducts() {
   const visibleProducts = products.filter(matchesProduct);
   productGrid.innerHTML = visibleProducts.map(productCard).join("");
   if (resultCount) {
-    resultCount.textContent = `Showing ${visibleProducts.length} of ${products.length} Instagram drops`;
+    resultCount.textContent = `Showing ${visibleProducts.length} curated drops (${duplicateProductIds.size} duplicates hidden)`;
   }
   revealNewCards();
 }
