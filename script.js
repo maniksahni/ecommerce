@@ -135,7 +135,8 @@ const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matc
 const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
 const cart = new Map(JSON.parse(localStorage.getItem("shivara-cart") || "[]"));
-let activeFilter = "All";
+const urlParams = new URLSearchParams(window.location.search);
+let activeFilter = urlParams.get("category") || "All";
 let activeQuery = "";
 let ticking = false;
 let lastSpark = 0;

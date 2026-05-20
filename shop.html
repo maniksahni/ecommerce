@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Browse all Shivara.luxe statement jewellery. Stacks, rings, earrings, pendants, and evil-eye protectives with dynamic price tags and instant WhatsApp inquiry checkout."
+    />
+    <title>Shop Collection | Shivara.luxe</title>
+    <link rel="stylesheet" href="styles.css?v=full-shop-ig-v3" />
+  </head>
+  <body>
+    <div class="scroll-progress" aria-hidden="true"></div>
+
+    <header class="site-header" id="top">
+      <a class="brand" href="index.html" aria-label="Shivara.luxe home">
+        <img src="assets/instagram/profile.jpg" alt="Shivara.luxe logo" />
+        <span>Shivara.luxe</span>
+      </a>
+
+      <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav class="site-nav" id="site-nav" aria-label="Primary navigation">
+        <a href="index.html">Home</a>
+        <a class="active" href="shop.html">Shop</a>
+        <a href="index.html#drops">Drops</a>
+        <a href="index.html#gallery">Instagram</a>
+      </nav>
+
+      <button class="bag-button" type="button" data-cart-open aria-label="Open shopping bag">
+        <span>Bag</span>
+        <strong data-cart-count>0</strong>
+      </button>
+    </header>
+
+    <main>
+      <section class="shop-hero" aria-label="Shop collection header">
+        <div class="shop-hero-copy">
+          <p class="eyebrow">The Shivara Collection</p>
+          <h1>Statement jewellery direct from our feed.</h1>
+          <p class="lead">
+            Explore our curated closet of premium rings, bracelets, pendants, and evil eye statement designs. Add your favorites to the bag and inquire instantly on WhatsApp.
+          </p>
+        </div>
+      </section>
+
+      <section class="shop-panel" id="shop" aria-label="Shop Instagram collection">
+        <div class="shop-controls" aria-label="Shop filters">
+          <label class="search-box">
+            <span>Search</span>
+            <input id="product-search" type="search" placeholder="ring, evil eye, pendant..." autocomplete="off" />
+          </label>
+          <div class="filter-row" id="filter-row" aria-label="Category filters"></div>
+        </div>
+
+        <div class="shop-meta">
+          <p id="result-count">Showing curated drops</p>
+          <button class="text-button" type="button" data-cart-open>Review bag</button>
+        </div>
+
+        <div class="product-grid" id="product-grid" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Shivara.luxe</p>
+      <div>
+        <a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">Instagram</a>
+        <a href="https://wa.me/919457041215" target="_blank" rel="noreferrer">WhatsApp</a>
+      </div>
+    </footer>
+
+    <div class="mobile-shop-bar" aria-label="Quick shop actions">
+      <button type="button" data-cart-open>Bag <span data-cart-count>0</span></button>
+      <a href="https://wa.me/919457041215" target="_blank" rel="noreferrer">WhatsApp</a>
+    </div>
+
+    <div class="cart-overlay" data-cart-close hidden></div>
+    <aside class="cart-drawer" aria-label="Shopping bag" aria-hidden="true">
+      <div class="cart-head">
+        <div>
+          <p class="eyebrow">Your bag</p>
+          <h2>Inquiry list</h2>
+        </div>
+        <button class="icon-button" type="button" data-cart-close aria-label="Close shopping bag">Close</button>
+      </div>
+      <div class="cart-items" id="cart-items"></div>
+      <div class="cart-empty" id="cart-empty">
+        <strong>Your bag is empty.</strong>
+        <p>Add jewellery drops from the shop and send one clean WhatsApp inquiry.</p>
+      </div>
+      <div class="cart-foot">
+        <p id="cart-summary">0 items selected</p>
+        <a class="button primary" id="checkout-link" href="https://wa.me/919457041215" target="_blank" rel="noreferrer">
+          Send WhatsApp inquiry
+        </a>
+      </div>
+    </aside>
+
+    <script src="shop-data.js?v=full-shop-ig-v3"></script>
+    <script src="script.js?v=full-shop-ig-v3"></script>
+  </body>
+</html>
