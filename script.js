@@ -251,7 +251,9 @@ function renderProducts() {
   const visibleProducts = products.filter(matchesProduct);
   productGrid.innerHTML = visibleProducts.map(productCard).join("");
   if (resultCount) {
-    resultCount.textContent = `Showing ${visibleProducts.length} curated drops (${duplicateProductIds.size} duplicates hidden)`;
+    const allMatchingViewsZero = allProducts.filter((p) => p.views === 0 && matchesProduct(p));
+    const hiddenCount = allMatchingViewsZero.length - visibleProducts.length;
+    resultCount.textContent = `Showing ${visibleProducts.length} curated drops (${hiddenCount} duplicates hidden)`;
   }
   revealNewCards();
 }
