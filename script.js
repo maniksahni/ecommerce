@@ -63,15 +63,59 @@ const duplicateProductIds = new Set([
   "DVtBynukTwQ",
   "DVVyuaREdE-"
 ]);
+function extractPrice(product) {
+  const caption = product.caption || "";
+  const title = product.title || "";
+  const text = (title + " " + caption).toLowerCase();
+
+  // Special cases for known promotions
+  if (text.includes("buy any 2 for 599") || text.includes("evil eye bracelets for just 599") || text.includes("bracelets for just 599")) {
+    return "₹599 (Buy 2)";
+  }
+  if (text.includes("buy any 3 for 999") || text.includes("any 3 for 999")) {
+    return "₹999 (Buy 3)";
+  }
+  if ((text.includes("buy one at 199") && text.includes("2 at 299")) || text.includes("199/- and 2 at 299")) {
+    return "₹199 (1) / ₹299 (2)";
+  }
+  if (text.includes("under 500")) {
+    return "Under ₹500";
+  }
+
+  // Regex matches for common price styles
+  const regexes = [
+    /(?:at just|only at|price of|only|just|at|price)\s*₹?\s*(\d{3})(?:\s*\/-)?/i,
+    /(?:under)\s*₹?\s*(\d{3})(?:\s*\/-)?/i,
+    /₹\s*(\d{3})/i,
+    /(\d{3})\s*\/-/i
+  ];
+
+  for (const regex of regexes) {
+    const match = text.match(regex);
+    if (match) {
+      return `₹${match[1]}`;
+    }
+  }
+
+  return "DM for price";
+}
+
 const orderRank = new Map(productHeroOrder.map((id, index) => [id, index]));
 const allProducts = (Array.isArray(shopData.products) ? shopData.products : [])
-  .map((product) => ({ ...product, ...(productOverrides[product.id] || {}) }))
+  .map((product) => {
+    const overridden = { ...product, ...(productOverrides[product.id] || {}) };
+    const parsedPrice = extractPrice(overridden);
+    if (parsedPrice) {
+      overridden.availability = parsedPrice;
+    }
+    return overridden;
+  })
   .sort((a, b) => {
-  const aRank = orderRank.has(a.id) ? orderRank.get(a.id) : 1000 + a.index;
-  const bRank = orderRank.has(b.id) ? orderRank.get(b.id) : 1000 + b.index;
-  return aRank - bRank;
-});
-const products = allProducts.filter((product) => !duplicateProductIds.has(product.id) && product.views === 0);
+    const aRank = orderRank.has(a.id) ? orderRank.get(a.id) : 1000 + a.index;
+    const bRank = orderRank.has(b.id) ? orderRank.get(b.id) : 1000 + b.index;
+    return aRank - bRank;
+  });
+const products = allProducts.filter((product) => !duplicateProductIds.has(product.id));
 
 const navToggle = document.querySelector(".nav-toggle");
 const siteNav = document.querySelector(".site-nav");
@@ -143,19 +187,21 @@ function matchesProduct(product) {
 function productCard(product) {
   const selected = cart.has(product.id);
   const caption = product.caption || "DM to order from Shivara.luxe";
+  const hasPrice = product.availability !== "DM for price";
 
   return `
     <article class="product-card reveal" data-product-card data-id="${product.id}" data-category="${product.category}">
       <a class="product-media" href="${product.instagram}" target="_blank" rel="noreferrer" aria-label="Open ${product.title} on Instagram">
         <img src="${product.image}" alt="${product.title}" loading="lazy" />
         <span class="product-badge">${product.badge}</span>
+        ${hasPrice ? `<span class="image-price-overlay">${product.availability}</span>` : ""}
       </a>
       <div class="product-info">
         <span class="product-category">${product.category}</span>
         <h3>${product.title}</h3>
         <p>${caption}</p>
         <div class="product-meta">
-          <span>${product.availability}</span>
+          <span class="${hasPrice ? "price-tag" : ""}">${product.availability}</span>
           <span>${formatMetric(product.views)}</span>
           <span>#${String(product.index).padStart(3, "0")}</span>
         </div>
@@ -283,7 +329,7 @@ function renderCart() {
           "Hi Shivara.luxe, I want to inquire about these pieces:",
           "",
           ...selectedProducts.map(
-            ({ product, qty }, index) => `${index + 1}. ${qty} x ${product.title} (${product.category}) - ${product.id} - ${product.instagram}`
+            ({ product, qty }, index) => `${index + 1}. ${qty} x ${product.title} (${product.category}) - ${product.id} [${product.availability}] - ${product.instagram}`
           ),
           "",
           "Please confirm price, availability, customization options, and PAN India delivery."
