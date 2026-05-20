@@ -1,0 +1,995 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Explore the full Shivara.luxe jewellery collection. Statement rings, evil eye bracelets, pendants, earrings and gifting drops. Shop via WhatsApp."
+    />
+    <title>Collection | Shivara.luxe</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --bg: #0d0a08;
+        --surface: #151209;
+        --surface2: #1c1610;
+        --border: rgba(255,255,255,0.08);
+        --gold: #c9982a;
+        --gold-light: #e8c060;
+        --text: #f5ede2;
+        --muted: rgba(245,237,226,0.52);
+        --accent: #bf9142;
+        --font-body: 'Inter', sans-serif;
+        --font-display: 'Playfair Display', serif;
+        --radius: 14px;
+        --shadow: 0 24px 64px rgba(0,0,0,0.52);
+      }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        font-family: var(--font-body);
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100dvh;
+        overflow-x: hidden;
+      }
+
+      /* ── NAV ── */
+      .c-nav {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+        height: 62px;
+        background: rgba(13,10,8,0.88);
+        border-bottom: 1px solid var(--border);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+      }
+
+      .c-nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: var(--text);
+      }
+
+      .c-nav-brand img {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: 1px solid rgba(201,152,42,0.4);
+        object-fit: cover;
+      }
+
+      .c-nav-brand span {
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+        letter-spacing: 0.02em;
+      }
+
+      .c-nav-links {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        list-style: none;
+      }
+
+      .c-nav-links a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.84rem;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        transition: color 160ms;
+      }
+
+      .c-nav-links a:hover,
+      .c-nav-links a.active { color: var(--gold-light); }
+
+      .c-nav-bag {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 16px;
+        background: var(--gold);
+        color: #0d0a08;
+        border: none;
+        border-radius: 999px;
+        font-family: var(--font-body);
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 150ms, transform 120ms;
+      }
+
+      .c-nav-bag:hover { background: var(--gold-light); transform: scale(1.03); }
+
+      .c-nav-bag-count {
+        background: #0d0a08;
+        color: var(--gold-light);
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        display: grid;
+        place-items: center;
+      }
+
+      /* ── HERO BANNER ── */
+      .c-hero {
+        margin-top: 62px;
+        position: relative;
+        min-height: 340px;
+        display: flex;
+        align-items: flex-end;
+        padding: 0 32px 44px;
+        overflow: hidden;
+        background:
+          linear-gradient(180deg, rgba(13,10,8,0.28) 0%, rgba(13,10,8,0.92) 100%),
+          url('assets/instagram-shop/post-021-DXtZLoWkVZo.jpg') center / cover no-repeat;
+      }
+
+      .c-hero-content {
+        max-width: 620px;
+      }
+
+      .c-hero-eyebrow {
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 10px;
+      }
+
+      .c-hero h1 {
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 5vw, 3.6rem);
+        font-weight: 400;
+        line-height: 1.1;
+        margin-bottom: 14px;
+        color: #fff;
+      }
+
+      .c-hero h1 em {
+        font-style: italic;
+        color: var(--gold-light);
+      }
+
+      .c-hero p {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: rgba(255,255,255,0.72);
+        max-width: 480px;
+        margin-bottom: 24px;
+      }
+
+      .c-hero-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .btn-primary {
+        padding: 12px 26px;
+        background: var(--gold);
+        color: #0d0a08;
+        border: none;
+        border-radius: 999px;
+        font-family: var(--font-body);
+        font-size: 0.88rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: background 150ms, transform 120ms;
+      }
+      .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
+
+      .btn-ghost {
+        padding: 12px 24px;
+        background: transparent;
+        color: rgba(255,255,255,0.82);
+        border: 1px solid rgba(255,255,255,0.22);
+        border-radius: 999px;
+        font-family: var(--font-body);
+        font-size: 0.88rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: border-color 150ms, background 150ms;
+      }
+      .btn-ghost:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.44); }
+
+      /* ── CATEGORY STRIP ── */
+      .c-cats {
+        display: flex;
+        gap: 8px;
+        padding: 18px 24px;
+        overflow-x: auto;
+        border-bottom: 1px solid var(--border);
+        scrollbar-width: none;
+        background: var(--surface);
+        position: sticky;
+        top: 62px;
+        z-index: 90;
+      }
+
+      .c-cats::-webkit-scrollbar { display: none; }
+
+      .c-cat-btn {
+        flex: 0 0 auto;
+        padding: 8px 18px;
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        color: var(--muted);
+        font-family: var(--font-body);
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 140ms, border-color 140ms, color 140ms;
+      }
+
+      .c-cat-btn:hover {
+        border-color: rgba(201,152,42,0.4);
+        color: var(--gold-light);
+        background: rgba(201,152,42,0.08);
+      }
+
+      .c-cat-btn.active {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: #0d0a08;
+        font-weight: 700;
+      }
+
+      /* ── MASONRY GRID ── */
+      .c-grid-wrap {
+        padding: 28px 20px 60px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .c-grid-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        padding: 0 4px;
+      }
+
+      .c-grid-count {
+        font-size: 0.82rem;
+        color: var(--muted);
+        font-weight: 500;
+      }
+
+      .c-search {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        width: min(280px, 40vw);
+        transition: border-color 150ms;
+      }
+
+      .c-search:focus-within {
+        border-color: rgba(201,152,42,0.5);
+      }
+
+      .c-search input {
+        background: none;
+        border: none;
+        outline: none;
+        font-family: var(--font-body);
+        font-size: 0.84rem;
+        color: var(--text);
+        width: 100%;
+      }
+
+      .c-search input::placeholder { color: var(--muted); }
+
+      .c-search svg { opacity: 0.42; flex-shrink: 0; }
+
+      /* Masonry CSS columns */
+      .c-masonry {
+        column-count: 4;
+        column-gap: 14px;
+      }
+
+      .c-card {
+        break-inside: avoid;
+        margin-bottom: 14px;
+        border-radius: var(--radius);
+        overflow: hidden;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.32);
+        cursor: pointer;
+        transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms;
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        position: relative;
+      }
+
+      .c-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow);
+        border-color: rgba(201,152,42,0.28);
+      }
+
+      .c-card-img {
+        display: block;
+        width: 100%;
+        aspect-ratio: auto;
+        object-fit: cover;
+        transition: transform 320ms ease;
+      }
+
+      .c-card:hover .c-card-img {
+        transform: scale(1.04);
+      }
+
+      /* Price chip on image */
+      .c-card-price-chip {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 5px 11px;
+        background: rgba(13,10,8,0.84);
+        border: 1px solid rgba(201,152,42,0.5);
+        border-radius: 999px;
+        color: var(--gold-light);
+        font-size: 0.72rem;
+        font-weight: 700;
+        backdrop-filter: blur(8px);
+        letter-spacing: 0.02em;
+        pointer-events: none;
+        z-index: 2;
+      }
+
+      /* Category chip */
+      .c-card-cat {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 4px 9px;
+        background: rgba(13,10,8,0.76);
+        border-radius: 999px;
+        color: rgba(255,255,255,0.78);
+        font-size: 0.66rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        pointer-events: none;
+        z-index: 2;
+      }
+
+      /* Card info block */
+      .c-card-info {
+        padding: 12px 14px 14px;
+      }
+
+      .c-card-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        line-height: 1.3;
+        margin-bottom: 6px;
+        color: var(--text);
+      }
+
+      .c-card-caption {
+        font-size: 0.76rem;
+        line-height: 1.5;
+        color: var(--muted);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin-bottom: 12px;
+      }
+
+      .c-card-actions {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .c-add-btn {
+        padding: 8px 14px;
+        background: rgba(201,152,42,0.12);
+        border: 1px solid rgba(201,152,42,0.3);
+        border-radius: 8px;
+        color: var(--gold-light);
+        font-family: var(--font-body);
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 140ms, border-color 140ms;
+        text-align: center;
+      }
+
+      .c-add-btn:hover, .c-add-btn.in-bag {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: #0d0a08;
+      }
+
+      .c-ig-btn {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--muted);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: background 140ms, color 140ms;
+        letter-spacing: 0.04em;
+      }
+
+      .c-ig-btn:hover {
+        background: rgba(255,255,255,0.12);
+        color: var(--text);
+      }
+
+      /* Empty state */
+      .c-empty {
+        grid-column: 1/-1;
+        text-align: center;
+        padding: 80px 20px;
+        color: var(--muted);
+      }
+      .c-empty p { font-size: 1.1rem; margin-top: 12px; }
+
+      /* ── CART DRAWER ── */
+      .c-cart-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.6);
+        z-index: 199;
+        backdrop-filter: blur(4px);
+        display: none;
+      }
+
+      .c-cart-overlay.open { display: block; }
+
+      .c-cart {
+        position: fixed;
+        top: 0; right: 0; bottom: 0;
+        width: min(440px, 100vw);
+        z-index: 200;
+        background: var(--surface);
+        border-left: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        transform: translateX(100%);
+        transition: transform 280ms cubic-bezier(0.22,1,0.36,1);
+      }
+
+      .c-cart.open { transform: translateX(0); }
+
+      .c-cart-head {
+        padding: 22px 22px 18px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .c-cart-head h2 {
+        font-family: var(--font-display);
+        font-size: 1.3rem;
+        font-weight: 400;
+      }
+
+      .c-cart-close {
+        width: 36px; height: 36px;
+        display: grid; place-items: center;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        cursor: pointer;
+        color: var(--muted);
+        font-size: 1.1rem;
+        transition: background 140ms;
+      }
+      .c-cart-close:hover { background: rgba(255,255,255,0.12); color: var(--text); }
+
+      .c-cart-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px 22px;
+      }
+
+      .c-cart-empty {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .c-cart-line {
+        display: grid;
+        grid-template-columns: 60px 1fr;
+        gap: 12px;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--border);
+        align-items: start;
+      }
+
+      .c-cart-line img {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 1px solid var(--border);
+      }
+
+      .c-cart-line-info h4 {
+        font-size: 0.88rem;
+        font-weight: 600;
+        margin-bottom: 3px;
+      }
+
+      .c-cart-line-info p {
+        font-size: 0.74rem;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      .c-qty-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .c-qty-btn {
+        width: 26px; height: 26px;
+        display: grid; place-items: center;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: var(--text);
+        transition: background 120ms;
+      }
+      .c-qty-btn:hover { background: rgba(255,255,255,0.14); }
+
+      .c-qty-val { font-size: 0.84rem; font-weight: 600; min-width: 18px; text-align: center; }
+
+      .c-remove-btn {
+        font-size: 0.7rem;
+        color: rgba(255,80,80,0.7);
+        background: none;
+        border: none;
+        cursor: pointer;
+        margin-left: auto;
+        padding: 2px 6px;
+        transition: color 120ms;
+      }
+      .c-remove-btn:hover { color: #ff5050; }
+
+      .c-cart-foot {
+        padding: 18px 22px 28px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .c-cart-summary {
+        font-size: 0.84rem;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      .c-checkout-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 14px;
+        background: #25d366;
+        border: none;
+        border-radius: 12px;
+        color: #fff;
+        font-family: var(--font-body);
+        font-size: 0.94rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 140ms, transform 120ms;
+      }
+      .c-checkout-btn:hover { background: #1eb85a; transform: translateY(-1px); }
+
+      /* ── FLOATING BAG (mobile) ── */
+      .c-float-bag {
+        display: none;
+        position: fixed;
+        bottom: max(20px, env(safe-area-inset-bottom, 20px));
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 90;
+        gap: 10px;
+        border-radius: 999px;
+        background: var(--gold);
+        border: none;
+        padding: 12px 24px;
+        color: #0d0a08;
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 8px 32px rgba(201,152,42,0.48);
+        align-items: center;
+        white-space: nowrap;
+        transition: background 140ms;
+      }
+      .c-float-bag:hover { background: var(--gold-light); }
+      .c-float-bag-count {
+        background: #0d0a08;
+        color: var(--gold-light);
+        border-radius: 50%;
+        width: 22px; height: 22px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        display: grid;
+        place-items: center;
+      }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 1100px) { .c-masonry { column-count: 3; } }
+      @media (max-width: 760px) {
+        .c-nav-links { display: none; }
+        .c-masonry { column-count: 2; column-gap: 10px; }
+        .c-grid-wrap { padding: 18px 12px 80px; }
+        .c-hero { padding: 0 20px 36px; min-height: 280px; }
+        .c-float-bag { display: flex; }
+        .c-nav-bag { display: none; }
+        .c-grid-meta { flex-direction: column; align-items: flex-start; gap: 10px; }
+        .c-search { width: 100%; max-width: 100%; }
+        .c-cart { width: 100%; border-left: none; border-radius: 20px 20px 0 0; top: auto; height: 85dvh; }
+        .c-cart-overlay.open { display: block; }
+        .c-cart.open { transform: translateY(0); }
+        .c-cart { transform: translateY(100%); top: auto; bottom: 0; }
+      }
+      @media (max-width: 480px) {
+        .c-masonry { column-count: 1; }
+        .c-card-title { font-size: 1rem; }
+        .c-cats { padding: 12px 14px; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAV -->
+    <header class="c-nav" id="top">
+      <a class="c-nav-brand" href="index.html">
+        <img src="assets/instagram/profile.jpg" alt="Shivara.luxe" />
+        <span>Shivara.luxe</span>
+      </a>
+      <ul class="c-nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="collection.html" class="active">Collection</a></li>
+        <li><a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">Instagram</a></li>
+      </ul>
+      <button class="c-nav-bag" id="c-open-cart">
+        <span>Bag</span>
+        <span class="c-nav-bag-count" id="c-bag-count">0</span>
+      </button>
+    </header>
+
+    <!-- HERO -->
+    <section class="c-hero">
+      <div class="c-hero-content">
+        <p class="c-hero-eyebrow">✦ New drops · PAN India delivery</p>
+        <h1>Wear something<br /><em>unforgettable.</em></h1>
+        <p>Statement jewellery from Bareilly's most-loved boutique. Browse, bag, and inquire via WhatsApp.</p>
+        <div class="c-hero-actions">
+          <a href="#collection" class="btn-primary">Browse collection ↓</a>
+          <a href="https://wa.me/919457041215" target="_blank" rel="noreferrer" class="btn-ghost">💬 WhatsApp us</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- CATEGORY STRIP -->
+    <nav class="c-cats" aria-label="Filter by category" id="c-cats"></nav>
+
+    <!-- GRID -->
+    <section class="c-grid-wrap" id="collection">
+      <div class="c-grid-meta">
+        <p class="c-grid-count" id="c-count">Loading drops…</p>
+        <label class="c-search">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <input id="c-search" type="search" placeholder="Search drops…" autocomplete="off" />
+        </label>
+      </div>
+      <div class="c-masonry" id="c-masonry" aria-live="polite"></div>
+    </section>
+
+    <!-- CART OVERLAY -->
+    <div class="c-cart-overlay" id="c-overlay"></div>
+
+    <!-- CART DRAWER -->
+    <aside class="c-cart" id="c-cart" aria-label="Shopping bag">
+      <div class="c-cart-head">
+        <h2>Your Bag</h2>
+        <button class="c-cart-close" id="c-close-cart" aria-label="Close">✕</button>
+      </div>
+      <div class="c-cart-body" id="c-cart-body">
+        <div class="c-cart-empty">Your bag is empty. Browse the collection and add pieces you love!</div>
+      </div>
+      <div class="c-cart-foot">
+        <p class="c-cart-summary" id="c-cart-summary">0 items selected</p>
+        <a class="c-checkout-btn" id="c-checkout" href="https://wa.me/919457041215" target="_blank" rel="noreferrer">
+          <span>💬</span> Send WhatsApp inquiry
+        </a>
+      </div>
+    </aside>
+
+    <!-- FLOATING BAG (mobile) -->
+    <button class="c-float-bag" id="c-float-bag">
+      <span>🛍 Bag</span>
+      <span class="c-float-bag-count" id="c-float-count">0</span>
+    </button>
+
+    <script src="shop-data.js?v=full-shop-ig-v3"></script>
+    <script>
+      const shopData = window.SHIVARA_SHOP_DATA || { products: [] };
+
+      /* ── Price Extractor ── */
+      function extractPrice(product) {
+        const text = ((product.title || "") + " " + (product.caption || "")).toLowerCase();
+        if (text.includes("buy any 2 for 599") || text.includes("bracelets for just 599")) return "₹599 (Buy 2)";
+        if (text.includes("buy any 3 for 999") || text.includes("any 3 for 999")) return "₹999 (Buy 3)";
+        if (text.includes("under 500")) return "Under ₹500";
+        const regexes = [
+          /(?:at just|only at|only|just|at|price)\s*₹?\s*(\d{3})(?:\s*\/-)?/i,
+          /₹\s*(\d{3})/i,
+          /(\d{3})\s*\/-/i
+        ];
+        for (const r of regexes) {
+          const m = text.match(r);
+          if (m) return `₹${m[1]}`;
+        }
+        return null;
+      }
+
+      /* ── Duplicate IDs ── */
+      const duplicateIds = new Set([
+        "DYKVkoiRRKO","DYFT4Jfhw5p","DYCvFefB7M-","DX7CBRqhpCo","DXt3fWXkRRT",
+        "DXrYH47xp1H","DXjb4FvRnBr","DXhSZihhguK","DXgQIktxtyJ","DXXB1vAgdZX",
+        "DXR62clhWZp","DXRFDglM27U","DXCOQ0_hnf0","DW-66E7R1z0","DW1NbAZRAVn",
+        "DWY2FmABOVM","DWYrFMnEePF","DWWVjE7BrMg","DWVjIp9xjU4","DWD6L0wEQ2g",
+        "DVtBynukTwQ","DVVyuaREdE-"
+      ]);
+
+      /* ── Enrich products ── */
+      const ALL = (shopData.products || [])
+        .filter(p => !duplicateIds.has(p.id) && p.views === 0)
+        .map(p => ({ ...p, price: extractPrice(p) || "DM for price" }));
+
+      /* ── State ── */
+      let cart = new Map(JSON.parse(localStorage.getItem("shivara-collection-cart") || "[]"));
+      let activeCategory = "All";
+      let searchQuery = "";
+
+      function saveCart() {
+        localStorage.setItem("shivara-collection-cart", JSON.stringify([...cart.entries()]));
+      }
+
+      /* ── Categories ── */
+      function getCategories() {
+        const cats = ["All", ...new Set(ALL.map(p => p.category))];
+        return cats;
+      }
+
+      /* ── Render Category Chips ── */
+      const catsEl = document.getElementById("c-cats");
+      function renderCats() {
+        catsEl.innerHTML = getCategories().map(cat => `
+          <button class="c-cat-btn ${cat === activeCategory ? "active" : ""}" data-cat="${cat}">
+            ${cat}${cat !== "All" ? ` <span style="opacity:0.52;font-size:0.72rem">${ALL.filter(p => p.category === cat).length}</span>` : ""}
+          </button>
+        `).join("");
+      }
+
+      catsEl.addEventListener("click", e => {
+        const btn = e.target.closest("[data-cat]");
+        if (!btn) return;
+        activeCategory = btn.getAttribute("data-cat");
+        renderCats();
+        renderGrid();
+      });
+
+      /* ── Render Grid ── */
+      const masonryEl = document.getElementById("c-masonry");
+      const countEl = document.getElementById("c-count");
+
+      function visible() {
+        return ALL.filter(p => {
+          const inCat = activeCategory === "All" || p.category === activeCategory;
+          const hay = `${p.title} ${p.category} ${p.caption || ""}`.toLowerCase();
+          return inCat && hay.includes(searchQuery);
+        });
+      }
+
+      function cardHTML(p) {
+        const inBag = cart.has(p.id);
+        const price = p.price !== "DM for price";
+        return `
+          <div class="c-card" data-id="${p.id}">
+            <div style="position:relative;overflow:hidden;">
+              <img class="c-card-img" src="${p.image}" alt="${p.title}" loading="lazy" />
+              <span class="c-card-cat">${p.category}</span>
+              ${price ? `<span class="c-card-price-chip">${p.price}</span>` : ""}
+            </div>
+            <div class="c-card-info">
+              <p class="c-card-title">${p.title}</p>
+              ${p.caption ? `<p class="c-card-caption">${p.caption}</p>` : ""}
+              <div class="c-card-actions">
+                <button class="c-add-btn ${inBag ? "in-bag" : ""}" data-add="${p.id}">${inBag ? "✓ In bag" : "Add to bag"}</button>
+                <a class="c-ig-btn" href="${p.instagram}" target="_blank" rel="noreferrer" title="View on Instagram">IG</a>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderGrid() {
+        const items = visible();
+        countEl.textContent = `${items.length} curated drops`;
+        if (items.length === 0) {
+          masonryEl.innerHTML = `<div class="c-empty"><p>No drops found for this filter.</p></div>`;
+          return;
+        }
+        masonryEl.innerHTML = items.map(cardHTML).join("");
+      }
+
+      masonryEl.addEventListener("click", e => {
+        const addBtn = e.target.closest("[data-add]");
+        if (addBtn) {
+          const id = addBtn.getAttribute("data-add");
+          if (cart.has(id)) {
+            cart.delete(id);
+          } else {
+            cart.set(id, 1);
+          }
+          saveCart();
+          renderGrid();
+          renderCart();
+          updateCounts();
+          return;
+        }
+      });
+
+      /* ── Render Cart ── */
+      const cartBodyEl = document.getElementById("c-cart-body");
+      const cartSummaryEl = document.getElementById("c-cart-summary");
+      const checkoutEl = document.getElementById("c-checkout");
+
+      function renderCart() {
+        const items = [...cart.entries()].map(([id, qty]) => ({
+          product: ALL.find(p => p.id === id),
+          qty
+        })).filter(e => e.product);
+
+        if (items.length === 0) {
+          cartBodyEl.innerHTML = `<div class="c-cart-empty">Your bag is empty. Browse the collection and add pieces you love!</div>`;
+        } else {
+          cartBodyEl.innerHTML = items.map(({ product: p, qty }) => `
+            <div class="c-cart-line">
+              <img src="${p.image}" alt="${p.title}" />
+              <div class="c-cart-line-info">
+                <h4>${p.title}</h4>
+                <p>${p.category} · ${p.price}</p>
+                <div class="c-qty-row">
+                  <button class="c-qty-btn" data-decrease="${p.id}">−</button>
+                  <span class="c-qty-val">${qty}</span>
+                  <button class="c-qty-btn" data-increase="${p.id}">+</button>
+                  <button class="c-remove-btn" data-remove="${p.id}">Remove</button>
+                </div>
+              </div>
+            </div>
+          `).join("");
+        }
+
+        const total = [...cart.values()].reduce((s, q) => s + q, 0);
+        cartSummaryEl.textContent = `${total} item${total !== 1 ? "s" : ""} in bag`;
+
+        const msg = items.length === 0
+          ? "Hi Shivara.luxe, I want to browse your collection!"
+          : ["Hi Shivara.luxe, I want to inquire about these pieces:", "",
+              ...items.map(({ product: p, qty }, i) =>
+                `${i + 1}. ${qty}x ${p.title} (${p.category}) — ${p.price} — ${p.instagram}`),
+              "", "Please confirm price, stock, and PAN India delivery."].join("\n");
+        checkoutEl.href = `https://wa.me/919457041215?text=${encodeURIComponent(msg)}`;
+      }
+
+      cartBodyEl.addEventListener("click", e => {
+        const inc = e.target.closest("[data-increase]");
+        const dec = e.target.closest("[data-decrease]");
+        const rem = e.target.closest("[data-remove]");
+        if (inc) { const id = inc.dataset.increase; cart.set(id, (cart.get(id) || 0) + 1); }
+        if (dec) { const id = dec.dataset.decrease; const n = (cart.get(id) || 1) - 1; n <= 0 ? cart.delete(id) : cart.set(id, n); }
+        if (rem) { cart.delete(rem.dataset.remove); }
+        if (inc || dec || rem) { saveCart(); renderCart(); updateCounts(); renderGrid(); }
+      });
+
+      /* ── Cart open/close ── */
+      function openCart() {
+        document.getElementById("c-cart").classList.add("open");
+        document.getElementById("c-overlay").classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+      function closeCart() {
+        document.getElementById("c-cart").classList.remove("open");
+        document.getElementById("c-overlay").classList.remove("open");
+        document.body.style.overflow = "";
+      }
+
+      document.getElementById("c-open-cart").addEventListener("click", openCart);
+      document.getElementById("c-float-bag").addEventListener("click", openCart);
+      document.getElementById("c-close-cart").addEventListener("click", closeCart);
+      document.getElementById("c-overlay").addEventListener("click", closeCart);
+
+      /* ── Update counts ── */
+      function updateCounts() {
+        const total = [...cart.values()].reduce((s, q) => s + q, 0);
+        document.getElementById("c-bag-count").textContent = total;
+        document.getElementById("c-float-count").textContent = total;
+      }
+
+      /* ── Search ── */
+      document.getElementById("c-search").addEventListener("input", e => {
+        searchQuery = e.target.value.toLowerCase().trim();
+        renderGrid();
+      });
+
+      /* ── Init ── */
+      renderCats();
+      renderGrid();
+      renderCart();
+      updateCounts();
+
+      /* ── Keyboard ── */
+      document.addEventListener("keydown", e => {
+        if (e.key === "Escape") closeCart();
+      });
+    </script>
+  </body>
+</html>
