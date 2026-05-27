@@ -8,11 +8,17 @@
       content="Shop Shivara.luxe statement jewellery from the live Instagram collection. Rings, bracelets, pendants, evil-eye edits, custom gifting, and PAN India delivery by DM or WhatsApp."
     />
     <title>Shivara.luxe | Instagram Jewellery Shop</title>
-    <link rel="stylesheet" href="styles.css?v=full-shop-ig" />
+    <link rel="stylesheet" href="styles.css?v=full-shop-ig-v3" />
   </head>
   <body>
     <div class="scroll-progress" aria-hidden="true"></div>
 
+    <!-- ANNOUNCEMENT BAR -->
+    <div class="announcement-bar">
+      ✦ FREE SHIPPING ON ORDERS ABOVE ₹999 ✦ SHOP COMBO EDITS ✦ DM ON INSTAGRAM TO CUSTOMIZE
+    </div>
+
+    <!-- SITE HEADER -->
     <header class="site-header" id="top">
       <a class="brand" href="#top" aria-label="Shivara.luxe home">
         <img src="assets/instagram/profile.jpg" alt="Shivara.luxe logo" />
@@ -22,202 +28,185 @@
       <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">
         <span></span>
         <span></span>
+        <span></span>
       </button>
 
       <nav class="site-nav" id="site-nav" aria-label="Primary navigation">
-        <a href="#shop">Shop</a>
+        <a href="#top" class="active">Home</a>
+        <a href="shop.html">Shop All</a>
+        <a href="collection.html">Collection</a>
         <a href="#drops">Drops</a>
         <a href="#gallery">Instagram</a>
-        <a href="#order">Order</a>
+        <a href="#order">Ordering Guide</a>
       </nav>
 
-      <button class="bag-button" type="button" data-cart-open aria-label="Open shopping bag">
-        <span>Bag</span>
-        <strong data-cart-count>0</strong>
-      </button>
+      <div class="header-actions">
+        <button class="bag-button" type="button" data-cart-open aria-label="Open shopping bag">
+          <span>Bag</span>
+          <strong data-cart-count>0</strong>
+        </button>
+      </div>
     </header>
 
     <main>
-      <section class="hero" aria-label="Shivara.luxe shopping homepage">
-        <div class="hero-copy">
-          <div class="profile-chip">
-            <img src="assets/instagram/profile.jpg" alt="" />
-            <div>
-              <strong>@shivara.luxe</strong>
-              <span>Statement jewellery | Bareilly | PAN India</span>
-            </div>
-          </div>
-
-          <p class="eyebrow">Designed to be noticed</p>
-          <h1>Shop the Shivara Instagram closet.</h1>
+      <!-- HERO BANNER / SLIDESHOW -->
+      <section class="hero-slider" aria-label="Shivara.luxe shopping homepage">
+        <div class="hero-slider-bg"></div>
+        <div class="hero-slider-content">
+          <p class="eyebrow">✦ Designed to be noticed ✦</p>
+          <h1>Statement jewellery for <em>everyday slay.</em></h1>
           <p class="lead">
-            A clean product-photo catalogue inspired by modern jewellery shops. Reel-style videos stay out of the shop;
-            only distinct product photos are shown.
+            Built from the public Shivara.luxe Instagram feed, cleaned into a curated shop so repeated reels do not show as duplicate products. Easy WhatsApp ordering.
           </p>
-
           <div class="hero-actions">
-            <a class="button primary" href="#shop">Shop product photos</a>
-            <a class="button ghost" href="https://wa.me/919457041215" target="_blank" rel="noreferrer">WhatsApp</a>
-          </div>
-
-          <div class="profile-stats" aria-label="Instagram profile stats">
-            <span><strong>103</strong> posts synced</span>
-            <span><strong>119</strong> followers</span>
-            <span><strong>8</strong> highlights</span>
-            <span><strong>PAN</strong> India</span>
+            <a class="button primary" href="#shop">Shop Curated Drops</a>
+            <a class="button ghost" href="https://wa.me/919457041215" target="_blank" rel="noreferrer">WhatsApp Us</a>
           </div>
         </div>
+      </section>
 
-        <div class="shop-stage" aria-label="Featured Instagram jewellery cards">
-          <div class="stage-grid" aria-hidden="true"></div>
-          <a class="stage-card stage-card-main" href="https://www.instagram.com/p/DW3H_GZDD_4/" target="_blank" rel="noreferrer">
-            <img src="assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" alt="Boxed evil eye bracelet from Shivara.luxe" />
-            <span>Product hero</span>
-            <strong>Boxed Evil Eye Bracelet</strong>
-          </a>
-          <a class="stage-card stage-card-ring" href="https://www.instagram.com/p/DXRflQ2ARK2/" target="_blank" rel="noreferrer">
-            <img src="assets/instagram-shop/post-036-DXRflQ2ARK2.jpg" alt="Tulip pendant product photo from Shivara.luxe" />
-            <span>Pendant</span>
-            <strong>Tulip Pendant</strong>
-          </a>
-          <a class="stage-card stage-card-eye" href="https://www.instagram.com/p/DVsiM2WEctG/" target="_blank" rel="noreferrer">
-            <img src="assets/instagram-shop/post-090-DVsiM2WEctG.jpg" alt="Ring set product photo from Shivara.luxe" />
+      <!-- CIRCULAR COLLECTIONS STRIP -->
+      <section class="collections-strip" id="drops">
+        <h2 class="collections-strip-title">Shop by Collection</h2>
+        <div class="collections-strip-grid">
+          <a class="collection-circle-card" href="#shop" data-circle-filter="Rings">
+            <div class="collection-circle-image">
+              <img src="assets/instagram-shop/post-090-DVsiM2WEctG.jpg" alt="Rings" />
+            </div>
             <span>Rings</span>
-            <strong>Iconic Ring Set</strong>
           </a>
-          <a class="stage-card stage-card-gift" href="https://www.instagram.com/p/DW9Cf8OkWo0/" target="_blank" rel="noreferrer">
-            <img src="assets/instagram-shop/post-049-DW9Cf8OkWo0.jpg" alt="Bracelet collection product photo from Shivara.luxe" />
+          <a class="collection-circle-card" href="#shop" data-circle-filter="Bracelets">
+            <div class="collection-circle-image">
+              <img src="assets/instagram-shop/post-004-DYXLrorhG7w.jpg" alt="Bracelets" />
+            </div>
             <span>Bracelets</span>
-            <strong>Curated Bracelet Collection</strong>
+          </a>
+          <a class="collection-circle-card" href="#shop" data-circle-filter="Pendants">
+            <div class="collection-circle-image">
+              <img src="assets/instagram-shop/post-036-DXRflQ2ARK2.jpg" alt="Pendants" />
+            </div>
+            <span>Pendants</span>
+          </a>
+          <a class="collection-circle-card" href="#shop" data-circle-filter="Evil Eye">
+            <div class="collection-circle-image">
+              <img src="assets/instagram-shop/post-021-DXtZLoWkVZo.jpg" alt="Evil Eye" />
+            </div>
+            <span>Evil Eye</span>
+          </a>
+          <a class="collection-circle-card" href="#shop" data-circle-filter="Earrings">
+            <div class="collection-circle-image">
+              <img src="assets/instagram-shop/post-029-DXbGtV-kd5A.jpg" alt="Earrings" />
+            </div>
+            <span>Earrings</span>
           </a>
         </div>
       </section>
 
+      <!-- TICKER TEXT MARQUEE -->
       <section class="ticker" aria-label="Store highlights">
         <div class="ticker-track">
           <span>DM to shop</span>
-          <span>Anti-tarnish</span>
-          <span>Iconic</span>
-          <span>Custom</span>
-          <span>Limited</span>
-          <span>Gift-ready</span>
-          <span>Bareilly</span>
-          <span>PAN India</span>
+          <span>Anti-tarnish jewellery</span>
+          <span>Iconic custom pieces</span>
+          <span>Limited edition</span>
+          <span>Gift-ready packaging</span>
+          <span>PAN India Delivery</span>
           <span>DM to shop</span>
-          <span>Anti-tarnish</span>
-          <span>Iconic</span>
-          <span>Custom</span>
-          <span>Limited</span>
-          <span>Gift-ready</span>
-          <span>Bareilly</span>
-          <span>PAN India</span>
+          <span>Anti-tarnish jewellery</span>
+          <span>Iconic custom pieces</span>
+          <span>Limited edition</span>
+          <span>Gift-ready packaging</span>
+          <span>PAN India Delivery</span>
         </div>
       </section>
 
+      <!-- TRUST VALUE PROPOSITION SECTION -->
+      <section class="trust-bar" aria-label="Our guarantees">
+        <div class="trust-item">
+          <div class="trust-icon">✦</div>
+          <h4>Anti-Tarnish Wear</h4>
+          <p>Crafted for everyday slay, water-resistant shine.</p>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">📦</div>
+          <h4>Gift-Ready Boxed</h4>
+          <p>Delivered in signature premium boxed protection.</p>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">🚚</div>
+          <h4>PAN India Delivery</h4>
+          <p>Swift shipping to your doorstep in 3-5 business days.</p>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">💬</div>
+          <h4>WhatsApp Checkout</h4>
+          <p>Easily confirm your custom orders via direct chat.</p>
+        </div>
+      </section>
+
+      <!-- EDITORIAL IMAGE WITH TEXT (LUXE LAB) -->
       <section class="luxe-lab" aria-label="Shivara luxe shopping experience">
         <div class="luxe-lab-copy">
-          <p class="eyebrow">Immersive edit</p>
+          <p class="eyebrow">The Editorial Edit</p>
           <h2>Reel energy, boutique shopping.</h2>
           <p>
-            A product-first Shivara edit built for phone shoppers: statement rings, boxed evil-eye bracelets, soft
-            pendants, and gift-ready drops pulled from the Instagram feed.
+            A product-first Shivara edit built for phone shoppers: statement rings, boxed evil-eye bracelets, soft pendants, and gift-ready drops pulled from the Instagram feed.
           </p>
+          <a class="button ghost" href="#shop">Explore All Drops</a>
         </div>
         <div class="luxe-panels" aria-label="Featured shopping moments">
           <a class="luxe-panel luxe-panel-tall" href="https://www.instagram.com/p/DW3H_GZDD_4/" target="_blank" rel="noreferrer">
             <img src="assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" alt="Boxed evil eye bracelet" />
-            <span>Boxed evil eye</span>
+            <div class="luxe-panel-overlay">
+              <span>Boxed protection edit</span>
+            </div>
           </a>
           <a class="luxe-panel" href="https://www.instagram.com/p/DXRflQ2ARK2/" target="_blank" rel="noreferrer">
             <img src="assets/instagram-shop/post-036-DXRflQ2ARK2.jpg" alt="Tulip pendant" />
-            <span>Tulip pendant</span>
+            <div class="luxe-panel-overlay">
+              <span>Tulip pendant</span>
+            </div>
           </a>
           <a class="luxe-panel" href="https://www.instagram.com/p/DVsiM2WEctG/" target="_blank" rel="noreferrer">
             <img src="assets/instagram-shop/post-090-DVsiM2WEctG.jpg" alt="Ring set" />
-            <span>Iconic rings</span>
+            <div class="luxe-panel-overlay">
+              <span>Iconic rings</span>
+            </div>
           </a>
         </div>
       </section>
 
-      <section class="drop-board" id="drops" aria-label="Shop by collection">
-        <div class="section-kicker">
-          <p class="eyebrow">Shop by vibe</p>
-          <h2>Instagram drops, sorted like a boutique.</h2>
-        </div>
-        <div class="drop-grid">
-          <article class="drop-card">
-            <span data-category-count="Rings">0</span>
-            <h3>Rings</h3>
-            <p>Gift pieces, date-night edits, and latest reel rings.</p>
-          </article>
-          <article class="drop-card">
-            <span data-category-count="Bracelets">0</span>
-            <h3>Bracelets</h3>
-            <p>Stacks, hand edits, charm pieces, and daily styling.</p>
-          </article>
-          <article class="drop-card">
-            <span data-category-count="Pendants">0</span>
-            <h3>Pendants</h3>
-            <p>Neck pieces, anxiety edits, and soft luxe accents.</p>
-          </article>
-          <article class="drop-card">
-            <span data-category-count="Evil Eye">0</span>
-            <h3>Evil Eye</h3>
-            <p>Protection pieces with the strongest Shivara visual identity.</p>
-          </article>
-        </div>
-      </section>
-
+      <!-- SHOP PANEL (INTERACTIVE SHOPPING) -->
       <section class="shop-panel" id="shop" aria-label="Shop Instagram collection">
         <div class="shop-heading">
-          <div>
-            <p class="eyebrow">Product photo shop</p>
-            <h2>Jewellery photos only. No video covers.</h2>
-          </div>
+          <p class="eyebrow">Curated Instagram shop</p>
+          <h2>Curated Instagram Drops</h2>
           <p>
-            Add pieces to your bag, then send the inquiry through WhatsApp. The full Instagram archive was synced, but
-            the shop grid only shows distinct product photos that look different.
+            Add pieces to your bag, then send the inquiry through WhatsApp. Browse our premium curated collection and customize your order.
           </p>
         </div>
 
-        <div class="deal-row" aria-label="Shopping offers">
-          <article>
-            <span>EXTRA5</span>
-            <strong>Shop for INR 699</strong>
-            <p>Get additional 5% off on your WhatsApp order.</p>
-          </article>
-          <article>
-            <span>EXTRA10</span>
-            <strong>Shop for INR 999</strong>
-            <p>Get additional 10% off and priority product confirmation.</p>
-          </article>
-          <article>
-            <span>PAN INDIA</span>
-            <strong>DM checkout</strong>
-            <p>Share bag directly with Shivara for stock and delivery.</p>
-          </article>
-        </div>
-
         <div class="shop-controls" aria-label="Shop filters">
-          <label class="search-box">
-            <span>Search</span>
-            <input id="product-search" type="search" placeholder="ring, evil eye, pendant..." autocomplete="off" />
-          </label>
+          <div class="search-box">
+            🔍
+            <input id="product-search" type="search" placeholder="Search rings, evil eye, pendants..." autocomplete="off" />
+          </div>
           <div class="filter-row" id="filter-row" aria-label="Category filters"></div>
         </div>
 
         <div class="shop-meta">
-          <p id="result-count">Showing product-photo drops</p>
+          <p id="result-count">Showing curated drops</p>
           <button class="text-button" type="button" data-cart-open>Review bag</button>
         </div>
 
         <div class="product-grid" id="product-grid" aria-live="polite"></div>
       </section>
 
+      <!-- INSTAGRAM RUNWAY -->
       <section class="instagram-runway" id="gallery" aria-label="Instagram motion gallery">
         <div class="runway-copy">
           <p class="eyebrow">Live visual wall</p>
-          <h2>Real Shivara feed, moving like a reel wall.</h2>
+          <h2>Real Shivara feed, moving like a runway.</h2>
           <p>These are the actual downloaded Instagram covers from the public profile, laid out as a high-motion shopping runway.</p>
         </div>
         <div class="runway-mask">
@@ -225,14 +214,16 @@
         </div>
       </section>
 
+      <!-- ORDER STEPS BAND -->
       <section class="order-band" id="order">
-        <div>
+        <div class="order-band-info">
           <p class="eyebrow">How checkout works</p>
           <h2>Pick pieces here. Confirm on WhatsApp.</h2>
           <p>
             Add your favourites to the bag and send one clean inquiry with Instagram post codes. Shivara can confirm
             price, stock, customisation, and delivery directly.
           </p>
+          <a class="button primary" href="#shop">Start Shopping</a>
         </div>
         <div class="order-steps" aria-label="Ordering steps">
           <article>
@@ -254,27 +245,71 @@
       </section>
     </main>
 
+    <!-- FOOTER -->
     <footer class="site-footer">
-      <p>Shivara.luxe</p>
-      <div>
-        <a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">Instagram</a>
-        <a href="https://wa.me/919457041215" target="_blank" rel="noreferrer">WhatsApp</a>
+      <div class="footer-grid">
+        <div class="footer-col footer-about">
+          <a class="brand" href="#top">
+            <img src="assets/instagram/profile.jpg" alt="Shivara.luxe logo" />
+            <span>Shivara.luxe</span>
+          </a>
+          <p>Statement jewellery designed to be noticed. Premium anti-tarnish everyday slay pieces, custom gifting, and PAN India shipping.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Boutique Links</h4>
+          <ul class="footer-links">
+            <li><a href="#top">Home</a></li>
+            <li><a href="#shop">Shop All</a></li>
+            <li><a href="#drops">Shop Drops</a></li>
+            <li><a href="#gallery">Instagram Wall</a></li>
+            <li><a href="collection.html">Full Collection</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Social & Chat</h4>
+          <ul class="footer-links">
+            <li><a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">Instagram</a></li>
+            <li><a href="https://wa.me/919457041215" target="_blank" rel="noreferrer">WhatsApp Inquiry</a></li>
+            <li><a href="#order">Ordering Guide</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Newsletter</h4>
+          <p>Subscribe for early access to drops and exclusive offers.</p>
+          <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Subscribed!');">
+            <input type="email" placeholder="Your email address" required />
+            <button type="submit">Join</button>
+          </form>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2026 Shivara.luxe. All rights reserved. Bareilly, PAN India delivery.</p>
+        <div class="footer-payments">
+          <span>We Accept:</span>
+          <div class="payment-icon">UPI</div>
+          <div class="payment-icon">GPay</div>
+          <div class="payment-icon">Paytm</div>
+          <div class="payment-icon">Card</div>
+        </div>
       </div>
     </footer>
 
+    <!-- MOBILE QUICK STICKY BAR -->
     <div class="mobile-shop-bar" aria-label="Quick shop actions">
       <button type="button" data-cart-open>Bag <span data-cart-count>0</span></button>
       <a href="https://wa.me/919457041215" target="_blank" rel="noreferrer">WhatsApp</a>
     </div>
 
+    <!-- CART SIDEBAR DRAWER -->
     <div class="cart-overlay" data-cart-close hidden></div>
     <aside class="cart-drawer" aria-label="Shopping bag" aria-hidden="true">
       <div class="cart-head">
         <div>
-          <p class="eyebrow">Your bag</p>
-          <h2>Inquiry list</h2>
+          <p class="eyebrow">Your Bag</p>
+          <h2>Inquiry List</h2>
         </div>
-        <button class="icon-button" type="button" data-cart-close aria-label="Close shopping bag">Close</button>
+        <button class="icon-button" type="button" data-cart-close aria-label="Close shopping bag">&times;</button>
       </div>
       <div class="cart-items" id="cart-items"></div>
       <div class="cart-empty" id="cart-empty">
@@ -282,14 +317,22 @@
         <p>Add jewellery drops from the shop and send one clean WhatsApp inquiry.</p>
       </div>
       <div class="cart-foot">
-        <p id="cart-summary">0 items selected</p>
+        <div class="cart-summary-row">
+          <span>Total Items:</span>
+          <span id="cart-summary">0 items</span>
+        </div>
+        <div class="cart-summary-row">
+          <span>Subtotal Est:</span>
+          <span id="cart-subtotal">₹0</span>
+        </div>
+        <p class="cart-subtext">Prices and customization options will be confirmed directly on WhatsApp.</p>
         <a class="button primary" id="checkout-link" href="https://wa.me/919457041215" target="_blank" rel="noreferrer">
-          Send WhatsApp inquiry
+          Proceed to WhatsApp Inquiry
         </a>
       </div>
     </aside>
 
-    <script src="shop-data.js?v=full-shop-ig"></script>
-    <script src="script.js?v=full-shop-ig"></script>
+    <script src="shop-data.js?v=full-shop-ig-v3"></script>
+    <script src="script.js?v=full-shop-ig-v3"></script>
   </body>
 </html>

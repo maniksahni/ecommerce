@@ -15,19 +15,19 @@
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       :root {
-        --bg: #0d0a08;
-        --surface: #151209;
-        --surface2: #1c1610;
-        --border: rgba(255,255,255,0.08);
-        --gold: #c9982a;
-        --gold-light: #e8c060;
-        --text: #f5ede2;
-        --muted: rgba(245,237,226,0.52);
+        --bg: #ffffff;
+        --surface: #faf9f6;
+        --surface2: #ffffff;
+        --border: #e5e5e5;
+        --gold: #80735f;
+        --gold-light: #6d614f;
+        --text: #282828;
+        --muted: #777777;
         --accent: #bf9142;
-        --font-body: 'Inter', sans-serif;
+        --font-body: 'Open Sans', sans-serif;
         --font-display: 'Playfair Display', serif;
-        --radius: 14px;
-        --shadow: 0 24px 64px rgba(0,0,0,0.52);
+        --radius: 6px;
+        --shadow: 0 10px 30px rgba(0,0,0,0.06);
       }
 
       html { scroll-behavior: smooth; }
@@ -50,7 +50,7 @@
         justify-content: space-between;
         padding: 0 24px;
         height: 62px;
-        background: rgba(13,10,8,0.88);
+        background: rgba(255, 255, 255, 0.95);
         border-bottom: 1px solid var(--border);
         backdrop-filter: blur(18px);
         -webkit-backdrop-filter: blur(18px);
@@ -327,7 +327,7 @@
         overflow: hidden;
         background: var(--surface);
         border: 1px solid var(--border);
-        box-shadow: 0 8px 32px rgba(0,0,0,0.32);
+        box-shadow: var(--shadow);
         cursor: pointer;
         transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms;
         display: block;
@@ -338,8 +338,8 @@
 
       .c-card:hover {
         transform: translateY(-5px);
-        box-shadow: var(--shadow);
-        border-color: rgba(201,152,42,0.28);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        border-color: var(--gold);
       }
 
       .c-card-img {
@@ -672,7 +672,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        background: #0d0a08;
+        background: var(--bg);
       }
 
       .c-nav {
@@ -699,8 +699,8 @@
         padding: 0 18px 32px;
         border-radius: 0 0 20px 20px;
         margin-bottom: 4px;
-        border-left: 1px solid rgba(255,255,255,0.06);
-        border-right: 1px solid rgba(255,255,255,0.06);
+        border-left: 1px solid var(--border);
+        border-right: 1px solid var(--border);
       }
 
       .c-hero h1 { font-size: 2rem; }

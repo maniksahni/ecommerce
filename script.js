@@ -1,30 +1,23 @@
 const shopData = window.SHIVARA_SHOP_DATA || { products: [], profile: {} };
 const productHeroOrder = [
-  "DW3H_GZDD_4",
+  "DX09iTpxHvB",
+  "DXybkxCRoaE",
+  "DXtZLoWkVZo",
+  "DXbGtV-kd5A",
+  "DXUKeYosxOa",
   "DXRflQ2ARK2",
-  "DVsiM2WEctG",
+  "DXO-ucIBdig",
   "DW9Cf8OkWo0",
+  "DW3H_GZDD_4",
   "DWtcQ8OAefp",
   "DWERaGlEYB6",
   "DV0yEUUkTHq",
-  "DUsq31AgXWw",
-  "DXO-ucIBdig",
-  "DXUKeYosxOa",
-  "DXbGtV-kd5A",
-  "DXZqgaJBA9l",
-  "DXWiT4SxF-w",
-  "DXOonNskfbi",
-  "DXMpqNMxs1F",
-  "DXLqgBTkXIL",
-  "DXKG78JhH1P",
-  "DXHUsl9BfJh",
+  "DVsiM2WEctG",
   "DVGLWtPEbN4",
+  "DUsq31AgXWw",
   "DYfHBFKBXGi",
   "DYcf1ViBfkI",
-  "DYPpSpxhPO0",
-  "DW6Zoq5xNHr",
-  "DW0r-SYxASu",
-  "DWyr2aXjKHn"
+  "DYPpSpxhPO0"
 ];
 const productOverrides = {
   DX09iTpxHvB: { title: "Statement Hand Stack", category: "Bracelets" },
@@ -70,68 +63,88 @@ const duplicateProductIds = new Set([
   "DVtBynukTwQ",
   "DVVyuaREdE-"
 ]);
-const productPhotoIds = new Set([
-  "DXrYH47xp1H",
-  "DXjb4FvRnBr",
-  "DXhSZihhguK",
-  "DXbGtV-kd5A",
-  "DXZqgaJBA9l",
-  "DXXB1vAgdZX",
-  "DXWiT4SxF-w",
-  "DXUKeYosxOa",
-  "DXRflQ2ARK2",
-  "DXRFDglM27U",
-  "DXO-ucIBdig",
-  "DXOonNskfbi",
-  "DXMpqNMxs1F",
-  "DXLqgBTkXIL",
-  "DXKG78JhH1P",
-  "DXHUsl9BfJh",
-  "DW9Cf8OkWo0",
-  "DW6Zoq5xNHr",
-  "DW3H_GZDD_4",
-  "DW3G6dhRMJR",
-  "DW0r-SYxASu",
-  "DWyr2aXjKHn",
-  "DWypw-1MTe5",
-  "DWwJbnmhBzK",
-  "DWtcQ8OAefp",
-  "DWtcDZJhZVS",
-  "DWss1yNkbcd",
-  "DWqQ5tusfA-",
-  "DWnoiVcRGns",
-  "DWlGxA6DBMP",
-  "DWjfG3oBmR5",
-  "DWf-enREft_",
-  "DWeCV8-hJ8X",
-  "DWQku-DkVc3",
-  "DWERaGlEYB6",
-  "DWD6L0wEQ2g",
-  "DWBxAJDkYzD",
-  "DV7-kUpkXHF",
-  "DV3atErkWR3",
-  "DV0yEUUkTHq",
-  "DVvpo0ukdeE",
-  "DVtBynukTwQ",
-  "DVsiM2WEctG",
-  "DVqa-xUkQHq",
-  "DVkvt0ckc1I",
-  "DVVyuaREdE-",
-  "DVQuWW5gXDq",
-  "DVGLWtPEbN4",
-  "DU-K3x-ET2s",
-  "DU0czVUATKu",
-  "DUsq31AgXWw"
-]);
+function extractPrice(product) {
+  const caption = product.caption || "";
+  const title = product.title || "";
+  const text = (title + " " + caption).toLowerCase();
+
+  // Special cases for known promotions
+  if (text.includes("buy any 2 for 599") || text.includes("evil eye bracelets for just 599") || text.includes("bracelets for just 599")) {
+    return "₹599";
+  }
+  if (text.includes("buy any 3 for 999") || text.includes("any 3 for 999")) {
+    return "₹999";
+  }
+  if ((text.includes("buy one at 199") && text.includes("2 at 299")) || text.includes("199/- and 2 at 299")) {
+    return "₹199";
+  }
+  if (text.includes("under 500")) {
+    return "₹399";
+  }
+
+  // Regex matches for common price styles
+  const regexes = [
+    /(?:at just|only at|price of|only|just|at|price)\s*₹?\s*(\d{3})(?:\s*\/-)?/i,
+    /(?:under)\s*₹?\s*(\d{3})(?:\s*\/-)?/i,
+    /₹\s*(\d{3})/i,
+    /(\d{3})\s*\/-/i
+  ];
+
+  for (const regex of regexes) {
+    const match = text.match(regex);
+    if (match) {
+      return `₹${match[1]}`;
+    }
+  }
+
+  // Generate a mock realistic price if none exists to simulate a real e-commerce store
+  // Rings: 199-299, Bracelets: 299-499, Pendants: 249-399, Evil Eye: 299-599, Gifting: 499-799
+  const cat = product.category || "";
+  if (cat === "Rings") return `₹249`;
+  if (cat === "Bracelets") return `₹349`;
+  if (cat === "Pendants") return `₹299`;
+  if (cat === "Evil Eye") return `₹399`;
+  if (cat === "Earrings") return `₹249`;
+  return "₹299";
+}
+
+function getNumericPrice(priceString) {
+  if (!priceString || priceString === "DM for price") return 0;
+  const match = priceString.match(/₹\s*(\d+)/);
+  return match ? parseInt(match[1], 10) : 0;
+}
+
 const orderRank = new Map(productHeroOrder.map((id, index) => [id, index]));
 const allProducts = (Array.isArray(shopData.products) ? shopData.products : [])
-  .map((product) => ({ ...product, ...(productOverrides[product.id] || {}) }))
+  .map((product) => {
+    const overridden = { ...product, ...(productOverrides[product.id] || {}) };
+    const parsedPrice = extractPrice(overridden);
+    
+    // Add real pricing fields for Focal ecommerce layout
+    overridden.availability = parsedPrice;
+    const numeric = getNumericPrice(parsedPrice);
+    overridden.priceVal = numeric;
+    
+    // Create compare price (mock original price) to show 40-60% discount
+    if (numeric > 0) {
+      overridden.comparePrice = `₹${Math.round(numeric * 1.8 / 10) * 10 - 1}`;
+    } else {
+      overridden.comparePrice = "";
+    }
+
+    // Mock stars rating (4.6 to 5.0) and reviews count
+    const ratingSeed = (overridden.id.charCodeAt(0) + overridden.id.charCodeAt(1)) % 5;
+    overridden.rating = (4.6 + ratingSeed * 0.1).toFixed(1);
+    overridden.reviewsCount = 12 + (overridden.id.charCodeAt(2) * 5) % 87;
+
+    return overridden;
+  })
   .sort((a, b) => {
-  const aRank = orderRank.has(a.id) ? orderRank.get(a.id) : 1000 + a.index;
-  const bRank = orderRank.has(b.id) ? orderRank.get(b.id) : 1000 + b.index;
-  return aRank - bRank;
-});
-const products = allProducts.filter((product) => productPhotoIds.has(product.id) && !duplicateProductIds.has(product.id));
+    const aRank = orderRank.has(a.id) ? orderRank.get(a.id) : 1000 + a.index;
+    const bRank = orderRank.has(b.id) ? orderRank.get(b.id) : 1000 + b.index;
+    return aRank - bRank;
+  });
+const products = allProducts.filter((product) => !duplicateProductIds.has(product.id) && product.views === 0);
 
 const navToggle = document.querySelector(".nav-toggle");
 const siteNav = document.querySelector(".site-nav");
@@ -151,7 +164,8 @@ const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matc
 const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
 const cart = new Map(JSON.parse(localStorage.getItem("shivara-cart") || "[]"));
-let activeFilter = "All";
+const urlParams = new URLSearchParams(window.location.search);
+let activeFilter = urlParams.get("category") || "All";
 let activeQuery = "";
 let ticking = false;
 let lastSpark = 0;
@@ -175,23 +189,6 @@ function formatMetric(value, fallback = "IG post") {
   if (!number) return fallback;
   if (number >= 1000) return `${(number / 1000).toFixed(number >= 10000 ? 0 : 1)}k views`;
   return `${number} views`;
-}
-
-function productPricing(product) {
-  const basePrices = {
-    Rings: 199,
-    Bracelets: 399,
-    Pendants: 299,
-    "Evil Eye": 499,
-    Earrings: 299,
-    Gifting: 699,
-    "Anti-tarnish": 499
-  };
-  const price = basePrices[product.category] || 399;
-  const compareAt = price + (price >= 499 ? 200 : 100);
-  const member = Math.max(149, Math.round((price * 0.8) / 10) * 10 - 1);
-
-  return { price, compareAt, member };
 }
 
 function categoryCounts() {
@@ -220,34 +217,54 @@ function matchesProduct(product) {
 function productCard(product) {
   const selected = cart.has(product.id);
   const caption = product.caption || "DM to order from Shivara.luxe";
-  const pricing = productPricing(product);
+  const hasPrice = product.priceVal > 0;
+  
+  // Badges logic
+  let badgesHTML = "";
+  if (product.comparePrice) {
+    badgesHTML += `<span class="badge badge-sale">Sale</span>`;
+  }
+  if (product.index <= 12) {
+    badgesHTML += `<span class="badge badge-new">New</span>`;
+  }
+  if (product.category === "Evil Eye") {
+    badgesHTML += `<span class="badge badge-limited">Combo</span>`;
+  }
+
+  // Stars calculation
+  const starCount = Math.round(product.rating);
+  const starsHTML = "★".repeat(starCount) + "☆".repeat(5 - starCount);
 
   return `
     <article class="product-card reveal" data-product-card data-id="${product.id}" data-category="${product.category}">
-      <a class="product-media" href="${product.instagram}" target="_blank" rel="noreferrer" aria-label="Open ${product.title} on Instagram">
-        <img src="${product.image}" alt="${product.title}" loading="lazy" />
-        <span class="product-badge">Sale</span>
-        <span class="quick-view">Quick view</span>
-      </a>
+      <div class="product-media">
+        <a href="${product.instagram}" target="_blank" rel="noreferrer" aria-label="Open ${product.title} on Instagram">
+          <img src="${product.image}" alt="${product.title}" loading="lazy" />
+        </a>
+        <div class="product-badges">${badgesHTML}</div>
+        <div class="card-quick-add">
+          <button class="btn-quick-add ${selected ? "is-added" : ""}" type="button" data-add="${product.id}">
+            ${selected ? "✓ Added" : "Quick Add"}
+          </button>
+        </div>
+      </div>
       <div class="product-info">
         <span class="product-category">${product.category}</span>
-        <h3>${product.title}</h3>
-        <div class="price-row" aria-label="Price">
-          <strong>INR ${pricing.price}</strong>
-          <s>${pricing.compareAt}</s>
+        <a href="${product.instagram}" target="_blank" rel="noreferrer">
+          <h3>${product.title}</h3>
+        </a>
+        <div class="product-rating">
+          <span class="stars">${starsHTML}</span>
+          <span class="rating-count">(${product.reviewsCount})</span>
         </div>
-        <p class="member-price">Member Price INR ${pricing.member} JOIN NOW</p>
-        <p>${caption}</p>
-        <div class="product-meta">
-          <span>${product.availability}</span>
-          <span>${formatMetric(product.views)}</span>
+        <div class="product-price-row">
+          <span class="price ${product.comparePrice ? "has-sale" : ""}">${product.availability}</span>
+          ${product.comparePrice ? `<span class="compare-price">${product.comparePrice}</span>` : ""}
+        </div>
+        <p class="product-card-desc">${caption}</p>
+        <div class="product-card-footer">
+          <span>👁 ${formatMetric(product.views)}</span>
           <span>#${String(product.index).padStart(3, "0")}</span>
-        </div>
-        <div class="card-actions">
-          <button class="add-button ${selected ? "is-added" : ""}" type="button" data-add="${product.id}">
-            ${selected ? "Added" : "Add to bag"}
-          </button>
-          <a class="view-button" href="${product.instagram}" target="_blank" rel="noreferrer">IG</a>
         </div>
       </div>
     </article>
@@ -289,7 +306,7 @@ function renderProducts() {
   const visibleProducts = products.filter(matchesProduct);
   productGrid.innerHTML = visibleProducts.map(productCard).join("");
   if (resultCount) {
-    resultCount.textContent = `Showing ${visibleProducts.length} product-photo drops (videos hidden)`;
+    resultCount.textContent = `Showing ${visibleProducts.length} curated drops`;
   }
   revealNewCards();
 }
@@ -320,7 +337,7 @@ function updateCartButtons() {
     const id = button.getAttribute("data-add");
     const selected = cart.has(id);
     button.classList.toggle("is-added", selected);
-    button.textContent = selected ? "Added" : "Add to bag";
+    button.textContent = selected ? "✓ Added" : "Quick Add";
   });
 }
 
@@ -336,18 +353,25 @@ function renderCart() {
     .map(([id, qty]) => ({ product: productById(id), qty }))
     .filter((entry) => entry.product);
 
+  let subtotal = 0;
+  selectedProducts.forEach(({ product, qty }) => {
+    subtotal += (product.priceVal || 0) * qty;
+  });
+
   cartItems.innerHTML = selectedProducts
     .map(
       ({ product, qty }) => `
         <article class="cart-line">
           <img src="${product.image}" alt="${product.title}" />
-          <div>
+          <div class="cart-line-info">
             <h3>${product.title}</h3>
-            <p>${product.category} | ${product.availability} | ${product.id}</p>
+            <span class="cart-line-meta">${product.category} · ${product.availability}</span>
             <div class="qty-row">
-              <button type="button" data-decrease="${product.id}" aria-label="Decrease ${product.title}">-</button>
-              <span>${qty}</span>
-              <button type="button" data-increase="${product.id}" aria-label="Increase ${product.title}">+</button>
+              <div class="qty-controls">
+                <button type="button" data-decrease="${product.id}" aria-label="Decrease ${product.title}">-</button>
+                <span>${qty}</span>
+                <button type="button" data-increase="${product.id}" aria-label="Increase ${product.title}">+</button>
+              </div>
               <button class="remove-button" type="button" data-remove="${product.id}">Remove</button>
             </div>
           </div>
@@ -358,7 +382,12 @@ function renderCart() {
 
   cartEmpty.hidden = selectedProducts.length > 0;
   cartItems.hidden = selectedProducts.length === 0;
-  cartSummary.textContent = `${quantity} item${quantity === 1 ? "" : "s"} selected`;
+  cartSummary.textContent = `${quantity} item${quantity === 1 ? "" : "s"}`;
+
+  const subtotalEl = document.querySelector("#cart-subtotal");
+  if (subtotalEl) {
+    subtotalEl.textContent = subtotal > 0 ? `₹${subtotal}` : "DM for price";
+  }
 
   const message =
     selectedProducts.length === 0
@@ -367,8 +396,10 @@ function renderCart() {
           "Hi Shivara.luxe, I want to inquire about these pieces:",
           "",
           ...selectedProducts.map(
-            ({ product, qty }, index) => `${index + 1}. ${qty} x ${product.title} (${product.category}) - ${product.id} - ${product.instagram}`
+            ({ product, qty }, index) => `${index + 1}. ${qty} x ${product.title} (${product.category}) - ${product.id} [${product.availability}] - ${product.instagram}`
           ),
+          "",
+          `Total Estimated Price: ₹${subtotal}`,
           "",
           "Please confirm price, availability, customization options, and PAN India delivery."
         ].join("\n");
@@ -445,6 +476,14 @@ document.addEventListener("click", (event) => {
   if (openCartButton) {
     setCartOpen(true);
     return;
+  }
+
+  const circleCard = closestFromEvent(event, ".collection-circle-card");
+  if (circleCard) {
+    activeFilter = circleCard.getAttribute("data-circle-filter") || "All";
+    renderFilters();
+    renderProducts();
+    // Do not return to allow natural scrolling to #shop anchor
   }
 
   const closeCartButton = closestFromEvent(event, "[data-cart-close]");
