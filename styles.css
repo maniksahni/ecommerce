@@ -1693,15 +1693,47 @@ body.mobile-bar-visible .mobile-shop-bar {
     letter-spacing: 0.04em;
   }
   
-  /* ── SIMPLIFY & CLEAN MOBILE SCREEN ── */
-  /* Hide the large editorial boxes on mobile to prevent infinite scrolling */
-  .luxe-lab {
-    display: none !important;
-  }
-  
-  /* Hide the trust bar on mobile to keep the store clean and lightweight */
+  /* ── MOBILE LUXE LAB & TRUST BADGES ── */
   .trust-bar {
-    display: none !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 24px 16px !important;
+    padding: 32px 16px !important;
+  }
+
+  .trust-item p {
+    font-size: 0.72rem !important;
+    max-width: 140px !important;
+  }
+
+  .luxe-lab {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 32px !important;
+    padding: 40px 16px !important;
+  }
+
+  .luxe-lab-copy {
+    text-align: center !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+  }
+
+  .luxe-lab-copy h2 {
+    font-size: 1.6rem !important;
+    margin-bottom: 12px !important;
+  }
+
+  .luxe-lab-copy p {
+    font-size: 0.84rem !important;
+    margin-bottom: 16px !important;
+  }
+
+  .luxe-panels {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+    width: 100% !important;
   }
   
   /* ── MOBILE CONTROLS & SHOP GRID ── */
