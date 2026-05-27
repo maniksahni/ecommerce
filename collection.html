@@ -415,7 +415,7 @@
 
       .c-card-actions {
         display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: 1fr;
         gap: 8px;
         align-items: center;
       }
@@ -937,7 +937,6 @@
               ${p.caption ? `<p class="c-card-caption">${p.caption}</p>` : ""}
               <div class="c-card-actions">
                 <button class="c-add-btn ${inBag ? "in-bag" : ""}" data-add="${p.id}">${inBag ? "✓ In bag" : "Add to bag"}</button>
-                <a class="c-ig-btn" href="${p.instagram}" target="_blank" rel="noreferrer" title="View on Instagram">IG</a>
               </div>
             </div>
           </div>

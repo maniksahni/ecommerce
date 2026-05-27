@@ -238,9 +238,7 @@ function productCard(product) {
   return `
     <article class="product-card reveal" data-product-card data-id="${product.id}" data-category="${product.category}">
       <div class="product-media">
-        <a href="${product.instagram}" target="_blank" rel="noreferrer" aria-label="Open ${product.title} on Instagram">
-          <img src="${product.image}" alt="${product.title}" loading="lazy" />
-        </a>
+        <img src="${product.image}" alt="${product.title}" loading="lazy" />
         <div class="product-badges">${badgesHTML}</div>
         <div class="card-quick-add">
           <button class="btn-quick-add ${selected ? "is-added" : ""}" type="button" data-add="${product.id}">
@@ -250,9 +248,7 @@ function productCard(product) {
       </div>
       <div class="product-info">
         <span class="product-category">${product.category}</span>
-        <a href="${product.instagram}" target="_blank" rel="noreferrer">
-          <h3>${product.title}</h3>
-        </a>
+        <h3>${product.title}</h3>
         <div class="product-rating">
           <span class="stars">${starsHTML}</span>
           <span class="rating-count">(${product.reviewsCount})</span>
