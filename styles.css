@@ -333,7 +333,7 @@ body.nav-open .nav-toggle span:nth-child(3) {
   z-index: 1;
   background: 
     linear-gradient(135deg, rgba(250,249,246,0.92) 0%, rgba(255,255,255,0.76) 100%),
-    url('assets/instagram-shop/post-021-DXtZLoWkVZo.jpg') center / cover no-repeat;
+    url('assets/hero_banner.png') center / cover no-repeat;
   filter: contrast(1.02);
 }
 
