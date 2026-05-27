@@ -1,28 +1,34 @@
 const shopData = window.SHIVARA_SHOP_DATA || { products: [], profile: {} };
+
 const productHeroOrder = [
-  "DX09iTpxHvB",
-  "DXybkxCRoaE",
-  "DXtZLoWkVZo",
-  "DXbGtV-kd5A",
-  "DXUKeYosxOa",
-  "DXRflQ2ARK2",
-  "DXO-ucIBdig",
-  "DW9Cf8OkWo0",
   "DW3H_GZDD_4",
+  "DXRflQ2ARK2",
+  "DVsiM2WEctG",
+  "DW9Cf8OkWo0",
   "DWtcQ8OAefp",
   "DWERaGlEYB6",
   "DV0yEUUkTHq",
-  "DVsiM2WEctG",
-  "DVGLWtPEbN4",
   "DUsq31AgXWw",
+  "DXO-ucIBdig",
+  "DXUKeYosxOa",
+  "DXbGtV-kd5A",
+  "DXZqgaJBA9l",
+  "DXWiT4SxF-w",
+  "DXOonNskfbi",
+  "DXMpqNMxs1F",
+  "DXLqgBTkXIL",
+  "DXKG78JhH1P",
+  "DXHUsl9BfJh",
+  "DVGLWtPEbN4",
   "DYfHBFKBXGi",
   "DYcf1ViBfkI",
-  "DYPpSpxhPO0"
+  "DYPpSpxhPO0",
+  "DW6Zoq5xNHr",
+  "DW0r-SYxASu",
+  "DWyr2aXjKHn"
 ];
+
 const productOverrides = {
-  DX09iTpxHvB: { title: "Statement Hand Stack", category: "Bracelets" },
-  DXybkxCRoaE: { title: "Client Happiness Gift Box", category: "Gifting" },
-  DXtZLoWkVZo: { title: "Evil Eye Bracelet Duo", category: "Evil Eye" },
   "DXbGtV-kd5A": { title: "Boutique Earring Card", category: "Earrings" },
   DXUKeYosxOa: { title: "Blue Evil Eye Bracelet", category: "Evil Eye" },
   DXRflQ2ARK2: { title: "Tulip Pendant", category: "Pendants" },
@@ -39,6 +45,7 @@ const productOverrides = {
   DYcf1ViBfkI: { title: "Blush Ring Gift", category: "Rings" },
   DYPpSpxhPO0: { title: "Evil Eye Protection Bracelet", category: "Evil Eye" }
 };
+
 const duplicateProductIds = new Set([
   "DYKVkoiRRKO",
   "DYFT4Jfhw5p",
@@ -61,276 +68,253 @@ const duplicateProductIds = new Set([
   "DWVjIp9xjU4",
   "DWD6L0wEQ2g",
   "DVtBynukTwQ",
-  "DVVyuaREdE-",
-  "DWambX9EROs"
+  "DVVyuaREdE-"
 ]);
-function extractPrice(product) {
-  const caption = product.caption || "";
-  const title = product.title || "";
-  const text = (title + " " + caption).toLowerCase();
 
-  // Special cases for known promotions
-  if (text.includes("buy any 2 for 599") || text.includes("evil eye bracelets for just 599") || text.includes("bracelets for just 599")) {
-    return "₹599";
-  }
-  if (text.includes("buy any 3 for 999") || text.includes("any 3 for 999")) {
-    return "₹999";
-  }
-  if ((text.includes("buy one at 199") && text.includes("2 at 299")) || text.includes("199/- and 2 at 299")) {
-    return "₹199";
-  }
-  if (text.includes("under 500")) {
-    return "₹399";
-  }
-
-  // Regex matches for common price styles
-  const regexes = [
-    /(?:at just|only at|price of|only|just|at|price)\s*₹?\s*(\d{3})(?:\s*\/-)?/i,
-    /(?:under)\s*₹?\s*(\d{3})(?:\s*\/-)?/i,
-    /₹\s*(\d{3})/i,
-    /(\d{3})\s*\/-/i
-  ];
-
-  for (const regex of regexes) {
-    const match = text.match(regex);
-    if (match) {
-      return `₹${match[1]}`;
-    }
-  }
-
-  // Generate a mock realistic price if none exists to simulate a real e-commerce store
-  // Rings: 199-299, Bracelets: 299-499, Pendants: 249-399, Evil Eye: 299-599, Gifting: 499-799
-  const cat = product.category || "";
-  if (cat === "Rings") return `₹249`;
-  if (cat === "Bracelets") return `₹349`;
-  if (cat === "Pendants") return `₹299`;
-  if (cat === "Evil Eye") return `₹399`;
-  if (cat === "Earrings") return `₹249`;
-  return "₹299";
-}
-
-function getNumericPrice(priceString) {
-  if (!priceString || priceString === "DM for price") return 0;
-  const match = priceString.match(/₹\s*(\d+)/);
-  return match ? parseInt(match[1], 10) : 0;
-}
+const productPhotoIds = new Set([
+  "DXbGtV-kd5A",
+  "DXZqgaJBA9l",
+  "DXWiT4SxF-w",
+  "DXUKeYosxOa",
+  "DXRflQ2ARK2",
+  "DXO-ucIBdig",
+  "DXOonNskfbi",
+  "DXMpqNMxs1F",
+  "DXLqgBTkXIL",
+  "DXKG78JhH1P",
+  "DXHUsl9BfJh",
+  "DW9Cf8OkWo0",
+  "DW6Zoq5xNHr",
+  "DW3H_GZDD_4",
+  "DW3G6dhRMJR",
+  "DW0r-SYxASu",
+  "DWyr2aXjKHn",
+  "DWypw-1MTe5",
+  "DWwJbnmhBzK",
+  "DWtcQ8OAefp",
+  "DWtcDZJhZVS",
+  "DWss1yNkbcd",
+  "DWqQ5tusfA-",
+  "DWnoiVcRGns",
+  "DWlGxA6DBMP",
+  "DWjfG3oBmR5",
+  "DWf-enREft_",
+  "DWeCV8-hJ8X",
+  "DWQku-DkVc3",
+  "DWERaGlEYB6",
+  "DWBxAJDkYzD",
+  "DV7-kUpkXHF",
+  "DV3atErkWR3",
+  "DV0yEUUkTHq",
+  "DVvpo0ukdeE",
+  "DVsiM2WEctG",
+  "DVqa-xUkQHq",
+  "DVkvt0ckc1I",
+  "DVQuWW5gXDq",
+  "DVGLWtPEbN4",
+  "DU-K3x-ET2s",
+  "DU0czVUATKu",
+  "DUsq31AgXWw"
+]);
 
 const orderRank = new Map(productHeroOrder.map((id, index) => [id, index]));
 const allProducts = (Array.isArray(shopData.products) ? shopData.products : [])
-  .map((product) => {
-    const overridden = { ...product, ...(productOverrides[product.id] || {}) };
-    const parsedPrice = extractPrice(overridden);
-    
-    // Add real pricing fields for Focal ecommerce layout
-    overridden.availability = parsedPrice;
-    const numeric = getNumericPrice(parsedPrice);
-    overridden.priceVal = numeric;
-    
-    // Create compare price (mock original price) to show 40-60% discount
-    if (numeric > 0) {
-      overridden.comparePrice = `₹${Math.round(numeric * 1.8 / 10) * 10 - 1}`;
-    } else {
-      overridden.comparePrice = "";
-    }
-
-    // Mock stars rating (4.6 to 5.0) and reviews count
-    const ratingSeed = (overridden.id.charCodeAt(0) + overridden.id.charCodeAt(1)) % 5;
-    overridden.rating = (4.6 + ratingSeed * 0.1).toFixed(1);
-    overridden.reviewsCount = 12 + (overridden.id.charCodeAt(2) * 5) % 87;
-
-    return overridden;
-  })
+  .map((product) => ({ ...product, ...(productOverrides[product.id] || {}) }))
   .sort((a, b) => {
     const aRank = orderRank.has(a.id) ? orderRank.get(a.id) : 1000 + a.index;
     const bRank = orderRank.has(b.id) ? orderRank.get(b.id) : 1000 + b.index;
     return aRank - bRank;
   });
-const products = allProducts.filter((product) => !duplicateProductIds.has(product.id) && product.views === 0);
+const products = allProducts.filter((product) => productPhotoIds.has(product.id) && !duplicateProductIds.has(product.id));
 
-const navToggle = document.querySelector(".nav-toggle");
-const siteNav = document.querySelector(".site-nav");
-const progressBar = document.querySelector(".scroll-progress");
-const productGrid = document.querySelector("#product-grid");
-const filterRow = document.querySelector("#filter-row");
-const searchInput = document.querySelector("#product-search");
-const resultCount = document.querySelector("#result-count");
-const runwayTrack = document.querySelector("#runway-track");
-const cartDrawer = document.querySelector(".cart-drawer");
-const cartOverlay = document.querySelector(".cart-overlay");
-const cartItems = document.querySelector("#cart-items");
-const cartEmpty = document.querySelector("#cart-empty");
-const cartSummary = document.querySelector("#cart-summary");
-const checkoutLink = document.querySelector("#checkout-link");
-const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+const categories = [
+  { title: "New Arrivals", href: "/collections/all", image: "post-049-DW9Cf8OkWo0.jpg", category: "All" },
+  { title: "Demifine", href: "/collections/all", image: "post-064-DWqQ5tusfA-.jpg", category: "Anti-tarnish" },
+  { title: "Earrings", href: "/#earrings", image: "post-080-DWERaGlEYB6.jpg", category: "Earrings" },
+  { title: "Necklaces", href: "/#neck-wear", image: "post-036-DXRflQ2ARK2.jpg", category: "Pendants" },
+  { title: "Bracelets", href: "/#bracelets", image: "post-051-DW3H_GZDD_4.jpg", category: "Bracelets" },
+  { title: "Rings", href: "/collections/rings", image: "post-090-DVsiM2WEctG.jpg", category: "Rings" },
+  { title: "Evil Eye", href: "/collections/all", image: "post-007-DYPpSpxhPO0.jpg", category: "Evil Eye" },
+  { title: "Gifts", href: "/#gifts", image: "post-103-DUsq31AgXWw.jpg", category: "Gifting" },
+  { title: "JLT Basics", href: "/collections/all", image: "post-060-DWtcQ8OAefp.jpg", category: "All" },
+  { title: "Organisers/ Cases", href: "/collections/all", image: "post-018-DXybkxCRoaE.jpg", category: "Gifting" },
+  { title: "Hair Tie", href: "/collections/all", image: "post-029-DXbGtV-kd5A.jpg", category: "Earrings" },
+  { title: "Mens Collection", href: "/collections/all", image: "post-039-DXOonNskfbi.jpg", category: "Bracelets" }
+];
 
 const cart = new Map(JSON.parse(localStorage.getItem("shivara-cart") || "[]"));
-const urlParams = new URLSearchParams(window.location.search);
-let activeFilter = urlParams.get("category") || "All";
-let activeQuery = "";
-let ticking = false;
-let lastSpark = 0;
+let activeFilter = "All";
 
-document.body.classList.add("is-loaded");
-
-function closestFromEvent(event, selector) {
-  return event.target instanceof Element ? event.target.closest(selector) : null;
-}
-
-function saveCart() {
-  localStorage.setItem("shivara-cart", JSON.stringify(Array.from(cart.entries())));
+function productPricing(product) {
+  const basePrices = {
+    Rings: 199,
+    Bracelets: 399,
+    Pendants: 299,
+    "Evil Eye": 499,
+    Earrings: 299,
+    Gifting: 699,
+    "Anti-tarnish": 499
+  };
+  const price = basePrices[product.category] || 399;
+  const compareAt = price + (price >= 499 ? 200 : 100);
+  const member = Math.max(79, Math.round((price * 0.8) / 10) * 10 - 1);
+  return { price, compareAt, member };
 }
 
 function productById(id) {
   return products.find((product) => product.id === id);
 }
 
-function formatMetric(value, fallback = "IG post") {
-  const number = Number(value);
-  if (!number) return fallback;
-  if (number >= 1000) return `${(number / 1000).toFixed(number >= 10000 ? 0 : 1)}k views`;
-  return `${number} views`;
-}
-
-function categoryCounts() {
-  return products.reduce(
-    (counts, product) => {
-      counts.All += 1;
-      counts[product.category] = (counts[product.category] || 0) + 1;
-      return counts;
-    },
-    { All: 0 }
-  );
-}
-
-function categories() {
-  const preferred = ["All", "Rings", "Bracelets", "Pendants", "Evil Eye", "Gifting", "Anti-tarnish", "Earrings"];
-  const present = new Set(products.map((product) => product.category));
-  return preferred.filter((category) => category === "All" || present.has(category));
-}
-
-function matchesProduct(product) {
-  const inCategory = activeFilter === "All" || product.category === activeFilter;
-  const haystack = `${product.title} ${product.category} ${product.caption}`.toLowerCase();
-  return inCategory && haystack.includes(activeQuery);
-}
-
-function productCard(product) {
-  const selected = cart.has(product.id);
-  const caption = product.caption || "DM to order from Shivara.luxe";
-  const hasPrice = product.priceVal > 0;
-  
-  // Badges logic
-  let badgesHTML = "";
-  if (product.comparePrice) {
-    badgesHTML += `<span class="badge badge-sale">Sale</span>`;
-  }
-  if (product.index <= 12) {
-    badgesHTML += `<span class="badge badge-new">New</span>`;
-  }
-  if (product.category === "Evil Eye") {
-    badgesHTML += `<span class="badge badge-limited">Combo</span>`;
-  }
-
-  // Stars calculation
-  const starCount = Math.round(product.rating);
-  const starsHTML = "★".repeat(starCount) + "☆".repeat(5 - starCount);
-
-  return `
-    <article class="product-card reveal" data-product-card data-id="${product.id}" data-category="${product.category}">
-      <div class="product-media">
-        <img src="${product.image}" alt="${product.title}" loading="lazy" />
-        <div class="product-badges">${badgesHTML}</div>
-        <div class="card-quick-add">
-          <button class="btn-quick-add ${selected ? "is-added" : ""}" type="button" data-add="${product.id}">
-            ${selected ? "✓ Added" : "Quick Add"}
-          </button>
-        </div>
-      </div>
-      <div class="product-info">
-        <span class="product-category">${product.category}</span>
-        <h3>${product.title}</h3>
-        <div class="product-rating">
-          <span class="stars">${starsHTML}</span>
-          <span class="rating-count">(${product.reviewsCount})</span>
-        </div>
-        <div class="product-price-row">
-          <span class="price ${product.comparePrice ? "has-sale" : ""}">${product.availability}</span>
-          ${product.comparePrice ? `<span class="compare-price">${product.comparePrice}</span>` : ""}
-        </div>
-      </div>
-    </article>
-  `;
-}
-
-function renderFilters() {
-  if (!filterRow) return;
-
-  const counts = categoryCounts();
-  filterRow.innerHTML = categories()
-    .map(
-      (category) => `
-        <button class="filter-chip ${category === activeFilter ? "is-active" : ""}" type="button" data-filter="${category}">
-          ${category} ${counts[category] || 0}
-        </button>
-      `
-    )
-    .join("");
-
-  document.querySelectorAll("[data-category-count]").forEach((item) => {
-    const category = item.getAttribute("data-category-count");
-    item.textContent = String(counts[category] || 0);
-  });
-}
-
-function revealNewCards() {
-  const targets = document.querySelectorAll(".reveal:not(.is-observed)");
-  targets.forEach((target, index) => {
-    target.classList.add("is-observed");
-    target.style.transitionDelay = `${Math.min((index % 10) * 35, 315)}ms`;
-    revealObserver.observe(target);
-  });
-}
-
-function renderProducts() {
-  if (!productGrid) return;
-
-  const visibleProducts = products.filter(matchesProduct);
-  productGrid.innerHTML = visibleProducts.map(productCard).join("");
-  if (resultCount) {
-    resultCount.textContent = `Showing ${visibleProducts.length} curated drops`;
-  }
-  revealNewCards();
-}
-
-function renderRunway() {
-  if (!runwayTrack) return;
-
-  const runwayProducts = products.slice(0, 26);
-  const repeated = [...runwayProducts, ...runwayProducts];
-  runwayTrack.innerHTML = repeated
-    .map(
-      (product) => `
-        <a class="runway-item" href="${product.instagram}" target="_blank" rel="noreferrer">
-          <img src="${product.image}" alt="" loading="lazy" />
-          <span>${product.title}</span>
-        </a>
-      `
-    )
-    .join("");
+function saveCart() {
+  localStorage.setItem("shivara-cart", JSON.stringify(Array.from(cart.entries())));
 }
 
 function cartQuantity() {
   return Array.from(cart.values()).reduce((total, quantity) => total + quantity, 0);
 }
 
-function updateCartButtons() {
-  document.querySelectorAll("[data-add]").forEach((button) => {
-    const id = button.getAttribute("data-add");
-    const selected = cart.has(id);
-    button.classList.toggle("is-added", selected);
-    button.textContent = selected ? "✓ Added" : "Quick Add";
+function shortCaption(product) {
+  return (product.caption || "DM to order from Shivara.luxe").replace(/\s+/g, " ").slice(0, 94);
+}
+
+function productCard(product, options = {}) {
+  const pricing = productPricing(product);
+  const selected = cart.has(product.id);
+  const quick = options.quick || product.index % 3 === 0;
+  return `
+    <product-item class="product-item ${options.slide ? "list_product_item splide__slide" : ""}" data-id="${product.id}" data-category="${product.category}">
+      <div class="product-item__image-wrapper product-item__image-wrapper--multiple">
+        <a href="${product.instagram}" target="_blank" rel="noreferrer">
+          <img class="product-item__primary-image" src="/${product.image}" alt="${product.title}" loading="lazy" />
+          <img class="product-item__secondary-image" src="/${product.image}" alt="" loading="lazy" />
+        </a>
+        <div class="product-item__label-list label-list">
+          <span class="label label--highlight">Sale</span>
+          ${product.index % 5 === 0 ? '<span class="label label--subdued">BEST SELLING</span>' : ""}
+        </div>
+      </div>
+      <div class="product-item__info">
+        <a class="product-item-meta__title" href="${product.instagram}" target="_blank" rel="noreferrer">${product.title}</a>
+        <div class="price-list">
+          <span>INR</span>
+          <span>Regular price</span>
+          <s>${pricing.compareAt}</s>
+          <strong>${pricing.price}</strong>
+        </div>
+        <p class="member-price">Member Price INR ${pricing.member} <a href="/collections/all">JOIN NOW</a></p>
+        <p class="product-excerpt">${shortCaption(product)}</p>
+        <button class="product-item__quick-form" type="button" data-add="${product.id}">
+          ${selected ? "ADDED" : quick ? "QUICK VIEW" : "ADD TO CART"}
+        </button>
+      </div>
+    </product-item>
+  `;
+}
+
+function sectionProducts(kind) {
+  if (kind === "bestsellers") return products.slice(0, 14);
+  const filtered = products.filter((product) => product.category === kind);
+  return filtered.length ? filtered.slice(0, 14) : products.slice(0, 10);
+}
+
+function renderHome() {
+  const categoryStrip = document.querySelector("#category-strip");
+  if (categoryStrip) {
+    categoryStrip.innerHTML = categories
+      .map(
+        (item) => `
+          <div class="featured_collection_list_item scroll-item">
+            <a class="featured_collection_list_link" href="${item.href}">
+              <img class="featured_collection_list_image" src="/assets/instagram-shop/${item.image}" alt="" loading="lazy" />
+              <p class="featured-collection_item_title h5 m-0">${item.title}</p>
+            </a>
+          </div>
+        `
+      )
+      .join("");
+  }
+
+  document.querySelectorAll("[data-section-products]").forEach((container) => {
+    const kind = container.getAttribute("data-section-products");
+    container.innerHTML = sectionProducts(kind).map((product) => productCard(product, { slide: true })).join("");
   });
+}
+
+function filterMarkup(collection) {
+  const counts = products.reduce((acc, product) => {
+    acc[product.category] = (acc[product.category] || 0) + 1;
+    return acc;
+  }, {});
+  const filterCats = ["Rings", "Bracelets", "Pendants", "Earrings", "Evil Eye", "Gifting", "Anti-tarnish"];
+  const colorItems = collection === "Rings" ? ["Blue", "Rose Gold", "Silver", "White"] : ["Gold", "Silver", "Blue", "Green", "Rose Gold", "White", "Black"];
+  return `
+    <div class="drawer__overlay" data-drawer-close></div>
+    <div class="drawer__header hidden-lap-and-up">
+      <p class="drawer__title heading h6">Filters</p>
+      <button class="drawer__close-button tap-area" type="button" data-drawer-close>Close</button>
+    </div>
+    <div class="drawer__content">
+      <div class="product-facet__filter-list">
+        <details class="product-facet__filter-item" open>
+          <summary class="collapsible-toggle text--strong">Availability</summary>
+          <label class="checkbox-container"><input class="checkbox" type="checkbox" /> In stock (${products.length})</label>
+          <label class="checkbox-container"><input class="checkbox" type="checkbox" /> Out of stock (0)</label>
+        </details>
+        <details class="product-facet__filter-item" open>
+          <summary class="collapsible-toggle text--strong">Price</summary>
+          <div class="price-range"><span>₹</span><input type="number" placeholder="0" /><span>to</span><span>₹</span><input type="number" placeholder="999" /></div>
+        </details>
+        <details class="product-facet__filter-item" open>
+          <summary class="collapsible-toggle text--strong">Color</summary>
+          ${colorItems.map((color) => `<label class="checkbox-container"><input class="checkbox" type="checkbox" /> ${color}</label>`).join("")}
+        </details>
+        <details class="product-facet__filter-item" open>
+          <summary class="collapsible-toggle text--strong">Style</summary>
+          ${filterCats
+            .map((cat) => `<label class="checkbox-container"><input class="checkbox" type="radio" name="style-filter" data-style-filter="${cat}" /> ${cat} (${counts[cat] || 0})</label>`)
+            .join("")}
+        </details>
+        <details class="product-facet__filter-item" open>
+          <summary class="collapsible-toggle text--strong">More filters</summary>
+          <label class="checkbox-container"><input class="checkbox" type="checkbox" /> New Arrivals (${products.length})</label>
+          <label class="checkbox-container"><input class="checkbox" type="checkbox" /> best seller (12)</label>
+          <label class="checkbox-container"><input class="checkbox" type="checkbox" /> Anti Tarnish (${counts["Anti-tarnish"] || 0})</label>
+        </details>
+        <button class="button button--primary apply-filters" type="button" data-drawer-close>Apply filters</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderCollection() {
+  const grid = document.querySelector("#collection-grid");
+  if (!grid) return;
+  const collection = document.body.dataset.collection || "All";
+  const visible = collection === "Rings" ? products.filter((product) => product.category === "Rings") : products;
+  grid.innerHTML = visible.map((product) => productCard(product)).join("");
+  const filters = document.querySelector("#facet-filters");
+  if (filters) filters.innerHTML = filterMarkup(collection);
+}
+
+function renderSearch(query = "") {
+  const results = document.querySelector("#search-results");
+  if (!results) return;
+  const normalized = query.toLowerCase().trim();
+  const matches = products
+    .filter((product) => `${product.title} ${product.category} ${product.caption}`.toLowerCase().includes(normalized))
+    .slice(0, 8);
+  results.innerHTML = matches.length
+    ? matches
+        .map(
+          (product) => `
+            <a class="search-result" href="${product.instagram}" target="_blank" rel="noreferrer">
+              <img src="/${product.image}" alt="" />
+              <span>${product.title}</span>
+            </a>
+          `
+        )
+        .join("")
+    : '<p class="empty-search">View all results</p>';
 }
 
 function renderCart() {
@@ -339,32 +323,29 @@ function renderCart() {
     item.textContent = String(quantity);
   });
 
+  const cartItems = document.querySelector("#cart-items");
+  const cartEmpty = document.querySelector("#cart-empty");
+  const cartSummary = document.querySelector("#cart-summary");
+  const checkoutLink = document.querySelector("#checkout-link");
   if (!cartItems || !cartEmpty || !cartSummary || !checkoutLink) return;
 
   const selectedProducts = Array.from(cart.entries())
     .map(([id, qty]) => ({ product: productById(id), qty }))
     .filter((entry) => entry.product);
 
-  let subtotal = 0;
-  selectedProducts.forEach(({ product, qty }) => {
-    subtotal += (product.priceVal || 0) * qty;
-  });
-
   cartItems.innerHTML = selectedProducts
     .map(
       ({ product, qty }) => `
         <article class="cart-line">
-          <img src="${product.image}" alt="${product.title}" />
-          <div class="cart-line-info">
+          <img src="/${product.image}" alt="" />
+          <div>
             <h3>${product.title}</h3>
-            <span class="cart-line-meta">${product.category} · ${product.availability}</span>
+            <p>${product.category} | ${product.id}</p>
             <div class="qty-row">
-              <div class="qty-controls">
-                <button type="button" data-decrease="${product.id}" aria-label="Decrease ${product.title}">-</button>
-                <span>${qty}</span>
-                <button type="button" data-increase="${product.id}" aria-label="Increase ${product.title}">+</button>
-              </div>
-              <button class="remove-button" type="button" data-remove="${product.id}">Remove</button>
+              <button type="button" data-decrease="${product.id}">-</button>
+              <span>${qty}</span>
+              <button type="button" data-increase="${product.id}">+</button>
+              <button type="button" data-remove="${product.id}">Remove</button>
             </div>
           </div>
         </article>
@@ -374,230 +355,142 @@ function renderCart() {
 
   cartEmpty.hidden = selectedProducts.length > 0;
   cartItems.hidden = selectedProducts.length === 0;
-  cartSummary.textContent = `${quantity} item${quantity === 1 ? "" : "s"}`;
-
-  const subtotalEl = document.querySelector("#cart-subtotal");
-  if (subtotalEl) {
-    subtotalEl.textContent = subtotal > 0 ? `₹${subtotal}` : "DM for price";
-  }
-
+  cartSummary.textContent = `${quantity} item${quantity === 1 ? "" : "s"} selected`;
   const message =
     selectedProducts.length === 0
-      ? "Hi Shivara.luxe, I want to shop from your Instagram collection."
+      ? "Hi Shivara.luxe, I want to shop from your collection."
       : [
           "Hi Shivara.luxe, I want to inquire about these pieces:",
           "",
-          ...selectedProducts.map(
-            ({ product, qty }, index) => `${index + 1}. ${qty} x ${product.title} (${product.category}) - ${product.id} [${product.availability}] - ${product.instagram}`
-          ),
-          "",
-          `Total Estimated Price: ₹${subtotal}`,
+          ...selectedProducts.map(({ product, qty }, index) => `${index + 1}. ${qty} x ${product.title} (${product.category}) - ${product.id} - ${product.instagram}`),
           "",
           "Please confirm price, availability, customization options, and PAN India delivery."
         ].join("\n");
-
   checkoutLink.href = `https://wa.me/919457041215?text=${encodeURIComponent(message)}`;
-  updateCartButtons();
   saveCart();
 }
 
-function addToCart(id) {
-  cart.set(id, (cart.get(id) || 0) + 1);
-  renderCart();
+function injectSharedLayout() {
+  const headerMount = document.querySelector("#shared-header");
+  if (headerMount) {
+    headerMount.outerHTML = `
+      <div class="announcement-bar" aria-hidden="true"></div>
+      <div class="shopify-section shopify-section--header" id="shopify-section-header">
+        <store-header class="header header--bordered">
+          <div class="container"><div class="header__wrapper">
+            <nav class="header__inline-navigation" aria-label="Navigation">
+              <div class="header__icon-list hidden-desk"><button class="header__icon-wrapper tap-area" type="button" data-menu-open aria-label="Navigation"><svg class="icon icon--header-hamburger" viewBox="0 0 18 14" aria-hidden="true"><path d="M0 1h18M0 7h18M0 13h18" fill="none" stroke="currentColor" stroke-width="2"/></svg></button><button class="header__icon-wrapper tap-area" type="button" data-search-open aria-label="Search"><svg class="icon icon--header-search" viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m14 14 5 5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></div>
+              <ul class="header__linklist hidden-pocket"><li><a href="/">Home</a></li><li><a href="/collections/all">New Arrivals</a></li><li><a href="/#earrings">Earrings</a></li><li><a href="/#neck-wear">Neck Wear</a></li><li><a href="/#bracelets">Bracelets</a></li><li><a href="/collections/rings">Rings</a></li></ul>
+            </nav>
+            <h1 class="header__logo"><a class="header__logo-link" href="/"><img class="header__logo-image" src="/assets/instagram/profile.jpg" alt="" /><span>Shivara.luxe</span></a></h1>
+            <div class="header__secondary-links"><div class="header__icon-list"><button class="header__icon-wrapper tap-area hidden-pocket" type="button" data-search-open aria-label="Search"><svg class="icon icon--header-search" viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m14 14 5 5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button><button class="nn header__icon-wrapper tap-area" type="button" data-cart-open aria-label="Open cart"><svg class="icon icon--header-cart" viewBox="0 0 23 23" aria-hidden="true"><path d="M6 7h12l-1.2 9.5H7.2L6 7Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 7a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><cart-count class="header__cart-count header__cart-count--floating bubble-count" data-cart-count>0</cart-count></button></div></div>
+          </div></div>
+        </store-header>
+      </div>
+    `;
+  }
+  const footerMount = document.querySelector("#shared-footer");
+  if (footerMount) {
+    footerMount.outerHTML = `
+      <footer class="shopify-section shopify-section--footer site-footer"><div class="footer__inner container"><div class="footer__newsletter"><img src="/assets/instagram/profile.jpg" alt="" /><p class="footer__item-title heading h3 footer_newsletter_item_title">Stay in the Loop!</p><p>Join our WhatsApp list for new products, special offers, and deals.</p><a class="footer-input" href="https://wa.me/919457041215" target="_blank" rel="noreferrer">WhatsApp Shivara</a></div><div class="footer__columns"><div><h3>Quick Links</h3><a href="/">Home</a><a href="/collections/all">New Arrivals</a><a href="/collections/rings">Rings</a><a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">Instagram</a></div><div><h3>Buy With Us</h3><a href="/#bracelets">Bracelets</a><a href="/#earrings">Earrings</a><a href="/#neck-wear">Neck Wear</a><a href="/#gifts">Gifts</a></div><div><h3>Contact Us</h3><p>Bareilly, Uttar Pradesh</p><p>DM to shop | PAN India</p><p>WhatsApp: +91 9457041215</p></div></div></div><p class="footer-bottom">Shivara.luxe</p></footer>
+      <predictive-search-drawer class="predictive-search drawer drawer--large" id="search-drawer" aria-hidden="true"><div class="drawer__overlay" data-drawer-close></div><div class="drawer__content"><button class="drawer__close-button tap-area" type="button" data-drawer-close>Close</button><label class="predictive-search__form"><span>Search</span><input class="predictive-search__input" id="drawer-search" type="text" placeholder="What are you looking for?" /></label><div class="predictive-search__results" id="search-results"></div></div></predictive-search-drawer>
+      <mobile-navigation class="drawer drawer--from-left" id="mobile-menu-drawer" aria-hidden="true"><div class="drawer__overlay" data-drawer-close></div><div class="drawer__content"><button class="drawer__close-button tap-area" type="button" data-drawer-close>Close</button><nav class="mobile-nav"><a href="/">Home</a><a href="/collections/all">New Arrivals</a><a href="/#earrings">Earrings</a><a href="/#neck-wear">Neck Wear</a><a href="/#bracelets">Bracelets</a><a href="/collections/rings">Rings</a></nav></div></mobile-navigation>
+      <div class="cart-overlay" data-cart-close hidden></div><aside class="cart-drawer" aria-label="Shopping bag" aria-hidden="true"><div class="cart-head"><div><p>Your bag</p><h2>Inquiry list</h2></div><button class="drawer__close-button" type="button" data-cart-close>Close</button></div><div class="cart-items" id="cart-items"></div><div class="cart-empty" id="cart-empty"><strong>Your bag is empty.</strong><p>Add jewellery drops and send one clean WhatsApp inquiry.</p></div><div class="cart-foot"><p id="cart-summary">0 items selected</p><a class="button button--primary" id="checkout-link" href="https://wa.me/919457041215" target="_blank" rel="noreferrer">Send WhatsApp inquiry</a></div></aside>
+    `;
+  }
+}
+
+function openDrawer(selector) {
+  document.querySelector(selector)?.classList.add("is-open");
+  document.body.classList.add("drawer-open");
+}
+
+function closeDrawers() {
+  document.querySelectorAll(".drawer.is-open").forEach((drawer) => drawer.classList.remove("is-open"));
+  document.body.classList.remove("drawer-open");
 }
 
 function setCartOpen(open) {
   document.body.classList.toggle("cart-open", open);
-  cartDrawer?.setAttribute("aria-hidden", String(!open));
-  if (cartOverlay) {
-    cartOverlay.hidden = !open;
-  }
+  const drawer = document.querySelector(".cart-drawer");
+  const overlay = document.querySelector(".cart-overlay");
+  drawer?.setAttribute("aria-hidden", String(!open));
+  if (overlay) overlay.hidden = !open;
 }
-
-function updateScrollProgress() {
-  const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
-  const progress = Math.min(window.scrollY / maxScroll, 1);
-  progressBar?.style.setProperty("--scroll-progress", progress.toFixed(4));
-  document.body.classList.toggle("mobile-bar-visible", window.scrollY > Math.min(620, window.innerHeight * 0.72));
-  ticking = false;
-}
-
-const revealObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("is-visible");
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  },
-  { rootMargin: "0px 0px -8% 0px", threshold: 0.1 }
-);
-
-navToggle?.addEventListener("click", () => {
-  const isOpen = siteNav.classList.toggle("is-open");
-  document.body.classList.toggle("nav-open", isOpen);
-  navToggle.setAttribute("aria-expanded", String(isOpen));
-  navToggle.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
-});
-
-siteNav?.addEventListener("click", (event) => {
-  if (event.target instanceof HTMLAnchorElement) {
-    siteNav.classList.remove("is-open");
-    document.body.classList.remove("nav-open");
-    navToggle?.setAttribute("aria-expanded", "false");
-    navToggle?.setAttribute("aria-label", "Open menu");
-  }
-});
-
-filterRow?.addEventListener("click", (event) => {
-  const button = closestFromEvent(event, "[data-filter]");
-  if (!button) return;
-  activeFilter = button.getAttribute("data-filter") || "All";
-  renderFilters();
-  renderProducts();
-});
-
-const overlaySearchInput = document.getElementById("search-overlay-input");
-
-searchInput?.addEventListener("input", (event) => {
-  activeQuery = event.target.value.toLowerCase().trim();
-  if (overlaySearchInput) overlaySearchInput.value = event.target.value;
-  renderProducts();
-});
-
-overlaySearchInput?.addEventListener("input", (event) => {
-  activeQuery = event.target.value.toLowerCase().trim();
-  if (searchInput) searchInput.value = event.target.value;
-  renderProducts();
-});
-
-overlaySearchInput?.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    event.preventDefault();
-    const shopSection = document.getElementById("shop");
-    if (shopSection) {
-      shopSection.scrollIntoView({ behavior: "smooth" });
-    }
-    const searchOverlay = document.getElementById("search-overlay");
-    if (searchOverlay) {
-      searchOverlay.hidden = true;
-      document.body.classList.remove("search-open");
-    }
-  }
-});
 
 document.addEventListener("click", (event) => {
-  const openCartButton = closestFromEvent(event, "[data-cart-open]");
-  if (openCartButton) {
+  const target = event.target instanceof Element ? event.target : null;
+  if (!target) return;
+  if (target.closest("[data-search-open]")) {
+    openDrawer("#search-drawer");
+    renderSearch("");
+    return;
+  }
+  if (target.closest("[data-menu-open]")) {
+    openDrawer("#mobile-menu-drawer");
+    return;
+  }
+  if (target.closest("[data-filter-open]")) {
+    openDrawer("#facet-filters");
+    return;
+  }
+  if (target.closest("[data-drawer-close]")) {
+    closeDrawers();
+    return;
+  }
+  if (target.closest("[data-cart-open]")) {
     setCartOpen(true);
     return;
   }
-
-  const circleCard = closestFromEvent(event, ".collection-circle-card");
-  if (circleCard) {
-    activeFilter = circleCard.getAttribute("data-circle-filter") || "All";
-    renderFilters();
-    renderProducts();
-    // Do not return to allow natural scrolling to #shop anchor
-  }
-
-  const closeCartButton = closestFromEvent(event, "[data-cart-close]");
-  if (closeCartButton) {
+  if (target.closest("[data-cart-close]")) {
     setCartOpen(false);
     return;
   }
-
-  const addButton = closestFromEvent(event, "[data-add]");
+  const addButton = target.closest("[data-add]");
   if (addButton) {
-    addToCart(addButton.getAttribute("data-add"));
+    const id = addButton.getAttribute("data-add");
+    cart.set(id, (cart.get(id) || 0) + 1);
+    renderCart();
     setCartOpen(true);
     return;
   }
-
-  const increaseButton = closestFromEvent(event, "[data-increase]");
-  if (increaseButton) {
-    const id = increaseButton.getAttribute("data-increase");
+  const increase = target.closest("[data-increase]");
+  if (increase) {
+    const id = increase.getAttribute("data-increase");
     cart.set(id, (cart.get(id) || 0) + 1);
     renderCart();
     return;
   }
-
-  const decreaseButton = closestFromEvent(event, "[data-decrease]");
-  if (decreaseButton) {
-    const id = decreaseButton.getAttribute("data-decrease");
+  const decrease = target.closest("[data-decrease]");
+  if (decrease) {
+    const id = decrease.getAttribute("data-decrease");
     const next = (cart.get(id) || 0) - 1;
     if (next <= 0) cart.delete(id);
     else cart.set(id, next);
     renderCart();
     return;
   }
-
-  const removeButton = closestFromEvent(event, "[data-remove]");
-  if (removeButton) {
-    cart.delete(removeButton.getAttribute("data-remove"));
+  const remove = target.closest("[data-remove]");
+  if (remove) {
+    cart.delete(remove.getAttribute("data-remove"));
     renderCart();
   }
 });
 
-window.addEventListener(
-  "scroll",
-  () => {
-    if (!ticking) {
-      window.requestAnimationFrame(updateScrollProgress);
-      ticking = true;
-    }
-  },
-  { passive: true }
-);
-
-document.addEventListener(
-  "pointermove",
-  (event) => {
-    if (!finePointer || reducedMotion) return;
-
-    const card = closestFromEvent(event, ".product-card, .stage-card, .drop-card, .luxe-panel");
-    if (card) {
-      const bounds = card.getBoundingClientRect();
-      const x = (event.clientX - bounds.left) / bounds.width - 0.5;
-      const y = (event.clientY - bounds.top) / bounds.height - 0.5;
-      card.style.transform = `perspective(900px) rotateX(${(-y * 4).toFixed(2)}deg) rotateY(${(x * 5).toFixed(2)}deg) translateY(-4px)`;
-    }
-
-    const now = performance.now();
-    if (now - lastSpark > 48) {
-      const spark = document.createElement("span");
-      spark.className = "pointer-spark";
-      spark.style.left = `${event.clientX}px`;
-      spark.style.top = `${event.clientY}px`;
-      document.body.appendChild(spark);
-      window.setTimeout(() => spark.remove(), 760);
-      lastSpark = now;
-    }
-  },
-  { passive: true }
-);
-
-document.addEventListener(
-  "pointerleave",
-  (event) => {
-    const card = event.target.closest?.(".product-card, .stage-card, .drop-card");
-    if (card) card.style.transform = "";
-  },
-  true
-);
-
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") {
-    setCartOpen(false);
-    siteNav?.classList.remove("is-open");
-    document.body.classList.remove("nav-open");
+document.addEventListener("input", (event) => {
+  if (event.target?.matches?.("#drawer-search")) {
+    renderSearch(event.target.value);
   }
 });
 
-renderFilters();
-renderProducts();
-renderRunway();
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeDrawers();
+    setCartOpen(false);
+  }
+});
+
+injectSharedLayout();
+renderHome();
+renderCollection();
 renderCart();
-updateScrollProgress();
-revealNewCards();

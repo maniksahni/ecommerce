@@ -40,8 +40,19 @@ const server = http.createServer((request, response) => {
 
   fs.stat(filePath, (statError, stats) => {
     if (statError || !stats.isFile()) {
-      response.writeHead(404);
-      response.end("Not found");
+      const indexPath = path.join(filePath, "index.html");
+      fs.stat(indexPath, (indexError, indexStats) => {
+        if (indexError || !indexStats.isFile()) {
+          response.writeHead(404);
+          response.end("Not found");
+          return;
+        }
+
+        response.writeHead(200, {
+          "Content-Type": mimeTypes[".html"]
+        });
+        fs.createReadStream(indexPath).pipe(response);
+      });
       return;
     }
 
