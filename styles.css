@@ -1798,16 +1798,23 @@ body.mobile-bar-visible .mobile-shop-bar {
   
   /* Always show quick buy at the bottom of the card on mobile */
   .card-quick-add {
-    position: relative;
-    transform: none;
-    padding: 8px 0 0;
-    background: none;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: translateY(0) !important;
+    z-index: 4 !important;
+    padding: 8px !important;
+    background: linear-gradient(to top, rgba(255,255,255,0.96), rgba(255,255,255,0.85)) !important;
+    display: flex !important;
+    justify-content: center !important;
   }
   
   .btn-quick-add {
-    height: 36px;
-    font-size: 0.74rem;
-    border-radius: 4px;
+    height: 34px !important;
+    font-size: 0.7rem !important;
+    border-radius: 4px !important;
+    width: 100% !important;
   }
   
   .product-info {
