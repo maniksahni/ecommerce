@@ -61,7 +61,8 @@ const duplicateProductIds = new Set([
   "DWVjIp9xjU4",
   "DWD6L0wEQ2g",
   "DVtBynukTwQ",
-  "DVVyuaREdE-"
+  "DVVyuaREdE-",
+  "DWambX9EROs"
 ]);
 function extractPrice(product) {
   const caption = product.caption || "";
