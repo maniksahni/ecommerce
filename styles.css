@@ -770,8 +770,7 @@ body.nav-open .nav-toggle span:nth-child(3) {
   aspect-ratio: 1/1;
   border-radius: var(--radius-card);
   overflow: hidden;
-  border: 1px solid var(--border-color);
-  background: #f7f7f7;
+  background: #faf9f6; /* Ivory container background */
   display: block;
 }
 
@@ -1555,7 +1554,7 @@ body.mobile-bar-visible .mobile-shop-bar {
 @media screen and (max-width: 768px) {
   /* ── MOBILE HEADER & NAV ── */
   .site-header {
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: 1fr auto 1fr; /* Symmetric grid columns for perfect centering! */
     min-height: 60px;
     padding: 8px 16px;
     background: #ffffff;
@@ -1564,6 +1563,7 @@ body.mobile-bar-visible .mobile-shop-bar {
   .brand {
     font-size: 1.1rem;
     gap: 8px;
+    grid-column: 2; /* Center column */
     justify-self: center;
     margin: 0 auto;
   }
@@ -1579,41 +1579,70 @@ body.mobile-bar-visible .mobile-shop-bar {
   
   .header-actions {
     display: flex;
+    grid-column: 3; /* Right column */
     justify-self: end;
   }
   
   .nav-toggle {
     display: flex;
-    order: -1; /* Place hamburger on the far left */
-    margin-right: 12px;
+    grid-column: 1; /* Left column */
+    justify-self: start;
+    z-index: 101; /* Stay clickable above drawer overlays */
     border: none;
     background: none;
     width: 32px;
     height: 32px;
   }
   
-  /* Mobile drawer navigation when nav-open */
-  body.nav-open .site-nav {
-    display: flex;
+  /* Mobile drawer navigation sliding from left */
+  .site-nav {
+    display: flex !important; /* Force display flex but control visibility via translate */
     flex-direction: column;
     justify-content: flex-start;
     position: fixed;
-    top: 60px;
+    top: 0;
     left: 0;
-    right: 0;
     bottom: 0;
+    width: 280px;
+    max-width: 80vw;
     background: #ffffff;
-    padding: 24px;
+    padding: 80px 24px 40px; /* Top padding to sit under mobile header */
     gap: 16px;
-    z-index: 1000;
-    animation: rise-in 250ms ease;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 10px 0 40px rgba(0,0,0,0.06);
   }
   
-  body.nav-open .site-nav a {
-    font-size: 1.1rem;
-    padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
+  body.nav-open .site-nav {
+    transform: translateX(0);
+  }
+  
+  .site-nav a {
+    font-size: 1rem !important;
+    padding: 10px 0 !important;
+    border-bottom: 1px solid #f5f5f5 !important;
     width: 100%;
+    color: var(--text-color);
+  }
+  
+  /* Blurred dark overlay for the mobile menu drawer */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 99;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms ease;
+  }
+  
+  body.nav-open::after {
+    opacity: 1;
+    pointer-events: auto;
   }
   
   /* ── MOBILE HERO SLIDER ── */
@@ -1667,10 +1696,13 @@ body.mobile-bar-visible .mobile-shop-bar {
     justify-content: flex-start;
     gap: 16px;
     overflow-x: auto;
-    width: 100%;
-    padding: 4px 0 12px;
+    width: auto;
+    margin: 0 -16px; /* Bleed to screen edges */
+    padding: 4px 16px 12px; /* Pad inside the scrolling area */
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scroll-padding: 16px;
   }
   
   .collections-strip-grid::-webkit-scrollbar {
@@ -1680,13 +1712,14 @@ body.mobile-bar-visible .mobile-shop-bar {
   .collection-circle-card {
     flex: 0 0 auto;
     gap: 8px;
+    scroll-snap-align: start;
   }
   
   .collection-circle-image {
     width: 72px;
     height: 72px;
     box-shadow: none;
-    border: 2px solid var(--border-color);
+    border: 1px solid rgba(0,0,0,0.08); /* Sophisticated thin border */
   }
   
   .collection-circle-card span {
@@ -1766,6 +1799,12 @@ body.mobile-bar-visible .mobile-shop-bar {
   
   .search-box input {
     font-size: 0.8rem;
+  }
+  
+  .filter-row {
+    margin: 0 -10px;
+    padding: 2px 10px;
+    -webkit-overflow-scrolling: touch;
   }
   
   .filter-chip {
