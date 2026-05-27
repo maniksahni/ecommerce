@@ -10,24 +10,24 @@
     <title>Collection | Shivara.luxe</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Open+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
     <style>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       :root {
         --bg: #ffffff;
-        --surface: #fafafa;
+        --surface: #f5f5f5;
         --surface2: #ffffff;
-        --border: #e5e5e5;
-        --gold: #000000;
-        --gold-light: #1c1c1c;
+        --border: #dfdfdf;
+        --gold: #1e1e1e;
+        --gold-light: #80736f;
         --text: #282828;
         --muted: #777777;
-        --accent: #bf9142;
-        --font-body: 'Inter', sans-serif;
-        --font-display: 'Montserrat', sans-serif;
+        --accent: #80736f;
+        --font-body: 'Open Sans', sans-serif;
+        --font-display: 'Playfair Display', serif;
         --radius: 6px;
-        --shadow: 0 10px 30px rgba(0,0,0,0.06);
+        --shadow: 0 4px 16px rgba(0,0,0,0.05);
       }
 
       html { scroll-behavior: smooth; }
@@ -76,10 +76,10 @@
 
       .c-nav-brand span {
         font-family: var(--font-display);
-        font-size: 1rem;
-        font-weight: 800;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
+        font-size: 1.05rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: capitalize;
       }
 
       .c-nav-links {
@@ -92,37 +92,38 @@
       .c-nav-links a {
         color: var(--muted);
         text-decoration: none;
-        font-size: 0.84rem;
-        font-weight: 500;
-        letter-spacing: 0.04em;
+        font-family: var(--font-body);
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
         transition: color 160ms;
       }
 
       .c-nav-links a:hover,
-      .c-nav-links a.active { color: var(--gold-light); }
+      .c-nav-links a.active { color: var(--gold); }
 
       .c-nav-bag {
         display: flex;
         align-items: center;
         gap: 7px;
-        padding: 8px 16px;
+        padding: 8px 18px;
         background: var(--gold);
-        color: #0d0a08;
+        color: #ffffff;
         border: none;
-        border-radius: 999px;
+        border-radius: 6px;
         font-family: var(--font-body);
         font-size: 0.82rem;
         font-weight: 600;
         cursor: pointer;
-        transition: background 150ms, transform 120ms;
+        transition: background 150ms;
       }
 
-      .c-nav-bag:hover { background: var(--gold-light); transform: scale(1.03); }
+      .c-nav-bag:hover { background: #333333; }
 
       .c-nav-bag-count {
-        background: #0d0a08;
-        color: var(--gold-light);
+        background: #ffffff;
+        color: #1e1e1e;
         border-radius: 50%;
         width: 20px;
         height: 20px;
@@ -151,26 +152,27 @@
       }
 
       .c-hero-eyebrow {
+        font-family: var(--font-body);
         font-size: 0.72rem;
         font-weight: 600;
         letter-spacing: 0.16em;
         text-transform: uppercase;
-        color: var(--gold);
+        color: rgba(255,255,255,0.7);
         margin-bottom: 10px;
       }
 
       .c-hero h1 {
         font-family: var(--font-display);
-        font-size: clamp(2rem, 5vw, 3.6rem);
-        font-weight: 400;
-        line-height: 1.1;
+        font-size: clamp(2rem, 5vw, 3.4rem);
+        font-weight: 700;
+        line-height: 1.15;
         margin-bottom: 14px;
         color: #fff;
       }
 
       .c-hero h1 em {
         font-style: italic;
-        color: var(--gold-light);
+        color: rgba(255,255,255,0.85);
       }
 
       .c-hero p {
@@ -190,12 +192,12 @@
       .btn-primary {
         padding: 12px 26px;
         background: var(--gold);
-        color: #0d0a08;
+        color: #ffffff;
         border: none;
-        border-radius: 999px;
+        border-radius: 6px;
         font-family: var(--font-body);
-        font-size: 0.88rem;
-        font-weight: 700;
+        font-size: 0.86rem;
+        font-weight: 600;
         cursor: pointer;
         text-decoration: none;
         display: inline-flex;
@@ -255,16 +257,16 @@
       }
 
       .c-cat-btn:hover {
-        border-color: rgba(201,152,42,0.4);
-        color: var(--gold-light);
-        background: rgba(201,152,42,0.08);
+        border-color: var(--border);
+        color: var(--text);
+        background: rgba(0,0,0,0.04);
       }
 
       .c-cat-btn.active {
         background: var(--gold);
         border-color: var(--gold);
-        color: #0d0a08;
-        font-weight: 700;
+        color: #ffffff;
+        font-weight: 600;
       }
 
       /* ── MASONRY GRID ── */
@@ -327,7 +329,7 @@
       }
 
       .c-card {
-        border-radius: var(--radius);
+        border-radius: 0px;
         overflow: hidden;
         background: transparent;
         border: none;
@@ -342,14 +344,14 @@
       }
 
       .c-card:hover {
-        transform: translateY(-4px);
+        transform: translateY(-2px);
       }
 
       .c-card-media {
         position: relative;
         aspect-ratio: 1/1;
         overflow: hidden;
-        border-radius: var(--radius);
+        border-radius: 0px;
         background: var(--surface);
       }
 
@@ -365,7 +367,6 @@
         transform: scale(1.04);
       }
 
-      /* JLT image-overlaid Quick Add button */
       .c-card-quick-add {
         position: absolute;
         bottom: 0;
@@ -373,7 +374,7 @@
         right: 0;
         z-index: 4;
         padding: 8px;
-        background: linear-gradient(to top, rgba(255,255,255,0.96), rgba(255,255,255,0.85));
+        background: rgba(255,255,255,0.93);
         display: flex;
         justify-content: center;
       }
@@ -382,20 +383,20 @@
         width: 100%;
         height: 34px;
         background: var(--gold);
-        color: #0d0a08;
+        color: #ffffff;
         border: none;
         border-radius: 4px;
         font-family: var(--font-body);
-        font-size: 0.72rem;
-        font-weight: 700;
+        font-size: 0.7rem;
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.06em;
         cursor: pointer;
-        transition: all 150ms;
+        transition: background 150ms;
       }
 
       .c-btn-quick-add:hover {
-        background: var(--gold-light);
+        background: var(--accent);
       }
 
       .c-btn-quick-add.is-added {
@@ -409,12 +410,11 @@
         top: 10px;
         right: 10px;
         padding: 5px 11px;
-        background: rgba(13,10,8,0.84);
-        border: 1px solid rgba(201,152,42,0.5);
-        border-radius: 999px;
-        color: var(--gold-light);
+        background: rgba(0,0,0,0.72);
+        border-radius: 4px;
+        color: #ffffff;
         font-size: 0.72rem;
-        font-weight: 700;
+        font-weight: 600;
         backdrop-filter: blur(8px);
         letter-spacing: 0.02em;
         pointer-events: none;
@@ -427,10 +427,10 @@
         top: 10px;
         left: 10px;
         padding: 4px 9px;
-        background: rgba(13,10,8,0.76);
-        border-radius: 999px;
-        color: rgba(255,255,255,0.78);
-        font-size: 0.66rem;
+        background: rgba(0,0,0,0.6);
+        border-radius: 4px;
+        color: rgba(255,255,255,0.88);
+        font-size: 0.64rem;
         font-weight: 600;
         letter-spacing: 0.06em;
         text-transform: uppercase;
@@ -470,10 +470,10 @@
 
       .c-add-btn {
         padding: 8px 14px;
-        background: rgba(201,152,42,0.12);
-        border: 1px solid rgba(201,152,42,0.3);
-        border-radius: 8px;
-        color: var(--gold-light);
+        background: rgba(0,0,0,0.04);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
         font-family: var(--font-body);
         font-size: 0.78rem;
         font-weight: 600;
@@ -485,7 +485,7 @@
       .c-add-btn:hover, .c-add-btn.in-bag {
         background: var(--gold);
         border-color: var(--gold);
-        color: #0d0a08;
+        color: #ffffff;
       }
 
       .c-ig-btn {
@@ -689,24 +689,24 @@
         transform: translateX(-50%);
         z-index: 90;
         gap: 10px;
-        border-radius: 999px;
+        border-radius: 6px;
         background: var(--gold);
         border: none;
         padding: 12px 24px;
-        color: #0d0a08;
+        color: #ffffff;
         font-family: var(--font-body);
-        font-size: 0.9rem;
-        font-weight: 700;
+        font-size: 0.88rem;
+        font-weight: 600;
         cursor: pointer;
-        box-shadow: 0 8px 32px rgba(201,152,42,0.48);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
         align-items: center;
         white-space: nowrap;
         transition: background 140ms;
       }
-      .c-float-bag:hover { background: var(--gold-light); }
+      .c-float-bag:hover { background: #333333; }
       .c-float-bag-count {
-        background: #0d0a08;
-        color: var(--gold-light);
+        background: #ffffff;
+        color: #1e1e1e;
         border-radius: 50%;
         width: 22px; height: 22px;
         font-size: 0.72rem;
