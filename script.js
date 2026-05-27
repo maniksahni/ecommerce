@@ -128,8 +128,8 @@ const allProducts = (Array.isArray(shopData.products) ? shopData.products : [])
 const products = allProducts.filter((product) => productPhotoIds.has(product.id) && !duplicateProductIds.has(product.id));
 
 const categories = [
-  { title: "New Arrivals", href: "/collections/all", image: "post-049-DW9Cf8OkWo0.jpg", category: "All" },
-  { title: "Demifine", href: "/collections/all", image: "post-064-DWqQ5tusfA-.jpg", category: "Anti-tarnish" },
+  { title: "New Arrivals", href: "/collections/all", image: "post-080-DWERaGlEYB6.jpg", category: "All" },
+  { title: "Demifine", href: "/collections/all", image: "post-090-DVsiM2WEctG.jpg", category: "Anti-tarnish" },
   { title: "Earrings", href: "/#earrings", image: "post-080-DWERaGlEYB6.jpg", category: "Earrings" },
   { title: "Necklaces", href: "/#neck-wear", image: "post-036-DXRflQ2ARK2.jpg", category: "Pendants" },
   { title: "Bracelets", href: "/#bracelets", image: "post-051-DW3H_GZDD_4.jpg", category: "Bracelets" },
