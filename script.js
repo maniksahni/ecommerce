@@ -458,9 +458,33 @@ filterRow?.addEventListener("click", (event) => {
   renderProducts();
 });
 
+const overlaySearchInput = document.getElementById("search-overlay-input");
+
 searchInput?.addEventListener("input", (event) => {
   activeQuery = event.target.value.toLowerCase().trim();
+  if (overlaySearchInput) overlaySearchInput.value = event.target.value;
   renderProducts();
+});
+
+overlaySearchInput?.addEventListener("input", (event) => {
+  activeQuery = event.target.value.toLowerCase().trim();
+  if (searchInput) searchInput.value = event.target.value;
+  renderProducts();
+});
+
+overlaySearchInput?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    const shopSection = document.getElementById("shop");
+    if (shopSection) {
+      shopSection.scrollIntoView({ behavior: "smooth" });
+    }
+    const searchOverlay = document.getElementById("search-overlay");
+    if (searchOverlay) {
+      searchOverlay.hidden = true;
+      document.body.classList.remove("search-open");
+    }
+  }
 });
 
 document.addEventListener("click", (event) => {

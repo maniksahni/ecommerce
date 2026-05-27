@@ -241,18 +241,24 @@ p {
   justify-self: end;
 }
 
-.header-action-btn {
+.header-action-btn,
+.icon-action {
   color: #282828;
   font-size: 1.2rem;
   padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 150ms;
+  transition: color 150ms, transform 150ms;
+  cursor: pointer;
+  background: none;
+  border: none;
 }
 
-.header-action-btn:hover {
+.header-action-btn:hover,
+.icon-action:hover {
   color: var(--primary-accent);
+  transform: translateY(-1px);
 }
 
 .bag-button {
@@ -275,7 +281,9 @@ p {
   background: var(--primary-accent-hover);
 }
 
-.bag-button strong {
+.bag-button strong,
+.bag-button span:not(:first-child),
+.bag-button [data-cart-count] {
   display: inline-grid;
   place-items: center;
   background: var(--background);
@@ -286,6 +294,89 @@ p {
   border-radius: 50%;
   font-size: 0.72rem;
   font-weight: 700;
+}
+
+/* ── SEARCH OVERLAY (Shopify Focal style) ── */
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 300ms ease, visibility 300ms ease;
+}
+
+.search-overlay:not([hidden]),
+body.search-open .search-overlay {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.search-overlay-inner {
+  position: relative;
+  width: 90%;
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  transform: translateY(20px);
+  transition: transform 400ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.search-overlay:not([hidden]) .search-overlay-inner,
+body.search-open .search-overlay-inner {
+  transform: translateY(0);
+}
+
+.search-overlay-input {
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid var(--border-color);
+  background: transparent;
+  padding: 16px 0;
+  font-family: var(--font-heading);
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 700;
+  color: var(--heading-color);
+  text-align: center;
+  outline: none;
+  transition: border-color 300ms ease;
+}
+
+.search-overlay-input:focus {
+  border-color: var(--primary-accent);
+}
+
+.search-overlay-close {
+  position: absolute;
+  top: -80px;
+  right: 0;
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--text-color);
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  transition: transform 200ms ease, color 150ms;
+}
+
+.search-overlay-close:hover {
+  color: var(--error-color);
+  transform: rotate(90deg);
 }
 
 .nav-toggle {
@@ -1143,6 +1234,41 @@ body.nav-open .nav-toggle span:nth-child(3) {
   color: #ffffff;
   font-size: 1.2rem;
   margin-bottom: 16px;
+}
+
+.footer-socials {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.footer-socials a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  color: #b8b8b8;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.footer-socials a:hover {
+  background: #ffffff;
+  color: #1c1c1c;
+  transform: translateY(-2px);
+  border-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+}
+
+.footer-socials svg {
+  transition: transform 250ms ease;
+}
+
+.footer-socials a:hover svg {
+  transform: scale(1.05);
 }
 
 .footer-links {
