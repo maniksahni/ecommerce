@@ -1564,6 +1564,8 @@ body.mobile-bar-visible .mobile-shop-bar {
   .brand {
     font-size: 1.1rem;
     gap: 8px;
+    justify-self: center;
+    margin: 0 auto;
   }
   
   .brand img {
@@ -1774,12 +1776,12 @@ body.mobile-bar-visible .mobile-shop-bar {
   /* Two columns product grid */
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px 12px;
+    gap: 28px 16px;
   }
   
   .product-card {
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 12px;
+    border-bottom: none;
+    padding-bottom: 0;
   }
   
   .product-media {

@@ -258,11 +258,6 @@ function productCard(product) {
           <span class="price ${product.comparePrice ? "has-sale" : ""}">${product.availability}</span>
           ${product.comparePrice ? `<span class="compare-price">${product.comparePrice}</span>` : ""}
         </div>
-        <p class="product-card-desc">${caption}</p>
-        <div class="product-card-footer">
-          <span>👁 ${formatMetric(product.views)}</span>
-          <span>#${String(product.index).padStart(3, "0")}</span>
-        </div>
       </div>
     </article>
   `;
