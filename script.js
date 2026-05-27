@@ -170,7 +170,25 @@ function saveCart() {
 }
 
 function cartQuantity() {
-  return Array.from(cart.values()).reduce((total, quantity) => total + quantity, 0);
+  return selectedCartProducts().reduce((total, entry) => total + entry.qty, 0);
+}
+
+function selectedCartProducts() {
+  const validEntries = [];
+  let changed = false;
+
+  Array.from(cart.entries()).forEach(([id, qty]) => {
+    const product = productById(id);
+    if (!product) {
+      cart.delete(id);
+      changed = true;
+      return;
+    }
+    validEntries.push({ product, qty });
+  });
+
+  if (changed) saveCart();
+  return validEntries;
 }
 
 function shortCaption(product) {
@@ -329,9 +347,7 @@ function renderCart() {
   const checkoutLink = document.querySelector("#checkout-link");
   if (!cartItems || !cartEmpty || !cartSummary || !checkoutLink) return;
 
-  const selectedProducts = Array.from(cart.entries())
-    .map(([id, qty]) => ({ product: productById(id), qty }))
-    .filter((entry) => entry.product);
+  const selectedProducts = selectedCartProducts();
 
   cartItems.innerHTML = selectedProducts
     .map(
@@ -356,6 +372,7 @@ function renderCart() {
   cartEmpty.hidden = selectedProducts.length > 0;
   cartItems.hidden = selectedProducts.length === 0;
   cartSummary.textContent = `${quantity} item${quantity === 1 ? "" : "s"} selected`;
+  document.querySelector(".cart-foot")?.toggleAttribute("hidden", selectedProducts.length === 0);
   const message =
     selectedProducts.length === 0
       ? "Hi Shivara.luxe, I want to shop from your collection."

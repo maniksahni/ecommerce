@@ -1013,6 +1013,10 @@ body.cart-open .cart-drawer {
   padding-top: 20px;
 }
 
+.cart-foot[hidden] {
+  display: none;
+}
+
 @keyframes slider-drift {
   0%,
   20% {
