@@ -1,10 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
   --heading-color: #282828;
   --text-color: #282828;
   --background: #ffffff;
-  --secondary-bg: #faf9f6; /* Elegant soft ivory background from Focal theme */
+  --secondary-bg: #fafafa; /* Modern flat gray-white background */
   --border-color: #e5e5e5;
   --border-color-darker: #a9a9a9;
   --success-color: #2e9e7b;
@@ -12,20 +12,20 @@
   --error-color: #de2a2a;
   --error-background: #fdf0f0;
   
-  --primary-accent: #80735f; /* Focal signature beige/taupe button color */
-  --primary-accent-hover: #6d614f;
-  --gold: #bf9142;
-  --gold-light: #dfb268;
+  --primary-accent: #000000; /* JLT signature bold black accent */
+  --primary-accent-hover: #1c1c1c;
+  --gold: #000000;
+  --gold-light: #1c1c1c;
   --star-rating: #f6a429;
   --new-badge-bg: #405dd2;
   
-  --primary-button-bg: #1e1e1e;
+  --primary-button-bg: #000000;
   --primary-button-text: #ffffff;
-  --secondary-button-bg: #80735f;
+  --secondary-button-bg: #000000;
   --secondary-button-text: #ffffff;
 
-  --font-heading: "Playfair Display", Georgia, serif;
-  --font-body: "Open Sans", "Inter", sans-serif;
+  --font-heading: "Montserrat", "Inter", sans-serif;
+  --font-body: "Inter", sans-serif;
 
   --radius-btn: 6px;
   --radius-card: 8px;
@@ -175,9 +175,9 @@ p {
   align-items: center;
   gap: 12px;
   font-family: var(--font-heading);
-  font-size: 1.4rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-size: 1.15rem;
+  font-weight: 800; /* Bold geometric fashion look! */
+  letter-spacing: 0.16em; /* Wide spacing matching JLT style */
   text-transform: uppercase;
 }
 
