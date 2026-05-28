@@ -199,12 +199,14 @@ function productCard(product, options = {}) {
   const pricing = productPricing(product);
   const selected = cart.has(product.id);
   const quick = options.quick || product.index % 3 === 0;
+  const loading = options.eager ? "eager" : "lazy";
+  const priority = options.eager ? ' fetchpriority="high" decoding="sync"' : ' decoding="async"';
   return `
     <product-item class="product-item ${options.slide ? "list_product_item splide__slide" : ""}" data-id="${product.id}" data-category="${product.category}">
       <div class="product-item__image-wrapper product-item__image-wrapper--multiple">
         <a href="${product.instagram}" target="_blank" rel="noreferrer">
-          <img class="product-item__primary-image" src="/${product.image}" alt="${product.title}" loading="lazy" />
-          <img class="product-item__secondary-image" src="/${product.image}" alt="" loading="lazy" />
+          <img class="product-item__primary-image" src="/${product.image}" alt="${product.title}" loading="${loading}"${priority} />
+          <img class="product-item__secondary-image" src="/${product.image}" alt="" loading="lazy" decoding="async" />
         </a>
         <div class="product-item__label-list label-list">
           <span class="label label--highlight">Sale</span>
@@ -254,7 +256,7 @@ function renderHome() {
 
   document.querySelectorAll("[data-section-products]").forEach((container) => {
     const kind = container.getAttribute("data-section-products");
-    container.innerHTML = sectionProducts(kind).map((product) => productCard(product, { slide: true })).join("");
+    container.innerHTML = sectionProducts(kind).map((product, index) => productCard(product, { slide: true, eager: index < 4 })).join("");
   });
 }
 
@@ -309,7 +311,7 @@ function renderCollection() {
   if (!grid) return;
   const collection = document.body.dataset.collection || "All";
   const visible = collection === "Rings" ? products.filter((product) => product.category === "Rings") : products;
-  grid.innerHTML = visible.map((product) => productCard(product)).join("");
+  grid.innerHTML = visible.map((product, index) => productCard(product, { eager: index < 6 })).join("");
   const filters = document.querySelector("#facet-filters");
   if (filters) filters.innerHTML = filterMarkup(collection);
 }
