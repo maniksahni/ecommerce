@@ -232,6 +232,7 @@ function productCard(product, options = {}) {
   const quick = options.quick || product.index % 3 === 0;
   const loading = options.eager ? "eager" : "lazy";
   const priority = options.eager ? ' fetchpriority="high" decoding="sync"' : ' decoding="async"';
+  const buttonAction = quick ? `data-quick="${product.id}"` : `data-add="${product.id}"`;
   return `
     <product-item class="product-item ${options.slide ? "list_product_item splide__slide" : ""}" data-id="${product.id}" data-category="${product.category}">
       <div class="product-item__image-wrapper product-item__image-wrapper--multiple">
@@ -254,12 +255,69 @@ function productCard(product, options = {}) {
         </div>
         <p class="member-price">Member Price INR ${pricing.member} <a href="/collections/all">JOIN NOW</a></p>
         <p class="product-excerpt">${shortCaption(product)}</p>
-        <button class="product-item__quick-form" type="button" data-add="${product.id}">
+        <button class="product-item__quick-form" type="button" ${buttonAction}>
           ${selected ? "ADDED" : quick ? "QUICK VIEW" : "ADD TO CART"}
         </button>
       </div>
     </product-item>
   `;
+}
+
+function ensureQuickView() {
+  let quickView = document.querySelector("#quick-view");
+  if (quickView) return quickView;
+
+  quickView = document.createElement("aside");
+  quickView.id = "quick-view";
+  quickView.className = "quick-view";
+  quickView.setAttribute("aria-hidden", "true");
+  quickView.innerHTML = `
+    <button class="quick-view__overlay" type="button" data-quick-close aria-label="Close quick view"></button>
+    <div class="quick-view__panel" role="dialog" aria-modal="true" aria-label="Product quick view">
+      <button class="quick-view__close" type="button" data-quick-close>Close</button>
+      <div id="quick-view-content"></div>
+    </div>
+  `;
+  document.body.appendChild(quickView);
+  return quickView;
+}
+
+function openQuickView(product) {
+  if (!product) return;
+  const pricing = productPricing(product);
+  const quickView = ensureQuickView();
+  const message = `Hi Shivara.luxe, I want to inquire about ${product.title} (${product.category}) - ${product.id} - ${product.instagram}`;
+  quickView.querySelector("#quick-view-content").innerHTML = `
+    <div class="quick-view__media">
+      <img src="/${product.image}" alt="${product.title}" />
+    </div>
+    <div class="quick-view__info">
+      <p class="quick-view__eyebrow">${product.category} | Shivara.luxe</p>
+      <h2>${product.title}</h2>
+      <div class="quick-view__price">
+        <span>INR</span>
+        <s>${pricing.compareAt}</s>
+        <strong>${pricing.price}</strong>
+      </div>
+      <p class="quick-view__member">Member Price INR ${pricing.member}</p>
+      <p class="quick-view__note">Premium-looking everyday jewellery, curated from the Shivara Instagram drop. Add it to your inquiry list and confirm availability on WhatsApp.</p>
+      <div class="quick-view__actions">
+        <button class="button button--primary" type="button" data-add="${product.id}">Add to bag</button>
+        <a class="button button--outline" href="https://wa.me/919457041215?text=${encodeURIComponent(message)}" target="_blank" rel="noreferrer">WhatsApp</a>
+      </div>
+      <a class="quick-view__insta" href="${product.instagram}" target="_blank" rel="noreferrer">View Instagram post</a>
+    </div>
+  `;
+  quickView.classList.add("is-open");
+  quickView.setAttribute("aria-hidden", "false");
+  document.body.classList.add("quick-view-open");
+}
+
+function closeQuickView() {
+  const quickView = document.querySelector("#quick-view");
+  quickView?.classList.remove("is-open");
+  quickView?.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("quick-view-open");
 }
 
 function sectionProducts(kind) {
@@ -501,7 +559,17 @@ document.addEventListener("click", (event) => {
     const id = addButton.getAttribute("data-add");
     cart.set(id, (cart.get(id) || 0) + 1);
     renderCart();
+    closeQuickView();
     setCartOpen(true);
+    return;
+  }
+  const quickButton = target.closest("[data-quick]");
+  if (quickButton) {
+    openQuickView(productById(quickButton.getAttribute("data-quick")));
+    return;
+  }
+  if (target.closest("[data-quick-close]")) {
+    closeQuickView();
     return;
   }
   const increase = target.closest("[data-increase]");
@@ -537,10 +605,12 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     closeDrawers();
     setCartOpen(false);
+    closeQuickView();
   }
 });
 
 injectSharedLayout();
+ensureQuickView();
 renderHome();
 renderCollection();
 renderCart();
