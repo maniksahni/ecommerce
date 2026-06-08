@@ -236,13 +236,16 @@ img {
 
 .slideshow__slide-list {
   display: flex;
-  width: 400%;
-  animation: slider-drift 18s infinite;
+  width: 100%;
 }
 
 .slideshow__slide {
-  width: 25%;
-  flex: 0 0 25%;
+  width: 100%;
+  flex: 0 0 100%;
+}
+
+.slideshow__slide:not(:first-child) {
+  display: none;
 }
 
 .slideshow__slide-inner,
@@ -373,7 +376,7 @@ img {
   right: 0;
   bottom: 18px;
   left: 0;
-  display: flex;
+  display: none;
   justify-content: center;
   gap: 12px;
 }
