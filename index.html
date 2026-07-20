@@ -2,415 +2,81 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta
       name="description"
       content="Shop Shivara.luxe statement jewellery: rings, bracelets, pendants, earrings, gifting edits, and evil-eye pieces with WhatsApp checkout."
     />
-    <title>Shivara.luxe | Statement Jewellery</title>
+    <title>Shivara.luxe | Social Jewellery Shop</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles.css?v=luxe-4" />
+    <link rel="stylesheet" href="/styles.css?v=social-luxe-1" />
   </head>
-  <body data-page="home">
+  <body data-page="home" class="social-home">
     <a class="visually-hidden skip-to-content" href="#main">Skip to content</a>
 
-    <div class="announcement-bar" aria-hidden="true"></div>
+    <aside class="social-sidebar" aria-label="Primary">
+      <a class="social-sidebar__brand" href="/" aria-label="Shivara.luxe home">Shivara.luxe</a>
+      <nav class="social-sidebar__nav" id="desktop-social-nav"></nav>
+    </aside>
 
-    <div class="shopify-section shopify-section--header" id="shopify-section-header">
-      <store-header class="header header--bordered">
-        <div class="container">
-          <div class="header__wrapper">
-            <nav class="header__inline-navigation" aria-label="Navigation">
-              <div class="header__icon-list hidden-desk">
-                <button class="header__icon-wrapper tap-area" type="button" data-menu-open aria-label="Navigation">
-                  <svg class="icon icon--header-hamburger" viewBox="0 0 18 14" aria-hidden="true">
-                    <path d="M0 1h18M0 7h18M0 13h18" fill="none" stroke="currentColor" stroke-width="2" />
-                  </svg>
-                </button>
-                <button class="header__icon-wrapper tap-area" type="button" data-search-open aria-label="Search">
-                  <svg class="icon icon--header-search" viewBox="0 0 20 20" aria-hidden="true">
-                    <circle cx="9" cy="9" r="6.5" fill="none" stroke="currentColor" stroke-width="2" />
-                    <path d="m14 14 5 5" fill="none" stroke="currentColor" stroke-width="2" />
-                  </svg>
-                </button>
-              </div>
-              <ul class="header__linklist hidden-pocket">
-                <li><a href="/">Home</a></li>
-                <li><a href="/collections/all">New Arrivals</a></li>
-                <li><a href="#earrings">Earrings</a></li>
-                <li><a href="#neck-wear">Neck Wear</a></li>
-                <li><a href="#bracelets">Bracelets</a></li>
-                <li><a href="/collections/rings">Rings</a></li>
-              </ul>
-            </nav>
+    <header class="social-mobile-header">
+      <a class="social-mobile-header__brand" href="/">Shivara.luxe</a>
+      <div class="social-mobile-header__actions">
+        <button class="social-icon-button" type="button" data-notifications-open aria-label="Notifications">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.8 20a2.4 2.4 0 0 0 4.4 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <button class="social-icon-button" type="button" data-cart-open aria-label="Open shopping bag">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.2 8h11.6l-1 11H7.2L6.2 8Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 8a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="social-bag-count" data-cart-count>0</span>
+        </button>
+      </div>
+    </header>
 
-            <h1 class="header__logo">
-              <a class="header__logo-link" href="/" aria-label="Shivara.luxe home">
-                <img class="header__logo-image" src="/assets/instagram/profile.jpg" alt="" />
-                <span>Shivara.luxe</span>
-              </a>
-            </h1>
-
-            <div class="header__secondary-links">
-              <div class="header__icon-list">
-                <button class="header__icon-wrapper tap-area hidden-pocket" type="button" data-search-open aria-label="Search">
-                  <svg class="icon icon--header-search" viewBox="0 0 20 20" aria-hidden="true">
-                    <circle cx="9" cy="9" r="6.5" fill="none" stroke="currentColor" stroke-width="2" />
-                    <path d="m14 14 5 5" fill="none" stroke="currentColor" stroke-width="2" />
-                  </svg>
-                </button>
-                <a class="header--icon hidden-pocket" href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer" aria-label="Instagram">
-                  <svg class="icon" viewBox="0 0 20 20" aria-hidden="true">
-                    <rect x="3" y="3" width="14" height="14" rx="4" fill="none" stroke="currentColor" stroke-width="1.8" />
-                    <circle cx="10" cy="10" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8" />
-                    <circle cx="14.4" cy="5.7" r="1" fill="currentColor" />
-                  </svg>
-                </a>
-                <button class="nn header__icon-wrapper tap-area" type="button" data-cart-open aria-label="Open cart">
-                  <svg class="icon icon--header-cart" viewBox="0 0 23 23" aria-hidden="true">
-                    <path d="M6 7h12l-1.2 9.5H7.2L6 7Z" fill="none" stroke="currentColor" stroke-width="1.8" />
-                    <path d="M8.5 7a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="1.8" />
-                  </svg>
-                  <cart-count class="header__cart-count header__cart-count--floating bubble-count" data-cart-count>0</cart-count>
-                </button>
-              </div>
-            </div>
-          </div>
+    <main id="main" class="social-main" tabindex="-1">
+      <section class="social-profile" aria-labelledby="profile-title">
+        <div class="social-profile__avatar-wrap">
+          <img class="social-profile__avatar" src="/assets/instagram/profile.jpg" alt="Shivara.luxe profile" />
         </div>
-      </store-header>
-    </div>
-
-    <main id="main" class="anchor">
-      <section class="shopify-section shopify-section--slideshow" aria-label="Featured banners">
-        <div class="section section--flush">
-          <div class="slideshow slideshow--auto" data-slideshow>
-            <div class="slideshow__slide-list">
-              <a class="slideshow__slide is-selected slideshow__slide--sweep" href="#bracelets">
-                <span class="slideshow__slide-inner">
-                  <span class="slideshow__image-wrapper hidden-pocket">
-                    <img class="slideshow__image" src="/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" alt="" />
-                  </span>
-                  <span class="slideshow__image-wrapper hidden-lap-and-up">
-                    <img class="slideshow__image" src="/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" alt="" />
-                  </span>
-                  <span class="slideshow__content">
-                    <strong>Shivara <span>Luxe Edit</span></strong>
-                    <em>Anti-tarnish pieces, curated stacks, and gift-ready drops for everyday occasion dressing.</em>
-                    <span class="hero-actions">
-                      <span>Shop new drops</span>
-                      <span>WhatsApp concierge</span>
-                    </span>
-                  </span>
-                </span>
-              </a>
-              <a class="slideshow__slide slideshow__slide--sweep" href="#earrings">
-                <span class="slideshow__slide-inner">
-                  <span class="slideshow__image-wrapper hidden-pocket">
-                    <img class="slideshow__image" src="/assets/instagram-shop/post-080-DWERaGlEYB6.jpg" alt="" />
-                  </span>
-                  <span class="slideshow__image-wrapper hidden-lap-and-up">
-                    <img class="slideshow__image" src="/assets/instagram-shop/post-080-DWERaGlEYB6.jpg" alt="" />
-                  </span>
-                </span>
-              </a>
-              <a class="slideshow__slide slideshow__slide--sweep" href="/collections/rings">
-                <span class="slideshow__slide-inner">
-                  <span class="slideshow__image-wrapper hidden-pocket">
-                    <img class="slideshow__image" src="/assets/instagram-shop/post-090-DVsiM2WEctG.jpg" alt="" />
-                  </span>
-                  <span class="slideshow__image-wrapper hidden-lap-and-up">
-                    <img class="slideshow__image" src="/assets/instagram-shop/post-090-DVsiM2WEctG.jpg" alt="" />
-                  </span>
-                </span>
-              </a>
-              <a class="slideshow__slide slideshow__slide--sweep" href="#neck-wear">
-                <span class="slideshow__slide-inner">
-                  <span class="slideshow__image-wrapper hidden-pocket">
-                    <img class="slideshow__image" src="/assets/instagram-shop/post-036-DXRflQ2ARK2.jpg" alt="" />
-                  </span>
-                  <span class="slideshow__image-wrapper hidden-lap-and-up">
-                    <img class="slideshow__image" src="/assets/instagram-shop/post-036-DXRflQ2ARK2.jpg" alt="" />
-                  </span>
-                </span>
-              </a>
-            </div>
-            <div class="slideshow__nav container">
-              <button class="slideshow__progress-bar is-selected" type="button" data-slide-dot="0">Go to slide 1</button>
-              <button class="slideshow__progress-bar" type="button" data-slide-dot="1">Go to slide 2</button>
-              <button class="slideshow__progress-bar" type="button" data-slide-dot="2">Go to slide 3</button>
-              <button class="slideshow__progress-bar" type="button" data-slide-dot="3">Go to slide 4</button>
-            </div>
+        <div class="social-profile__body">
+          <div class="social-profile__topline">
+            <h1 id="profile-title">shivara.luxe</h1>
+            <span class="brand-badge" aria-label="Verified Shivara.luxe brand">✦</span>
+            <button class="profile-action profile-action--primary" type="button" data-shop-now>Shop Now</button>
+            <a class="profile-action" href="https://wa.me/919457041215" target="_blank" rel="noreferrer">WhatsApp</a>
+            <button class="profile-action" type="button" data-message-open>Message</button>
+            <button class="profile-share" type="button" data-share-profile aria-label="Share profile">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 16V4m0 0 4 4m-4-4L8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <div class="social-profile__stats" aria-label="Profile statistics">
+            <span><strong data-profile-posts>103</strong> posts</span>
+            <span><strong data-profile-collections>9</strong> collections</span>
+            <span><strong>500+</strong> happy customers</span>
+          </div>
+          <div class="social-profile__bio">
+            <strong>Shivara.luxe</strong>
+            <span>Jewellery &amp; Accessories</span>
+            <p>Designed to be noticed.<br />Statement jewellery for everyday slay.<br />Iconic • Custom • Limited.</p>
+            <p class="social-profile__delivery">PAN India Delivery</p>
+            <a href="https://wa.me/919457041215" target="_blank" rel="noreferrer">wa.me/919457041215</a>
           </div>
         </div>
       </section>
 
-      <section class="luxe-service-strip" aria-label="Store promises">
-        <div class="container">
-          <article><span>01</span><strong>Curated drops</strong><p>Limited edits from Shivara.luxe Instagram.</p></article>
-          <article><span>02</span><strong>Gift-ready</strong><p>Pieces selected for birthdays, Eidi, and surprise gifting.</p></article>
-          <article><span>03</span><strong>Concierge order</strong><p>Build your inquiry list and confirm on WhatsApp.</p></article>
-        </div>
+      <section class="story-highlights" aria-label="Story highlights">
+        <div class="story-highlights__track" id="story-highlights"></div>
       </section>
 
-      <section class="shopify-section shopify-section--featured-collection-list">
-        <div class="custom-margin">
-          <div class="section__color-wrapper">
-            <div class="featured_collection_list_wrapper">
-              <div class="featured_collection_list_block" id="category-strip"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="signature-drop">
-        <div class="container signature-drop__grid">
-          <div class="signature-drop__copy">
-            <p class="section-kicker">The signature drop</p>
-            <h2 class="heading h2">Jewellery that looks custom, styled for every day.</h2>
-            <p>Explore rings, evil-eye bracelets, pendants, and soft statement sets with a polished boutique feel. Every product opens into a quick-view card so shopping feels smooth on mobile.</p>
-            <div class="signature-drop__links">
-              <a class="button button--primary" href="/collections/all">Shop all</a>
-              <a class="button button--outline" href="/collections/rings">Shop rings</a>
-            </div>
-          </div>
-          <a class="signature-drop__media" href="/collections/all">
-            <img src="/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" alt="" />
-            <span>Boxed Evil Eye Bracelet</span>
-          </a>
-        </div>
-      </section>
-
-      <section class="shopify-section shopify-section--featured-collections-secondary" id="bestsellers">
-        <div class="section">
-          <div class="section__color-wrapper">
-            <div class="custom_container">
-              <div class="featured_collection_secondary_wrap">
-                <header class="featured_collection_seacondary_header">
-                  <h3 class="heading h2 featured-collection-secondary_heading">Bestsellers</h3>
-                  <div class="rte"><p>The favorites everyone is asking for on Instagram.</p></div>
-                </header>
-                <div class="featured_collection_secondary_product-list">
-                  <div class="featured-collection-secondary_list">
-                    <div class="product-list__inner-secondary splide__list" data-section-products="bestsellers"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="shopify-section shopify-section--featured-collections-secondary" id="earrings">
-        <div class="section">
-          <div class="section__color-wrapper">
-            <div class="custom_container">
-              <div class="featured_collection_secondary_wrap">
-                <header class="featured_collection_seacondary_header">
-                  <h3 class="heading h2 featured-collection-secondary_heading">Earrings</h3>
-                  <div class="rte"><p>Fresh styles, premium shine, and gift-ready everyday pieces.</p></div>
-                </header>
-                <div class="product-list__inner-secondary splide__list" data-section-products="Earrings"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="shopify-section shopify-section--slideshow promo-banner">
-        <a class="slideshow__slide-inner" href="/collections/all">
-          <img class="slideshow__image" src="/assets/instagram-shop/post-049-DW9Cf8OkWo0.jpg" alt="" />
-          <span class="promo-copy">
-            <strong>Curated collection</strong>
-            <span>Shop statement stacks, soft pendants, iconic rings, and evil-eye edits.</span>
-          </span>
-        </a>
-      </section>
-
-      <section class="shopify-section shopify-section--featured-collections-secondary" id="neck-wear">
-        <div class="section">
-          <div class="section__color-wrapper">
-            <div class="custom_container">
-              <div class="featured_collection_secondary_wrap">
-                <header class="featured_collection_seacondary_header">
-                  <h3 class="heading h2 featured-collection-secondary_heading">Neck Wear</h3>
-                  <div class="rte"><p>Delicate pendants and soft luxe pieces for daily styling.</p></div>
-                </header>
-                <div class="product-list__inner-secondary splide__list" data-section-products="Pendants"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="shopify-section shopify-section--featured-collections-secondary" id="bracelets">
-        <div class="section">
-          <div class="section__color-wrapper">
-            <div class="custom_container">
-              <div class="featured_collection_secondary_wrap">
-                <header class="featured_collection_seacondary_header">
-                  <h3 class="heading h2 featured-collection-secondary_heading">Bracelets</h3>
-                  <div class="rte"><p>Charm stacks, evil-eye protection, and wrist glow-ups.</p></div>
-                </header>
-                <div class="product-list__inner-secondary splide__list" data-section-products="Bracelets"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="shopify-section shopify-section--rich-text">
-        <div class="section">
-          <div class="container">
-            <div class="content-box content-box--medium content-box--text-center content-box--center text-container">
-              <p class="section-kicker">Shivara concierge</p>
-              <h2 class="heading h2">Make your bag, send one clean inquiry, confirm the drop.</h2>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="shopify-section shopify-section--grid-column">
-        <div class="section grid-column--wrap">
-          <div class="section__color-wrapper">
-            <div class="container">
-              <div class="grid-column--list">
-                <a class="grid-column--item gci-1" href="#earrings">
-                  <img class="grid-column_media_img" src="/assets/instagram-shop/post-038-DXO-ucIBdig.jpg" alt="" />
-                  <span class="grid_column_collection_title h5 m-0">ICONIC EARRINGS</span>
-                </a>
-                <a class="grid-column--item gci-2" href="#bestsellers">
-                  <img class="grid-column_media_img" src="/assets/instagram-shop/post-049-DW9Cf8OkWo0.jpg" alt="" />
-                  <span class="grid_column_collection_title h5 m-0">CELEBRITY STYLES</span>
-                </a>
-                <a class="grid-column--item gci-3" href="/collections/all">
-                  <img class="grid-column_media_img" src="/assets/instagram-shop/post-086-DV0yEUUkTHq.jpg" alt="" />
-                  <span class="grid_column_collection_title h5 m-0">VACATION MUST-HAVES</span>
-                </a>
-                <a class="grid-column--item gci-4" href="/collections/rings">
-                  <img class="grid-column_media_img" src="/assets/instagram-shop/post-090-DVsiM2WEctG.jpg" alt="" />
-                  <span class="grid_column_collection_title h5 m-0">OFFICE CHIC</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="shopify-section shopify-section--featured-collections-secondary" id="gifts">
-        <div class="section">
-          <div class="section__color-wrapper">
-            <div class="custom_container">
-              <div class="featured_collection_secondary_wrap">
-                <header class="featured_collection_seacondary_header">
-                  <h3 class="heading h2 featured-collection-secondary_heading">Gifts for Her</h3>
-                </header>
-                <div class="product-list__inner-secondary splide__list" data-section-products="Gifting"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="shopify-section shopify-section--testimonials-secondary">
-        <div class="section">
-          <div class="section__color-wrapper">
-            <div class="container">
-              <header class="section__header text-container">
-                <h2 class="heading h2">Let our customers speak for us</h2>
-              </header>
-              <div class="testimonail-secondary_list">
-                <article class="testimonail-secondary_item">
-                  <p class="review_text">"The evil-eye bracelet looks premium and arrived gift-ready. Perfect for everyday styling."</p>
-                  <strong class="testimonial-secondary__author">Noor S</strong>
-                </article>
-                <article class="testimonail-secondary_item">
-                  <p class="review_text">"Loved the ring collection. The pieces feel delicate but still make a statement."</p>
-                  <strong class="testimonial-secondary__author">Ananya K</strong>
-                </article>
-                <article class="testimonail-secondary_item">
-                  <p class="review_text">"Easy WhatsApp ordering, cute packaging, and the pendants are exactly my vibe."</p>
-                  <strong class="testimonial-secondary__author">Rhea M</strong>
-                </article>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="shopify-section shopify-section--image-with-text-secondary">
-        <div class="section__color-wrapper">
-          <div class="image-with-text-secondary">
-            <div class="image-with-text-secondary__content">
-              <p class="image-with-text-secondary__heading">About Us</p>
-              <h2 class="heading h2 m-0">Shivara.luxe</h2>
-              <p class="content">Statement jewellery for everyday slay. Iconic, custom, limited pieces shipped PAN India.</p>
-              <a class="button button--primary button--small" href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">GET TO KNOW US</a>
-            </div>
-            <div class="image-with-text-secondary__image hidden-pocket">
-              <img class="image-with-text-secondary-image" src="/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" alt="" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="shopify-section shopify-section--text-with-icons">
-        <div class="section">
-          <div class="section__color-wrapper">
-            <div class="container">
-              <div class="text-with-icons">
-                <div class="text-with-icons__list hide-scrollbar">
-                  <article class="text-with-icons__item"><span>✦</span><p>Exclusive Designs</p></article>
-                  <article class="text-with-icons__item"><span>◇</span><p>Indian or Western</p></article>
-                  <article class="text-with-icons__item"><span>✓</span><p>Payment Secure</p></article>
-                  <article class="text-with-icons__item"><span>↗</span><p>PAN India Delivery</p></article>
-                  <article class="text-with-icons__item"><span>↺</span><p>Easy DM Support</p></article>
-                  <article class="text-with-icons__item"><span>♡</span><p>Happy Customers</p></article>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <nav class="profile-tabs" aria-label="Profile content tabs" id="profile-tabs"></nav>
+      <section class="profile-tab-panel" id="profile-tab-panel" aria-live="polite"></section>
     </main>
 
-    <footer class="shopify-section shopify-section--footer site-footer">
-      <div class="footer__inner container">
-        <div class="footer__newsletter">
-          <img src="/assets/instagram/profile.jpg" alt="" />
-          <p class="footer__item-title heading h3 footer_newsletter_item_title">Stay in the Loop!</p>
-          <p>Join our WhatsApp list for new products, special offers, and deals.</p>
-          <a class="footer-input" href="https://wa.me/919457041215" target="_blank" rel="noreferrer">WhatsApp Shivara</a>
-        </div>
-        <div class="footer__columns">
-          <div>
-            <h3>Quick Links</h3>
-            <a href="/">Home</a>
-            <a href="/collections/all">New Arrivals</a>
-            <a href="/collections/rings">Rings</a>
-            <a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">Instagram</a>
-          </div>
-          <div>
-            <h3>Buy With Us</h3>
-            <a href="#bracelets">Bracelets</a>
-            <a href="#earrings">Earrings</a>
-            <a href="#neck-wear">Neck Wear</a>
-            <a href="#gifts">Gifts</a>
-          </div>
-          <div>
-            <h3>Contact Us</h3>
-            <p>Bareilly, Uttar Pradesh</p>
-            <p>DM to shop | PAN India</p>
-            <p>WhatsApp: +91 9457041215</p>
-          </div>
-        </div>
-      </div>
-      <p class="footer-bottom">Shivara.luxe</p>
-    </footer>
+    <nav class="social-bottom-nav" id="mobile-social-nav" aria-label="Primary mobile"></nav>
 
     <predictive-search-drawer class="predictive-search drawer drawer--large" id="search-drawer" aria-hidden="true">
       <div class="drawer__overlay" data-drawer-close></div>
@@ -418,27 +84,11 @@
         <button class="drawer__close-button tap-area" type="button" data-drawer-close aria-label="Close search">Close</button>
         <label class="predictive-search__form">
           <span>Search</span>
-          <input class="predictive-search__input" id="drawer-search" type="text" placeholder="What are you looking for?" autocomplete="off" />
+          <input class="predictive-search__input" id="drawer-search" type="text" placeholder="Search Shivara drops" autocomplete="off" />
         </label>
         <div class="predictive-search__results" id="search-results"></div>
       </div>
     </predictive-search-drawer>
-
-    <mobile-navigation class="drawer drawer--from-left" id="mobile-menu-drawer" aria-hidden="true">
-      <div class="drawer__overlay" data-drawer-close></div>
-      <div class="drawer__content">
-        <button class="drawer__close-button tap-area" type="button" data-drawer-close aria-label="Close menu">Close</button>
-        <nav class="mobile-nav">
-          <a href="/">Home</a>
-          <a href="/collections/all">New Arrivals</a>
-          <a href="#earrings">Earrings</a>
-          <a href="#neck-wear">Neck Wear</a>
-          <a href="#bracelets">Bracelets</a>
-          <a href="/collections/rings">Rings</a>
-          <a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">Track your Order</a>
-        </nav>
-      </div>
-    </mobile-navigation>
 
     <div class="cart-overlay" data-cart-close hidden></div>
     <aside class="cart-drawer" aria-label="Shopping bag" aria-hidden="true">
@@ -460,7 +110,9 @@
       </div>
     </aside>
 
+    <div id="social-modal-root"></div>
+
     <script src="/shop-data.js?v=full-shop-ig"></script>
-    <script src="/script.js?v=jlt-shop-5"></script>
+    <script src="/script.js?v=social-luxe-1"></script>
   </body>
 </html>

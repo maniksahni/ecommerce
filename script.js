@@ -526,9 +526,566 @@ function setCartOpen(open) {
   if (overlay) overlay.hidden = !open;
 }
 
+const socialState = {
+  tab: "posts",
+  postIndex: 0,
+  storyIndex: 0,
+  storyTimer: null,
+  storyStartedAt: 0,
+  storyRemaining: 5200,
+  storyPaused: false,
+  liked: new Set(JSON.parse(localStorage.getItem("shivara-liked-posts") || "[]")),
+  saved: new Set(JSON.parse(localStorage.getItem("shivara-saved-posts") || "[]"))
+};
+
+const socialProducts = allProducts.length ? allProducts : products;
+const shoppableIds = new Set(products.map((product) => product.id));
+
+const socialIcons = {
+  home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3.5 10 8.5-7 8.5 7v10a1 1 0 0 1-1 1h-5.5v-6h-4v6H4.5a1 1 0 0 1-1-1V10Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+  search: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  explore: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m15.8 8.2-2.2 5.4-5.4 2.2 2.2-5.4 5.4-2.2Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+  reels: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m9.5 8 3 4-3 4V8Zm-4-1.5 3 3m3-5.5 3 4m3-3 2.5 3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  messages: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v10.8H8.4L4 20V5.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+  notifications: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.3-7-10.1A4.1 4.1 0 0 1 12 7a4.1 4.1 0 0 1 7 2.9C19 15.7 12 20 12 20Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+  create: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v8m-4-4h8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  wishlist: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5h12v16L12 17l-6 3.5v-16Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+  profile: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  more: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  posts: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 12h16M12 4v16" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>',
+  tagged: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v16l-7-4-7 4V5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+  play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5V7Z" fill="currentColor"/></svg>',
+  heart: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.3-7-10.1A4.1 4.1 0 0 1 12 7a4.1 4.1 0 0 1 7 2.9C19 15.7 12 20 12 20Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+  comment: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v11H9l-4 3V5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+  share: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 16-8-5 16-3-7-8-1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+  bag: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.2 8h11.6l-1 11H7.2L6.2 8Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 8a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'
+};
+
+const socialNavItems = [
+  ["Home", "home"],
+  ["Search", "search"],
+  ["Explore", "explore"],
+  ["Reels", "reels"],
+  ["Messages", "messages"],
+  ["Notifications", "notifications"],
+  ["Create", "create"],
+  ["Wishlist", "wishlist"],
+  ["Profile", "profile"],
+  ["More", "more"]
+];
+
+const socialTabs = [
+  ["Posts", "posts"],
+  ["Reels", "reels"],
+  ["Shop", "bag"],
+  ["Tagged", "tagged"]
+];
+
+const storyHighlights = [
+  ["New", "Latest drops", "DYfHBFKBXGi", "View Collection"],
+  ["Rings", "Ring studio", "DVsiM2WEctG", "View Collection"],
+  ["Bracelets", "Wrist stacks", "DW3H_GZDD_4", "Order on WhatsApp"],
+  ["Earrings", "Statement ears", "DWERaGlEYB6", "View Collection"],
+  ["Pendants", "Neck layers", "DXRflQ2ARK2", "View Collection"],
+  ["Evil Eye", "Protection edit", "DYPpSpxhPO0", "Order on WhatsApp"],
+  ["Custom", "Personal picks", "DUsq31AgXWw", "Message Shivara"],
+  ["Reviews", "Client love", "DXybkxCRoaE", "View Collection"],
+  ["Packaging", "Gift-ready", "DXybkxCRoaE", "Order on WhatsApp"],
+  ["Offers", "Limited prices", "DVqa-xUkQHq", "Shop Now"]
+];
+
+function formatCount(value) {
+  if (!Number.isFinite(Number(value))) return "0";
+  if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+  if (value >= 1000) return `${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}K`;
+  return String(value);
+}
+
+function socialProductById(id) {
+  return socialProducts.find((product) => product.id === id) || products[0];
+}
+
+function whatsappProductLink(product) {
+  const message = `Hi Shivara.luxe, I want to inquire about ${product.title} (${product.category}) - ${product.id} - ${product.instagram}`;
+  return `https://wa.me/919457041215?text=${encodeURIComponent(message)}`;
+}
+
+function saveSocialState() {
+  localStorage.setItem("shivara-liked-posts", JSON.stringify(Array.from(socialState.liked)));
+  localStorage.setItem("shivara-saved-posts", JSON.stringify(Array.from(socialState.saved)));
+}
+
+function productCaption(product) {
+  return (product.caption || "DM to order from Shivara.luxe").replace(/\s+/g, " ").trim();
+}
+
+function renderSocialNav() {
+  const desktop = document.querySelector("#desktop-social-nav");
+  const mobile = document.querySelector("#mobile-social-nav");
+  if (desktop) {
+    desktop.innerHTML = socialNavItems
+      .map(([label, key]) => `<button class="social-nav-item ${key === "home" ? "is-active" : ""}" type="button" data-social-nav="${key}" aria-label="${label}">${socialIcons[key]}<span>${label}</span></button>`)
+      .join("");
+  }
+  if (mobile) {
+    mobile.innerHTML = ["home", "search", "reels", "wishlist", "profile"]
+      .map((key) => `<button class="social-bottom-nav__item ${key === "home" ? "is-active" : ""}" type="button" data-social-nav="${key}" aria-label="${key}">${socialIcons[key]}<span>${key}</span></button>`)
+      .join("");
+  }
+}
+
+function renderProfileMeta() {
+  const profile = shopData.profile || {};
+  document.querySelector("[data-profile-posts]")?.replaceChildren(document.createTextNode(String(profile.posts || socialProducts.length)));
+  document.querySelector("[data-profile-collections]")?.replaceChildren(document.createTextNode(String(categories.length)));
+}
+
+function renderHighlights() {
+  const mount = document.querySelector("#story-highlights");
+  if (!mount) return;
+  mount.innerHTML = storyHighlights
+    .map(([label, title, id], index) => {
+      const product = socialProductById(id);
+      return `
+        <button class="story-highlight" type="button" data-story-open="${index}" aria-label="Open ${label} story">
+          <span class="story-highlight__ring"><img src="/${product.image}" alt="" loading="${index < 4 ? "eager" : "lazy"}" decoding="async" /></span>
+          <span>${label}</span>
+        </button>
+      `;
+    })
+    .join("");
+}
+
+function renderTabs() {
+  const tabs = document.querySelector("#profile-tabs");
+  if (!tabs) return;
+  tabs.innerHTML = socialTabs
+    .map(([label, icon]) => `<button class="profile-tab ${socialState.tab === label.toLowerCase() ? "is-active" : ""}" type="button" data-social-tab="${label.toLowerCase()}" aria-selected="${socialState.tab === label.toLowerCase()}">${socialIcons[icon]}<span>${label}</span></button>`)
+    .join("");
+}
+
+function renderActiveTab() {
+  renderTabs();
+  const panel = document.querySelector("#profile-tab-panel");
+  if (!panel) return;
+  if (socialState.tab === "reels") {
+    panel.innerHTML = renderReelsGrid();
+  } else if (socialState.tab === "shop") {
+    panel.innerHTML = renderShopGrid();
+  } else if (socialState.tab === "tagged") {
+    panel.innerHTML = renderTaggedGrid();
+  } else {
+    panel.innerHTML = renderPostsGrid();
+  }
+}
+
+function renderPostsGrid() {
+  return `<div class="social-grid social-grid--posts">${socialProducts
+    .map((product, index) => `
+      <button class="social-post-tile" type="button" data-post-open="${index}" aria-label="Open post for ${product.title}">
+        <img src="/${product.image}" alt="${product.title}" loading="${index < 9 ? "eager" : "lazy"}" decoding="async" />
+        ${index % 7 === 0 ? '<span class="tile-corner tile-corner--carousel">▣</span>' : ""}
+        ${shoppableIds.has(product.id) && index % 4 === 0 ? '<span class="tile-shop-badge">Shop</span>' : ""}
+        <span class="social-post-tile__overlay"><span>${socialIcons.heart}${formatCount((product.likes || 0) + 240 + index * 11)}</span><span>${socialIcons.comment}${(index % 19) + 3}</span></span>
+      </button>
+    `)
+    .join("")}</div>`;
+}
+
+function renderReelsGrid() {
+  const reels = socialProducts.slice(0, 36);
+  return `<div class="social-grid social-grid--reels">${reels
+    .map((product, index) => `
+      <button class="social-reel-tile" type="button" data-reels-open="${index}" aria-label="Open reel for ${product.title}">
+        <img src="/${product.image}" alt="${product.title}" loading="${index < 9 ? "eager" : "lazy"}" decoding="async" />
+        <span class="reel-play">${socialIcons.play}</span>
+        <span class="reel-count">${socialIcons.play}${formatCount(product.views || 1200)}</span>
+      </button>
+    `)
+    .join("")}</div>`;
+}
+
+function renderShopGrid() {
+  return `<div class="social-shop-grid">${products
+    .map((product, index) => {
+      const pricing = productPricing(product);
+      return `
+        <article class="social-shop-card">
+          <button class="social-shop-card__media" type="button" data-post-id="${product.id}" aria-label="Open ${product.title}">
+            <img src="/${product.image}" alt="${product.title}" loading="${index < 8 ? "eager" : "lazy"}" decoding="async" />
+          </button>
+          <div class="social-shop-card__info">
+            <h2>${product.title}</h2>
+            <p>${product.category}</p>
+            <strong>INR ${pricing.price}</strong>
+            <button type="button" data-add="${product.id}">${cart.has(product.id) ? "Added" : "Quick shop"}</button>
+          </div>
+        </article>
+      `;
+    })
+    .join("")}</div>`;
+}
+
+function renderTaggedGrid() {
+  const editorial = socialProducts.filter((product, index) => index % 2 === 1).slice(0, 42);
+  return `<div class="social-grid social-grid--tagged">${editorial
+    .map((product, index) => `
+      <button class="social-post-tile" type="button" data-post-id="${product.id}" aria-label="Open tagged post for ${product.title}">
+        <img src="/${product.image}" alt="${product.title}" loading="${index < 9 ? "eager" : "lazy"}" decoding="async" />
+        <span class="tile-shop-badge">Tagged</span>
+        <span class="social-post-tile__overlay"><span>${socialIcons.profile}@shivara.luxe</span></span>
+      </button>
+    `)
+    .join("")}</div>`;
+}
+
+function renderSocialHome() {
+  if (!document.body.classList.contains("social-home")) return;
+  renderSocialNav();
+  renderProfileMeta();
+  renderHighlights();
+  renderActiveTab();
+}
+
+function syncSocialCounters() {
+  document.querySelectorAll("[data-save-post]").forEach((button) => {
+    const id = button.getAttribute("data-save-post");
+    button.classList.toggle("is-active", socialState.saved.has(id));
+    button.setAttribute("aria-pressed", String(socialState.saved.has(id)));
+  });
+  document.querySelectorAll("[data-like-post]").forEach((button) => {
+    const id = button.getAttribute("data-like-post");
+    button.classList.toggle("is-active", socialState.liked.has(id));
+    button.setAttribute("aria-pressed", String(socialState.liked.has(id)));
+  });
+}
+
+function openPostViewer(index) {
+  const safeIndex = Math.max(0, Math.min(index, socialProducts.length - 1));
+  socialState.postIndex = safeIndex;
+  const product = socialProducts[safeIndex];
+  const pricing = productPricing(product);
+  const baseLikes = (product.likes || 0) + 240 + safeIndex * 11;
+  const liked = socialState.liked.has(product.id);
+  const saved = socialState.saved.has(product.id);
+  const caption = productCaption(product);
+  const quickButton = shoppableIds.has(product.id)
+    ? `<button class="post-viewer__primary" type="button" data-quick="${product.id}">View Product</button>`
+    : `<a class="post-viewer__primary" href="${product.instagram}" target="_blank" rel="noreferrer">View Product</a>`;
+
+  const root = document.querySelector("#social-modal-root");
+  if (!root) return;
+  root.innerHTML = `
+    <section class="post-viewer" role="dialog" aria-modal="true" aria-label="Shivara.luxe post viewer" data-modal>
+      <button class="post-viewer__backdrop" type="button" data-social-close aria-label="Close post"></button>
+      <article class="post-viewer__dialog">
+        <button class="post-viewer__close" type="button" data-social-close aria-label="Close post">Close</button>
+        <div class="post-viewer__media" data-like-post="${product.id}" data-like-surface>
+          <img src="/${product.image}" alt="${product.title}" />
+          ${safeIndex % 7 === 0 ? `<img src="/${socialProducts[(safeIndex + 1) % socialProducts.length].image}" alt="" />` : ""}
+          <span class="post-heart-burst" aria-hidden="true">${socialIcons.heart}</span>
+          <button class="post-viewer__step post-viewer__step--prev" type="button" data-post-prev aria-label="Previous post">‹</button>
+          <button class="post-viewer__step post-viewer__step--next" type="button" data-post-next aria-label="Next post">›</button>
+        </div>
+        <div class="post-viewer__panel">
+          <header class="post-viewer__header">
+            <img src="/assets/instagram/profile.jpg" alt="" />
+            <div><strong>shivara.luxe <span class="brand-badge brand-badge--small">✦</span></strong><span>${product.category} collection</span></div>
+          </header>
+          <div class="post-viewer__actions">
+            <button type="button" data-like-post="${product.id}" aria-pressed="${liked}">${socialIcons.heart}</button>
+            <button type="button" aria-label="Comments">${socialIcons.comment}</button>
+            <a href="${whatsappProductLink(product)}" target="_blank" rel="noreferrer" aria-label="Share on WhatsApp">${socialIcons.share}</a>
+            <button type="button" data-save-post="${product.id}" aria-pressed="${saved}">${socialIcons.wishlist}</button>
+          </div>
+          <strong class="post-viewer__likes">${formatCount(baseLikes + (liked ? 1 : 0))} likes</strong>
+          <p class="post-viewer__caption"><strong>shivara.luxe</strong> <span>${caption.slice(0, 170)}</span>${caption.length > 170 ? `<button type="button" data-expand-caption data-full-caption="${caption.replace(/"/g, "&quot;")}">more</button>` : ""}</p>
+          <div class="post-viewer__product">
+            <img src="/${product.image}" alt="" />
+            <div><strong>${product.title}</strong><span>${product.category} · INR ${pricing.price}</span></div>
+          </div>
+          <div class="post-viewer__comments">
+            <p><strong>riya</strong> need this stack</p>
+            <p><strong>shivara.luxe</strong> DM or WhatsApp to order, PAN India shipping available.</p>
+          </div>
+          <div class="post-viewer__ctas">
+            ${quickButton}
+            <a class="post-viewer__secondary" href="${whatsappProductLink(product)}" target="_blank" rel="noreferrer">Order on WhatsApp</a>
+          </div>
+        </div>
+      </article>
+    </section>
+  `;
+  document.body.classList.add("social-modal-open");
+  root.querySelector(".post-viewer__close")?.focus();
+  syncSocialCounters();
+}
+
+function closeSocialModal() {
+  clearStoryTimer();
+  const root = document.querySelector("#social-modal-root");
+  if (root) root.innerHTML = "";
+  document.body.classList.remove("social-modal-open", "story-open", "reels-open");
+}
+
+function toggleLike(productId, force = false) {
+  const alreadyLiked = socialState.liked.has(productId);
+  if (alreadyLiked && !force) socialState.liked.delete(productId);
+  if (!alreadyLiked) socialState.liked.add(productId);
+  saveSocialState();
+  syncSocialCounters();
+  const activeProductIndex = socialProducts.findIndex((product) => product.id === productId);
+  if (activeProductIndex >= 0 && document.querySelector(".post-viewer")) {
+    const product = socialProducts[activeProductIndex];
+    const count = (product.likes || 0) + 240 + activeProductIndex * 11 + (socialState.liked.has(productId) ? 1 : 0);
+    document.querySelector(".post-viewer__likes").textContent = `${formatCount(count)} likes`;
+  }
+}
+
+function animateHeart(surface) {
+  const burst = surface?.querySelector?.(".post-heart-burst");
+  if (!burst) return;
+  burst.classList.remove("is-visible");
+  window.requestAnimationFrame(() => burst.classList.add("is-visible"));
+}
+
+function openStoryViewer(index) {
+  socialState.storyIndex = Math.max(0, Math.min(index, storyHighlights.length - 1));
+  renderStoryViewer();
+}
+
+function clearStoryTimer() {
+  if (socialState.storyTimer) window.clearTimeout(socialState.storyTimer);
+  socialState.storyTimer = null;
+}
+
+function scheduleStoryAdvance(duration = 5200) {
+  clearStoryTimer();
+  socialState.storyStartedAt = Date.now();
+  socialState.storyRemaining = duration;
+  socialState.storyTimer = window.setTimeout(() => moveStory(1), duration);
+}
+
+function renderStoryViewer() {
+  const [label, title, id, cta] = storyHighlights[socialState.storyIndex];
+  const product = socialProductById(id);
+  const root = document.querySelector("#social-modal-root");
+  if (!root) return;
+  root.innerHTML = `
+    <section class="story-viewer" role="dialog" aria-modal="true" aria-label="${label} story" data-modal>
+      <div class="story-viewer__progress">${storyHighlights.map((_, index) => `<span class="${index < socialState.storyIndex ? "is-done" : index === socialState.storyIndex ? "is-active" : ""}"><i></i></span>`).join("")}</div>
+      <header class="story-viewer__header"><img src="/assets/instagram/profile.jpg" alt="" /><strong>shivara.luxe</strong><span>${label}</span><button type="button" data-social-close aria-label="Close story">×</button></header>
+      <button class="story-viewer__tap story-viewer__tap--prev" type="button" data-story-prev aria-label="Previous story"></button>
+      <figure class="story-viewer__media"><img src="/${product.image}" alt="${title}" /><figcaption><strong>${title}</strong><span>${product.title}</span></figcaption></figure>
+      <button class="story-viewer__tap story-viewer__tap--next" type="button" data-story-next aria-label="Next story"></button>
+      <a class="story-viewer__cta" href="${cta.includes("WhatsApp") || cta.includes("Message") ? whatsappProductLink(product) : "/collections/all"}" target="${cta.includes("WhatsApp") || cta.includes("Message") ? "_blank" : "_self"}" rel="noreferrer">${cta}</a>
+    </section>
+  `;
+  document.body.classList.add("social-modal-open", "story-open");
+  scheduleStoryAdvance();
+}
+
+function pauseStory() {
+  if (!document.querySelector(".story-viewer") || socialState.storyPaused) return;
+  socialState.storyPaused = true;
+  socialState.storyRemaining = Math.max(700, socialState.storyRemaining - (Date.now() - socialState.storyStartedAt));
+  clearStoryTimer();
+  document.querySelector(".story-viewer")?.classList.add("is-paused");
+}
+
+function resumeStory() {
+  if (!document.querySelector(".story-viewer") || !socialState.storyPaused) return;
+  socialState.storyPaused = false;
+  document.querySelector(".story-viewer")?.classList.remove("is-paused");
+  scheduleStoryAdvance(socialState.storyRemaining);
+}
+
+function moveStory(delta) {
+  const next = socialState.storyIndex + delta;
+  if (next < 0 || next >= storyHighlights.length) {
+    closeSocialModal();
+    return;
+  }
+  socialState.storyIndex = next;
+  renderStoryViewer();
+}
+
+function openReelsViewer(index = 0) {
+  const reels = socialProducts.slice(0, 36);
+  const root = document.querySelector("#social-modal-root");
+  if (!root) return;
+  root.innerHTML = `
+    <section class="reels-viewer" role="dialog" aria-modal="true" aria-label="Shivara.luxe reels" data-modal>
+      <button class="reels-viewer__close" type="button" data-social-close aria-label="Close reels">Close</button>
+      <div class="reels-viewer__track" id="reels-track">${reels
+        .map((product, reelIndex) => {
+          const pricing = productPricing(product);
+          return `
+            <article class="reel-card ${reelIndex === index ? "is-active" : ""}" data-reel-card>
+              <div class="reel-card__motion" data-reel-media><img src="/${product.image}" alt="${product.title}" /></div>
+              <button class="reel-card__mute" type="button" data-reel-mute aria-label="Mute or unmute">Muted</button>
+              <div class="reel-card__actions">
+                <button type="button" data-like-post="${product.id}">${socialIcons.heart}<span>${formatCount((product.likes || 0) + 320)}</span></button>
+                <button type="button">${socialIcons.comment}<span>${(reelIndex % 13) + 4}</span></button>
+                <a href="${whatsappProductLink(product)}" target="_blank" rel="noreferrer">${socialIcons.share}<span>Share</span></a>
+                <button type="button" data-save-post="${product.id}">${socialIcons.wishlist}<span>Save</span></button>
+              </div>
+              <div class="reel-card__caption">
+                <div><img src="/assets/instagram/profile.jpg" alt="" /><strong>shivara.luxe</strong><button type="button">Follow</button></div>
+                <p>${productCaption(product).slice(0, 118)}</p>
+                <span>${product.title} · INR ${pricing.price}</span>
+                <button type="button" data-add="${product.id}" ${shoppableIds.has(product.id) ? "" : "disabled"}>Shop Now</button>
+              </div>
+            </article>
+          `;
+        })
+        .join("")}</div>
+    </section>
+  `;
+  document.body.classList.add("social-modal-open", "reels-open");
+  const track = root.querySelector("#reels-track");
+  track?.children[index]?.scrollIntoView({ block: "center" });
+  setupReelObserver();
+  syncSocialCounters();
+}
+
+function setupReelObserver() {
+  const cards = document.querySelectorAll("[data-reel-card]");
+  if (!cards.length || !("IntersectionObserver" in window)) return;
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => entry.target.classList.toggle("is-active", entry.isIntersecting && entry.intersectionRatio > 0.65));
+    },
+    { threshold: [0.35, 0.65, 0.9] }
+  );
+  cards.forEach((card) => observer.observe(card));
+}
+
 document.addEventListener("click", (event) => {
   const target = event.target instanceof Element ? event.target : null;
   if (!target) return;
+  const navItem = target.closest("[data-social-nav]");
+  if (navItem) {
+    const key = navItem.getAttribute("data-social-nav");
+    if (key === "search") {
+      openDrawer("#search-drawer");
+      renderSearch("");
+    } else if (key === "reels") {
+      openReelsViewer(0);
+    } else if (key === "wishlist") {
+      socialState.tab = "shop";
+      renderActiveTab();
+      document.querySelector("#profile-tabs")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else if (key === "profile" || key === "home") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (key === "messages") {
+      window.open("https://wa.me/919457041215", "_blank", "noopener");
+    } else if (key === "notifications") {
+      alert("New Shivara.luxe drops are live. Add your favourites to the bag and confirm on WhatsApp.");
+    } else if (key === "explore") {
+      socialState.tab = "posts";
+      renderActiveTab();
+    }
+    return;
+  }
+  const tabButton = target.closest("[data-social-tab]");
+  if (tabButton) {
+    socialState.tab = tabButton.getAttribute("data-social-tab") || "posts";
+    renderActiveTab();
+    return;
+  }
+  const storyButton = target.closest("[data-story-open]");
+  if (storyButton) {
+    openStoryViewer(Number(storyButton.getAttribute("data-story-open") || 0));
+    return;
+  }
+  if (target.closest("[data-social-close]")) {
+    closeSocialModal();
+    return;
+  }
+  if (target.closest("[data-story-prev]")) {
+    moveStory(-1);
+    return;
+  }
+  if (target.closest("[data-story-next]")) {
+    moveStory(1);
+    return;
+  }
+  const postOpen = target.closest("[data-post-open]");
+  if (postOpen) {
+    openPostViewer(Number(postOpen.getAttribute("data-post-open") || 0));
+    return;
+  }
+  const postIdOpen = target.closest("[data-post-id]");
+  if (postIdOpen) {
+    const index = socialProducts.findIndex((product) => product.id === postIdOpen.getAttribute("data-post-id"));
+    openPostViewer(index >= 0 ? index : 0);
+    return;
+  }
+  const reelsOpen = target.closest("[data-reels-open]");
+  if (reelsOpen) {
+    openReelsViewer(Number(reelsOpen.getAttribute("data-reels-open") || 0));
+    return;
+  }
+  if (target.closest("[data-post-prev]")) {
+    openPostViewer((socialState.postIndex - 1 + socialProducts.length) % socialProducts.length);
+    return;
+  }
+  if (target.closest("[data-post-next]")) {
+    openPostViewer((socialState.postIndex + 1) % socialProducts.length);
+    return;
+  }
+  const likeButton = target.closest("[data-like-post]");
+  if (likeButton && !target.closest("[data-like-surface]")) {
+    toggleLike(likeButton.getAttribute("data-like-post"));
+    return;
+  }
+  const saveButton = target.closest("[data-save-post]");
+  if (saveButton) {
+    const id = saveButton.getAttribute("data-save-post");
+    if (socialState.saved.has(id)) socialState.saved.delete(id);
+    else socialState.saved.add(id);
+    saveSocialState();
+    syncSocialCounters();
+    return;
+  }
+  const captionButton = target.closest("[data-expand-caption]");
+  if (captionButton) {
+    const caption = captionButton.getAttribute("data-full-caption") || "";
+    captionButton.parentElement.querySelector("span").textContent = caption;
+    captionButton.remove();
+    return;
+  }
+  if (target.closest("[data-shop-now]")) {
+    socialState.tab = "shop";
+    renderActiveTab();
+    document.querySelector("#profile-tabs")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+  if (target.closest("[data-message-open]")) {
+    window.open("https://wa.me/919457041215", "_blank", "noopener");
+    return;
+  }
+  if (target.closest("[data-notifications-open]")) {
+    alert("New Shivara.luxe drops are live. Add your favourites to the bag and confirm on WhatsApp.");
+    return;
+  }
+  if (target.closest("[data-share-profile]")) {
+    const shareData = { title: "Shivara.luxe", text: "Shop statement jewellery from Shivara.luxe", url: window.location.href };
+    if (navigator.share) navigator.share(shareData).catch(() => {});
+    else navigator.clipboard?.writeText(window.location.href);
+    return;
+  }
+  if (target.closest("[data-reel-media]")) {
+    target.closest("[data-reel-card]")?.classList.toggle("is-paused");
+    return;
+  }
+  if (target.closest("[data-reel-mute]")) {
+    const button = target.closest("[data-reel-mute]");
+    button.classList.toggle("is-unmuted");
+    button.textContent = button.classList.contains("is-unmuted") ? "Sound on" : "Muted";
+    return;
+  }
   if (target.closest("[data-search-open]")) {
     openDrawer("#search-drawer");
     renderSearch("");
@@ -606,7 +1163,74 @@ document.addEventListener("keydown", (event) => {
     closeDrawers();
     setCartOpen(false);
     closeQuickView();
+    closeSocialModal();
   }
+  if (event.key === "Tab") {
+    const modal = document.querySelector("[data-modal]");
+    if (modal) {
+      const focusable = Array.from(modal.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])')).filter(
+        (item) => item.offsetParent !== null
+      );
+      if (focusable.length) {
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    }
+  }
+  if (document.querySelector(".post-viewer")) {
+    if (event.key === "ArrowLeft") openPostViewer((socialState.postIndex - 1 + socialProducts.length) % socialProducts.length);
+    if (event.key === "ArrowRight") openPostViewer((socialState.postIndex + 1) % socialProducts.length);
+  }
+  if (document.querySelector(".story-viewer")) {
+    if (event.key === "ArrowLeft") moveStory(-1);
+    if (event.key === "ArrowRight") moveStory(1);
+  }
+});
+
+document.addEventListener("dblclick", (event) => {
+  const surface = event.target instanceof Element ? event.target.closest("[data-like-surface]") : null;
+  if (!surface) return;
+  toggleLike(surface.getAttribute("data-like-post"), true);
+  animateHeart(surface);
+});
+
+let lastTap = 0;
+document.addEventListener("touchend", (event) => {
+  const surface = event.target instanceof Element ? event.target.closest("[data-like-surface]") : null;
+  if (!surface) return;
+  const now = Date.now();
+  if (now - lastTap < 280) {
+    toggleLike(surface.getAttribute("data-like-post"), true);
+    animateHeart(surface);
+  }
+  lastTap = now;
+});
+
+document.addEventListener("pointerdown", (event) => {
+  if (event.target instanceof Element && event.target.closest(".story-viewer__media")) pauseStory();
+});
+
+document.addEventListener("pointerup", resumeStory);
+document.addEventListener("pointercancel", resumeStory);
+
+let storyTouchX = null;
+document.addEventListener("touchstart", (event) => {
+  if (!document.querySelector(".story-viewer")) return;
+  storyTouchX = event.touches[0]?.clientX ?? null;
+});
+
+document.addEventListener("touchend", (event) => {
+  if (!document.querySelector(".story-viewer") || storyTouchX === null) return;
+  const endX = event.changedTouches[0]?.clientX ?? storyTouchX;
+  if (Math.abs(endX - storyTouchX) > 44) moveStory(endX < storyTouchX ? 1 : -1);
+  storyTouchX = null;
 });
 
 injectSharedLayout();
@@ -614,3 +1238,4 @@ ensureQuickView();
 renderHome();
 renderCollection();
 renderCart();
+renderSocialHome();
