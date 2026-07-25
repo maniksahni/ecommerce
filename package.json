@@ -4,7 +4,12 @@
   "description": "A premium ecommerce storefront for Shivara.luxe statement jewellery.",
   "private": true,
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "audit:catalog": "node scripts/catalog-audit.js",
+    "test:smoke": "node scripts/smoke-test.js"
+  },
+  "devDependencies": {
+    "playwright": "1.61.1"
   },
   "engines": {
     "node": ">=20"

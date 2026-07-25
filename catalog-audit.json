@@ -1,0 +1,140 @@
+{
+  "generatedAt": "2026-07-25T16:24:25.077Z",
+  "source": {
+    "totalPosts": 103,
+    "contentTypes": {
+      "lifestyle": 27,
+      "product": 25,
+      "review": 3,
+      "campaign": 30,
+      "announcement": 7,
+      "packaging": 6,
+      "unavailable": 5
+    },
+    "postsRemovedFromCommerce": 78,
+    "campaignOnlyPosts": 30,
+    "packagingContentPosts": 6,
+    "unclassifiedUnavailablePosts": [
+      "DXMpqNMxs1F",
+      "DWyr2aXjKHn",
+      "DWypw-1MTe5",
+      "DWwJbnmhBzK",
+      "DWBxAJDkYzD"
+    ]
+  },
+  "catalogue": {
+    "purchasableProducts": 25,
+    "confirmedPriceProducts": 11,
+    "priceEnquiryProducts": 14,
+    "categories": {
+      "rings": 7,
+      "bracelets": 5,
+      "pendants": 6,
+      "necklaces": 1,
+      "earrings": 3,
+      "watches": 1,
+      "sets": 2
+    }
+  },
+  "checks": {
+    "duplicateProductIds": [],
+    "duplicateProductSlugs": [],
+    "duplicateProductTitles": [],
+    "duplicateSourceTitles": [
+      {
+        "value": "gold-look anti tarnish drop",
+        "count": 3
+      },
+      {
+        "value": "evil eye protection edit",
+        "count": 6
+      },
+      {
+        "value": "mothers day gift edit",
+        "count": 3
+      },
+      {
+        "value": "surprise gift booking",
+        "count": 8
+      },
+      {
+        "value": "anti-tarnish dm drop",
+        "count": 2
+      },
+      {
+        "value": "rings dm drop",
+        "count": 3
+      },
+      {
+        "value": "pendants dm drop",
+        "count": 5
+      },
+      {
+        "value": "bracelets dm drop",
+        "count": 3
+      }
+    ],
+    "duplicateSourceImages": [],
+    "missingTitles": [],
+    "titlesLongerThan60Characters": [],
+    "socialCtaTitles": [],
+    "missingPrices": [
+      "halo-gift-ring",
+      "blue-charm-evil-eye-bracelet",
+      "cluster-gift-ring",
+      "heart-pendant-edit",
+      "crystal-halo-ring-pair",
+      "butterfly-drop-necklace",
+      "green-butterfly-earrings",
+      "cherry-charm-pendant",
+      "boxed-blue-evil-eye-bracelet",
+      "bow-love-earrings",
+      "solitaire-promise-ring",
+      "infinity-shine-ring",
+      "heart-halo-ring",
+      "geometric-boxed-bracelet"
+    ],
+    "invalidPrices": [],
+    "invalidCompareAtPrices": [],
+    "incorrectDiscounts": [],
+    "suspiciousPrices": [
+      "DWBxAJDkYzD",
+      "DW3H_GZDD_4",
+      "DWtcQ8OAefp",
+      "DWss1yNkbcd",
+      "DWqQ5tusfA-",
+      "DWlGxA6DBMP",
+      "DV3atErkWR3",
+      "DVGLWtPEbN4"
+    ],
+    "conflictingPrices": {
+      "DWBxAJDkYzD": "The source image advertises ₹299 while the Instagram caption states ₹199.",
+      "DW3H_GZDD_4": "The legacy storefront displayed ₹499 while the source caption explicitly states ₹399.",
+      "DWtcQ8OAefp": "The legacy storefront displayed ₹299 while the source caption explicitly states ₹399.",
+      "DWss1yNkbcd": "The legacy storefront displayed ₹299 while the source caption explicitly states ₹249.",
+      "DWqQ5tusfA-": "The legacy storefront displayed ₹499 while the source caption explicitly states ₹1,099.",
+      "DWlGxA6DBMP": "The legacy storefront displayed ₹499 while the source caption explicitly states ₹399.",
+      "DV3atErkWR3": "The legacy storefront displayed ₹299 while the source caption explicitly states ₹999 for the trio.",
+      "DVGLWtPEbN4": "The legacy storefront displayed a category-generated price instead of the explicit ₹299 launch price."
+    },
+    "missingCategories": [],
+    "suspiciousSourceCategories": {
+      "DXO-ucIBdig": "Source category was Rings although the visible product and caption identify earrings.",
+      "DWERaGlEYB6": "Source category was Rings although the visible product and caption identify earrings.",
+      "DWqQ5tusfA-": "Source category was Anti-tarnish although the visible product is a watch.",
+      "DWf-enREft_": "Source category was Anti-tarnish although the visible products are watches.",
+      "DWeCV8-hJ8X": "Source category was Rings although the visible products are watches.",
+      "DWbauz0B7yh": "Source category was Rings although the visible products are watches.",
+      "DWv4KPIyobl": "Source category was Rings although the post is a saree campaign.",
+      "DWBxAJDkYzD": "Source image and caption describe a bracelet but contain a price conflict.",
+      "DV7-kUpkXHF": "Source category was Rings although the visible product and caption identify earrings.",
+      "DVGLWtPEbN4": "Source category was Pendants although the visible product is a bangle."
+    },
+    "invalidVariants": [],
+    "missingImages": [],
+    "missingSourceReferences": [],
+    "campaignProductPages": [],
+    "unrelatedCollections": [],
+    "productValidationErrors": []
+  }
+}

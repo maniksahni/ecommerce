@@ -4,25 +4,28 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="Your saved Shivara jewellery edit." />
-    <title>Your Edit | Shivara</title>
+    <title>Your Wishlist | Shivara</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Italiana&amp;display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/styles.css?v=commerce-luxe-2" />
-    <link rel="stylesheet" href="/storefront-v2.css?v=commerce-density-1" />
-    <link rel="stylesheet" href="/atelier.css?v=atelier-motion-2" />
+    <link rel="stylesheet" href="/styles.css?v=legacy" />
+    <link rel="stylesheet" href="/storefront-v2.css?v=legacy" />
+    <link rel="stylesheet" href="/atelier.css?v=legacy" />
+    <link rel="stylesheet" href="/commerce-stable.css?v=2" />
   </head>
-  <body data-page="wishlist" class="commerce-home wishlist-page">
+  <body data-page="wishlist" class="catalog-stable">
     <a class="visually-hidden skip-to-content" href="#main">Skip to content</a>
-    <noscript><div class="noscript-commerce">Wishlist persistence requires JavaScript. Browse the complete Shivara edit from the shop navigation.</div></noscript>
     <div id="shared-header"></div>
-    <main id="main" class="wishlist-page__main atelier-shell">
-      <header><p class="atelier-kicker">SAVED TO YOUR EDIT</p><h1>Pieces you keep<br />thinking about.</h1><div><span id="wishlist-page-count">0 pieces</span><button type="button" data-share-wishlist>Share Your Edit</button></div></header>
+    <main id="main" class="stable-page stable-wishlist">
+      <header><p>SAVED FOR LATER</p><h1>Your wishlist</h1><span id="wishlist-page-count">0 products</span></header>
       <div class="commerce-product-grid" id="wishlist-page-grid"></div>
+      <div class="stable-empty" id="wishlist-empty" hidden><h2>Your wishlist is empty</h2><a href="/collections/all">Explore the catalogue</a></div>
     </main>
     <div id="shared-footer"></div>
-    <script src="/shop-data.js?v=full-shop-ig"></script>
-    <script src="/script.js?v=atelier-motion-2"></script>
-    <script src="/motion-controller.js?v=motion-2"></script>
+    <script src="/shop-data.js?v=source-1"></script>
+    <script src="/catalog-overrides.js?v=2"></script>
+    <script src="/catalog-data.js?v=2"></script>
+    <script src="/script.js?v=stable-2"></script>
+    <script src="/motion-controller.js?v=stable-2"></script>
   </body>
 </html>

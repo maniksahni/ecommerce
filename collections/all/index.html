@@ -2,46 +2,41 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ALL | Shivara.luxe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Browse the curated Shivara jewellery catalogue." />
+    <title>All Products | Shivara</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Italiana&amp;display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/styles.css?v=commerce-luxe-2" />
-    <link rel="stylesheet" href="/storefront-v2.css?v=commerce-density-1" />
-    <link rel="stylesheet" href="/atelier.css?v=atelier-motion-2" />
+    <link rel="stylesheet" href="/styles.css?v=legacy" />
+    <link rel="stylesheet" href="/storefront-v2.css?v=legacy" />
+    <link rel="stylesheet" href="/atelier.css?v=legacy" />
+    <link rel="stylesheet" href="/commerce-stable.css?v=2" />
   </head>
-  <body data-page="collection" data-collection="All" class="commerce-home commerce-collection">
+  <body data-page="collection" data-collection="all" class="catalog-stable">
     <a class="visually-hidden skip-to-content" href="#main">Skip to content</a>
-    <noscript><div class="noscript-commerce">The collection remains browsable below. Enable JavaScript for filters, wishlist and Quick View.</div></noscript>
     <div id="shared-header"></div>
-    <main id="main" class="anchor">
-      <section class="shopify-section shopify-section--main-collection">
-        <div class="container">
-          <nav class="breadcrumb text--xsmall"><ol class="breadcrumb__list"><li class="breadcrumb__item"><a class="breadcrumb__link" href="/">Home</a></li><li class="breadcrumb__item">All products</li></ol></nav>
-          <header class="collection-hero">
-            <p class="section-kicker">Full jewellery wardrobe</p>
-            <h2>All Shivara drops</h2>
-            <p>Browse the complete edit: rings, pendants, bracelets, earrings, gifts, and anti-tarnish statement pieces.</p>
-          </header>
-          <product-facet class="product-facet">
-            <aside class="product-facet__aside">
-              <div class="product-facet__aside-inner">
-                <h2 class="product-facet__filter-heading h5">Filters</h2>
-                <facet-filters class="product-facet__filters" id="facet-filters"></facet-filters>
-              </div>
-            </aside>
-            <div class="product-facet__main anchor">
-              <div class="product-facet__meta-bar anchor"><button class="filter-toggle hidden-lap-and-up" type="button" data-filter-open>Filters</button><strong data-collection-count>Products</strong><span>Sort by</span><button class="sort-button" type="button">Featured</button></div>
-              <div class="product-on-page product-list__inner" id="collection-grid"></div>
-            </div>
-          </product-facet>
-        </div>
-      </section>
+    <main id="main" class="stable-page">
+      <nav class="stable-breadcrumb"><a href="/">Home</a><span>/</span><span data-collection-breadcrumb>All products</span></nav>
+      <header class="stable-collection-hero">
+        <p data-collection-kicker>THE COMPLETE CATALOGUE</p>
+        <h1 data-collection-title>All products</h1>
+        <p data-collection-description>Browse Shivara products that have been manually reviewed for catalogue accuracy.</p>
+      </header>
+      <div class="stable-collection-toolbar">
+        <strong data-collection-count>0 products</strong>
+        <label>Sort <select id="collection-sort"><option value="featured">Featured</option><option value="newest">Newest</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="title">Alphabetical</option></select></label>
+      </div>
+      <div class="stable-collection-layout">
+        <aside class="stable-filters" id="collection-filters"></aside>
+        <section><div class="commerce-product-grid" id="collection-grid"></div><div class="stable-empty" id="collection-empty" hidden><h2>No products here yet</h2><p>This collection has no confirmed catalogue entries.</p><a href="/collections/all">Browse all products</a></div></section>
+      </div>
     </main>
     <div id="shared-footer"></div>
-    <script src="/shop-data.js?v=full-shop-ig"></script>
-    <script src="/script.js?v=atelier-motion-2"></script>
-    <script src="/motion-controller.js?v=motion-2"></script>
+    <script src="/shop-data.js?v=source-1"></script>
+    <script src="/catalog-overrides.js?v=2"></script>
+    <script src="/catalog-data.js?v=2"></script>
+    <script src="/script.js?v=stable-2"></script>
+    <script src="/motion-controller.js?v=stable-2"></script>
   </body>
 </html>
