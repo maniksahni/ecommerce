@@ -38,12 +38,15 @@ function assert(condition, message) {
 }
 
 async function waitForServer() {
-  for (let attempt = 0; attempt < 50; attempt += 1) {
+  const remote = Boolean(process.env.SMOKE_BASE_URL);
+  const attempts = remote ? 120 : 50;
+  const delay = remote ? 500 : 100;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
     try {
       const response = await fetch(baseUrl);
       if (response.ok) return;
     } catch {}
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, delay));
   }
   throw new Error(`Server did not start at ${baseUrl}`);
 }

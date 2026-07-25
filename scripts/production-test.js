@@ -50,6 +50,19 @@ function fingerprint(value) {
   return crypto.createHash("sha256").update(JSON.stringify(value)).digest("hex");
 }
 
+async function fetchWithRetry(url, options = {}) {
+  let lastError;
+  for (let attempt = 0; attempt < 30; attempt += 1) {
+    try {
+      return await fetch(url, options);
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
+  throw lastError;
+}
+
 async function main() {
   console.log(`Running production smoke suite against ${baseUrl}`);
   const smoke = spawnSync(process.execPath, ["scripts/smoke-test.js"], {
@@ -59,7 +72,7 @@ async function main() {
   });
   assert(smoke.status === 0, "complete smoke suite passes against production");
 
-  const response = await fetch(baseUrl, { cache: "no-store" });
+  const response = await fetchWithRetry(baseUrl, { cache: "no-store" });
   const html = await response.text();
   const headerCommit = response.headers.get("x-shivara-build") || "";
   assert(response.ok, "production homepage responds successfully");
