@@ -57,6 +57,7 @@
   let heroIndex = 0;
   let signatureIndex = 0;
   let announcementIndex = 0;
+  let searchTimer = 0;
 
   function escapeHtml(value) {
     return String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
@@ -175,7 +176,12 @@
   }
 
   function sharedFooter() {
-    return `<footer class="stable-footer"><div><a class="stable-logo stable-logo--footer" href="/">SHIVARA<small>JEWELLERY ATELIER</small></a><p>A manually curated jewellery catalogue with personal ordering support from Bareilly.</p></div><div><strong>Shop</strong><a href="/collections/all">All Products</a><a href="/collections/new-arrivals">New Arrivals</a><a href="/collections/gifting">Gifting</a><a href="/wishlist">Wishlist</a></div><div><strong>Help</strong><a href="https://wa.me/${whatsappNumber}" target="_blank" rel="noreferrer">WhatsApp Shivara</a><a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">Instagram</a><span>PAN India delivery</span></div><small>© ${new Date().getFullYear()} Shivara. Availability and unconfirmed prices are verified before purchase.</small></footer>`;
+    const footerProduct = productMap.get("tulip-pendant");
+    return `<footer class="stable-footer phase-footer">
+      <section class="phase-footer__finale"><div><p>THE LOOK IS NEVER FINISHED</p><h2>Until the<br />jewellery is.</h2><a class="stable-button stable-button--light" href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hi Shivara, I would like help styling a jewellery look.")}" target="_blank" rel="noreferrer">Style with Shivara</a></div><figure aria-hidden="true"><span></span><img src="/${escapeHtml(footerProduct.images[0])}" alt="" /></figure><strong aria-hidden="true">SHIVARA</strong></section>
+      <div class="phase-footer__links"><div><a class="stable-logo stable-logo--footer" href="/">SHIVARA<small>JEWELLERY ATELIER</small></a><p>A manually curated jewellery catalogue with personal ordering support from Bareilly.</p></div><div><strong>Shop</strong><a href="/collections/all">All Products</a><a href="/collections/new-arrivals">New Arrivals</a><a href="/collections/gifting">Gifting</a><a href="/wishlist">Wishlist</a></div><div><strong>Help</strong><a href="https://wa.me/${whatsappNumber}" target="_blank" rel="noreferrer">WhatsApp Shivara</a><a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">Instagram</a><span>PAN India delivery</span></div><div><strong>Policies</strong><a href="/policies/shipping">Shipping &amp; Exchange</a><a href="/policies/privacy">Privacy</a><a href="/policies/terms">Terms</a></div></div>
+      <small>© ${new Date().getFullYear()} Shivara. Availability and unconfirmed prices are verified before purchase.</small>
+    </footer>`;
   }
 
   function layerShell() {
@@ -185,8 +191,10 @@
         <nav>${categoryRail.map(([label, slug]) => `<a href="${collectionUrl(slug)}">${label}<span>→</span></a>`).join("")}<a href="/collections/all">All Products<span>→</span></a></nav>
       </aside>
       <aside class="stable-drawer stable-drawer--search" id="search-drawer" role="dialog" aria-modal="true" aria-labelledby="search-title" aria-hidden="true">
-        <div class="stable-layer__head"><h2 id="search-title">Search products</h2><button type="button" data-layer-close aria-label="Close search">×</button></div>
-        <label class="stable-search-box"><span class="visually-hidden">Search products</span><input id="stable-search" type="search" autocomplete="off" placeholder="Search rings, bracelets, pendants..." /></label>
+        <div class="stable-layer__head"><div><small>DISCOVER THE EDIT</small><h2 id="search-title">Search Shivara</h2></div><button type="button" data-layer-close aria-label="Close search">×</button></div>
+        <label class="stable-search-box"><span class="visually-hidden">Search products</span><input id="stable-search" type="search" autocomplete="off" placeholder="Search rings, bracelets, pendants..." /><button type="button" data-search-clear aria-label="Clear search">×</button></label>
+        <div class="stable-search-discovery" id="search-discovery"><div><span>Trending</span><button type="button" data-search-term="Rings">Rings</button><button type="button" data-search-term="Evil Eye">Evil Eye</button><button type="button" data-search-term="Gifting">Gifting</button></div><div><span>Shop by category</span><a href="/collections/earrings">Earrings</a><a href="/collections/necklaces">Neck Wear</a><a href="/collections/bracelets">Bracelets</a></div></div>
+        <p class="stable-search-count" id="search-count" role="status" aria-live="polite"></p>
         <div class="stable-search-results" id="search-results"></div>
       </aside>
       <aside class="stable-drawer stable-drawer--cart" id="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title" aria-hidden="true">
@@ -227,6 +235,11 @@
     layer.classList.add("is-open");
     layer.setAttribute("aria-hidden", "false");
     document.body.classList.add("stable-modal-open");
+    ["#main", "#shared-header", "#shared-footer"].forEach((region) => {
+      const node = document.querySelector(region);
+      if (node) node.inert = true;
+    });
+    document.dispatchEvent(new CustomEvent("shivara:modal-change", { detail: { open: true, id: layer.id } }));
     requestAnimationFrame(() => layer.querySelector("input, button, a")?.focus());
   }
 
@@ -236,14 +249,19 @@
     activeLayer.setAttribute("aria-hidden", "true");
     document.querySelector(".stable-backdrop").hidden = true;
     document.body.classList.remove("stable-modal-open");
+    ["#main", "#shared-header", "#shared-footer"].forEach((region) => {
+      const node = document.querySelector(region);
+      if (node) node.inert = false;
+    });
+    document.dispatchEvent(new CustomEvent("shivara:modal-change", { detail: { open: false } }));
     activeLayer = null;
     if (restore) lastFocus?.focus?.();
   }
 
-  function showToast(message) {
+  function showToast(message, product = null) {
     const toast = document.querySelector("#stable-toast");
     if (!toast) return;
-    toast.textContent = message;
+    toast.innerHTML = product ? `<img src="/${escapeHtml(product.images[0])}" alt="" /><span>${escapeHtml(message)}</span>` : `<span>${escapeHtml(message)}</span>`;
     toast.classList.add("is-visible");
     clearTimeout(showToast.timer);
     showToast.timer = setTimeout(() => toast.classList.remove("is-visible"), 2200);
@@ -264,13 +282,13 @@
       button.setAttribute("aria-pressed", String(wishlist.has(id)));
     });
     renderWishlist();
-    showToast(wishlist.has(id) ? "Saved to wishlist" : "Removed from wishlist");
+    showToast(wishlist.has(id) ? "Saved to Your Shivara Edit." : "Removed from Your Edit.");
   }
 
-  function addToCart(id, variantId = null, quantity = 1) {
+  function addToCart(id, variantId = null, quantity = 1, allowEnquiryOptions = false) {
     const product = productMap.get(id);
     if (!product || product.priceStatus === "unavailable") return false;
-    if (product.optionsStatus === "confirm" && !product.variants.length) {
+    if (product.optionsStatus === "confirm" && !product.variants.length && !allowEnquiryOptions) {
       showToast("Please confirm options on WhatsApp");
       return false;
     }
@@ -286,7 +304,11 @@
     saveStorage(storageKeys.cart, cart);
     renderCart();
     updateCounts();
-    showToast(`${product.title} added to bag`);
+    document.querySelectorAll("[data-cart-count]").forEach((badge) => {
+      badge.classList.remove("is-confirming");
+      requestAnimationFrame(() => badge.classList.add("is-confirming"));
+    });
+    showToast(`${product.title} added to bag`, product);
     return true;
   }
 
@@ -311,6 +333,7 @@
       lines.push(`SKU: ${product.sku}`);
       lines.push(`Product: ${location.origin}${productUrl(product)}`);
       if (variant) lines.push(`Option: ${variant.label}`);
+      else if (product.optionsStatus === "confirm") lines.push("Options: To be confirmed");
       lines.push(`Quantity: ${item.qty}`);
       lines.push(value.confirmed ? `Price: ${formatMoney(value.price)} each` : "Price: To be confirmed");
       if (value.confirmed) lines.push(`Line total: ${formatMoney(value.price * item.qty)}`);
@@ -332,19 +355,23 @@
       updateCounts();
       return;
     }
-    lines.innerHTML = cart.map((item) => {
+    const renderLine = (item) => {
       const product = productMap.get(item.id);
       const variant = validVariant(product, item.variantId);
       const value = pricing(product);
       return `<article class="stable-cart-line">
         <img src="/${escapeHtml(product.images[0])}" alt="${escapeHtml(product.imageAlt)}" />
-        <div><a href="${productUrl(product)}">${escapeHtml(product.title)}</a><small>${escapeHtml(product.sku)}${variant ? ` · ${escapeHtml(variant.label)}` : ""}</small><strong>${value.confirmed ? formatMoney(value.price * item.qty) : "To be confirmed"}</strong>
+        <div><a href="${productUrl(product)}">${escapeHtml(product.title)}</a><small>${escapeHtml(product.sku)}${variant ? ` · ${escapeHtml(variant.label)}` : product.optionsStatus === "confirm" ? " · Options to be confirmed" : ""}</small><span class="stable-cart-line__mode">${value.confirmed ? `Unit price ${formatMoney(value.price)}` : "Price confirmation needed"}</span><strong>${value.confirmed ? `Line total ${formatMoney(value.price * item.qty)}` : "To be confirmed"}</strong>
         <div class="stable-qty"><button type="button" data-cart-delta="-1" data-cart-id="${product.id}" data-variant-id="${variant?.id || ""}" aria-label="Decrease quantity">−</button><span>${item.qty}</span><button type="button" data-cart-delta="1" data-cart-id="${product.id}" data-variant-id="${variant?.id || ""}" aria-label="Increase quantity">+</button></div>
-        <button class="stable-remove" type="button" data-cart-remove="${product.id}" data-variant-id="${variant?.id || ""}">Remove</button></div>
+        <div class="stable-cart-line__links"><button type="button" data-cart-wishlist="${product.id}" data-variant-id="${variant?.id || ""}">Move to Wishlist</button><button class="stable-remove" type="button" data-cart-remove="${product.id}" data-variant-id="${variant?.id || ""}">Remove</button></div></div>
       </article>`;
-    }).join("");
+    };
+    const confirmed = cart.filter((item) => pricing(productMap.get(item.id)).confirmed);
+    const enquiries = cart.filter((item) => !pricing(productMap.get(item.id)).confirmed);
+    lines.innerHTML = `${confirmed.length ? `<h3 class="stable-cart-group">Confirmed items</h3>${confirmed.map(renderLine).join("")}` : ""}${enquiries.length ? `<h3 class="stable-cart-group">Price confirmation needed</h3>${enquiries.map(renderLine).join("")}` : ""}`;
     const summary = cartSummary();
-    footer.innerHTML = `<div class="stable-cart-total"><span>Confirmed-price subtotal</span><strong>${formatMoney(summary.confirmedTotal)}</strong></div>${summary.enquiryCount ? `<p>${summary.enquiryCount} item(s) need price confirmation and are not included in the subtotal.</p>` : ""}<a class="stable-button stable-button--whatsapp" href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent(cartMessage())}" target="_blank" rel="noreferrer">Send Enquiry on WhatsApp</a><button class="stable-button stable-button--plain" type="button" data-layer-close>Continue Shopping</button>`;
+    const complement = catalogApi.getRelatedProducts(productMap.get(cart[0].id)).find((product) => !cart.some((item) => item.id === product.id));
+    footer.innerHTML = `${complement ? `<article class="stable-cart-complement"><img src="/${escapeHtml(complement.images[0])}" alt="" /><div><small>COMPLETE THE EDIT</small><strong>${escapeHtml(complement.title)}</strong>${priceMarkup(complement, "stable-search-price")}</div><button type="button" data-quick-view="${complement.id}">View</button></article>` : ""}<div class="stable-cart-total"><span>Confirmed-price subtotal</span><strong>${formatMoney(summary.confirmedTotal)}</strong></div>${summary.enquiryCount ? `<p>${summary.enquiryCount} item(s) need price confirmation and are not included in the subtotal.</p>` : ""}<a class="stable-button stable-button--whatsapp" href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent(cartMessage())}" target="_blank" rel="noreferrer">Continue on WhatsApp</a><button class="stable-button stable-button--plain" type="button" data-layer-close>Continue Shopping</button>`;
     updateCounts();
   }
 
@@ -355,14 +382,17 @@
     const addControl = canAddDirectly(product)
       ? `<button class="stable-button stable-button--dark" type="button" data-quick-add="${product.id}">Add to Bag</button>`
       : `<a class="stable-button stable-button--whatsapp" data-quick-whatsapp target="_blank" rel="noreferrer">Confirm on WhatsApp</a>`;
-    const gallery = product.images.map((image, index) => `<img src="/${escapeHtml(image)}" alt="${index === 0 ? escapeHtml(product.imageAlt) : ""}" ${index ? "loading=\"lazy\"" : ""} />`).join("");
+    const distinctImages = [...new Set(product.images)];
+    const gallery = distinctImages.map((image, index) => `<figure class="${index === 0 ? "is-active" : ""}" data-quick-media="${index}"><img src="/${escapeHtml(image)}" alt="${index === 0 ? escapeHtml(product.imageAlt) : `${escapeHtml(product.title)} detail ${index + 1}`}" ${index ? "loading=\"lazy\"" : ""} /></figure>`).join("");
+    const thumbs = distinctImages.length > 1 ? `<div class="stable-quick__thumbs">${distinctImages.map((image, index) => `<button class="${index === 0 ? "is-active" : ""}" type="button" data-quick-thumb="${index}" aria-label="View image ${index + 1}"><img src="/${escapeHtml(image)}" alt="" /></button>`).join("")}</div>` : "";
+    const badge = allowedBadges.has(product.badge) ? `<span class="stable-quick__badge">${escapeHtml(product.badge)}</span>` : "";
     const modal = document.querySelector("#quick-view");
     modal.innerHTML = `<button class="stable-quick__close" type="button" data-layer-close aria-label="Close Quick View">×</button>
-      <div class="stable-quick__gallery">${gallery}</div>
-      <div class="stable-quick__info"><p>${escapeHtml(categoryMeta[product.category]?.title || product.category)}</p><h2 id="quick-title">${escapeHtml(product.title)}</h2><small>SKU: ${escapeHtml(product.sku)}</small>${priceMarkup(product, "stable-quick__price")}<p>${escapeHtml(product.description)}</p>
+      <div class="stable-quick__stage"><div class="stable-quick__gallery">${gallery}</div>${thumbs}<span class="stable-quick__pagination">1 / ${distinctImages.length}</span></div>
+      <div class="stable-quick__info">${badge}<p>${escapeHtml(categoryMeta[product.category]?.title || product.category)}</p><h2 id="quick-title">${escapeHtml(product.title)}</h2><small>SKU: ${escapeHtml(product.sku)}</small>${priceMarkup(product, "stable-quick__price")}<p>${escapeHtml(product.description)}</p>
       ${product.optionsStatus === "confirm" ? `<div class="stable-notice">Product options need confirmation. No unverified choices have been added.</div>` : ""}
       <div class="stable-qty"><button type="button" data-quick-qty="-1" aria-label="Decrease quantity">−</button><span id="quick-qty">1</span><button type="button" data-quick-qty="1" aria-label="Increase quantity">+</button></div>
-      <div class="stable-quick__actions">${addControl}<a class="stable-button stable-button--plain" href="${productUrl(product)}">View Full Details</a></div></div>`;
+      <div class="stable-quick__actions">${addControl}${value.confirmed ? '<a class="stable-button stable-button--whatsapp" data-quick-whatsapp target="_blank" rel="noreferrer">Order on WhatsApp</a>' : ""}<button class="stable-button stable-button--plain ${wishlist.has(product.id) ? "is-active" : ""}" type="button" data-wishlist-toggle="${product.id}">♡ Save to Your Edit</button><a class="stable-button stable-button--plain" href="${productUrl(product)}">View Full Product</a></div><details><summary>Product details</summary><p>${escapeHtml(product.description)}</p></details></div>`;
     updateQuickWhatsapp();
   }
 
@@ -390,8 +420,22 @@
   function openQuick(id, trigger) {
     const product = productMap.get(id);
     if (!product) return;
-    renderQuick(product);
-    openLayer("#quick-view", trigger);
+    const sourceImage = trigger?.closest?.("[data-product-card], .featured-product-card, section, article")?.querySelector?.("img");
+    const transitionName = `shivara-product-${product.id}`;
+    const reveal = () => {
+      if (sourceImage) sourceImage.style.viewTransitionName = "";
+      renderQuick(product);
+      const targetImage = document.querySelector("#quick-view [data-quick-media='0'] img");
+      if (targetImage) targetImage.style.viewTransitionName = transitionName;
+      openLayer("#quick-view", trigger);
+    };
+    if (document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches && sourceImage) {
+      sourceImage.style.viewTransitionName = transitionName;
+      document.startViewTransition(reveal).finished.finally(() => {
+        const targetImage = document.querySelector("#quick-view [data-quick-media='0'] img");
+        if (targetImage) targetImage.style.viewTransitionName = "";
+      });
+    } else reveal();
   }
 
   function renderSearch(query = "") {
@@ -399,7 +443,9 @@
     if (!mount) return;
     const term = query.trim().toLowerCase();
     const matches = (term ? catalogApi.search(term) : catalogApi.getFeaturedProducts(6)).slice(0, 12);
-    mount.innerHTML = matches.length ? matches.map((product) => `<a href="${productUrl(product)}"><img src="/${escapeHtml(product.images[0])}" alt="" /><span><strong>${escapeHtml(product.title)}</strong>${priceMarkup(product, "stable-search-price")}</span></a>`).join("") : `<div class="stable-empty"><p>No products match “${escapeHtml(query)}”.</p></div>`;
+    document.querySelector("#search-count").textContent = `${matches.length} ${matches.length === 1 ? "piece" : "pieces"}${term ? ` for “${query.trim()}”` : " selected for you"}`;
+    mount.innerHTML = matches.length ? matches.map((product, index) => `<article data-search-result="${index}"><a href="${productUrl(product)}"><img src="/${escapeHtml(product.images[0])}" alt="" /><span><small>${escapeHtml(categoryMeta[product.category]?.title || product.category)}</small><strong>${escapeHtml(product.title)}</strong>${priceMarkup(product, "stable-search-price")}</span></a><button type="button" data-quick-view="${product.id}">Quick View</button></article>`).join("") : `<div class="stable-empty"><p>No products match “${escapeHtml(query)}”.</p><a href="/collections/all">Browse the curated catalogue</a></div>`;
+    document.querySelector("#search-discovery").hidden = Boolean(term);
   }
 
   function renderCategoryRail() {
@@ -521,6 +567,14 @@
       ${recentProducts.length ? `<section class="stable-products stable-products--pdp"><div class="stable-section-heading"><div><p>YOUR TRAIL</p><h2>Recently viewed</h2></div></div><div class="commerce-product-grid">${recentProducts.map(productCard).join("")}</div></section>` : ""}
       <div class="stable-mobile-buy">${priceMarkup(product, "stable-mobile-buy__price")}${commerceAction || `<a class="stable-button stable-button--whatsapp" id="pdp-mobile-whatsapp" target="_blank">Enquire</a>`}</div>`;
     updatePdpWhatsapp(product);
+    if (sessionStorage.getItem("shivara-transition-product") === product.id) {
+      const destinationImage = mount.querySelector(".stable-pdp__gallery img");
+      if (destinationImage) {
+        destinationImage.style.viewTransitionName = `shivara-product-${product.id}`;
+        setTimeout(() => { destinationImage.style.viewTransitionName = ""; }, 700);
+      }
+      sessionStorage.removeItem("shivara-transition-product");
+    }
   }
 
   function pdpQuantity() {
@@ -566,6 +620,18 @@
   }
 
   document.addEventListener("click", (event) => {
+    const link = event.target instanceof Element ? event.target.closest('a[href^="/products/"]') : null;
+    if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const slug = decodeURIComponent(new URL(link.href).pathname.split("/").filter(Boolean)[1] || "");
+    const product = catalogApi.getProductBySlug(slug);
+    if (!product) return;
+    document.querySelectorAll('[style*="view-transition-name"]').forEach((node) => { node.style.viewTransitionName = ""; });
+    const sourceImage = link.closest("[data-product-card], .featured-product-card, #quick-view, article, section")?.querySelector("img");
+    if (sourceImage) sourceImage.style.viewTransitionName = `shivara-product-${product.id}`;
+    sessionStorage.setItem("shivara-transition-product", product.id);
+  }, true);
+
+  document.addEventListener("click", (event) => {
     const target = event.target instanceof Element ? event.target : null;
     if (!target) return;
     if (target.closest("[data-announcement-prev], [data-announcement-next]")) {
@@ -605,6 +671,15 @@
       if (addToCart(quickAdd.dataset.quickAdd, null, quickState.quantity)) openLayer("#cart-drawer", quickAdd);
       return;
     }
+    const quickThumb = target.closest("[data-quick-thumb]");
+    if (quickThumb) {
+      quickState.image = Number(quickThumb.dataset.quickThumb);
+      document.querySelectorAll("[data-quick-media]").forEach((media, index) => media.classList.toggle("is-active", index === quickState.image));
+      document.querySelectorAll("[data-quick-thumb]").forEach((thumb, index) => thumb.classList.toggle("is-active", index === quickState.image));
+      const pagination = document.querySelector(".stable-quick__pagination");
+      if (pagination) pagination.textContent = `${quickState.image + 1} / ${quickState.product.images.length}`;
+      return;
+    }
     const delta = target.closest("[data-cart-delta]");
     if (delta) {
       const item = cart.find((line) => line.id === delta.dataset.cartId && (line.variantId || "") === delta.dataset.variantId);
@@ -619,6 +694,30 @@
       cart = cart.filter((line) => !(line.id === remove.dataset.cartRemove && (line.variantId || "") === remove.dataset.variantId));
       saveStorage(storageKeys.cart, cart);
       renderCart();
+      return;
+    }
+    const moveToWishlist = target.closest("[data-cart-wishlist]");
+    if (moveToWishlist) {
+      if (!wishlist.has(moveToWishlist.dataset.cartWishlist)) toggleWishlist(moveToWishlist.dataset.cartWishlist);
+      cart = cart.filter((line) => !(line.id === moveToWishlist.dataset.cartWishlist && (line.variantId || "") === moveToWishlist.dataset.variantId));
+      saveStorage(storageKeys.cart, cart);
+      renderCart();
+      showToast("Moved to Your Shivara Edit.");
+      return;
+    }
+    const searchTerm = target.closest("[data-search-term]");
+    if (searchTerm) {
+      const input = document.querySelector("#stable-search");
+      input.value = searchTerm.dataset.searchTerm;
+      renderSearch(input.value);
+      input.focus();
+      return;
+    }
+    if (target.closest("[data-search-clear]")) {
+      const input = document.querySelector("#stable-search");
+      input.value = "";
+      renderSearch();
+      input.focus();
       return;
     }
     if (target.closest("[data-hero-prev], [data-hero-next]")) return renderHero(heroIndex + (target.closest("[data-hero-prev]") ? -1 : 1));
@@ -651,7 +750,10 @@
   });
 
   document.addEventListener("input", (event) => {
-    if (event.target.matches("#stable-search")) renderSearch(event.target.value);
+    if (event.target.matches("#stable-search")) {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => renderSearch(event.target.value), 90);
+    }
   });
 
   document.addEventListener("change", (event) => {
@@ -666,6 +768,13 @@
   document.addEventListener("keydown", (event) => {
     trapFocus(event);
     if (event.key === "Escape") closeLayer();
+    if (activeLayer?.id === "search-drawer" && event.target.matches("#stable-search") && event.key === "ArrowDown") {
+      event.preventDefault();
+      activeLayer.querySelector("[data-search-result] a")?.focus();
+    }
+    if (activeLayer?.id === "search-drawer" && event.key === "Enter" && event.target.matches("#stable-search")) {
+      activeLayer.querySelector("[data-search-result] a")?.click();
+    }
   });
 
   window.addEventListener("popstate", renderCollection);
@@ -685,6 +794,34 @@
       detail: { catalogueVersion: catalogApi.version, productCount: products.length }
     }));
   }
+
+  window.ShivaraStorefront = Object.freeze({
+    addProducts(ids, { openBag = true, allowEnquiry = false } = {}) {
+      const uniqueIds = [...new Set(Array.isArray(ids) ? ids : [])];
+      const added = uniqueIds.filter((id) => addToCart(id, null, 1, allowEnquiry));
+      if (added.length && openBag) openLayer("#cart-drawer");
+      return added;
+    },
+    openQuickView(id, trigger) {
+      openQuick(id, trigger);
+    },
+    openCart(trigger) {
+      renderCart();
+      openLayer("#cart-drawer", trigger);
+    },
+    openSearch(trigger) {
+      renderSearch();
+      openLayer("#search-drawer", trigger);
+    },
+    toggleWishlist,
+    isWishlisted(id) {
+      return wishlist.has(id);
+    },
+    refreshCounts: updateCounts,
+    showToast,
+    productMessage: singleProductMessage,
+    whatsappNumber
+  });
 
   window.bootstrapStorefront = bootstrapStorefront;
   bootstrapStorefront().catch((error) => {

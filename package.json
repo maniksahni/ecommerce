@@ -7,6 +7,7 @@
     "start": "node server.js",
     "audit:catalog": "node scripts/catalog-audit.js",
     "test:smoke": "node scripts/smoke-test.js",
+    "test:experience": "node scripts/experience-test.js",
     "test:production": "node scripts/production-test.js"
   },
   "devDependencies": {

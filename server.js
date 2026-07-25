@@ -28,6 +28,20 @@ const supportedCollections = [
   "all", "earrings", "necklaces", "pendants", "bracelets", "rings", "evil-eye",
   "anti-tarnish", "gifting", "sets", "watches", "new-arrivals"
 ];
+const policyContent = {
+  shipping: {
+    title: "Shipping & Exchange",
+    copy: "PAN India delivery timelines, shipping charges and exchange eligibility are confirmed with each order before payment. Contact Shivara on WhatsApp with your product and delivery location for the current terms."
+  },
+  privacy: {
+    title: "Privacy",
+    copy: "Shivara uses the contact and delivery details you provide only to assist with enquiries and fulfil confirmed orders. Do not send payment credentials or sensitive identity documents through the website."
+  },
+  terms: {
+    title: "Terms",
+    copy: "Website availability, product options, enquiry prices, delivery and final payable totals remain subject to confirmation by Shivara. Adding an item or preparing a WhatsApp message does not by itself confirm an order."
+  }
+};
 const collectionMeta = {
   all: { title: "All products", kicker: "THE COMPLETE CATALOGUE", description: "Every Shivara product that has been manually reviewed for catalogue accuracy." },
   earrings: { title: "Earrings", kicker: "THE FINAL TOUCH", description: "Curated Shivara earrings with transparent pricing and availability states." },
@@ -110,6 +124,7 @@ function stampHtml(html) {
 function injectHome(html) {
   const selections = {
     "new-arrivals": collectionProducts("new-arrivals").slice(0, 10),
+    bestsellers: catalogApi.getFeaturedProducts(10),
     all: products.slice(0, 15),
     rings: collectionProducts("rings").slice(0, 10),
     "neck-wear": collectionProducts("necklaces").slice(0, 10)
@@ -182,6 +197,10 @@ function injectProduct(html, product) {
 function unavailablePage(title, message, status = 404) {
   const html = `<!doctype html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="robots" content="noindex" /><title>${escapeHtml(title)} | Shivara</title><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&amp;family=Italiana&amp;display=swap" rel="stylesheet" /><link rel="stylesheet" href="/commerce-stable.css?v=2" /></head><body class="catalog-stable"><main class="stable-empty" style="min-height:100vh;display:grid;place-content:center"><p>${status}</p><h1 style="font:400 clamp(40px,8vw,80px)/1 Italiana,serif;letter-spacing:0;margin:8px">${escapeHtml(title)}</h1><p>${escapeHtml(message)}</p><a class="stable-button stable-button--dark" href="/collections/all">Browse curated products</a></main></body></html>`;
   return { html, status };
+}
+
+function policyPage(policy) {
+  return `<!doctype html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="description" content="${escapeHtml(policy.copy)}" /><title>${escapeHtml(policy.title)} | Shivara</title><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&amp;family=Italiana&amp;display=swap" rel="stylesheet" /><link rel="stylesheet" href="/commerce-stable.css?v=2" /><link rel="stylesheet" href="/phase-b.css?v=1" /></head><body class="catalog-stable"><main class="stable-page"><nav class="stable-breadcrumb"><a href="/">Home</a><span>/</span><span>${escapeHtml(policy.title)}</span></nav><article style="max-width:760px;padding:8vh 0 16vh"><p style="font-size:10px;font-weight:700;letter-spacing:1.6px">SHIVARA POLICIES</p><h1 style="font:400 clamp(48px,8vw,90px)/1 Italiana,serif;letter-spacing:0;margin:12px 0 24px">${escapeHtml(policy.title)}</h1><p style="font-size:14px;line-height:1.8">${escapeHtml(policy.copy)}</p><a class="stable-button stable-button--dark" href="https://wa.me/919457041215" target="_blank" rel="noreferrer">Ask Shivara</a></article></main></body></html>`;
 }
 
 function sendHtml(response, html, status = 200) {
@@ -258,6 +277,18 @@ const server = http.createServer((request, response) => {
       canonical: "/wishlist"
     });
     return sendHtml(response, html);
+  }
+  if (pathname.startsWith("/policies/")) {
+    const policy = policyContent[pathname.split("/")[2] || ""];
+    if (!policy) {
+      const page = unavailablePage("Policy not found", "The requested policy page does not exist.");
+      return sendHtml(response, page.html, page.status);
+    }
+    return sendHtml(response, injectMetadata(policyPage(policy), {
+      title: `${policy.title} | Shivara`,
+      description: policy.copy,
+      canonical: pathname
+    }));
   }
   const filePath = safeStaticPath(pathname);
   if (filePath && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) return sendStatic(response, filePath);

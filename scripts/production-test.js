@@ -71,6 +71,12 @@ async function main() {
     stdio: "inherit"
   });
   assert(smoke.status === 0, "complete smoke suite passes against production");
+  const experience = spawnSync(process.execPath, ["scripts/experience-test.js"], {
+    cwd: root,
+    env: { ...process.env, EXPERIENCE_BASE_URL: baseUrl },
+    stdio: "inherit"
+  });
+  assert(experience.status === 0, "complete Phase B experience suite passes against production");
 
   const response = await fetchWithRetry(baseUrl, { cache: "no-store" });
   const html = await response.text();
@@ -79,7 +85,7 @@ async function main() {
   assert(headerCommit === expectedCommit, `response build stamp matches ${expectedCommit.slice(0, 8)}`);
   assert(html.includes(`<meta name="shivara-build" content="${expectedCommit}"`), "HTML build meta matches intended commit");
   assert(html.includes('name="shivara-catalog-version" content="1"'), "HTML exposes catalogue version 1");
-  const scriptOrder = ["shop-data.js", "catalog-overrides.js", "catalog-data.js", "script.js", "motion-controller.js"].map((asset) => html.indexOf(asset));
+  const scriptOrder = ["shop-data.js", "catalog-overrides.js", "catalog-data.js", "script.js", "experience.js", "motion-controller.js"].map((asset) => html.indexOf(asset));
   assert(scriptOrder.every((index) => index >= 0) && scriptOrder.every((index, position) => position === 0 || index > scriptOrder[position - 1]), "production script loading order is deterministic");
   assert(!/commerce-stable\.css\?v=2|script\.js\?v=stable-2/.test(html), "production HTML uses build-versioned assets instead of stale static versions");
 
@@ -95,6 +101,7 @@ async function main() {
     }
   });
   await page.goto(baseUrl, { waitUntil: "networkidle" });
+  assert(await page.locator("html.phase-b-ready").count() === 1, "production signature experience bootstrap completes");
 
   const liveState = await page.evaluate(() => ({
     build: window.SHIVARA_BUILD_INFO,
