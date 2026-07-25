@@ -15,6 +15,7 @@
   </head>
   <body data-page="home" class="commerce-home atelier-home">
     <a class="visually-hidden skip-to-content" href="#main">Skip to content</a>
+    <noscript><div class="noscript-commerce">Product names, prices and links remain available below. Enable JavaScript for Quick View, wishlist and bag interactions.</div></noscript>
     <div id="shared-header"></div>
 
     <main id="main" tabindex="-1">
@@ -50,9 +51,10 @@
 
       <section class="category-universe atelier-shell" id="shop-by-category" aria-labelledby="category-title">
         <header class="atelier-heading">
-          <div><p class="atelier-kicker">ENTER THE EDITS</p><h2 id="category-title">Nine ways to make it yours.</h2></div>
+          <div><p class="atelier-kicker">FIND YOUR FINISHING MOVE</p><h2 id="category-title">Where does your look go next?</h2></div>
           <a href="/collections/all">Explore the Full Edit <span>↗</span></a>
         </header>
+        <div class="finish-navigator" id="finish-navigator"></div>
         <div class="category-universe__grid" id="commerce-category-grid"></div>
       </section>
 
@@ -102,19 +104,54 @@
         <div class="commerce-product-grid" data-commerce-products="new"></div>
       </section>
 
+      <section class="jewellery-finder atelier-shell" id="jewellery-finder" aria-labelledby="finder-title">
+        <div class="jewellery-finder__intro">
+          <p class="atelier-kicker">THE JEWELLERY FINDER</p>
+          <h2 id="finder-title">Let the right piece find you.</h2>
+          <p>Three quick choices. A real Shivara edit built from the pieces available here.</p>
+        </div>
+        <div class="jewellery-finder__panel">
+          <div id="finder-steps"></div>
+          <div id="finder-result" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="editorial-commerce editorial-commerce--earrings" aria-labelledby="earrings-title">
+        <div class="editorial-commerce__media"><img src="/assets/instagram-shop/post-080-DWERaGlEYB6.jpg" alt="Shivara blue earring gift edit" loading="lazy" decoding="async" /></div>
+        <div class="editorial-commerce__shop">
+          <p class="atelier-kicker">THE FINAL TOUCH</p>
+          <h2 id="earrings-title">Earrings that change the whole look.</h2>
+          <div class="editorial-commerce__products commerce-product-grid" data-commerce-products="Earrings"></div>
+          <a class="store-text-link" href="/collections/all?category=Earrings">Shop the Earring Edit <span>→</span></a>
+        </div>
+      </section>
+
       <section class="motion-shop atelier-shell" aria-labelledby="motion-title">
         <header class="atelier-heading"><div><p class="atelier-kicker">WATCH. FEEL. SHOP.</p><h2 id="motion-title">See it in your world.</h2></div></header>
         <div class="motion-shop__rail" id="motion-shop-rail"></div>
       </section>
 
-      <section class="atelier-story atelier-story--stack" aria-labelledby="stack-title">
-        <img src="/assets/instagram-shop/post-049-DW9Cf8OkWo0.jpg" alt="A curated tray of Shivara bracelets" loading="lazy" decoding="async" />
+      <section class="atelier-story atelier-story--stack" aria-labelledby="neck-title">
+        <img src="/assets/instagram-shop/post-036-DXRflQ2ARK2.jpg" alt="Shivara tulip pendant from the neckline edit" loading="lazy" decoding="async" />
         <div>
-          <p class="atelier-kicker">THE STACKING STUDIO</p>
-          <h2 id="stack-title">Build it<br /><em>your way.</em></h2>
-          <p>Start with one signature, add texture, then finish with something unexpected.</p>
-          <a class="atelier-button atelier-button--dark" href="/collections/all?category=Bracelets">Build Your Stack</a>
+          <p class="atelier-kicker">THE NECKLINE EDIT</p>
+          <h2 id="neck-title">The piece that<br /><em>pulls it together.</em></h2>
+          <p>One pendant, the right neckline, and suddenly the whole outfit makes sense.</p>
+          <a class="atelier-button atelier-button--dark" href="/collections/all?category=Pendants">Explore Neck Wear</a>
         </div>
+      </section>
+
+      <section class="product-section atelier-products atelier-shell" id="bracelets" aria-labelledby="bracelets-title">
+        <header class="atelier-heading">
+          <div><p class="atelier-kicker">THE STACKING STUDIO</p><h2 id="bracelets-title">Build the stack your way.</h2></div>
+          <a href="/collections/all?category=Bracelets">Explore Bracelets <span>↗</span></a>
+        </header>
+        <div class="commerce-product-grid" data-commerce-products="Bracelets"></div>
+      </section>
+
+      <section class="gifting-room" aria-labelledby="gifting-title">
+        <div class="gifting-room__copy"><p class="atelier-kicker">THE GIFTING ROOM</p><h2 id="gifting-title">Small box.<br />Big reaction.</h2><p>Choose a piece they will reach for again. Personal WhatsApp assistance is here when you want a second opinion.</p><a class="atelier-button atelier-button--ivory" href="/collections/all?category=Gifting">Find Their Gift</a></div>
+        <div class="gifting-room__media"><img src="/assets/instagram-shop/post-103-DUsq31AgXWw.jpg" alt="Gift-ready Shivara jewellery set" loading="lazy" decoding="async" /></div>
       </section>
 
       <section class="product-section atelier-products atelier-shell" id="rings" aria-labelledby="rings-title">
@@ -123,6 +160,15 @@
           <a href="/collections/rings">Explore Rings <span>↗</span></a>
         </header>
         <div class="commerce-product-grid" data-commerce-products="Rings"></div>
+      </section>
+
+      <section class="product-section atelier-products atelier-shell recently-viewed-home" aria-labelledby="recent-title">
+        <header class="atelier-heading"><div><p class="atelier-kicker">YOUR TRAIL</p><h2 id="recent-title">Recently viewed.</h2></div></header>
+        <div class="commerce-product-grid" id="home-recent-products"></div>
+      </section>
+
+      <section class="brand-manifesto" aria-labelledby="manifesto-title">
+        <div><p class="atelier-kicker">SHIVARA, BAREILLY</p><h2 id="manifesto-title">Designed to be noticed.<br /><em>Chosen to feel like you.</em></h2><p>Shivara is a considered edit of expressive jewellery for real wardrobes: easy enough for every day, striking enough to shift the entire look.</p><a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">Meet the Atelier on Instagram →</a></div>
       </section>
 
       <section class="atelier-reassurance atelier-shell" aria-label="Why shop Shivara">

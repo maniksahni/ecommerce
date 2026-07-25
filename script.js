@@ -87,8 +87,18 @@ const discoveryEdits = {
 };
 const shivaraLooks = [
   { title: "Everyday Stack", image: "assets/instagram-shop/post-049-DW9Cf8OkWo0.jpg", ids: ["DW9Cf8OkWo0", "DXMpqNMxs1F", "DV0yEUUkTHq"], positions: [[23, 56], [56, 31], [72, 68]] },
-  { title: "Night-Out Statement", image: "assets/instagram-shop/post-090-DVsiM2WEctG.jpg", ids: ["DVsiM2WEctG", "DXO-ucIBdig", "DXKG78JhH1P"], positions: [[28, 64], [62, 38], [77, 72]] },
+  { title: "Statement Night", image: "assets/instagram-shop/post-090-DVsiM2WEctG.jpg", ids: ["DVsiM2WEctG", "DXO-ucIBdig", "DXKG78JhH1P"], positions: [[28, 64], [62, 38], [77, 72]] },
   { title: "Gift-Ready Edit", image: "assets/instagram-shop/post-103-DUsq31AgXWw.jpg", ids: ["DUsq31AgXWw", "DWERaGlEYB6", "DXRflQ2ARK2"], positions: [[22, 42], [54, 66], [76, 30]] }
+];
+const heroSlides = [
+  { id: "DW3H_GZDD_4", label: "THE SIGNATURE DROP", title: ["Not made", "to blend in."], copy: "Jewellery that finishes the entire look.", tone: "#11100e" },
+  { id: "DVsiM2WEctG", label: "THE RING EDIT", title: ["Small detail.", "Major effect."], copy: "Sculptural shine for hands that do the talking.", tone: "#2a2118" },
+  { id: "DXRflQ2ARK2", label: "THE NECKLINE EDIT", title: ["One piece.", "Whole look."], copy: "An everyday pendant with main-character energy.", tone: "#16201d" }
+];
+const finderQuestions = [
+  { key: "shoppingFor", label: "What are you shopping for?", options: ["Yourself", "A gift"] },
+  { key: "mood", label: "Choose the mood.", options: ["Minimal", "Everyday", "Statement", "Romantic", "Protective", "Party"] },
+  { key: "budget", label: "Choose a budget.", options: ["Under ₹499", "₹500–₹999", "₹1,000 and above"] }
 ];
 
 function escapeMarkup(value) {
@@ -172,6 +182,17 @@ let pdpQuantity = 1;
 let activeStageIndex = 0;
 let activeLookIndex = 0;
 let activeLookProduct = 0;
+let activeHeroIndex = 0;
+let heroStartX = 0;
+let finderState = (() => {
+  try {
+    return { shoppingFor: "", mood: "", budget: "", ...JSON.parse(sessionStorage.getItem("shivara-finder") || "{}") };
+  } catch {
+    return { shoppingFor: "", mood: "", budget: "" };
+  }
+})();
+let lastAddedId = "";
+let searchDebounce = 0;
 
 function saveCart() {
   localStorage.setItem("shivara-cart", JSON.stringify(cart));
@@ -206,9 +227,32 @@ function addToCart(id, variant, quantity = 1) {
   const existing = cart.find((item) => item.id === id && item.variant === selectedVariant);
   if (existing) existing.qty += Math.max(1, Number(quantity) || 1);
   else cart.push({ id, variant: selectedVariant, qty: Math.max(1, Number(quantity) || 1) });
+  lastAddedId = id;
   saveCart();
   renderCart();
+  document.querySelectorAll("[data-cart-count]").forEach((badge) => {
+    badge.classList.remove("is-bumping");
+    window.requestAnimationFrame(() => badge.classList.add("is-bumping"));
+  });
   showToast(`${product.title} added to bag`);
+}
+
+function addProductsToCart(source) {
+  source.forEach((product) => {
+    if (!product) return;
+    const variant = productVariants(product)[0];
+    const existing = cart.find((item) => item.id === product.id && item.variant === variant);
+    if (existing) existing.qty += 1;
+    else cart.push({ id: product.id, variant, qty: 1 });
+    lastAddedId = product.id;
+  });
+  saveCart();
+  renderCart();
+  document.querySelectorAll("[data-cart-count]").forEach((badge) => {
+    badge.classList.remove("is-bumping");
+    window.requestAnimationFrame(() => badge.classList.add("is-bumping"));
+  });
+  showToast(`${source.length} pieces added to your bag`);
 }
 
 function updateCartLine(id, variant, delta) {
@@ -236,8 +280,8 @@ function productCard(product, options = {}) {
     <article class="jlt-product-card" data-product-card="${product.id}" data-category="${product.category}">
       <div class="jlt-product-card__media">
         <a href="${productUrl(product)}" aria-label="View ${escapeMarkup(product.title)}">
-          <img class="jlt-product-card__image jlt-product-card__image--primary" src="/${product.image}" alt="${escapeMarkup(product.title)}" ${eager} decoding="async" />
-          <img class="jlt-product-card__image jlt-product-card__image--secondary" src="/${product.image}" alt="" loading="lazy" decoding="async" />
+          <img class="jlt-product-card__image jlt-product-card__image--primary" src="/${product.image}" alt="${escapeMarkup(product.title)}" width="640" height="800" ${eager} decoding="async" />
+          <img class="jlt-product-card__image jlt-product-card__image--secondary" src="/${product.image}" alt="" width="640" height="800" loading="lazy" decoding="async" />
         </a>
         <div class="jlt-product-card__badges"><span>${badge}</span><span>${pricing.discount}% off</span></div>
         <button class="jlt-product-card__wishlist ${saved ? "is-active" : ""}" type="button" data-wishlist-toggle="${product.id}" aria-label="${saved ? "Remove" : "Save"} ${escapeMarkup(product.title)}" aria-pressed="${saved}">
@@ -289,13 +333,38 @@ function renderCategoryRail() {
     .map(
       ([label, category, image]) => `
         <a class="category-rail__item" href="${collectionUrl(category)}">
-          <span><img src="/assets/instagram-shop/${image}" alt="" loading="lazy" decoding="async" /></span>
+          <span><img src="/assets/instagram-shop/${image}" alt="${escapeMarkup(label)} jewellery edit" width="480" height="640" loading="lazy" decoding="async" /></span>
           <strong>${label}</strong>
           <em>${category === "All" ? products.length : products.filter((product) => product.category === (category === "Celebrity" ? "Anti-tarnish" : category)).length} pieces</em>
         </a>
       `
     )
     .join("");
+  renderFinishNavigator(sessionStorage.getItem("shivara-finish-category") || "Earrings");
+}
+
+function renderFinishNavigator(category) {
+  const mount = document.querySelector("#finish-navigator");
+  if (!mount) return;
+  const activeCategory = categoryRail.find(([, value]) => value === category) || categoryRail[2];
+  const [label, value, image] = activeCategory;
+  const featured = productsForCategory(value === "Celebrity" ? "Anti-tarnish" : value, 3);
+  sessionStorage.setItem("shivara-finish-category", value);
+  mount.innerHTML = `<div class="finish-navigator__labels" role="tablist" aria-label="Choose a jewellery category">${categoryRail.filter(([, item]) => item !== "Celebrity").map(([itemLabel, item]) => `<button class="${item === value ? "is-active" : ""}" type="button" role="tab" aria-selected="${item === value}" data-finish-category="${escapeMarkup(item)}">${itemLabel}<span>${item === "All" ? products.length : products.filter((product) => product.category === item).length}</span></button>`).join("")}</div><div class="finish-navigator__visual"><img src="/assets/instagram-shop/${image}" alt="${escapeMarkup(label)} from Shivara" loading="lazy" decoding="async" /><div><p class="atelier-kicker">${escapeMarkup(label)}</p><h3>${finishCategoryCopy(value).title}</h3><p>${finishCategoryCopy(value).copy}</p><a class="atelier-button atelier-button--ivory" href="${collectionUrl(value)}">Shop This Edit</a></div></div><div class="finish-navigator__products">${featured.map((product) => `<button type="button" data-quick-view="${product.id}"><img src="/${product.image}" alt="" loading="lazy" /><span><strong>${escapeMarkup(product.title)}</strong><small>${formatPrice(productPricing(product).price)}</small></span></button>`).join("")}</div>`;
+}
+
+function finishCategoryCopy(category) {
+  const copy = {
+    All: { title: "The newest finishing moves.", copy: "Fresh from the Shivara atelier and ready to enter your rotation." },
+    Earrings: { title: "The detail that changes everything.", copy: "From quiet shine to party energy, meet your final touch." },
+    Pendants: { title: "Pull the whole look together.", copy: "Everyday pendants and expressive neckwear designed for easy layering." },
+    Bracelets: { title: "Build the stack your way.", copy: "Start with one signature, then add texture and personality." },
+    Rings: { title: "Small detail. Major effect.", copy: "Sculptural, romantic and adjustable shapes for every mood." },
+    "Evil Eye": { title: "Protection with personality.", copy: "Graphic symbols and confident details made to be noticed." },
+    "Anti-tarnish": { title: "Made for the regular rotation.", copy: "Polished everyday icons selected for repeat wear." },
+    Gifting: { title: "The reaction is the gift.", copy: "Gift-ready pieces with personal help whenever you need it." }
+  };
+  return copy[category] || copy.All;
 }
 
 function renderHome() {
@@ -307,10 +376,74 @@ function renderHome() {
   renderProductGrid(document.querySelector('[data-commerce-products="Pendants"]'), productsForCategory("Pendants", 10));
   renderProductGrid(document.querySelector('[data-commerce-products="Bracelets"]'), productsForCategory("Bracelets", 10));
   renderProductGrid(document.querySelector('[data-commerce-products="Rings"]'), productsForCategory("Rings", 10));
+  renderProductGrid(document.querySelector('[data-commerce-products="Earrings"]'), productsForCategory("Earrings", 6));
+  renderProductGrid(document.querySelector('[data-commerce-products="Bracelets"]'), productsForCategory("Bracelets", 8));
   renderDiscovery();
   renderSignatureStage();
   renderLookbook();
   renderMotionShop();
+  renderHero();
+  renderFinder();
+  renderHomeRecentlyViewed();
+}
+
+function renderHero(index = activeHeroIndex) {
+  const hero = document.querySelector(".atelier-hero");
+  if (!hero) return;
+  activeHeroIndex = (index + heroSlides.length) % heroSlides.length;
+  const slide = heroSlides[activeHeroIndex];
+  const product = productMap.get(slide.id);
+  const value = productPricing(product);
+  hero.style.setProperty("--hero-tone", slide.tone);
+  hero.querySelector(".atelier-hero__media img").src = `/${product.image}`;
+  hero.querySelector(".atelier-hero__media img").alt = `${product.title} featured in the Shivara drop`;
+  hero.querySelector(".atelier-kicker").textContent = slide.label;
+  hero.querySelector("h1").innerHTML = slide.title.map((line) => `<span>${escapeMarkup(line)}</span>`).join(" ");
+  hero.querySelector(".atelier-hero__content > p:not(.atelier-kicker)").textContent = slide.copy;
+  const featureLink = hero.querySelector(".atelier-hero__actions a:last-child");
+  featureLink.href = productUrl(product);
+  featureLink.textContent = "View Featured Piece";
+  hero.querySelector(".atelier-hero__product").href = productUrl(product);
+  hero.querySelector(".atelier-hero__product").innerHTML = `<span>${String(activeHeroIndex + 1).padStart(2, "0")}</span><span>${escapeMarkup(product.title)}</span><strong>${formatPrice(value.price)}</strong>`;
+  hero.querySelector(".atelier-hero__progress").innerHTML = `<i style="--hero-progress:${((activeHeroIndex + 1) / heroSlides.length) * 100}%"></i><span>${String(activeHeroIndex + 1).padStart(2, "0")} / ${String(heroSlides.length).padStart(2, "0")}</span>`;
+  if (!hero.querySelector(".atelier-hero__controls")) hero.insertAdjacentHTML("beforeend", '<div class="atelier-hero__controls"><button type="button" data-hero-prev aria-label="Previous Shivara drop">←</button><button type="button" data-hero-next aria-label="Next Shivara drop">→</button></div>');
+}
+
+function renderFinder() {
+  const steps = document.querySelector("#finder-steps");
+  const result = document.querySelector("#finder-result");
+  if (!steps || !result) return;
+  steps.innerHTML = finderQuestions.map((question, index) => `<fieldset><legend><span>0${index + 1}</span>${question.label}</legend><div>${question.options.map((option) => `<button class="${finderState[question.key] === option ? "is-active" : ""}" type="button" data-finder-key="${question.key}" data-finder-value="${escapeMarkup(option)}" aria-pressed="${finderState[question.key] === option}">${option}</button>`).join("")}</div></fieldset>`).join("");
+  if (!Object.values(finderState).every(Boolean)) {
+    result.innerHTML = '<div class="finder-waiting"><span>01 / 03</span><p>Make three choices to reveal your Shivara edit.</p></div>';
+    return;
+  }
+  const categoryByMood = { Minimal: "Anti-tarnish", Everyday: "Pendants", Statement: "Rings", Romantic: "Rings", Protective: "Evil Eye", Party: "Earrings" };
+  const category = finderState.shoppingFor === "A gift" ? "Gifting" : categoryByMood[finderState.mood];
+  const max = finderState.budget === "Under ₹499" ? 499 : finderState.budget === "₹500–₹999" ? 999 : Infinity;
+  let matches = products.filter((product) => product.category === category && productPricing(product).price <= max);
+  if (!matches.length) matches = products.filter((product) => productPricing(product).price <= max);
+  matches = matches.slice(0, 4);
+  result.innerHTML = `<div class="finder-result__heading"><p class="atelier-kicker">YOUR SHIVARA EDIT</p><h3>${finderState.mood} pieces ${finderState.shoppingFor === "A gift" ? "made for giving" : "picked for you"}.</h3><p>${finderState.mood === "Protective" ? "Graphic details with meaning and personality." : "A focused edit that works with the mood, occasion and budget you chose."}</p></div><div class="finder-result__products">${matches.map((product) => `<label><input type="checkbox" value="${product.id}" checked /><img src="/${product.image}" alt="${escapeMarkup(product.title)}" loading="lazy" /><strong>${escapeMarkup(product.title)}</strong><small>${formatPrice(productPricing(product).price)}</small></label>`).join("")}</div><div class="finder-result__actions"><button type="button" data-finder-save>Save This Edit</button><button type="button" data-finder-add>Add Selected to Bag</button><a data-finder-whatsapp href="${finderWhatsapp(matches)}" target="_blank" rel="noreferrer">Send on WhatsApp</a></div>`;
+}
+
+function selectedFinderProducts() {
+  return Array.from(document.querySelectorAll("#finder-result input:checked")).map((input) => productMap.get(input.value)).filter(Boolean);
+}
+
+function finderWhatsapp(source = selectedFinderProducts()) {
+  const lines = source.map((product) => `${product.title} (${product.id}) - ${formatPrice(productPricing(product).price)}`);
+  const message = `Hi Shivara.luxe, I used the Jewellery Finder.\nShopping for: ${finderState.shoppingFor}\nMood: ${finderState.mood}\nBudget: ${finderState.budget}\n\nMy edit:\n${lines.join("\n")}\n\nPlease help me choose.`;
+  return `https://wa.me/919457041215?text=${encodeURIComponent(message)}`;
+}
+
+function renderHomeRecentlyViewed() {
+  const mount = document.querySelector("#home-recent-products");
+  const section = document.querySelector(".recently-viewed-home");
+  if (!mount || !section) return;
+  const viewed = readLocalJson("shivara-recently-viewed", []).map((id) => productMap.get(id)).filter(Boolean).slice(0, 5);
+  section.hidden = viewed.length === 0;
+  renderProductGrid(mount, viewed);
 }
 
 function renderDiscovery(selected = sessionStorage.getItem("shivara-discovery") || "Everyday") {
@@ -354,7 +487,7 @@ function renderLookbook(lookIndex = activeLookIndex, productIndex = activeLookPr
 function renderMotionShop() {
   const mount = document.querySelector("#motion-shop-rail");
   if (!mount) return;
-  mount.innerHTML = products.slice(3, 8).map((product, index) => `<article class="motion-card ${index === 0 ? "is-active" : ""}" data-motion-card><img src="/${product.image}" alt="${escapeMarkup(product.title)}" loading="lazy" decoding="async" /><div class="motion-card__content"><strong>${escapeMarkup(product.title)}</strong><span>${formatPrice(productPricing(product).price)}</span><button type="button" data-card-add="${product.id}">Add to Bag</button></div></article>`).join("");
+  mount.innerHTML = products.slice(3, 8).map((product, index) => `<article class="motion-card ${index === 0 ? "is-active" : ""}" data-motion-card><img src="/${product.image}" alt="${escapeMarkup(product.title)}" loading="lazy" decoding="async" /><div class="motion-card__tag">TAGGED · 01</div><button class="motion-card__toggle" type="button" data-motion-toggle aria-pressed="false">Pause motion</button><div class="motion-card__progress" aria-hidden="true"><i></i></div><div class="motion-card__content"><strong>${escapeMarkup(product.title)}</strong><span>${formatPrice(productPricing(product).price)}</span><div><button type="button" data-card-add="${product.id}">Add to Bag</button><a href="${productUrl(product)}">View Product</a></div></div></article>`).join("");
 }
 
 function sharedHeaderMarkup() {
@@ -485,7 +618,7 @@ function ensureGlobalLayers() {
         <button class="commerce-side-drawer__overlay" type="button" data-cart-close aria-label="Close shopping bag"></button>
         <div class="commerce-side-drawer__panel commerce-cart-panel">
           <header><div><small>YOUR SELECTION</small><h2>Shopping Bag</h2></div><button type="button" data-cart-close>Close</button></header>
-          <div class="commerce-cart-lines" id="cart-items"></div>
+          <div class="commerce-cart-lines" id="cart-items" aria-live="polite" aria-label="Products in your bag"></div>
           <div class="commerce-cart-empty" id="cart-empty"><strong>Your bag is empty.</strong><p>Start with a Shivara bestseller.</p><button class="store-button store-button--dark" type="button" data-continue-shopping>Continue Shopping</button></div>
           <div class="commerce-cart-summary" id="cart-summary-wrap">
             <p><span>Subtotal</span><strong id="cart-subtotal">${formatPrice(0)}</strong></p>
@@ -604,7 +737,7 @@ function renderCart() {
     .map((item) => {
       const product = productMap.get(item.id);
       const pricing = productPricing(product);
-      return `<article class="commerce-cart-line">
+      return `<article class="commerce-cart-line ${product.id === lastAddedId ? "is-new" : ""}">
         <a href="${productUrl(product)}"><img src="/${product.image}" alt="${escapeMarkup(product.title)}" /></a>
         <div><a href="${productUrl(product)}"><strong>${escapeMarkup(product.title)}</strong></a><small>Variant: ${escapeMarkup(item.variant)}</small>
           <div class="commerce-quantity"><button type="button" data-cart-decrease="${product.id}" data-variant="${escapeMarkup(item.variant)}" aria-label="Decrease quantity">−</button><span>${item.qty}</span><button type="button" data-cart-increase="${product.id}" data-variant="${escapeMarkup(item.variant)}" aria-label="Increase quantity">+</button></div>
@@ -623,7 +756,7 @@ function renderCart() {
   const lines = cart.map((item, index) => {
     const product = productMap.get(item.id);
     const price = productPricing(product).price;
-    return `${index + 1}. ${product.title}\nVariant: ${item.variant}\nQuantity: ${item.qty}\nLine total: ${formatPrice(price * item.qty)}`;
+    return `${index + 1}. ${product.title}\nSKU: ${product.id}\nVariant: ${item.variant}\nQuantity: ${item.qty}\nUnit price: ${formatPrice(price)}\nLine total: ${formatPrice(price * item.qty)}`;
   });
   const message = cart.length
     ? `Hi Shivara.luxe, I would like to order:\n\n${lines.join("\n\n")}\n\nTotal: ${formatPrice(totals.total)}\n\nPlease confirm availability, shipping and payment details.`
@@ -636,6 +769,10 @@ function renderCart() {
     summary.insertAdjacentHTML("afterbegin", `<article class="cart-recommendation" id="cart-recommendation"><p>You are building a beautiful stack.</p><div><img src="/${addOn.image}" alt="" /><span><strong>${escapeMarkup(addOn.title)}</strong><small>${formatPrice(productPricing(addOn).price)}</small></span><button type="button" data-card-add="${addOn.id}">Add</button></div></article>`);
   }
   saveCart();
+  window.setTimeout(() => {
+    lastAddedId = "";
+    document.querySelector(".commerce-cart-line.is-new")?.classList.remove("is-new");
+  }, 1200);
 }
 
 function quickViewMarkup(product) {
@@ -643,13 +780,14 @@ function quickViewMarkup(product) {
   const variants = productVariants(product);
   return `
     <div class="quick-view-v2__gallery">
-      <div class="quick-view-v2__images"><img src="/${product.image}" alt="${escapeMarkup(product.title)}" /><img src="/${product.image}" alt="" /></div>
+      <div class="quick-view-v2__images"><img src="/${product.image}" alt="${escapeMarkup(product.title)}" width="800" height="1000" /><img src="/${product.image}" alt="" width="800" height="1000" /></div>
       <div class="quick-view-v2__thumbs"><button type="button" data-quick-image="0" aria-label="View product image 1"><img src="/${product.image}" alt="" /></button><button type="button" data-quick-image="1" aria-label="View product image 2"><img src="/${product.image}" alt="" /></button></div>
     </div>
     <div class="quick-view-v2__info">
       <small>${categoryLabels[product.category] || product.category} · SKU ${product.id}</small>
       <h2>${escapeMarkup(product.title)}</h2>
       <div class="quick-view-v2__price"><strong>${formatPrice(pricing.price)}</strong><s>${formatPrice(pricing.compareAt)}</s><span>${pricing.discount}% off</span></div>
+      <p class="quick-view-v2__preview">A ${escapeMarkup((categoryLabels[product.category] || product.category).toLowerCase())} piece selected for the Shivara edit. Availability is personally confirmed before payment.</p>
       <label>Variant<select id="quick-variant">${variants.map((variant) => `<option value="${escapeMarkup(variant)}">${escapeMarkup(variant)}</option>`).join("")}</select></label>
       <label>Quantity<div class="commerce-quantity commerce-quantity--large"><button type="button" data-quick-qty="-1" aria-label="Decrease quantity">−</button><span id="quick-quantity">${quickViewState.quantity}</span><button type="button" data-quick-qty="1" aria-label="Increase quantity">+</button></div></label>
       <button class="store-button store-button--dark" type="button" data-quick-add="${product.id}">Add to Bag</button>
@@ -702,32 +840,78 @@ function searchResultMarkup(product) {
   return `<a class="commerce-search-result" href="${productUrl(product)}"><img src="/${product.image}" alt="" loading="lazy" /><span><strong>${escapeMarkup(product.title)}</strong><small>${categoryLabels[product.category] || product.category}</small></span><b>${formatPrice(pricing.price)}</b></a>`;
 }
 
+const collectionEditorial = {
+  All: ["THE COMPLETE ATELIER", "All Shivara drops", "The complete Shivara jewellery wardrobe, ready to browse your way."],
+  Earrings: ["THE FINAL TOUCH", "Earrings that change the whole look.", "From quiet shine to statement energy, find the detail that finishes it."],
+  Pendants: ["THE NECKLINE EDIT", "The piece that pulls everything together.", "Expressive pendants and neckwear selected for effortless layering."],
+  Bracelets: ["THE STACKING STUDIO", "Build the stack your way.", "Start with one signature, then add texture, shine and personality."],
+  Rings: ["THE RING EDIT", "Small detail. Major effect.", "Sculptural, romantic and adjustable rings for every mood."],
+  "Evil Eye": ["THE PROTECTION EDIT", "A little protection. A lot of personality.", "Graphic symbols and confident details designed to be noticed."],
+  "Anti-tarnish": ["EVERYDAY ICONS", "Designed to stay in rotation.", "Polished anti-tarnish pieces curated for repeat wear."],
+  Gifting: ["THE GIFTING ROOM", "Small box. Big reaction.", "Gift-ready pieces with personal WhatsApp assistance when you need it."]
+};
+
+function collectionState() {
+  const params = new URLSearchParams(location.search);
+  const bodyCategory = document.body.dataset.collection;
+  return {
+    category: params.get("category") || (bodyCategory === "Rings" ? "Rings" : "All"),
+    maxPrice: Number(params.get("maxPrice") || 999),
+    sort: params.get("sort") || "featured"
+  };
+}
+
+function updateCollectionUrl(next, replace = false) {
+  const params = new URLSearchParams(location.search);
+  if (next.category && next.category !== "All") params.set("category", next.category);
+  else params.delete("category");
+  if (next.maxPrice && Number(next.maxPrice) !== 999) params.set("maxPrice", String(next.maxPrice));
+  else params.delete("maxPrice");
+  if (next.sort && next.sort !== "featured") params.set("sort", next.sort);
+  else params.delete("sort");
+  const url = `${location.pathname}${params.size ? `?${params}` : ""}`;
+  history[replace ? "replaceState" : "pushState"]({ collection: true }, "", url);
+}
+
 function renderCollection() {
   const grid = document.querySelector("#collection-grid");
   if (!grid) return;
-  const queryCategory = new URLSearchParams(location.search).get("category");
-  const bodyCategory = document.body.dataset.collection;
-  const category = queryCategory || (bodyCategory === "Rings" ? "Rings" : "All");
-  const sort = document.querySelector("#collection-sort")?.value || "featured";
-  const maxPrice = Number(document.querySelector("#collection-price")?.value || 999);
+  const { category, sort, maxPrice } = collectionState();
   const visible = (category === "All" ? products.slice() : products.filter((product) => product.category === category))
     .filter((product) => productPricing(product).price <= maxPrice)
     .sort((a, b) => sort === "price-low" ? productPricing(a).price - productPricing(b).price : sort === "price-high" ? productPricing(b).price - productPricing(a).price : 0)
     .slice(0, 40);
   renderProductGrid(grid, visible, { eager: true });
+  const editorial = collectionEditorial[category] || collectionEditorial.All;
+  const campaign = categoryRail.find(([, value]) => value === category) || categoryRail[0];
+  document.querySelector(".collection-hero")?.style.setProperty("--collection-image", `url('/assets/instagram-shop/${campaign[2]}')`);
+  const label = document.querySelector(".collection-hero .section-kicker");
   const title = document.querySelector(".collection-hero h2");
   const copy = document.querySelector(".collection-hero p:last-child");
-  if (title) title.textContent = category === "All" ? "All Shivara drops" : `${categoryLabels[category] || category} collection`;
-  if (copy) copy.textContent = `${visible.length} curated pieces ready to add to your Shivara edit.`;
-  document.title = `${categoryLabels[category] || category} | Shivara.luxe`;
+  if (label) label.textContent = editorial[0];
+  if (title) title.textContent = editorial[1];
+  if (copy) copy.textContent = editorial[2];
+  document.title = `${editorial[1]} | Shivara`;
+  const canonicalPath = category === "All" || (location.pathname.includes("/rings") && category === "Rings") ? location.pathname : `${location.pathname}?category=${encodeURIComponent(category)}`;
+  const canonical = document.querySelector('link[rel="canonical"]');
+  if (canonical) canonical.href = `${location.origin}${canonicalPath}`;
+  const metaUpdates = {
+    'meta[property="og:title"]': document.title,
+    'meta[property="og:description"]': editorial[2],
+    'meta[property="og:url"]': `${location.origin}${canonicalPath}`,
+    'meta[property="og:image"]': `${location.origin}/assets/instagram-shop/${campaign[2]}`
+  };
+  Object.entries(metaUpdates).forEach(([selector, value]) => document.querySelector(selector)?.setAttribute("content", value));
   const filters = document.querySelector("#facet-filters");
   if (filters) {
-    filters.innerHTML = `<nav class="collection-category-filter" aria-label="Filter products">${["All", "Earrings", "Pendants", "Bracelets", "Rings", "Evil Eye", "Anti-tarnish", "Gifting"].map((item) => `<a class="${item === category ? "is-active" : ""}" href="${collectionUrl(item)}">${categoryLabels[item] || item}<span>${item === "All" ? products.length : products.filter((product) => product.category === item).length}</span></a>`).join("")}</nav>`;
+    filters.innerHTML = `<div class="collection-filter-sheet__head"><strong>Refine Your Edit</strong><button type="button" data-filter-close aria-label="Close filters">×</button></div><fieldset><legend>Category</legend><nav class="collection-category-filter" aria-label="Filter products">${Object.keys(collectionEditorial).map((item) => `<button class="${item === category ? "is-active" : ""}" type="button" data-collection-category="${escapeMarkup(item)}" aria-pressed="${item === category}">${categoryLabels[item] || item}<span>${item === "All" ? products.length : products.filter((product) => product.category === item).length}</span></button>`).join("")}</nav></fieldset><fieldset><legend>Price</legend><label><input type="radio" name="mobile-price" value="999" ${maxPrice === 999 ? "checked" : ""} /> All prices</label><label><input type="radio" name="mobile-price" value="499" ${maxPrice === 499 ? "checked" : ""} /> Under ₹499</label><label><input type="radio" name="mobile-price" value="399" ${maxPrice === 399 ? "checked" : ""} /> Under ₹399</label></fieldset><div class="collection-availability"><strong>Availability</strong><p>Current availability is personally confirmed on WhatsApp before payment.</p></div><div class="collection-filter-sheet__actions"><button type="button" data-filter-reset>Reset</button><button type="button" data-filter-apply>Show ${visible.length} products</button></div>`;
   }
   const count = document.querySelector("[data-collection-count]");
   if (count) count.textContent = `${visible.length} products`;
   const meta = document.querySelector(".product-facet__meta-bar");
-  if (meta) meta.innerHTML = `<button class="filter-toggle hidden-lap-and-up" type="button" data-filter-open>Filters</button><strong data-collection-count>${visible.length} products</strong><label>Price<select id="collection-price"><option value="999" ${maxPrice === 999 ? "selected" : ""}>All prices</option><option value="499" ${maxPrice === 499 ? "selected" : ""}>Under ₹499</option><option value="399" ${maxPrice === 399 ? "selected" : ""}>Under ₹399</option></select></label><label>Sort<select id="collection-sort"><option value="featured" ${sort === "featured" ? "selected" : ""}>Featured</option><option value="price-low" ${sort === "price-low" ? "selected" : ""}>Price: Low to High</option><option value="price-high" ${sort === "price-high" ? "selected" : ""}>Price: High to Low</option></select></label>`;
+  if (meta) meta.innerHTML = `<button class="filter-toggle hidden-lap-and-up" type="button" data-filter-open>Filters${category !== "All" || maxPrice !== 999 ? " · Active" : ""}</button><strong data-collection-count>${visible.length} products</strong><div class="collection-active-filters">${category !== "All" ? `<button type="button" data-collection-category="All">${categoryLabels[category] || category} ×</button>` : ""}${maxPrice !== 999 ? `<button type="button" data-clear-price>Under ${formatPrice(maxPrice)} ×</button>` : ""}${category !== "All" || maxPrice !== 999 ? '<button type="button" data-filter-reset>Clear all</button>' : ""}</div><label>Price<select id="collection-price"><option value="999" ${maxPrice === 999 ? "selected" : ""}>All prices</option><option value="499" ${maxPrice === 499 ? "selected" : ""}>Under ₹499</option><option value="399" ${maxPrice === 399 ? "selected" : ""}>Under ₹399</option></select></label><label>Sort<select id="collection-sort"><option value="featured" ${sort === "featured" ? "selected" : ""}>Featured</option><option value="price-low" ${sort === "price-low" ? "selected" : ""}>Price: Low to High</option><option value="price-high" ${sort === "price-high" ? "selected" : ""}>Price: High to Low</option></select></label>`;
+  grid.setAttribute("aria-label", `${visible.length} products in ${categoryLabels[category] || category}`);
+  if (!visible.length) grid.innerHTML = `<div class="collection-empty"><h2>No pieces match this edit.</h2><p>Clear a filter or explore the complete Shivara atelier.</p><button class="atelier-button atelier-button--dark" type="button" data-filter-reset>Clear Filters</button></div>`;
 }
 
 function readProductFromPath() {
@@ -758,7 +942,7 @@ function renderProductPage() {
     <section class="pdp-main">
       <div class="pdp-gallery">
         <div class="pdp-thumbnails"><button class="is-active" type="button" data-pdp-thumb="0"><img src="/${product.image}" alt="" /></button><button type="button" data-pdp-thumb="1"><img src="/${product.image}" alt="" /></button></div>
-        <div class="pdp-images" id="pdp-images"><img src="/${product.image}" alt="${escapeMarkup(product.title)}" /><img src="/${product.image}" alt="" /></div>
+        <div class="pdp-images" id="pdp-images"><img src="/${product.image}" alt="${escapeMarkup(product.title)}" width="900" height="1125" /><img src="/${product.image}" alt="" width="900" height="1125" loading="lazy" /></div>
       </div>
       <div class="pdp-info">
         <small>${categoryLabels[product.category] || product.category}</small>
@@ -769,7 +953,7 @@ function renderProductPage() {
         <p class="pdp-availability"><span></span> Availability confirmed personally before payment</p>
         <label class="pdp-field">Select variant<select id="pdp-variant">${variants.map((variant) => `<option value="${escapeMarkup(variant)}">${escapeMarkup(variant)}</option>`).join("")}</select></label>
         <label class="pdp-field">Quantity<div class="commerce-quantity commerce-quantity--large"><button type="button" data-pdp-qty="-1" aria-label="Decrease quantity">−</button><span id="pdp-quantity">1</span><button type="button" data-pdp-qty="1" aria-label="Increase quantity">+</button></div></label>
-        <div class="pdp-actions"><button class="store-button store-button--dark" type="button" data-pdp-add="${product.id}">Add to Cart</button><button class="pdp-wishlist ${saved ? "is-active" : ""}" type="button" data-wishlist-toggle="${product.id}" aria-pressed="${saved}">♡ <span>${saved ? "Saved" : "Add to Wishlist"}</span></button></div>
+        <div class="pdp-actions"><button class="store-button store-button--dark" type="button" data-pdp-add="${product.id}">Add to Bag</button><button class="pdp-wishlist ${saved ? "is-active" : ""}" type="button" data-wishlist-toggle="${product.id}" aria-pressed="${saved}">♡ <span>${saved ? "Saved to Your Edit" : "Save to Your Edit"}</span></button></div>
         <a class="store-button store-button--whatsapp" id="pdp-whatsapp" href="#" target="_blank" rel="noreferrer">Order on WhatsApp</a>
         <div class="pdp-service-tools"><label>Check delivery postcode<input id="pdp-pincode" inputmode="numeric" maxlength="6" placeholder="6-digit pincode" /></label><button type="button" data-check-pincode>Check</button><button type="button" data-share-product>Share</button></div>
         <div class="pdp-accordions">
@@ -782,7 +966,7 @@ function renderProductPage() {
     <section class="pdp-story-grid"><article><p class="atelier-kicker">WHY WE PICKED IT</p><h3>The finishing move.</h3><p>Expressive enough to shift the look, easy enough to return to often. That balance is pure Shivara.</p></article><article><p class="atelier-kicker">DETAILS UP CLOSE</p><h3>Designed to be noticed.</h3><p>Polished detail and a confident silhouette. Keep it away from water and perfume to preserve the finish.</p></article><article><p class="atelier-kicker">GIFT-READY</p><h3>Small box. Big reaction.</h3><p>Your order is carefully presented and availability is personally confirmed before payment.</p></article></section>
     <section class="pdp-products"><header><h2>Looks Good With</h2><a href="${collectionUrl(product.category)}">View collection →</a></header><div class="commerce-product-grid" id="related-products"></div></section>
     <section class="pdp-products"><header><h2>Recently viewed</h2></header><div class="commerce-product-grid" id="recent-products"></div></section>
-    <div class="pdp-sticky-bar"><div><strong>${escapeMarkup(product.title)}</strong><span>${formatPrice(pricing.price)}</span></div><button type="button" data-pdp-add="${product.id}">Add to Cart</button></div>
+    <div class="pdp-sticky-bar"><div><strong>${escapeMarkup(product.title)}</strong><span>${formatPrice(pricing.price)}</span></div><button type="button" data-pdp-add="${product.id}">Add to Bag</button></div>
   `;
   renderProductGrid(document.querySelector("#related-products"), products.filter((item) => item.category === product.category && item.id !== product.id).slice(0, 8));
   const recentIds = readLocalJson("shivara-recently-viewed", []).filter((id) => id !== product.id);
@@ -841,6 +1025,69 @@ document.addEventListener("click", (event) => {
     renderDiscovery(discovery.getAttribute("data-discovery"));
     return;
   }
+  const collectionCategory = target.closest("[data-collection-category]");
+  if (collectionCategory) {
+    updateCollectionUrl({ ...collectionState(), category: collectionCategory.getAttribute("data-collection-category") });
+    renderCollection();
+    return;
+  }
+  if (target.closest("[data-clear-price]")) {
+    updateCollectionUrl({ ...collectionState(), maxPrice: 999 });
+    renderCollection();
+    return;
+  }
+  if (target.closest("[data-filter-reset]")) {
+    updateCollectionUrl({ category: document.body.dataset.collection === "Rings" ? "Rings" : "All", maxPrice: 999, sort: "featured" });
+    renderCollection();
+    document.querySelector(".product-facet__aside")?.classList.remove("is-open");
+    return;
+  }
+  if (target.closest("[data-filter-open]")) {
+    document.querySelector(".product-facet__aside")?.classList.add("is-open");
+    document.body.classList.add("commerce-modal-open");
+    return;
+  }
+  if (target.closest("[data-filter-close], [data-filter-apply]")) {
+    document.querySelector(".product-facet__aside")?.classList.remove("is-open");
+    document.body.classList.remove("commerce-modal-open");
+    return;
+  }
+  const finishCategory = target.closest("[data-finish-category]");
+  if (finishCategory) {
+    renderFinishNavigator(finishCategory.getAttribute("data-finish-category"));
+    return;
+  }
+  if (target.closest("[data-hero-prev], [data-hero-next]")) {
+    renderHero(activeHeroIndex + (target.closest("[data-hero-prev]") ? -1 : 1));
+    return;
+  }
+  const finderChoice = target.closest("[data-finder-key]");
+  if (finderChoice) {
+    finderState[finderChoice.getAttribute("data-finder-key")] = finderChoice.getAttribute("data-finder-value");
+    sessionStorage.setItem("shivara-finder", JSON.stringify(finderState));
+    renderFinder();
+    return;
+  }
+  if (target.closest("[data-finder-save]")) {
+    selectedFinderProducts().forEach((product) => wishlist.add(product.id));
+    saveWishlist();
+    renderWishlist();
+    showToast("Your finder results are saved to your edit");
+    return;
+  }
+  if (target.closest("[data-finder-add]")) {
+    addProductsToCart(selectedFinderProducts());
+    setLayerOpen("#cart-drawer", true);
+    return;
+  }
+  const motionToggle = target.closest("[data-motion-toggle]");
+  if (motionToggle) {
+    const card = motionToggle.closest("[data-motion-card]");
+    const paused = card.classList.toggle("is-paused");
+    motionToggle.setAttribute("aria-pressed", String(paused));
+    motionToggle.textContent = paused ? "Play motion" : "Pause motion";
+    return;
+  }
   const stageProduct = target.closest("[data-stage-product]");
   if (stageProduct) {
     renderSignatureStage(Number(stageProduct.getAttribute("data-stage-product")));
@@ -858,10 +1105,8 @@ document.addEventListener("click", (event) => {
   }
   const completeLook = target.closest("[data-add-look]");
   if (completeLook) {
-    shivaraLooks[Number(completeLook.getAttribute("data-add-look"))].ids.forEach((id) => addToCart(id, productVariants(productMap.get(id))[0], 1));
-    renderCart();
+    addProductsToCart(shivaraLooks[Number(completeLook.getAttribute("data-add-look"))].ids.map((id) => productMap.get(id)).filter(Boolean));
     setLayerOpen("#cart-drawer", true);
-    showToast("Complete look added to your bag");
     return;
   }
   const concierge = target.closest("[data-concierge-toggle]");
@@ -1028,13 +1273,34 @@ document.addEventListener("click", (event) => {
 });
 
 document.addEventListener("input", (event) => {
-  if (event.target?.matches?.("#drawer-search")) renderSearch(event.target.value);
+  if (event.target?.matches?.("#drawer-search")) {
+    window.clearTimeout(searchDebounce);
+    const value = event.target.value;
+    searchDebounce = window.setTimeout(() => renderSearch(value), 90);
+  }
 });
 
 document.addEventListener("change", (event) => {
   if (event.target?.matches?.("#quick-variant")) updateQuickViewWhatsapp();
   if (event.target?.matches?.("#pdp-variant")) updatePdpWhatsapp();
-  if (event.target?.matches?.("#collection-sort, #collection-price")) renderCollection();
+  if (event.target?.matches?.("#collection-sort, #collection-price")) {
+    const state = collectionState();
+    updateCollectionUrl({
+      ...state,
+      sort: document.querySelector("#collection-sort")?.value || state.sort,
+      maxPrice: Number(document.querySelector("#collection-price")?.value || state.maxPrice)
+    });
+    renderCollection();
+  }
+  if (event.target?.matches?.('input[name="mobile-price"]')) {
+    updateCollectionUrl({ ...collectionState(), maxPrice: Number(event.target.value) });
+    renderCollection();
+    document.querySelector(".product-facet__aside")?.classList.add("is-open");
+  }
+  if (event.target?.matches?.("#finder-result input")) {
+    const link = document.querySelector("[data-finder-whatsapp]");
+    if (link) link.href = finderWhatsapp();
+  }
 });
 
 document.addEventListener("keydown", (event) => {
@@ -1051,6 +1317,7 @@ document.addEventListener("keydown", (event) => {
 
 window.addEventListener("popstate", () => {
   if (document.querySelector("#quick-view.is-open")) closeAllLayers();
+  if (document.querySelector("#collection-grid")) renderCollection();
 });
 
 let lastScrollY = 0;
@@ -1076,3 +1343,11 @@ renderProductPage();
 renderCart();
 renderWishlist();
 document.querySelectorAll("[data-motion-card]").forEach((card) => mediaObserver?.observe(card));
+const heroElement = document.querySelector(".atelier-hero");
+heroElement?.addEventListener("pointerdown", (event) => {
+  heroStartX = event.clientX;
+});
+heroElement?.addEventListener("pointerup", (event) => {
+  const distance = event.clientX - heroStartX;
+  if (Math.abs(distance) > 55) renderHero(activeHeroIndex + (distance < 0 ? 1 : -1));
+});
