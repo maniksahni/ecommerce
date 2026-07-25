@@ -1,12 +1,13 @@
 {
   "name": "shivara-luxe",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A premium ecommerce storefront for Shivara.luxe statement jewellery.",
   "private": true,
   "scripts": {
     "start": "node server.js",
     "audit:catalog": "node scripts/catalog-audit.js",
-    "test:smoke": "node scripts/smoke-test.js"
+    "test:smoke": "node scripts/smoke-test.js",
+    "test:production": "node scripts/production-test.js"
   },
   "devDependencies": {
     "playwright": "1.61.1"

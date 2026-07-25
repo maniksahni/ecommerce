@@ -1,15 +1,29 @@
 const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
+const { execFileSync } = require("node:child_process");
 const { loadCatalog } = require("./scripts/catalog-lib");
+const packageInfo = require("./package.json");
 
 const root = __dirname;
 const port = Number(process.env.PORT || 3000);
 const siteUrl = (process.env.SITE_URL || "https://shivara.up.railway.app").replace(/\/$/, "");
-const { catalog } = loadCatalog();
-const products = catalog.products;
-const productMap = new Map(products.map((product) => [product.slug, product]));
-const sourceProductMap = new Map(products.map((product) => [product.sourcePostId, product]));
+const { catalog, catalogApi } = loadCatalog();
+const products = catalogApi.getAllProducts();
+const gitCommit = process.env.RAILWAY_GIT_COMMIT_SHA || process.env.GIT_COMMIT_SHA || (() => {
+  try {
+    return execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+  } catch {
+    return "unknown";
+  }
+})();
+const buildInfo = Object.freeze({
+  commit: gitCommit,
+  catalogVersion: catalog.version,
+  builtAt: process.env.BUILD_TIMESTAMP || new Date().toISOString(),
+  appVersion: packageInfo.version
+});
+const assetVersion = `${packageInfo.version}-${catalog.version}-${gitCommit.slice(0, 8)}`;
 const supportedCollections = [
   "all", "earrings", "necklaces", "pendants", "bracelets", "rings", "evil-eye",
   "anti-tarnish", "gifting", "sets", "watches", "new-arrivals"
@@ -49,9 +63,7 @@ function money(value) {
 }
 
 function pricing(product) {
-  const confirmed = product.priceStatus === "confirmed" && Number.isFinite(product.price);
-  const compareAt = confirmed && Number.isFinite(product.compareAtPrice) && product.compareAtPrice > product.price ? product.compareAtPrice : null;
-  return { confirmed, compareAt, discount: compareAt ? Math.round(((compareAt - product.price) / compareAt) * 100) : null };
+  return catalogApi.formatPrice(product);
 }
 
 function productUrl(product) {
@@ -59,10 +71,7 @@ function productUrl(product) {
 }
 
 function collectionProducts(slug) {
-  if (slug === "all") return products;
-  if (slug === "new-arrivals") return products.filter((product) => product.collections.includes("new-arrivals"));
-  if (slug === "necklaces") return products.filter((product) => product.category === "necklaces" || product.category === "pendants");
-  return products.filter((product) => product.category === slug || product.collections.includes(slug));
+  return catalogApi.getCollection(slug);
 }
 
 function priceHtml(product, className) {
@@ -72,13 +81,14 @@ function priceHtml(product, className) {
 }
 
 function semanticCard(product, index = 0) {
+  if (!catalogApi.validateCommerceObject(product, "server semanticCard")) return "";
   const primary = product.images[0];
   const secondary = product.images.find((image) => image !== primary);
   const badge = product.badge ? `<span class="stable-card__badge">${escapeHtml(product.badge)}</span>` : "";
   const direct = pricing(product).confirmed && product.optionsStatus === "none" && !product.variants.length;
   return `<article class="stable-card ssr-product-card" data-product-card="${escapeHtml(product.id)}" data-category="${escapeHtml(product.category)}" itemscope itemtype="https://schema.org/Product">
     <div class="stable-card__media"><a href="${productUrl(product)}" itemprop="url" aria-label="View ${escapeHtml(product.title)}"><img class="stable-card__image stable-card__image--primary" src="/${escapeHtml(primary)}" alt="${escapeHtml(product.imageAlt)}" width="640" height="800" ${index < 5 ? 'fetchpriority="high"' : 'loading="lazy"'} itemprop="image" />${secondary ? `<img class="stable-card__image stable-card__image--secondary" src="/${escapeHtml(secondary)}" alt="" width="640" height="800" loading="lazy" />` : ""}</a>${badge}<button class="stable-card__wish" type="button" data-wishlist-toggle="${escapeHtml(product.id)}" aria-label="Save ${escapeHtml(product.title)}">♡</button><button class="stable-card__quick" type="button" data-quick-view="${escapeHtml(product.id)}">Quick View</button></div>
-    <div class="stable-card__body"><a class="stable-card__title" href="${productUrl(product)}" itemprop="name">${escapeHtml(product.title)}</a>${priceHtml(product, "stable-card__price")}${product.optionsStatus === "confirm" ? '<small class="stable-card__options">Options confirmed on WhatsApp</small>' : ""}<button class="stable-card__add ${direct ? "" : "stable-card__add--enquire"}" type="button" ${direct ? `data-card-add="${escapeHtml(product.id)}"` : `data-quick-view="${escapeHtml(product.id)}"`}>${direct ? "Add to Bag" : product.optionsStatus === "confirm" ? "Confirm Options" : "Enquire"}</button></div>
+    <div class="stable-card__body"><a class="stable-card__title" href="${productUrl(product)}" itemprop="name">${escapeHtml(product.title)}</a>${priceHtml(product, "stable-card__price")}${product.optionsStatus === "confirm" ? '<small class="stable-card__options">Options confirmed on WhatsApp</small>' : ""}<button class="stable-card__add ${direct ? "" : "stable-card__add--enquire"}" type="button" ${direct ? `data-card-add="${escapeHtml(product.id)}"` : `data-quick-view="${escapeHtml(product.id)}"`}>${direct ? "Add to Bag" : "Enquire"}</button></div>
   </article>`;
 }
 
@@ -88,6 +98,13 @@ function injectMetadata(html, { title, description, canonical, image, type = "we
     .replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(title)}</title>`)
     .replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/, `<meta name="description" content="${escapeHtml(description)}" />`)
     .replace("</head>", `<link rel="canonical" href="${siteUrl}${canonical}" /><meta property="og:type" content="${type}" /><meta property="og:site_name" content="Shivara" /><meta property="og:title" content="${escapeHtml(title)}" /><meta property="og:description" content="${escapeHtml(description)}" /><meta property="og:url" content="${siteUrl}${canonical}" /><meta property="og:image" content="${absoluteImage}" /><meta name="twitter:card" content="summary_large_image" /></head>`);
+}
+
+function stampHtml(html) {
+  const stampedAssets = html.replace(/((?:src|href)="\/[^"]+\.(?:js|css))\?v=[^"]+"/g, `$1?v=${assetVersion}"`);
+  if (stampedAssets.includes('name="shivara-build"')) return stampedAssets;
+  const serialized = JSON.stringify(buildInfo).replace(/</g, "\\u003c");
+  return stampedAssets.replace("</head>", `<meta name="shivara-build" content="${escapeHtml(buildInfo.commit)}" /><meta name="shivara-catalog-version" content="${escapeHtml(buildInfo.catalogVersion)}" /><meta name="shivara-build-timestamp" content="${escapeHtml(buildInfo.builtAt)}" /><meta name="shivara-app-version" content="${escapeHtml(buildInfo.appVersion)}" /><script>window.SHIVARA_BUILD_INFO=Object.freeze(${serialized});</script></head>`);
 }
 
 function injectHome(html) {
@@ -130,7 +147,7 @@ function injectCollection(html, slug) {
 
 function injectProduct(html, product) {
   const value = pricing(product);
-  const related = products.filter((item) => item.id !== product.id && (item.category === product.category || item.collections.some((collection) => product.collections.includes(collection)))).slice(0, 5);
+  const related = catalogApi.getRelatedProducts(product, 5);
   const offer = value.confirmed ? {
     "@type": "Offer",
     priceCurrency: "INR",
@@ -168,8 +185,15 @@ function unavailablePage(title, message, status = 404) {
 }
 
 function sendHtml(response, html, status = 200) {
-  response.writeHead(status, { "Content-Type": mimeTypes[".html"], "Cache-Control": "no-cache" });
-  response.end(html);
+  response.writeHead(status, {
+    "Content-Type": mimeTypes[".html"],
+    "Cache-Control": "no-cache, must-revalidate",
+    "X-Shivara-Build": buildInfo.commit,
+    "X-Shivara-Catalog-Version": String(buildInfo.catalogVersion),
+    "X-Shivara-App-Version": buildInfo.appVersion,
+    "X-Shivara-Built-At": buildInfo.builtAt
+  });
+  response.end(stampHtml(html));
 }
 
 function sendStatic(response, filePath) {
@@ -214,11 +238,12 @@ const server = http.createServer((request, response) => {
   }
   if (pathname.startsWith("/products/")) {
     const identifier = pathname.split("/")[2] || "";
-    if (sourceProductMap.has(identifier)) {
-      response.writeHead(301, { Location: productUrl(sourceProductMap.get(identifier)) });
+    const legacyProduct = catalogApi.getProductByLegacyId(identifier);
+    if (legacyProduct) {
+      response.writeHead(301, { Location: productUrl(legacyProduct) });
       return response.end();
     }
-    const product = productMap.get(identifier);
+    const product = catalogApi.getProductBySlug(identifier);
     if (!product) {
       const sourceEntry = catalog.socialContent.find((item) => item.id === identifier);
       const page = unavailablePage(sourceEntry ? "Product unavailable" : "Product not found", sourceEntry ? "This social post is not a verified purchasable product." : "We could not find that product.");

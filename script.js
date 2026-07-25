@@ -1,10 +1,18 @@
 (() => {
   "use strict";
 
-  const catalog = window.SHIVARA_CATALOG || { products: [], socialContent: [], profile: {} };
-  const products = catalog.products.map((product) => ({ ...product, image: product.images[0] }));
+  const catalogApi = window.ShivaraCatalog;
+  if (!catalogApi) {
+    console.error("[Shivara] Curated catalogue failed to load. Commerce has been disabled.");
+    document.querySelector("#main")?.insertAdjacentHTML("afterbegin", '<div class="stable-shop-unavailable" role="alert"><strong>The Shivara shop is temporarily unavailable.</strong><span>Please contact us on WhatsApp for assistance.</span></div>');
+    document.querySelectorAll("[data-card-add], [data-pdp-add], [data-quick-add]").forEach((control) => {
+      control.disabled = true;
+    });
+    document.documentElement.classList.add("catalogue-unavailable");
+    return;
+  }
+  const products = catalogApi.getAllProducts();
   const productMap = new Map(products.map((product) => [product.id, product]));
-  const sourceIdMap = new Map(products.map((product) => [product.sourcePostId, product]));
   const whatsappNumber = "919457041215";
   const storageKeys = { cart: "shivara-cart-v2", wishlist: "shivara-wishlist-v2", recent: "shivara-recent-v2" };
   const allowedBadges = new Set(["New", "Best Seller", "Limited", "Low Stock", "Sale", "Exclusive"]);
@@ -73,10 +81,7 @@
   }
 
   function pricing(product) {
-    const confirmed = product?.priceStatus === "confirmed" && Number.isFinite(product.price);
-    const compareAt = confirmed && Number.isFinite(product.compareAtPrice) && product.compareAtPrice > product.price ? product.compareAtPrice : null;
-    const discount = compareAt ? Math.round(((compareAt - product.price) / compareAt) * 100) : null;
-    return { confirmed, price: confirmed ? product.price : null, compareAt, discount };
+    return catalogApi.formatPrice(product);
   }
 
   function productUrl(product) {
@@ -88,10 +93,7 @@
   }
 
   function productsForCollection(slug) {
-    if (slug === "all") return [...products];
-    if (slug === "new-arrivals") return products.filter((product) => product.collections.includes("new-arrivals"));
-    if (slug === "necklaces") return products.filter((product) => product.category === "necklaces" || product.category === "pendants");
-    return products.filter((product) => product.category === slug || product.collections.includes(slug));
+    return catalogApi.getCollection(slug);
   }
 
   function validVariant(product, variantId) {
@@ -100,7 +102,7 @@
   }
 
   function canAddDirectly(product) {
-    return pricing(product).confirmed && product.optionsStatus === "none" && product.variants.length === 0;
+    return catalogApi.getPurchaseMode(product) === "direct";
   }
 
   function normalizeCart(raw) {
@@ -123,13 +125,14 @@
   }
 
   function productCard(product, index = 0) {
+    if (!catalogApi.validateCommerceObject(product, "productCard")) return "";
     const saved = wishlist.has(product.id);
     const primary = product.images[0];
     const secondary = product.images.find((image) => image !== primary);
     const badge = allowedBadges.has(product.badge) ? product.badge : null;
     const action = canAddDirectly(product)
       ? `<button class="stable-card__add" type="button" data-card-add="${escapeHtml(product.id)}">Add to Bag</button>`
-      : `<button class="stable-card__add stable-card__add--enquire" type="button" data-quick-view="${escapeHtml(product.id)}">${product.optionsStatus === "confirm" ? "Confirm Options" : "Enquire"}</button>`;
+      : `<button class="stable-card__add stable-card__add--enquire" type="button" data-quick-view="${escapeHtml(product.id)}">Enquire</button>`;
     return `<article class="stable-card" data-product-card="${escapeHtml(product.id)}" data-category="${escapeHtml(product.category)}">
       <div class="stable-card__media">
         <a href="${productUrl(product)}" aria-label="View ${escapeHtml(product.title)}">
@@ -151,7 +154,7 @@
 
   function renderGrid(mount, source) {
     if (!mount) return;
-    mount.innerHTML = source.map(productCard).join("");
+    mount.innerHTML = source.filter((product) => catalogApi.validateCommerceObject(product, "renderGrid")).map(productCard).join("");
   }
 
   function sharedHeader() {
@@ -395,7 +398,7 @@
     const mount = document.querySelector("#search-results");
     if (!mount) return;
     const term = query.trim().toLowerCase();
-    const matches = (term ? products.filter((product) => [product.title, product.sku, product.category, ...product.collections].join(" ").toLowerCase().includes(term)) : products.slice(0, 6)).slice(0, 12);
+    const matches = (term ? catalogApi.search(term) : catalogApi.getFeaturedProducts(6)).slice(0, 12);
     mount.innerHTML = matches.length ? matches.map((product) => `<a href="${productUrl(product)}"><img src="/${escapeHtml(product.images[0])}" alt="" /><span><strong>${escapeHtml(product.title)}</strong>${priceMarkup(product, "stable-search-price")}</span></a>`).join("") : `<div class="stable-empty"><p>No products match “${escapeHtml(query)}”.</p></div>`;
   }
 
@@ -427,7 +430,7 @@
   function renderSignature(nextIndex = signatureIndex) {
     const mount = document.querySelector("#signature-product");
     if (!mount) return;
-    const signatureProducts = products.filter((product) => pricing(product).confirmed).slice(0, 6);
+    const signatureProducts = catalogApi.getFeaturedProducts(12).filter((product) => pricing(product).confirmed).slice(0, 6);
     signatureIndex = (nextIndex + signatureProducts.length) % signatureProducts.length;
     const product = signatureProducts[signatureIndex];
     mount.innerHTML = `<a class="signature-edit__image" href="${productUrl(product)}"><img src="/${escapeHtml(product.images[0])}" alt="${escapeHtml(product.imageAlt)}" loading="lazy" /></a><div><small>${signatureIndex + 1} / ${signatureProducts.length} · ${escapeHtml(product.sku)}</small><h3>${escapeHtml(product.title)}</h3>${priceMarkup(product, "signature-edit__price")}<p>${escapeHtml(product.description)}</p><button class="stable-button stable-button--light" type="button" data-quick-view="${product.id}">Quick View</button></div>`;
@@ -495,12 +498,12 @@
   function renderProductPage() {
     if (document.body.dataset.page !== "product") return;
     const id = decodeURIComponent(location.pathname.split("/").filter(Boolean)[1] || "");
-    const product = productMap.get(id) || sourceIdMap.get(id);
+    const product = catalogApi.getProductBySlug(id) || catalogApi.getProductByLegacyId(id);
     const mount = document.querySelector("#product-page");
     if (!product) return;
     rememberProduct(product.id);
     const value = pricing(product);
-    const related = products.filter((item) => item.id !== product.id && (item.category === product.category || item.collections.some((collection) => product.collections.includes(collection)))).slice(0, 5);
+    const related = catalogApi.getRelatedProducts(product, 5);
     const recentProducts = recent.filter((recentId) => recentId !== product.id).map((recentId) => productMap.get(recentId)).filter(Boolean).slice(0, 5);
     const variantMarkup = product.variants.length ? `<fieldset class="stable-variants"><legend>Options</legend>${product.variants.map((variant, index) => `<label><input type="radio" name="pdp-variant" value="${escapeHtml(variant.id)}" ${index === 0 ? "checked" : ""} ${variant.available ? "" : "disabled"} />${escapeHtml(variant.label)}</label>`).join("")}</fieldset>` : product.optionsStatus === "confirm" ? `<div class="stable-notice">Options have not been verified for this product. Shivara will confirm them on WhatsApp.</div>` : "";
     const commerceAction = canAddDirectly(product) || product.variants.length
@@ -670,10 +673,22 @@
     document.body.classList.toggle("stable-page-hidden", document.hidden);
   });
 
-  renderChrome();
-  renderHome();
-  renderCollection();
-  renderProductPage();
-  renderWishlist();
-  renderCart();
+  async function bootstrapStorefront() {
+    if (catalogApi.getAllProducts().length !== 25) throw new Error("Curated catalogue integrity check failed during bootstrap");
+    renderChrome();
+    renderHome();
+    renderCollection();
+    renderProductPage();
+    renderWishlist();
+    renderCart();
+    document.dispatchEvent(new CustomEvent("shivara:storefront-ready", {
+      detail: { catalogueVersion: catalogApi.version, productCount: products.length }
+    }));
+  }
+
+  window.bootstrapStorefront = bootstrapStorefront;
+  bootstrapStorefront().catch((error) => {
+    console.error("[Shivara] Storefront bootstrap failed", error);
+    document.documentElement.classList.add("catalogue-unavailable");
+  });
 })();

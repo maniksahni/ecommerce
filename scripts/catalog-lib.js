@@ -32,8 +32,9 @@ function loadSourceData() {
 function loadCatalog() {
   const source = loadSourceData();
   const overrides = require(path.join(root, "catalog-overrides.js"));
-  const { build } = require(path.join(root, "catalog-data.js"));
-  return { source, overrides, catalog: build(source, overrides) };
+  const { build, createAccessLayer } = require(path.join(root, "catalog-data.js"));
+  const catalog = build(source, overrides);
+  return { source, overrides, catalog, catalogApi: createAccessLayer(catalog) };
 }
 
 function duplicates(values) {

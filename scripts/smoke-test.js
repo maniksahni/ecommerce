@@ -96,6 +96,13 @@ async function main() {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const { page, errors } = await pageWithErrors(context);
   await page.goto(baseUrl, { waitUntil: "networkidle" });
+  const bootstrapState = await page.evaluate(() => ({
+    build: window.SHIVARA_BUILD_INFO,
+    api: Boolean(window.ShivaraCatalog),
+    count: window.ShivaraCatalog?.getAllProducts().length
+  }));
+  assert(Boolean(bootstrapState.build?.commit), "HTML exposes a deployment build stamp");
+  assert(bootstrapState.api && bootstrapState.count === 25, "storefront bootstraps from the 25-product catalogue API");
   assert((await page.locator("[data-product-card]").count()) > 20, "homepage renders a dense curated catalogue");
   assert(await page.locator("[data-product-card]").evaluateAll((cards) => cards.every((card) => !/\bDM now|comment for links|grab yours now|coming soon\b/i.test(card.textContent))), "product cards contain no social CTA titles");
   await page.locator("img").evaluateAll((images) => images.forEach((image) => {
