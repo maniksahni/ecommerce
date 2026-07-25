@@ -30,6 +30,15 @@ function resolveRequestPath(url) {
 }
 
 const server = http.createServer((request, response) => {
+  const pathname = decodeURIComponent(new URL(request.url || "/", `http://localhost:${port}`).pathname);
+  if (pathname.startsWith("/products/")) {
+    response.writeHead(200, {
+      "Content-Type": mimeTypes[".html"]
+    });
+    fs.createReadStream(path.join(root, "product.html")).pipe(response);
+    return;
+  }
+
   const filePath = resolveRequestPath(request.url || "/");
 
   if (!filePath) {
