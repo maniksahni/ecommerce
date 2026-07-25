@@ -11,10 +11,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&amp;family=Playfair+Display:wght@600;700&amp;display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles.css?v=social-luxe-1" />
+    <link rel="stylesheet" href="/styles.css?v=social-luxe-2" />
   </head>
   <body data-page="home" class="social-home">
     <a class="visually-hidden skip-to-content" href="#main">Skip to content</a>
@@ -29,6 +29,7 @@
       <div class="social-mobile-header__actions">
         <button class="social-icon-button" type="button" data-notifications-open aria-label="Notifications">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.8 20a2.4 2.4 0 0 0 4.4 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="social-notification-count" data-notification-count hidden>0</span>
         </button>
         <button class="social-icon-button" type="button" data-cart-open aria-label="Open shopping bag">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.2 8h11.6l-1 11H7.2L6.2 8Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 8a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -56,7 +57,7 @@
           <div class="social-profile__stats" aria-label="Profile statistics">
             <span><strong data-profile-posts>103</strong> posts</span>
             <span><strong data-profile-collections>9</strong> collections</span>
-            <span><strong>500+</strong> happy customers</span>
+            <span><strong>Growing</strong> community</span>
           </div>
           <div class="social-profile__bio">
             <strong>Shivara.luxe</strong>
@@ -78,7 +79,7 @@
 
     <nav class="social-bottom-nav" id="mobile-social-nav" aria-label="Primary mobile"></nav>
 
-    <predictive-search-drawer class="predictive-search drawer drawer--large" id="search-drawer" aria-hidden="true">
+    <predictive-search-drawer class="predictive-search drawer drawer--large" id="search-drawer" role="dialog" aria-modal="true" aria-label="Search products" aria-hidden="true" data-modal>
       <div class="drawer__overlay" data-drawer-close></div>
       <div class="drawer__content">
         <button class="drawer__close-button tap-area" type="button" data-drawer-close aria-label="Close search">Close</button>
@@ -91,7 +92,7 @@
     </predictive-search-drawer>
 
     <div class="cart-overlay" data-cart-close hidden></div>
-    <aside class="cart-drawer" aria-label="Shopping bag" aria-hidden="true">
+    <aside class="cart-drawer" role="dialog" aria-modal="true" aria-label="Shopping bag" aria-hidden="true" data-modal>
       <div class="cart-head">
         <div>
           <p>Your bag</p>
@@ -111,8 +112,10 @@
     </aside>
 
     <div id="social-modal-root"></div>
+    <div class="social-toast" id="social-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+    <p class="visually-hidden" id="social-status" role="status" aria-live="polite" aria-atomic="true"></p>
 
     <script src="/shop-data.js?v=full-shop-ig"></script>
-    <script src="/script.js?v=social-luxe-1"></script>
+    <script src="/script.js?v=social-luxe-2"></script>
   </body>
 </html>

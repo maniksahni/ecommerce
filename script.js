@@ -173,8 +173,19 @@ const categories = [
   { title: "Mens Collection", href: "/collections/all", image: "post-039-DXOonNskfbi.jpg", category: "Bracelets" }
 ];
 
-const cart = new Map(JSON.parse(localStorage.getItem("shivara-cart") || "[]"));
+function readLocalJson(key, fallback) {
+  try {
+    const value = JSON.parse(localStorage.getItem(key) || "null");
+    return value ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+const cart = new Map(readLocalJson("shivara-cart", []));
+let recentSearches = readLocalJson("shivara-recent-searches", []).filter((item) => typeof item === "string").slice(0, 6);
 let activeFilter = "All";
+let quickViewTrigger = null;
 
 function productPricing(product) {
   const basePrices = {
@@ -226,6 +237,10 @@ function shortCaption(product) {
   return (product.caption || "DM to order from Shivara.luxe").replace(/\s+/g, " ").slice(0, 94);
 }
 
+function escapeMarkup(value) {
+  return String(value).replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+}
+
 function productCard(product, options = {}) {
   const pricing = productPricing(product);
   const selected = cart.has(product.id);
@@ -263,6 +278,32 @@ function productCard(product, options = {}) {
   `;
 }
 
+function ensureSocialMounts() {
+  if (!document.querySelector("#social-modal-root")) {
+    const modalRoot = document.createElement("div");
+    modalRoot.id = "social-modal-root";
+    document.body.appendChild(modalRoot);
+  }
+  if (!document.querySelector("#social-toast")) {
+    const toast = document.createElement("div");
+    toast.id = "social-toast";
+    toast.className = "social-toast";
+    toast.setAttribute("role", "status");
+    toast.setAttribute("aria-live", "polite");
+    toast.setAttribute("aria-atomic", "true");
+    document.body.appendChild(toast);
+  }
+  if (!document.querySelector("#social-status")) {
+    const status = document.createElement("p");
+    status.id = "social-status";
+    status.className = "visually-hidden";
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+    status.setAttribute("aria-atomic", "true");
+    document.body.appendChild(status);
+  }
+}
+
 function ensureQuickView() {
   let quickView = document.querySelector("#quick-view");
   if (quickView) return quickView;
@@ -271,6 +312,7 @@ function ensureQuickView() {
   quickView.id = "quick-view";
   quickView.className = "quick-view";
   quickView.setAttribute("aria-hidden", "true");
+  quickView.setAttribute("data-modal", "");
   quickView.innerHTML = `
     <button class="quick-view__overlay" type="button" data-quick-close aria-label="Close quick view"></button>
     <div class="quick-view__panel" role="dialog" aria-modal="true" aria-label="Product quick view">
@@ -311,6 +353,7 @@ function openQuickView(product) {
   quickView.classList.add("is-open");
   quickView.setAttribute("aria-hidden", "false");
   document.body.classList.add("quick-view-open");
+  quickView.querySelector(".quick-view__close")?.focus();
 }
 
 function closeQuickView() {
@@ -318,6 +361,9 @@ function closeQuickView() {
   quickView?.classList.remove("is-open");
   quickView?.setAttribute("aria-hidden", "true");
   document.body.classList.remove("quick-view-open");
+  const restoreTarget = quickViewTrigger;
+  quickViewTrigger = null;
+  if (restoreTarget?.isConnected) window.requestAnimationFrame(() => restoreTarget.focus());
 }
 
 function sectionProducts(kind) {
@@ -409,21 +455,33 @@ function renderSearch(query = "") {
   const results = document.querySelector("#search-results");
   if (!results) return;
   const normalized = query.toLowerCase().trim();
-  const matches = products
-    .filter((product) => `${product.title} ${product.category} ${product.caption}`.toLowerCase().includes(normalized))
-    .slice(0, 8);
+  if (!normalized) {
+    const recentMarkup = recentSearches.length
+      ? `<section class="search-recents"><header><strong>Recent searches</strong><button type="button" data-clear-searches>Clear all</button></header><div>${recentSearches
+          .map((item) => `<button type="button" data-recent-search="${escapeMarkup(item)}">${socialIcons.search}<span>${escapeMarkup(item)}</span></button>`)
+          .join("")}</div></section>`
+      : '<div class="search-empty"><strong>Find your next statement piece</strong><p>Search by product, category, collection, or keyword.</p></div>';
+    results.innerHTML = `${recentMarkup}<p class="search-section-label">Suggested</p>${products.slice(0, 5).map(searchResultMarkup).join("")}`;
+    return;
+  }
+  const matches = socialProducts
+    .filter((product) => `${product.title} ${product.category} ${product.caption || ""} ${product.id}`.toLowerCase().includes(normalized))
+    .slice(0, 12);
   results.innerHTML = matches.length
-    ? matches
-        .map(
-          (product) => `
-            <a class="search-result" href="${product.instagram}" target="_blank" rel="noreferrer">
-              <img src="/${product.image}" alt="" />
-              <span>${product.title}</span>
-            </a>
-          `
-        )
-        .join("")
-    : '<p class="empty-search">View all results</p>';
+    ? `<p class="search-section-label">${matches.length} result${matches.length === 1 ? "" : "s"}</p>${matches.map(searchResultMarkup).join("")}`
+    : '<div class="search-empty"><strong>No jewellery found</strong><p>Try a category such as rings, bracelets, earrings, or gifting.</p></div>';
+}
+
+function searchResultMarkup(product) {
+  const pricing = productPricing(product);
+  return `<button class="search-result" type="button" data-search-result="${product.id}" data-post-id="${product.id}"><img src="/${product.image}" alt="" loading="lazy" /><span><strong>${product.title}</strong><small>${product.category} collection</small></span><b>INR ${pricing.price}</b></button>`;
+}
+
+function rememberSearch(value) {
+  const normalized = value.trim();
+  if (!normalized) return;
+  recentSearches = [normalized, ...recentSearches.filter((item) => item.toLowerCase() !== normalized.toLowerCase())].slice(0, 6);
+  localStorage.setItem("shivara-recent-searches", JSON.stringify(recentSearches));
 }
 
 function renderCart() {
@@ -442,27 +500,32 @@ function renderCart() {
 
   cartItems.innerHTML = selectedProducts
     .map(
-      ({ product, qty }) => `
+      ({ product, qty }) => {
+        const pricing = productPricing(product);
+        return `
         <article class="cart-line">
-          <img src="/${product.image}" alt="" />
+          <img src="/${product.image}" alt="${product.title}" />
           <div>
             <h3>${product.title}</h3>
-            <p>${product.category} | ${product.id}</p>
+            <p>${product.category} · INR ${pricing.price} each</p>
             <div class="qty-row">
-              <button type="button" data-decrease="${product.id}">-</button>
-              <span>${qty}</span>
-              <button type="button" data-increase="${product.id}">+</button>
+              <button type="button" data-decrease="${product.id}" aria-label="Decrease ${product.title} quantity">−</button>
+              <span aria-label="Quantity ${qty}">${qty}</span>
+              <button type="button" data-increase="${product.id}" aria-label="Increase ${product.title} quantity">+</button>
               <button type="button" data-remove="${product.id}">Remove</button>
             </div>
+            <strong class="cart-line__total">INR ${pricing.price * qty}</strong>
           </div>
         </article>
-      `
+      `;
+      }
     )
     .join("");
 
   cartEmpty.hidden = selectedProducts.length > 0;
   cartItems.hidden = selectedProducts.length === 0;
-  cartSummary.textContent = `${quantity} item${quantity === 1 ? "" : "s"} selected`;
+  const grandTotal = selectedProducts.reduce((total, { product, qty }) => total + productPricing(product).price * qty, 0);
+  cartSummary.innerHTML = `<span>${quantity} item${quantity === 1 ? "" : "s"}</span><strong>Total INR ${grandTotal}</strong>`;
   document.querySelector(".cart-foot")?.toggleAttribute("hidden", selectedProducts.length === 0);
   const message =
     selectedProducts.length === 0
@@ -470,7 +533,13 @@ function renderCart() {
       : [
           "Hi Shivara.luxe, I want to inquire about these pieces:",
           "",
-          ...selectedProducts.map(({ product, qty }, index) => `${index + 1}. ${qty} x ${product.title} (${product.category}) - ${product.id} - ${product.instagram}`),
+          ...selectedProducts.map(({ product, qty }, index) => {
+            const price = productPricing(product).price;
+            const variant = product.variant ? ` | Variant: ${product.variant}` : "";
+            return `${index + 1}. ${product.title}${variant}\nQuantity: ${qty} | Price: INR ${price} | Line total: INR ${price * qty}\n${product.instagram}`;
+          }),
+          "",
+          `Complete total: INR ${grandTotal}`,
           "",
           "Please confirm price, availability, customization options, and PAN India delivery."
         ].join("\n");
@@ -501,20 +570,26 @@ function injectSharedLayout() {
   if (footerMount) {
     footerMount.outerHTML = `
       <footer class="shopify-section shopify-section--footer site-footer"><div class="footer__inner container"><div class="footer__newsletter"><img src="/assets/instagram/profile.jpg" alt="" /><p class="footer__item-title heading h3 footer_newsletter_item_title">Stay in the Loop!</p><p>Join our WhatsApp list for new products, special offers, and deals.</p><a class="footer-input" href="https://wa.me/919457041215" target="_blank" rel="noreferrer">WhatsApp Shivara</a></div><div class="footer__columns"><div><h3>Quick Links</h3><a href="/">Home</a><a href="/collections/all">New Arrivals</a><a href="/collections/rings">Rings</a><a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">Instagram</a></div><div><h3>Buy With Us</h3><a href="/#bracelets">Bracelets</a><a href="/#earrings">Earrings</a><a href="/#neck-wear">Neck Wear</a><a href="/#gifts">Gifts</a></div><div><h3>Contact Us</h3><p>Bareilly, Uttar Pradesh</p><p>DM to shop | PAN India</p><p>WhatsApp: +91 9457041215</p></div></div></div><p class="footer-bottom">Shivara.luxe</p></footer>
-      <predictive-search-drawer class="predictive-search drawer drawer--large" id="search-drawer" aria-hidden="true"><div class="drawer__overlay" data-drawer-close></div><div class="drawer__content"><button class="drawer__close-button tap-area" type="button" data-drawer-close>Close</button><label class="predictive-search__form"><span>Search</span><input class="predictive-search__input" id="drawer-search" type="text" placeholder="What are you looking for?" /></label><div class="predictive-search__results" id="search-results"></div></div></predictive-search-drawer>
+      <predictive-search-drawer class="predictive-search drawer drawer--large" id="search-drawer" role="dialog" aria-modal="true" aria-label="Search products" aria-hidden="true" data-modal><div class="drawer__overlay" data-drawer-close></div><div class="drawer__content"><button class="drawer__close-button tap-area" type="button" data-drawer-close>Close</button><label class="predictive-search__form"><span>Search</span><input class="predictive-search__input" id="drawer-search" type="text" placeholder="What are you looking for?" /></label><div class="predictive-search__results" id="search-results"></div></div></predictive-search-drawer>
       <mobile-navigation class="drawer drawer--from-left" id="mobile-menu-drawer" aria-hidden="true"><div class="drawer__overlay" data-drawer-close></div><div class="drawer__content"><button class="drawer__close-button tap-area" type="button" data-drawer-close>Close</button><nav class="mobile-nav"><a href="/">Home</a><a href="/collections/all">New Arrivals</a><a href="/#earrings">Earrings</a><a href="/#neck-wear">Neck Wear</a><a href="/#bracelets">Bracelets</a><a href="/collections/rings">Rings</a></nav></div></mobile-navigation>
-      <div class="cart-overlay" data-cart-close hidden></div><aside class="cart-drawer" aria-label="Shopping bag" aria-hidden="true"><div class="cart-head"><div><p>Your bag</p><h2>Inquiry list</h2></div><button class="drawer__close-button" type="button" data-cart-close>Close</button></div><div class="cart-items" id="cart-items"></div><div class="cart-empty" id="cart-empty"><strong>Your bag is empty.</strong><p>Add jewellery drops and send one clean WhatsApp inquiry.</p></div><div class="cart-foot"><p id="cart-summary">0 items selected</p><a class="button button--primary" id="checkout-link" href="https://wa.me/919457041215" target="_blank" rel="noreferrer">Send WhatsApp inquiry</a></div></aside>
+      <div class="cart-overlay" data-cart-close hidden></div><aside class="cart-drawer" role="dialog" aria-modal="true" aria-label="Shopping bag" aria-hidden="true" data-modal><div class="cart-head"><div><p>Your bag</p><h2>Inquiry list</h2></div><button class="drawer__close-button" type="button" data-cart-close>Close</button></div><div class="cart-items" id="cart-items"></div><div class="cart-empty" id="cart-empty"><strong>Your bag is empty.</strong><p>Add jewellery drops and send one clean WhatsApp inquiry.</p></div><div class="cart-foot"><p id="cart-summary">0 items selected</p><a class="button button--primary" id="checkout-link" href="https://wa.me/919457041215" target="_blank" rel="noreferrer">Send WhatsApp inquiry</a></div></aside>
     `;
   }
 }
 
 function openDrawer(selector) {
-  document.querySelector(selector)?.classList.add("is-open");
+  const drawer = document.querySelector(selector);
+  drawer?.classList.add("is-open");
+  drawer?.setAttribute("aria-hidden", "false");
   document.body.classList.add("drawer-open");
+  window.requestAnimationFrame(() => (drawer?.querySelector("input") || drawer?.querySelector("button"))?.focus());
 }
 
 function closeDrawers() {
-  document.querySelectorAll(".drawer.is-open").forEach((drawer) => drawer.classList.remove("is-open"));
+  document.querySelectorAll(".drawer.is-open").forEach((drawer) => {
+    drawer.classList.remove("is-open");
+    drawer.setAttribute("aria-hidden", "true");
+  });
   document.body.classList.remove("drawer-open");
 }
 
@@ -524,18 +599,26 @@ function setCartOpen(open) {
   const overlay = document.querySelector(".cart-overlay");
   drawer?.setAttribute("aria-hidden", String(!open));
   if (overlay) overlay.hidden = !open;
+  if (open) window.requestAnimationFrame(() => drawer?.querySelector("[data-cart-close]")?.focus());
 }
 
+const validSocialTabs = new Set(["posts", "reels", "shop", "tagged"]);
+const initialSocialTab = validSocialTabs.has(window.location.hash.slice(1)) ? window.location.hash.slice(1) : "posts";
 const socialState = {
-  tab: "posts",
+  tab: initialSocialTab,
+  nav: "home",
   postIndex: 0,
   storyIndex: 0,
   storyTimer: null,
   storyStartedAt: 0,
   storyRemaining: 5200,
   storyPaused: false,
-  liked: new Set(JSON.parse(localStorage.getItem("shivara-liked-posts") || "[]")),
-  saved: new Set(JSON.parse(localStorage.getItem("shivara-saved-posts") || "[]"))
+  liked: new Set(readLocalJson("shivara-liked-posts", [])),
+  saved: new Set(readLocalJson("shivara-saved-posts", [])),
+  readNotifications: new Set(readLocalJson("shivara-read-notifications", [])),
+  lastFocused: null,
+  showingSaved: false,
+  toastTimer: null
 };
 
 const socialProducts = allProducts.length ? allProducts : products;
@@ -586,12 +669,20 @@ const storyHighlights = [
   ["Rings", "Ring studio", "DVsiM2WEctG", "View Collection"],
   ["Bracelets", "Wrist stacks", "DW3H_GZDD_4", "Order on WhatsApp"],
   ["Earrings", "Statement ears", "DWERaGlEYB6", "View Collection"],
-  ["Pendants", "Neck layers", "DXRflQ2ARK2", "View Collection"],
+  ["Neck Wear", "Neck layers", "DXRflQ2ARK2", "View Collection"],
   ["Evil Eye", "Protection edit", "DYPpSpxhPO0", "Order on WhatsApp"],
+  ["Celebrity", "Styled edit", "DU-K3x-ET2s", "View Collection"],
   ["Custom", "Personal picks", "DUsq31AgXWw", "Message Shivara"],
   ["Reviews", "Client love", "DXybkxCRoaE", "View Collection"],
-  ["Packaging", "Gift-ready", "DXybkxCRoaE", "Order on WhatsApp"],
   ["Offers", "Limited prices", "DVqa-xUkQHq", "Shop Now"]
+];
+
+const notificationItems = [
+  { id: "new-drop", group: "Today", title: "New jewellery collection available", detail: "The latest Shivara.luxe edit is ready to explore.", icon: "bag" },
+  { id: "saved", group: "Today", title: "Your wishlist is ready", detail: "Saved pieces stay on this device for your next visit.", icon: "wishlist" },
+  { id: "inquiry", group: "This Week", title: "Inquiry bag tip", detail: "Add quantities, then send the complete list on WhatsApp.", icon: "messages" },
+  { id: "offer", group: "This Week", title: "Offer edit available", detail: "Browse limited-price pieces in the Shop tab.", icon: "heart" },
+  { id: "reel", group: "Earlier", title: "New reel available", detail: "See a closer look at the latest jewellery styling.", icon: "reels" }
 ];
 
 function formatCount(value) {
@@ -613,6 +704,7 @@ function whatsappProductLink(product) {
 function saveSocialState() {
   localStorage.setItem("shivara-liked-posts", JSON.stringify(Array.from(socialState.liked)));
   localStorage.setItem("shivara-saved-posts", JSON.stringify(Array.from(socialState.saved)));
+  localStorage.setItem("shivara-read-notifications", JSON.stringify(Array.from(socialState.readNotifications)));
 }
 
 function productCaption(product) {
@@ -622,16 +714,21 @@ function productCaption(product) {
 function renderSocialNav() {
   const desktop = document.querySelector("#desktop-social-nav");
   const mobile = document.querySelector("#mobile-social-nav");
+  const unread = notificationItems.filter((item) => !socialState.readNotifications.has(item.id)).length;
   if (desktop) {
     desktop.innerHTML = socialNavItems
-      .map(([label, key]) => `<button class="social-nav-item ${key === "home" ? "is-active" : ""}" type="button" data-social-nav="${key}" aria-label="${label}">${socialIcons[key]}<span>${label}</span></button>`)
+      .map(([label, key]) => `<button class="social-nav-item ${key === socialState.nav ? "is-active" : ""}" type="button" data-social-nav="${key}" aria-label="${label}">${socialIcons[key]}<span>${label}</span>${key === "notifications" && unread ? `<b class="nav-count">${unread}</b>` : key === "wishlist" && socialState.saved.size ? `<b class="nav-count">${socialState.saved.size}</b>` : ""}</button>`)
       .join("");
   }
   if (mobile) {
     mobile.innerHTML = ["home", "search", "reels", "wishlist", "profile"]
-      .map((key) => `<button class="social-bottom-nav__item ${key === "home" ? "is-active" : ""}" type="button" data-social-nav="${key}" aria-label="${key}">${socialIcons[key]}<span>${key}</span></button>`)
+      .map((key) => `<button class="social-bottom-nav__item ${key === socialState.nav ? "is-active" : ""}" type="button" data-social-nav="${key}" aria-label="${key}">${socialIcons[key]}<span>${key}</span>${key === "wishlist" && socialState.saved.size ? `<b class="nav-count">${socialState.saved.size}</b>` : ""}</button>`)
       .join("");
   }
+  document.querySelectorAll("[data-notification-count]").forEach((badge) => {
+    badge.textContent = String(unread);
+    badge.hidden = unread === 0;
+  });
 }
 
 function renderProfileMeta() {
@@ -659,8 +756,9 @@ function renderHighlights() {
 function renderTabs() {
   const tabs = document.querySelector("#profile-tabs");
   if (!tabs) return;
+  tabs.setAttribute("role", "tablist");
   tabs.innerHTML = socialTabs
-    .map(([label, icon]) => `<button class="profile-tab ${socialState.tab === label.toLowerCase() ? "is-active" : ""}" type="button" data-social-tab="${label.toLowerCase()}" aria-selected="${socialState.tab === label.toLowerCase()}">${socialIcons[icon]}<span>${label}</span></button>`)
+    .map(([label, icon]) => `<button class="profile-tab ${!socialState.showingSaved && socialState.tab === label.toLowerCase() ? "is-active" : ""}" type="button" role="tab" data-social-tab="${label.toLowerCase()}" aria-controls="profile-tab-panel" aria-selected="${!socialState.showingSaved && socialState.tab === label.toLowerCase()}" tabindex="${!socialState.showingSaved && socialState.tab === label.toLowerCase() ? "0" : "-1"}">${socialIcons[icon]}<span>${label}</span></button>`)
     .join("");
 }
 
@@ -668,7 +766,10 @@ function renderActiveTab() {
   renderTabs();
   const panel = document.querySelector("#profile-tab-panel");
   if (!panel) return;
-  if (socialState.tab === "reels") {
+  panel.setAttribute("role", "tabpanel");
+  if (socialState.showingSaved) {
+    panel.innerHTML = renderSavedGrid();
+  } else if (socialState.tab === "reels") {
     panel.innerHTML = renderReelsGrid();
   } else if (socialState.tab === "shop") {
     panel.innerHTML = renderShopGrid();
@@ -676,6 +777,87 @@ function renderActiveTab() {
     panel.innerHTML = renderTaggedGrid();
   } else {
     panel.innerHTML = renderPostsGrid();
+  }
+}
+
+function selectSocialTab(tab, options = {}) {
+  if (!validSocialTabs.has(tab)) return;
+  socialState.tab = tab;
+  socialState.showingSaved = false;
+  renderActiveTab();
+  if (document.body.classList.contains("social-home") && options.history !== false) {
+    const nextHash = `#${tab}`;
+    if (window.location.hash !== nextHash) window.history.pushState({ tab }, "", nextHash);
+  }
+}
+
+function renderSavedGrid() {
+  const savedProducts = socialProducts.filter((product) => socialState.saved.has(product.id));
+  if (!savedProducts.length) return `<div class="saved-empty">${socialIcons.wishlist}<strong>No saved pieces yet</strong><p>Tap the bookmark on a post or shop item to build your wishlist.</p><button type="button" data-social-tab="shop">Browse shop</button></div>`;
+  return `<header class="saved-heading"><div><span>Wishlist</span><h2>Saved pieces</h2></div><strong>${savedProducts.length} item${savedProducts.length === 1 ? "" : "s"}</strong></header><div class="social-shop-grid">${savedProducts.map((product) => shopCardMarkup(product)).join("")}</div>`;
+}
+
+function announce(message) {
+  const status = document.querySelector("#social-status");
+  if (status) status.textContent = message;
+}
+
+function showToast(message) {
+  const toast = document.querySelector("#social-toast");
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add("is-visible");
+  window.clearTimeout(socialState.toastTimer);
+  socialState.toastTimer = window.setTimeout(() => toast.classList.remove("is-visible"), 2600);
+  announce(message);
+}
+
+function rememberModalTrigger(trigger) {
+  if (!(trigger instanceof HTMLElement)) return;
+  if (trigger.closest("#social-modal-root") && socialState.lastFocused) return;
+  socialState.lastFocused = trigger;
+}
+
+function whatsappQuickAction(label) {
+  const messages = {
+    "Ask price": "Hi Shivara.luxe, I would like to ask the price of a jewellery piece.",
+    "Check availability": "Hi Shivara.luxe, could you please check availability for a jewellery piece?",
+    "Custom order": "Hi Shivara.luxe, I would like to discuss a custom jewellery order.",
+    "Delivery question": "Hi Shivara.luxe, I have a question about PAN India delivery."
+  };
+  return `https://wa.me/919457041215?text=${encodeURIComponent(messages[label])}`;
+}
+
+function openMessageSheet(trigger) {
+  rememberModalTrigger(trigger);
+  const actions = ["Ask price", "Check availability", "Custom order", "Delivery question"];
+  const root = document.querySelector("#social-modal-root");
+  if (!root) return;
+  root.innerHTML = `<section class="social-sheet" role="dialog" aria-modal="true" aria-labelledby="message-sheet-title" data-modal><button class="social-sheet__backdrop" type="button" data-social-close aria-label="Close message options"></button><div class="social-sheet__panel"><header><div><span>Direct to WhatsApp</span><h2 id="message-sheet-title">Message Shivara.luxe</h2></div><button type="button" data-social-close aria-label="Close message options">×</button></header><p>Choose a quick question. Your WhatsApp message will be prepared and ready to send.</p><div class="message-actions">${actions.map((label) => `<a href="${whatsappQuickAction(label)}" target="_blank" rel="noreferrer">${socialIcons.messages}<span><strong>${label}</strong><small>Open a prepared WhatsApp message</small></span></a>`).join("")}</div></div></section>`;
+  document.body.classList.add("social-modal-open");
+  root.querySelector("[data-social-close]")?.focus();
+}
+
+function openNotifications(trigger) {
+  rememberModalTrigger(trigger);
+  const root = document.querySelector("#social-modal-root");
+  if (!root) return;
+  const groups = ["Today", "This Week", "Earlier"];
+  root.innerHTML = `<section class="social-sheet social-sheet--notifications" role="dialog" aria-modal="true" aria-labelledby="notifications-title" data-modal><button class="social-sheet__backdrop" type="button" data-social-close aria-label="Close notifications"></button><div class="social-sheet__panel"><header><div><span>Shivara updates</span><h2 id="notifications-title">Notifications</h2></div><button type="button" data-social-close aria-label="Close notifications">×</button></header><button class="notifications-read-all" type="button" data-read-all>Mark all as read</button><div class="notification-groups">${groups.map((group) => `<section><h3>${group}</h3>${notificationItems.filter((item) => item.group === group).map((item) => `<button class="notification-item ${socialState.readNotifications.has(item.id) ? "is-read" : ""}" type="button" data-read-notification="${item.id}"><span class="notification-item__icon">${socialIcons[item.icon]}</span><span><strong>${item.title}</strong><small>${item.detail}</small></span><i aria-hidden="true"></i></button>`).join("")}</section>`).join("")}</div></div></section>`;
+  document.body.classList.add("social-modal-open");
+  root.querySelector("[data-social-close]")?.focus();
+}
+
+async function shareProduct(product) {
+  const data = { title: product.title, text: `${product.title} from Shivara.luxe`, url: product.instagram || window.location.href };
+  try {
+    if (navigator.share) await navigator.share(data);
+    else {
+      await navigator.clipboard.writeText(data.url);
+      showToast("Product link copied");
+    }
+  } catch (error) {
+    if (error?.name !== "AbortError") showToast("Unable to share right now");
   }
 }
 
@@ -706,24 +888,27 @@ function renderReelsGrid() {
 }
 
 function renderShopGrid() {
-  return `<div class="social-shop-grid">${products
-    .map((product, index) => {
-      const pricing = productPricing(product);
-      return `
-        <article class="social-shop-card">
-          <button class="social-shop-card__media" type="button" data-post-id="${product.id}" aria-label="Open ${product.title}">
-            <img src="/${product.image}" alt="${product.title}" loading="${index < 8 ? "eager" : "lazy"}" decoding="async" />
-          </button>
-          <div class="social-shop-card__info">
-            <h2>${product.title}</h2>
-            <p>${product.category}</p>
-            <strong>INR ${pricing.price}</strong>
-            <button type="button" data-add="${product.id}">${cart.has(product.id) ? "Added" : "Quick shop"}</button>
-          </div>
-        </article>
-      `;
-    })
-    .join("")}</div>`;
+  return `<div class="social-shop-grid">${products.map((product, index) => shopCardMarkup(product, index)).join("")}</div>`;
+}
+
+function shopCardMarkup(product, index = 9) {
+  const pricing = productPricing(product);
+  const saved = socialState.saved.has(product.id);
+  const shoppable = shoppableIds.has(product.id);
+  return `
+    <article class="social-shop-card">
+      <button class="social-shop-card__media" type="button" ${shoppable ? `data-quick="${product.id}"` : `data-post-id="${product.id}"`} aria-label="View details for ${product.title}">
+        <img src="/${product.image}" alt="${product.title}" loading="${index < 8 ? "eager" : "lazy"}" decoding="async" />
+      </button>
+      <button class="shop-save ${saved ? "is-active" : ""}" type="button" data-save-post="${product.id}" aria-label="${saved ? "Remove" : "Save"} ${product.title}" aria-pressed="${saved}">${socialIcons.wishlist}</button>
+      <div class="social-shop-card__info">
+        <h2>${product.title}</h2>
+        <p>${product.category}</p>
+        <strong>INR ${pricing.price}</strong>
+        <div>${shoppable ? `<button type="button" data-add="${product.id}">${cart.has(product.id) ? "Add another" : "Quick add"}</button><button class="shop-view" type="button" data-quick="${product.id}">View</button>` : `<button type="button" data-post-id="${product.id}">View post</button>`}</div>
+      </div>
+    </article>
+  `;
 }
 
 function renderTaggedGrid() {
@@ -793,10 +978,10 @@ function openPostViewer(index) {
             <div><strong>shivara.luxe <span class="brand-badge brand-badge--small">✦</span></strong><span>${product.category} collection</span></div>
           </header>
           <div class="post-viewer__actions">
-            <button type="button" data-like-post="${product.id}" aria-pressed="${liked}">${socialIcons.heart}</button>
-            <button type="button" aria-label="Comments">${socialIcons.comment}</button>
-            <a href="${whatsappProductLink(product)}" target="_blank" rel="noreferrer" aria-label="Share on WhatsApp">${socialIcons.share}</a>
-            <button type="button" data-save-post="${product.id}" aria-pressed="${saved}">${socialIcons.wishlist}</button>
+            <button type="button" data-like-post="${product.id}" aria-label="${liked ? "Unlike" : "Like"} ${product.title}" aria-pressed="${liked}">${socialIcons.heart}</button>
+            <button type="button" data-message-open aria-label="Ask about this product">${socialIcons.comment}</button>
+            <button type="button" data-share-product="${product.id}" aria-label="Share ${product.title}">${socialIcons.share}</button>
+            <button type="button" data-save-post="${product.id}" aria-label="${saved ? "Remove from" : "Save to"} wishlist" aria-pressed="${saved}">${socialIcons.wishlist}</button>
           </div>
           <strong class="post-viewer__likes">${formatCount(baseLikes + (liked ? 1 : 0))} likes</strong>
           <p class="post-viewer__caption"><strong>shivara.luxe</strong> <span>${caption.slice(0, 170)}</span>${caption.length > 170 ? `<button type="button" data-expand-caption data-full-caption="${caption.replace(/"/g, "&quot;")}">more</button>` : ""}</p>
@@ -805,8 +990,8 @@ function openPostViewer(index) {
             <div><strong>${product.title}</strong><span>${product.category} · INR ${pricing.price}</span></div>
           </div>
           <div class="post-viewer__comments">
-            <p><strong>riya</strong> need this stack</p>
-            <p><strong>shivara.luxe</strong> DM or WhatsApp to order, PAN India shipping available.</p>
+            <p><strong>Questions?</strong> Ask about price, sizing, availability, or customisation.</p>
+            <p><strong>shivara.luxe</strong> WhatsApp to order · PAN India delivery.</p>
           </div>
           <div class="post-viewer__ctas">
             ${quickButton}
@@ -821,11 +1006,14 @@ function openPostViewer(index) {
   syncSocialCounters();
 }
 
-function closeSocialModal() {
+function closeSocialModal(restoreFocus = true) {
   clearStoryTimer();
   const root = document.querySelector("#social-modal-root");
   if (root) root.innerHTML = "";
   document.body.classList.remove("social-modal-open", "story-open", "reels-open");
+  const restoreTarget = socialState.lastFocused;
+  socialState.lastFocused = null;
+  if (restoreFocus && restoreTarget?.isConnected) window.requestAnimationFrame(() => restoreTarget.focus());
 }
 
 function toggleLike(productId, force = false) {
@@ -869,6 +1057,7 @@ function scheduleStoryAdvance(duration = 5200) {
 function renderStoryViewer() {
   const [label, title, id, cta] = storyHighlights[socialState.storyIndex];
   const product = socialProductById(id);
+  const pricing = productPricing(product);
   const root = document.querySelector("#social-modal-root");
   if (!root) return;
   root.innerHTML = `
@@ -876,13 +1065,14 @@ function renderStoryViewer() {
       <div class="story-viewer__progress">${storyHighlights.map((_, index) => `<span class="${index < socialState.storyIndex ? "is-done" : index === socialState.storyIndex ? "is-active" : ""}"><i></i></span>`).join("")}</div>
       <header class="story-viewer__header"><img src="/assets/instagram/profile.jpg" alt="" /><strong>shivara.luxe</strong><span>${label}</span><button type="button" data-social-close aria-label="Close story">×</button></header>
       <button class="story-viewer__tap story-viewer__tap--prev" type="button" data-story-prev aria-label="Previous story"></button>
-      <figure class="story-viewer__media"><img src="/${product.image}" alt="${title}" /><figcaption><strong>${title}</strong><span>${product.title}</span></figcaption></figure>
+      <figure class="story-viewer__media"><img src="/${product.image}" alt="${title}" /><figcaption><strong>${title}</strong><span>${product.title} · INR ${pricing.price}</span></figcaption></figure>
       <button class="story-viewer__tap story-viewer__tap--next" type="button" data-story-next aria-label="Next story"></button>
       <a class="story-viewer__cta" href="${cta.includes("WhatsApp") || cta.includes("Message") ? whatsappProductLink(product) : "/collections/all"}" target="${cta.includes("WhatsApp") || cta.includes("Message") ? "_blank" : "_self"}" rel="noreferrer">${cta}</a>
     </section>
   `;
   document.body.classList.add("social-modal-open", "story-open");
   scheduleStoryAdvance();
+  root.querySelector("[data-social-close]")?.focus();
 }
 
 function pauseStory() {
@@ -924,11 +1114,12 @@ function openReelsViewer(index = 0) {
             <article class="reel-card ${reelIndex === index ? "is-active" : ""}" data-reel-card>
               <div class="reel-card__motion" data-reel-media><img src="/${product.image}" alt="${product.title}" /></div>
               <button class="reel-card__mute" type="button" data-reel-mute aria-label="Mute or unmute">Muted</button>
+              <button class="reel-card__play" type="button" data-reel-play aria-label="Play or pause reel">${socialIcons.play}</button>
               <div class="reel-card__actions">
-                <button type="button" data-like-post="${product.id}">${socialIcons.heart}<span>${formatCount((product.likes || 0) + 320)}</span></button>
-                <button type="button">${socialIcons.comment}<span>${(reelIndex % 13) + 4}</span></button>
-                <a href="${whatsappProductLink(product)}" target="_blank" rel="noreferrer">${socialIcons.share}<span>Share</span></a>
-                <button type="button" data-save-post="${product.id}">${socialIcons.wishlist}<span>Save</span></button>
+                <button type="button" data-like-post="${product.id}" aria-label="Like ${product.title}">${socialIcons.heart}<span>${formatCount((product.likes || 0) + 320)}</span></button>
+                <button type="button" data-message-open aria-label="Ask about ${product.title}">${socialIcons.comment}<span>Ask</span></button>
+                <a href="${whatsappProductLink(product)}" target="_blank" rel="noreferrer" aria-label="Share ${product.title} on WhatsApp">${socialIcons.share}<span>Share</span></a>
+                <button type="button" data-save-post="${product.id}" aria-label="Save ${product.title} to wishlist">${socialIcons.wishlist}<span>Save</span></button>
               </div>
               <div class="reel-card__caption">
                 <div><img src="/assets/instagram/profile.jpg" alt="" /><strong>shivara.luxe</strong><button type="button">Follow</button></div>
@@ -947,6 +1138,7 @@ function openReelsViewer(index = 0) {
   track?.children[index]?.scrollIntoView({ block: "center" });
   setupReelObserver();
   syncSocialCounters();
+  root.querySelector("[data-social-close]")?.focus();
 }
 
 function setupReelObserver() {
@@ -967,35 +1159,41 @@ document.addEventListener("click", (event) => {
   const navItem = target.closest("[data-social-nav]");
   if (navItem) {
     const key = navItem.getAttribute("data-social-nav");
+    socialState.nav = key;
+    document.querySelectorAll("[data-social-nav]").forEach((item) => item.classList.toggle("is-active", item.getAttribute("data-social-nav") === key));
     if (key === "search") {
       openDrawer("#search-drawer");
       renderSearch("");
     } else if (key === "reels") {
       openReelsViewer(0);
     } else if (key === "wishlist") {
-      socialState.tab = "shop";
+      socialState.showingSaved = true;
       renderActiveTab();
       document.querySelector("#profile-tabs")?.scrollIntoView({ behavior: "smooth", block: "start" });
     } else if (key === "profile" || key === "home") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else if (key === "messages") {
-      window.open("https://wa.me/919457041215", "_blank", "noopener");
+      openMessageSheet(navItem);
     } else if (key === "notifications") {
-      alert("New Shivara.luxe drops are live. Add your favourites to the bag and confirm on WhatsApp.");
+      openNotifications(navItem);
     } else if (key === "explore") {
-      socialState.tab = "posts";
-      renderActiveTab();
+      selectSocialTab("posts");
+      document.querySelector("#profile-tabs")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else if (key === "create") {
+      openMessageSheet(navItem);
+    } else if (key === "more") {
+      openNotifications(navItem);
     }
     return;
   }
   const tabButton = target.closest("[data-social-tab]");
   if (tabButton) {
-    socialState.tab = tabButton.getAttribute("data-social-tab") || "posts";
-    renderActiveTab();
+    selectSocialTab(tabButton.getAttribute("data-social-tab") || "posts");
     return;
   }
   const storyButton = target.closest("[data-story-open]");
   if (storyButton) {
+    rememberModalTrigger(storyButton);
     openStoryViewer(Number(storyButton.getAttribute("data-story-open") || 0));
     return;
   }
@@ -1013,17 +1211,25 @@ document.addEventListener("click", (event) => {
   }
   const postOpen = target.closest("[data-post-open]");
   if (postOpen) {
+    rememberModalTrigger(postOpen);
     openPostViewer(Number(postOpen.getAttribute("data-post-open") || 0));
     return;
   }
   const postIdOpen = target.closest("[data-post-id]");
   if (postIdOpen) {
+    rememberModalTrigger(postIdOpen);
+    if (postIdOpen.matches("[data-search-result]")) {
+      rememberSearch(document.querySelector("#drawer-search")?.value || postIdOpen.querySelector("strong")?.textContent || "");
+      closeDrawers();
+      socialState.lastFocused = document.querySelector('[data-social-nav="search"]');
+    }
     const index = socialProducts.findIndex((product) => product.id === postIdOpen.getAttribute("data-post-id"));
     openPostViewer(index >= 0 ? index : 0);
     return;
   }
   const reelsOpen = target.closest("[data-reels-open]");
   if (reelsOpen) {
+    rememberModalTrigger(reelsOpen);
     openReelsViewer(Number(reelsOpen.getAttribute("data-reels-open") || 0));
     return;
   }
@@ -1047,6 +1253,9 @@ document.addEventListener("click", (event) => {
     else socialState.saved.add(id);
     saveSocialState();
     syncSocialCounters();
+    renderSocialNav();
+    if (socialState.showingSaved) renderActiveTab();
+    showToast(socialState.saved.has(id) ? "Saved to your wishlist" : "Removed from your wishlist");
     return;
   }
   const captionButton = target.closest("[data-expand-caption]");
@@ -1057,26 +1266,50 @@ document.addEventListener("click", (event) => {
     return;
   }
   if (target.closest("[data-shop-now]")) {
-    socialState.tab = "shop";
-    renderActiveTab();
+    selectSocialTab("shop");
     document.querySelector("#profile-tabs")?.scrollIntoView({ behavior: "smooth", block: "start" });
     return;
   }
   if (target.closest("[data-message-open]")) {
-    window.open("https://wa.me/919457041215", "_blank", "noopener");
+    openMessageSheet(target.closest("[data-message-open]"));
     return;
   }
   if (target.closest("[data-notifications-open]")) {
-    alert("New Shivara.luxe drops are live. Add your favourites to the bag and confirm on WhatsApp.");
+    openNotifications(target.closest("[data-notifications-open]"));
+    return;
+  }
+  const readNotification = target.closest("[data-read-notification]");
+  if (readNotification) {
+    socialState.readNotifications.add(readNotification.getAttribute("data-read-notification"));
+    saveSocialState();
+    readNotification.classList.add("is-read");
+    renderSocialNav();
+    return;
+  }
+  if (target.closest("[data-read-all]")) {
+    notificationItems.forEach((item) => socialState.readNotifications.add(item.id));
+    saveSocialState();
+    openNotifications(socialState.lastFocused);
+    renderSocialNav();
+    announce("All notifications marked as read");
+    return;
+  }
+  const shareButton = target.closest("[data-share-product]");
+  if (shareButton) {
+    shareProduct(socialProductById(shareButton.getAttribute("data-share-product")));
     return;
   }
   if (target.closest("[data-share-profile]")) {
     const shareData = { title: "Shivara.luxe", text: "Shop statement jewellery from Shivara.luxe", url: window.location.href };
     if (navigator.share) navigator.share(shareData).catch(() => {});
-    else navigator.clipboard?.writeText(window.location.href);
+    else navigator.clipboard?.writeText(window.location.href).then(() => showToast("Profile link copied"));
     return;
   }
   if (target.closest("[data-reel-media]")) {
+    target.closest("[data-reel-card]")?.classList.toggle("is-paused");
+    return;
+  }
+  if (target.closest("[data-reel-play]")) {
     target.closest("[data-reel-card]")?.classList.toggle("is-paused");
     return;
   }
@@ -1089,6 +1322,21 @@ document.addEventListener("click", (event) => {
   if (target.closest("[data-search-open]")) {
     openDrawer("#search-drawer");
     renderSearch("");
+    return;
+  }
+  const recentSearch = target.closest("[data-recent-search]");
+  if (recentSearch) {
+    const value = recentSearch.getAttribute("data-recent-search") || "";
+    const input = document.querySelector("#drawer-search");
+    if (input) input.value = value;
+    renderSearch(value);
+    return;
+  }
+  if (target.closest("[data-clear-searches]")) {
+    recentSearches = [];
+    localStorage.removeItem("shivara-recent-searches");
+    renderSearch("");
+    announce("Recent searches cleared");
     return;
   }
   if (target.closest("[data-menu-open]")) {
@@ -1118,11 +1366,15 @@ document.addEventListener("click", (event) => {
     renderCart();
     closeQuickView();
     setCartOpen(true);
+    showToast("Added to your inquiry bag");
     return;
   }
   const quickButton = target.closest("[data-quick]");
   if (quickButton) {
-    openQuickView(productById(quickButton.getAttribute("data-quick")));
+    const product = productById(quickButton.getAttribute("data-quick"));
+    quickViewTrigger = document.querySelector(".post-viewer") ? socialState.lastFocused : quickButton;
+    if (document.querySelector(".post-viewer")) closeSocialModal(false);
+    openQuickView(product);
     return;
   }
   if (target.closest("[data-quick-close]")) {
@@ -1159,6 +1411,19 @@ document.addEventListener("input", (event) => {
 });
 
 document.addEventListener("keydown", (event) => {
+  if (event.target?.matches?.("#drawer-search") && event.key === "Enter") {
+    rememberSearch(event.target.value);
+    renderSearch(event.target.value);
+  }
+  if (event.target?.matches?.("[data-social-tab]") && ["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
+    event.preventDefault();
+    const tabs = Array.from(document.querySelectorAll("[data-social-tab]"));
+    const current = tabs.indexOf(event.target);
+    const nextIndex = event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : (current + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+    const nextTab = tabs[nextIndex];
+    selectSocialTab(nextTab.getAttribute("data-social-tab") || "posts");
+    document.querySelector(`[data-social-tab="${socialState.tab}"]`)?.focus();
+  }
   if (event.key === "Escape") {
     closeDrawers();
     setCartOpen(false);
@@ -1166,7 +1431,9 @@ document.addEventListener("keydown", (event) => {
     closeSocialModal();
   }
   if (event.key === "Tab") {
-    const modal = document.querySelector("[data-modal]");
+    const modal = Array.from(document.querySelectorAll("[data-modal]")).find(
+      (item) => item.getAttribute("aria-hidden") !== "true" && item.getClientRects().length > 0
+    );
     if (modal) {
       const focusable = Array.from(modal.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])')).filter(
         (item) => item.offsetParent !== null
@@ -1233,9 +1500,31 @@ document.addEventListener("touchend", (event) => {
   storyTouchX = null;
 });
 
+function syncTabFromLocation() {
+  if (!document.body.classList.contains("social-home")) return;
+  const tab = window.location.hash.slice(1);
+  if (!validSocialTabs.has(tab) || tab === socialState.tab && !socialState.showingSaved) return;
+  socialState.tab = tab;
+  socialState.showingSaved = false;
+  renderActiveTab();
+}
+
+window.addEventListener("popstate", syncTabFromLocation);
+window.addEventListener("hashchange", syncTabFromLocation);
+document.addEventListener(
+  "load",
+  (event) => {
+    const image = event.target instanceof HTMLImageElement ? event.target : null;
+    image?.closest(".social-post-tile, .social-reel-tile, .social-shop-card__media")?.classList.add("is-loaded");
+  },
+  true
+);
+
 injectSharedLayout();
+ensureSocialMounts();
 ensureQuickView();
 renderHome();
 renderCollection();
 renderCart();
 renderSocialHome();
+if (document.body.classList.contains("social-home") && !window.location.hash) window.history.replaceState({ tab: socialState.tab }, "", `#${socialState.tab}`);
