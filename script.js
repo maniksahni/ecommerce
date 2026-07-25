@@ -184,6 +184,10 @@ let activeLookIndex = 0;
 let activeLookProduct = 0;
 let activeHeroIndex = 0;
 let heroStartX = 0;
+let deckIndex = Number(sessionStorage.getItem("shivara-deck-index") || 0);
+let deckPointer = null;
+const stackSelection = new Set();
+let activeRingIndex = 0;
 let finderState = (() => {
   try {
     return { shoppingFor: "", mood: "", budget: "", ...JSON.parse(sessionStorage.getItem("shivara-finder") || "{}") };
@@ -193,6 +197,18 @@ let finderState = (() => {
 })();
 let lastAddedId = "";
 let searchDebounce = 0;
+
+function transitionView(update, name = "shivara-transition") {
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduced && document.startViewTransition) {
+    document.documentElement.style.setProperty("--active-view-transition", name);
+    return document.startViewTransition(update).finished.finally(() => {
+      document.documentElement.style.removeProperty("--active-view-transition");
+    });
+  }
+  update();
+  return Promise.resolve();
+}
 
 function saveCart() {
   localStorage.setItem("shivara-cart", JSON.stringify(cart));
@@ -379,34 +395,79 @@ function renderHome() {
   renderProductGrid(document.querySelector('[data-commerce-products="Earrings"]'), productsForCategory("Earrings", 6));
   renderProductGrid(document.querySelector('[data-commerce-products="Bracelets"]'), productsForCategory("Bracelets", 8));
   renderDiscovery();
+  renderDeck();
+  renderDepthStory();
   renderSignatureStage();
   renderLookbook();
   renderMotionShop();
+  renderEvilOrbit();
+  renderStackBuilder();
+  renderRingConstellation();
   renderHero();
   renderFinder();
   renderHomeRecentlyViewed();
 }
 
-function renderHero(index = activeHeroIndex) {
+function renderHero(index = activeHeroIndex, animate = false) {
   const hero = document.querySelector(".atelier-hero");
   if (!hero) return;
   activeHeroIndex = (index + heroSlides.length) % heroSlides.length;
   const slide = heroSlides[activeHeroIndex];
   const product = productMap.get(slide.id);
   const value = productPricing(product);
-  hero.style.setProperty("--hero-tone", slide.tone);
-  hero.querySelector(".atelier-hero__media img").src = `/${product.image}`;
-  hero.querySelector(".atelier-hero__media img").alt = `${product.title} featured in the Shivara drop`;
-  hero.querySelector(".atelier-kicker").textContent = slide.label;
-  hero.querySelector("h1").innerHTML = slide.title.map((line) => `<span>${escapeMarkup(line)}</span>`).join(" ");
-  hero.querySelector(".atelier-hero__content > p:not(.atelier-kicker)").textContent = slide.copy;
-  const featureLink = hero.querySelector(".atelier-hero__actions a:last-child");
-  featureLink.href = productUrl(product);
-  featureLink.textContent = "View Featured Piece";
-  hero.querySelector(".atelier-hero__product").href = productUrl(product);
-  hero.querySelector(".atelier-hero__product").innerHTML = `<span>${String(activeHeroIndex + 1).padStart(2, "0")}</span><span>${escapeMarkup(product.title)}</span><strong>${formatPrice(value.price)}</strong>`;
-  hero.querySelector(".atelier-hero__progress").innerHTML = `<i style="--hero-progress:${((activeHeroIndex + 1) / heroSlides.length) * 100}%"></i><span>${String(activeHeroIndex + 1).padStart(2, "0")} / ${String(heroSlides.length).padStart(2, "0")}</span>`;
+  const supporting = heroSlides.filter((item) => item.id !== slide.id).map((item) => productMap.get(item.id)).filter(Boolean);
+  const update = () => {
+    hero.style.setProperty("--hero-tone", slide.tone);
+    hero.querySelector(".atelier-hero__media img").src = `/${product.image}`;
+    hero.querySelector(".atelier-hero__media img").alt = `${product.title} featured in the Shivara drop`;
+    hero.querySelector(".atelier-kicker").textContent = slide.label;
+    hero.querySelector("h1").innerHTML = slide.title.map((line) => `<span>${escapeMarkup(line)}</span>`).join(" ");
+    hero.querySelector(".atelier-hero__content > p:not(.atelier-kicker)").textContent = slide.copy;
+    const featureLink = hero.querySelector(".atelier-hero__actions a:last-child");
+    featureLink.href = productUrl(product);
+    featureLink.textContent = "View Featured Piece";
+    hero.querySelector(".atelier-hero__product").href = productUrl(product);
+    hero.querySelector(".atelier-hero__product").innerHTML = `<span>${String(activeHeroIndex + 1).padStart(2, "0")}</span><span>${escapeMarkup(product.title)}</span><strong>${formatPrice(value.price)}</strong>`;
+    hero.querySelector(".atelier-hero__progress").innerHTML = `<i style="--hero-progress:${((activeHeroIndex + 1) / heroSlides.length) * 100}%"></i><span>${String(activeHeroIndex + 1).padStart(2, "0")} / ${String(heroSlides.length).padStart(2, "0")}</span>`;
+    const orbit = hero.querySelector(".hero-orbit") || document.createElement("div");
+    orbit.className = "hero-orbit";
+    orbit.setAttribute("aria-hidden", "true");
+    orbit.innerHTML = `<span class="hero-orbit__halo"></span><img class="hero-orbit__main" src="/${product.image}" alt="" /><img class="hero-orbit__fragment hero-orbit__fragment--one" src="/${supporting[0]?.image || product.image}" alt="" /><img class="hero-orbit__fragment hero-orbit__fragment--two" src="/${supporting[1]?.image || product.image}" alt="" /><span class="hero-orbit__shadow"></span><small>${categoryLabels[product.category] || product.category} / ${product.id}</small>`;
+    if (!orbit.isConnected) hero.querySelector(".atelier-hero__shade").after(orbit);
+  };
+  if (animate) {
+    hero.classList.add("is-changing");
+    transitionView(update, "hero-orbit").finally(() => window.setTimeout(() => hero.classList.remove("is-changing"), 280));
+  } else update();
   if (!hero.querySelector(".atelier-hero__controls")) hero.insertAdjacentHTML("beforeend", '<div class="atelier-hero__controls"><button type="button" data-hero-prev aria-label="Previous Shivara drop">←</button><button type="button" data-hero-next aria-label="Next Shivara drop">→</button></div>');
+}
+
+function renderDeck(index = deckIndex) {
+  const stage = document.querySelector("#deck-stage");
+  const controls = document.querySelector("#deck-controls");
+  if (!stage || !controls) return;
+  const deckProducts = products.slice(0, 7);
+  deckIndex = (index + deckProducts.length) % deckProducts.length;
+  sessionStorage.setItem("shivara-deck-index", String(deckIndex));
+  stage.innerHTML = deckProducts.map((product, itemIndex) => {
+    const relative = (itemIndex - deckIndex + deckProducts.length) % deckProducts.length;
+    const pricing = productPricing(product);
+    const isActive = relative === 0;
+    return `<article class="shivara-deck__card ${isActive ? "is-active" : ""}" style="--deck-order:${relative}" data-deck-card="${itemIndex}" data-depth-card ${isActive ? "" : 'aria-hidden="true"'}>
+      <div class="shivara-deck__media"><img src="/${product.image}" alt="${isActive ? escapeMarkup(product.title) : ""}" draggable="false" decoding="async" /><span>${itemIndex % 2 ? "SALE" : "ATELIER ICON"}</span><button type="button" data-wishlist-toggle="${product.id}" aria-label="Save ${escapeMarkup(product.title)}" aria-pressed="${wishlist.has(product.id)}">♡</button></div>
+      <div class="shivara-deck__copy"><small>${categoryLabels[product.category] || product.category} · ${String(itemIndex + 1).padStart(2, "0")}</small><h3>${escapeMarkup(product.title)}</h3><p><strong>${formatPrice(pricing.price)}</strong><s>${formatPrice(pricing.compareAt)}</s></p><div><button type="button" data-quick-view="${product.id}">Quick View</button><button type="button" data-card-add="${product.id}">Add to Bag</button><a href="${productUrl(product)}">View Product</a></div></div>
+    </article>`;
+  }).join("");
+  controls.innerHTML = `<button type="button" data-deck-prev aria-label="Previous product">←</button><p><strong>${String(deckIndex + 1).padStart(2, "0")}</strong><span aria-hidden="true"></span>${String(deckProducts.length).padStart(2, "0")}</p><button type="button" data-deck-next aria-label="Next product">→</button>`;
+  stage.setAttribute("aria-label", `${deckProducts[deckIndex].title}, product ${deckIndex + 1} of ${deckProducts.length}`);
+}
+
+function renderDepthStory() {
+  const mount = document.querySelector("#depth-scroll-product");
+  const product = products[4] || products[0];
+  if (!mount || !product) return;
+  const pricing = productPricing(product);
+  mount.innerHTML = `<div class="depth-scroll-story__planes" data-depth-card><span aria-hidden="true">${escapeMarkup(product.title)}</span><img src="/${product.image}" alt="${escapeMarkup(product.title)}" loading="lazy" decoding="async" /><img src="/${product.image}" alt="" loading="lazy" decoding="async" /><i aria-hidden="true"></i></div><div class="depth-scroll-story__shop"><small>${categoryLabels[product.category] || product.category}</small><strong>${escapeMarkup(product.title)}</strong><span>${formatPrice(pricing.price)}</span><button type="button" data-card-add="${product.id}">Add to Bag</button><a href="${productUrl(product)}">View details</a></div>`;
 }
 
 function renderFinder() {
@@ -454,7 +515,13 @@ function renderDiscovery(selected = sessionStorage.getItem("shivara-discovery") 
   sessionStorage.setItem("shivara-discovery", selected);
   options.innerHTML = Object.keys(discoveryEdits).map((label) => `<button class="${label === selected ? "is-active" : ""}" type="button" data-discovery="${escapeMarkup(label)}" aria-pressed="${label === selected}">${label}</button>`).join("");
   const editProducts = productsForCategory(edit.category, 3);
-  result.innerHTML = `<div class="discovery-lab__note"><h3>${edit.title}</h3><p>${edit.copy}</p><a class="store-text-link" href="${collectionUrl(edit.category)}">Shop This Edit <span>→</span></a></div><div class="discovery-lab__products">${editProducts.map((product) => `<a class="discovery-mini" href="${productUrl(product)}"><img src="/${product.image}" alt="" loading="lazy" decoding="async" /><span><strong>${escapeMarkup(product.title)}</strong><small>${formatPrice(productPricing(product).price)}</small></span></a>`).join("")}</div>`;
+  result.style.setProperty("--discovery-tone", edit.category === "Evil Eye" ? "#23302b" : edit.category === "Rings" ? "#49382f" : edit.category === "Earrings" ? "#433235" : "#2d332e");
+  result.innerHTML = `<div class="discovery-lab__note"><p class="atelier-kicker">${escapeMarkup(selected)} EDIT</p><h3>${edit.title}</h3><p>${edit.copy}</p><div><a class="store-text-link" href="${collectionUrl(edit.category)}">Shop This Edit <span>→</span></a><button type="button" data-discovery-save>Save This Edit</button><button type="button" data-discovery-add>Add Selected Pieces</button></div></div><div class="discovery-orbit" data-depth-card>${editProducts.map((product, index) => `<a class="discovery-orbit__piece discovery-orbit__piece--${index + 1}" href="${productUrl(product)}"><img src="/${product.image}" alt="${index === 0 ? escapeMarkup(product.title) : ""}" loading="lazy" decoding="async" /><span><strong>${escapeMarkup(product.title)}</strong><small>${formatPrice(productPricing(product).price)}</small></span></a>`).join("")}</div><div class="discovery-lab__products">${editProducts.map((product) => `<button class="discovery-mini" type="button" data-quick-view="${product.id}"><img src="/${product.image}" alt="" loading="lazy" decoding="async" /><span><strong>${escapeMarkup(product.title)}</strong><small>${formatPrice(productPricing(product).price)}</small></span></button>`).join("")}</div>`;
+}
+
+function selectedDiscoveryProducts() {
+  const edit = discoveryEdits[sessionStorage.getItem("shivara-discovery") || "Everyday"] || discoveryEdits.Everyday;
+  return productsForCategory(edit.category, 3);
 }
 
 function renderSignatureStage(index = activeStageIndex) {
@@ -488,6 +555,46 @@ function renderMotionShop() {
   const mount = document.querySelector("#motion-shop-rail");
   if (!mount) return;
   mount.innerHTML = products.slice(3, 8).map((product, index) => `<article class="motion-card ${index === 0 ? "is-active" : ""}" data-motion-card><img src="/${product.image}" alt="${escapeMarkup(product.title)}" loading="lazy" decoding="async" /><div class="motion-card__tag">TAGGED · 01</div><button class="motion-card__toggle" type="button" data-motion-toggle aria-pressed="false">Pause motion</button><div class="motion-card__progress" aria-hidden="true"><i></i></div><div class="motion-card__content"><strong>${escapeMarkup(product.title)}</strong><span>${formatPrice(productPricing(product).price)}</span><div><button type="button" data-card-add="${product.id}">Add to Bag</button><a href="${productUrl(product)}">View Product</a></div></div></article>`).join("");
+}
+
+function renderEvilOrbit() {
+  const mount = document.querySelector("#evil-orbit-scene");
+  if (!mount) return;
+  const orbitProducts = productsForCategory("Evil Eye", 3);
+  if (!orbitProducts.length) return;
+  mount.innerHTML = `<span class="evil-orbit__line" aria-hidden="true"></span>${orbitProducts.map((product, index) => `<button class="evil-orbit__piece evil-orbit__piece--${index + 1}" type="button" data-quick-view="${product.id}" aria-label="Quick view ${escapeMarkup(product.title)}"><img src="/${product.image}" alt="${index === 0 ? escapeMarkup(product.title) : ""}" loading="lazy" decoding="async" /><span>${formatPrice(productPricing(product).price)}</span></button>`).join("")}`;
+}
+
+function stackProducts() {
+  const categoryProducts = productsForCategory("Bracelets", 4);
+  return categoryProducts.length >= 3 ? categoryProducts : products.filter((product) => product.category === "Evil Eye").slice(0, 4);
+}
+
+function renderStackBuilder() {
+  const visual = document.querySelector("#stack-builder-visual");
+  const options = document.querySelector("#stack-builder-options");
+  const summary = document.querySelector("#stack-builder-summary");
+  if (!visual || !options || !summary) return;
+  const choices = stackProducts();
+  if (!stackSelection.size && choices[0]) stackSelection.add(choices[0].id);
+  const selected = choices.filter((product) => stackSelection.has(product.id));
+  visual.innerHTML = `<div class="stack-builder__layers" data-depth-card>${selected.map((product, index) => `<img style="--stack-layer:${index}" src="/${product.image}" alt="${index === selected.length - 1 ? escapeMarkup(product.title) : ""}" loading="lazy" decoding="async" />`).join("")}<span aria-hidden="true"></span></div>`;
+  options.innerHTML = choices.map((product) => `<button class="${stackSelection.has(product.id) ? "is-active" : ""}" type="button" data-stack-toggle="${product.id}" aria-pressed="${stackSelection.has(product.id)}"><img src="/${product.image}" alt="" loading="lazy" /><span><strong>${escapeMarkup(product.title)}</strong><small>${formatPrice(productPricing(product).price)}</small></span><i>${stackSelection.has(product.id) ? "Remove" : "Add"}</i></button>`).join("");
+  const total = selected.reduce((sum, product) => sum + productPricing(product).price, 0);
+  summary.innerHTML = `<p><span>${selected.length} ${selected.length === 1 ? "piece" : "pieces"}</span><strong>${formatPrice(total)}</strong></p><div><button type="button" data-stack-reset>Reset</button><button type="button" data-stack-add ${selected.length ? "" : "disabled"}>Add Complete Stack</button></div>`;
+}
+
+function renderRingConstellation(index = activeRingIndex) {
+  const scene = document.querySelector("#ring-constellation-scene");
+  const info = document.querySelector("#ring-constellation-info");
+  if (!scene || !info) return;
+  const ringProducts = productsForCategory("Rings", 5);
+  if (!ringProducts.length) return;
+  activeRingIndex = (index + ringProducts.length) % ringProducts.length;
+  const active = ringProducts[activeRingIndex];
+  const pricing = productPricing(active);
+  scene.innerHTML = `<span class="ring-constellation__orbit" aria-hidden="true"></span>${ringProducts.map((product, itemIndex) => `<button class="ring-constellation__star ring-constellation__star--${itemIndex + 1} ${itemIndex === activeRingIndex ? "is-active" : ""}" type="button" data-ring-select="${itemIndex}" aria-pressed="${itemIndex === activeRingIndex}" aria-label="Select ${escapeMarkup(product.title)}"><img src="/${product.image}" alt="" loading="lazy" decoding="async" /></button>`).join("")}`;
+  info.innerHTML = `<small>0${activeRingIndex + 1} / 0${ringProducts.length} · ${categoryLabels[active.category] || active.category}</small><h3>${escapeMarkup(active.title)}</h3><p><strong>${formatPrice(pricing.price)}</strong><s>${formatPrice(pricing.compareAt)}</s></p><div class="ring-constellation__controls"><button type="button" data-ring-prev aria-label="Previous ring">←</button><button type="button" data-ring-next aria-label="Next ring">→</button></div><div><button type="button" data-quick-view="${active.id}">Quick View</button><a href="${productUrl(active)}">View Product</a></div>`;
 }
 
 function sharedHeaderMarkup() {
@@ -546,12 +653,20 @@ function sharedHeaderMarkup() {
 }
 
 function sharedFooterMarkup() {
+  const featured = products[0];
   return `
-    <footer class="store-footer">
+    <footer class="store-footer footer-finale" data-motion-section>
+      <div class="footer-finale__stage" aria-hidden="true">
+        <span>SHIVARA</span>
+        ${featured ? `<img src="/${featured.image}" alt="" loading="lazy" decoding="async" />` : ""}
+        <i></i>
+      </div>
       <div class="store-footer__main store-shell">
         <div class="store-footer__brand">
           <a class="store-brand store-brand--footer" href="/"><span>SHIVARA</span><small>JEWELS TO BE NOTICED</small></a>
+          <h2>Your next finishing move.</h2>
           <p>Statement jewellery for everyday confidence, curated in Bareilly and delivered across India.</p>
+          <a class="footer-finale__whatsapp" href="https://wa.me/919457041215?text=${encodeURIComponent("Hi Shivara.luxe, please help me style a jewellery edit.")}" target="_blank" rel="noreferrer">Ask Shivara for styling assistance <span>↗</span></a>
           <div class="store-footer__social"><a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">Instagram</a><a href="https://wa.me/919457041215" target="_blank" rel="noreferrer">WhatsApp</a></div>
         </div>
         <nav aria-label="Shop"><h3>Shop</h3><a href="/collections/all">New arrivals</a><a href="${collectionUrl("Earrings")}">Earrings</a><a href="${collectionUrl("Pendants")}">Neck Wear</a><a href="${collectionUrl("Bracelets")}">Bracelets</a><a href="/collections/rings">Rings</a></nav>
@@ -779,7 +894,7 @@ function quickViewMarkup(product) {
   const pricing = productPricing(product);
   const variants = productVariants(product);
   return `
-    <div class="quick-view-v2__gallery">
+    <div class="quick-view-v2__gallery" data-depth-card data-cursor="ZOOM">
       <div class="quick-view-v2__images"><img src="/${product.image}" alt="${escapeMarkup(product.title)}" width="800" height="1000" /><img src="/${product.image}" alt="" width="800" height="1000" /></div>
       <div class="quick-view-v2__thumbs"><button type="button" data-quick-image="0" aria-label="View product image 1"><img src="/${product.image}" alt="" /></button><button type="button" data-quick-image="1" aria-label="View product image 2"><img src="/${product.image}" alt="" /></button></div>
     </div>
@@ -810,10 +925,13 @@ function updateQuickViewWhatsapp() {
 
 function openQuickView(product) {
   if (!product) return;
-  quickViewState = { product, quantity: 1 };
-  document.querySelector("#quick-view-content").innerHTML = quickViewMarkup(product);
-  updateQuickViewWhatsapp();
-  setLayerOpen("#quick-view", true);
+  const update = () => {
+    quickViewState = { product, quantity: 1 };
+    document.querySelector("#quick-view-content").innerHTML = quickViewMarkup(product);
+    updateQuickViewWhatsapp();
+    setLayerOpen("#quick-view", true);
+  };
+  transitionView(update, `product-${product.id}`);
   if (!history.state?.quickView) history.pushState({ quickView: true }, "", `${location.pathname}${location.search}#quick-view`);
 }
 
@@ -940,9 +1058,9 @@ function renderProductPage() {
   mount.innerHTML = `
     <nav class="pdp-breadcrumb"><a href="/">Home</a><span>/</span><a href="${collectionUrl(product.category)}">${categoryLabels[product.category] || product.category}</a><span>/</span><b>${escapeMarkup(product.title)}</b></nav>
     <section class="pdp-main">
-      <div class="pdp-gallery">
+      <div class="pdp-gallery" data-motion-section>
         <div class="pdp-thumbnails"><button class="is-active" type="button" data-pdp-thumb="0"><img src="/${product.image}" alt="" /></button><button type="button" data-pdp-thumb="1"><img src="/${product.image}" alt="" /></button></div>
-        <div class="pdp-images" id="pdp-images"><img src="/${product.image}" alt="${escapeMarkup(product.title)}" width="900" height="1125" /><img src="/${product.image}" alt="" width="900" height="1125" loading="lazy" /></div>
+        <div class="pdp-images" id="pdp-images" data-depth-card data-cursor="ZOOM"><img src="/${product.image}" alt="${escapeMarkup(product.title)}" width="900" height="1125" /><img src="/${product.image}" alt="" width="900" height="1125" loading="lazy" /><span class="pdp-media-note pdp-media-note--finish">POLISHED FINISH</span><span class="pdp-media-note pdp-media-note--detail">SHIVARA DETAIL</span></div>
       </div>
       <div class="pdp-info">
         <small>${categoryLabels[product.category] || product.category}</small>
@@ -1025,6 +1143,18 @@ document.addEventListener("click", (event) => {
     renderDiscovery(discovery.getAttribute("data-discovery"));
     return;
   }
+  if (target.closest("[data-discovery-save]")) {
+    selectedDiscoveryProducts().forEach((product) => wishlist.add(product.id));
+    saveWishlist();
+    renderWishlist();
+    showToast("Saved this edit");
+    return;
+  }
+  if (target.closest("[data-discovery-add]")) {
+    addProductsToCart(selectedDiscoveryProducts());
+    setLayerOpen("#cart-drawer", true);
+    return;
+  }
   const collectionCategory = target.closest("[data-collection-category]");
   if (collectionCategory) {
     updateCollectionUrl({ ...collectionState(), category: collectionCategory.getAttribute("data-collection-category") });
@@ -1058,7 +1188,40 @@ document.addEventListener("click", (event) => {
     return;
   }
   if (target.closest("[data-hero-prev], [data-hero-next]")) {
-    renderHero(activeHeroIndex + (target.closest("[data-hero-prev]") ? -1 : 1));
+    renderHero(activeHeroIndex + (target.closest("[data-hero-prev]") ? -1 : 1), true);
+    return;
+  }
+  if (target.closest("[data-deck-prev], [data-deck-next]")) {
+    renderDeck(deckIndex + (target.closest("[data-deck-prev]") ? -1 : 1));
+    return;
+  }
+  const stackToggle = target.closest("[data-stack-toggle]");
+  if (stackToggle) {
+    const id = stackToggle.getAttribute("data-stack-toggle");
+    if (stackSelection.has(id)) stackSelection.delete(id);
+    else stackSelection.add(id);
+    renderStackBuilder();
+    return;
+  }
+  if (target.closest("[data-stack-reset]")) {
+    stackSelection.clear();
+    const first = stackProducts()[0];
+    if (first) stackSelection.add(first.id);
+    renderStackBuilder();
+    return;
+  }
+  if (target.closest("[data-stack-add]")) {
+    addProductsToCart(stackProducts().filter((product) => stackSelection.has(product.id)));
+    setLayerOpen("#cart-drawer", true);
+    return;
+  }
+  const ringSelect = target.closest("[data-ring-select]");
+  if (ringSelect) {
+    renderRingConstellation(Number(ringSelect.getAttribute("data-ring-select")));
+    return;
+  }
+  if (target.closest("[data-ring-prev], [data-ring-next]")) {
+    renderRingConstellation(activeRingIndex + (target.closest("[data-ring-prev]") ? -1 : 1));
     return;
   }
   const finderChoice = target.closest("[data-finder-key]");
@@ -1280,6 +1443,18 @@ document.addEventListener("input", (event) => {
   }
 });
 
+document.addEventListener("pointerover", (event) => {
+  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+  const discovery = event.target?.closest?.("[data-discovery]");
+  if (discovery && discovery.getAttribute("aria-pressed") !== "true") {
+    renderDiscovery(discovery.getAttribute("data-discovery"));
+  }
+  const motionCard = event.target?.closest?.("[data-motion-card]");
+  if (motionCard && !event.target.closest("a, button")) {
+    document.querySelectorAll("[data-motion-card]").forEach((card) => card.classList.toggle("is-active", card === motionCard));
+  }
+});
+
 document.addEventListener("change", (event) => {
   if (event.target?.matches?.("#quick-variant")) updateQuickViewWhatsapp();
   if (event.target?.matches?.("#pdp-variant")) updatePdpWhatsapp();
@@ -1306,6 +1481,10 @@ document.addEventListener("change", (event) => {
 document.addEventListener("keydown", (event) => {
   trapFocus(event);
   if (event.key === "Escape") closeAllLayers();
+  if (event.target?.closest?.("#deck-stage") && ["ArrowLeft", "ArrowRight"].includes(event.key)) {
+    event.preventDefault();
+    renderDeck(deckIndex + (event.key === "ArrowLeft" ? -1 : 1));
+  }
   if (event.target?.matches?.("#drawer-search") && event.key === "Enter") {
     const value = event.target.value.trim();
     if (value) {
@@ -1349,5 +1528,33 @@ heroElement?.addEventListener("pointerdown", (event) => {
 });
 heroElement?.addEventListener("pointerup", (event) => {
   const distance = event.clientX - heroStartX;
-  if (Math.abs(distance) > 55) renderHero(activeHeroIndex + (distance < 0 ? 1 : -1));
+  if (Math.abs(distance) > 55) renderHero(activeHeroIndex + (distance < 0 ? 1 : -1), true);
 });
+
+const deckElement = document.querySelector("#deck-stage");
+deckElement?.addEventListener("pointerdown", (event) => {
+  deckPointer = { id: event.pointerId, startX: event.clientX, startY: event.clientY, horizontal: false };
+  deckElement.classList.add("is-dragging");
+});
+deckElement?.addEventListener("pointermove", (event) => {
+  if (!deckPointer || deckPointer.id !== event.pointerId) return;
+  const x = event.clientX - deckPointer.startX;
+  const y = event.clientY - deckPointer.startY;
+  if (!deckPointer.horizontal && Math.abs(x) > 10 && Math.abs(x) > Math.abs(y) * 1.25) {
+    deckPointer.horizontal = true;
+    deckElement.setPointerCapture?.(event.pointerId);
+  }
+  if (!deckPointer.horizontal) return;
+  event.preventDefault();
+  deckElement.style.setProperty("--deck-drag", `${Math.max(-150, Math.min(150, x))}px`);
+});
+function releaseDeck(event) {
+  if (!deckPointer || deckPointer.id !== event.pointerId) return;
+  const distance = event.clientX - deckPointer.startX;
+  deckElement.classList.remove("is-dragging");
+  deckElement.style.removeProperty("--deck-drag");
+  if (deckPointer.horizontal && Math.abs(distance) > 65) renderDeck(deckIndex + (distance < 0 ? 1 : -1));
+  deckPointer = null;
+}
+deckElement?.addEventListener("pointerup", releaseDeck);
+deckElement?.addEventListener("pointercancel", releaseDeck);
