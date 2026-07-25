@@ -1,7 +1,7 @@
 {
   "name": "shivara-luxe",
   "version": "1.0.0",
-  "description": "An Instagram-matched website for Shivara.luxe statement jewellery.",
+  "description": "A premium ecommerce storefront for Shivara.luxe statement jewellery.",
   "private": true,
   "scripts": {
     "start": "node server.js"

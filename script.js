@@ -244,34 +244,34 @@ function escapeMarkup(value) {
 function productCard(product, options = {}) {
   const pricing = productPricing(product);
   const selected = cart.has(product.id);
-  const quick = options.quick || product.index % 3 === 0;
+  const saved = typeof socialState !== "undefined" && socialState.saved.has(product.id);
   const loading = options.eager ? "eager" : "lazy";
   const priority = options.eager ? ' fetchpriority="high" decoding="sync"' : ' decoding="async"';
-  const buttonAction = quick ? `data-quick="${product.id}"` : `data-add="${product.id}"`;
   return `
-    <product-item class="product-item ${options.slide ? "list_product_item splide__slide" : ""}" data-id="${product.id}" data-category="${product.category}">
-      <div class="product-item__image-wrapper product-item__image-wrapper--multiple">
-        <a href="${product.instagram}" target="_blank" rel="noreferrer">
+    <product-item class="product-item commerce-product-card ${options.slide ? "list_product_item splide__slide" : ""}" data-id="${product.id}" data-category="${product.category}">
+      <div class="product-item__image-wrapper">
+        <button class="commerce-product-card__media" type="button" data-quick="${product.id}" aria-label="View ${product.title}">
           <img class="product-item__primary-image" src="/${product.image}" alt="${product.title}" loading="${loading}"${priority} />
-          <img class="product-item__secondary-image" src="/${product.image}" alt="" loading="lazy" decoding="async" />
-        </a>
-        <div class="product-item__label-list label-list">
-          <span class="label label--highlight">Sale</span>
-          ${product.index % 5 === 0 ? '<span class="label label--subdued">BEST SELLING</span>' : ""}
-        </div>
+        </button>
+        <span class="commerce-product-card__badge">${product.index % 5 === 0 ? "Bestseller" : product.badge === "Latest" ? "New" : product.category}</span>
+        <button class="commerce-product-card__save ${saved ? "is-active" : ""}" type="button" data-save-post="${product.id}" aria-label="${saved ? "Remove" : "Save"} ${product.title}" aria-pressed="${saved}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 5.8a5.2 5.2 0 0 0-7.4 0L12 6.6l-.8-.8a5.2 5.2 0 0 0-7.4 7.4L12 21l8.2-7.8a5.2 5.2 0 0 0 0-7.4Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="commerce-product-card__quick" type="button" data-quick="${product.id}">Quick view</button>
       </div>
       <div class="product-item__info">
-        <a class="product-item-meta__title" href="${product.instagram}" target="_blank" rel="noreferrer">${product.title}</a>
-        <div class="price-list">
-          <span>INR</span>
-          <span>Regular price</span>
-          <s>${pricing.compareAt}</s>
-          <strong>${pricing.price}</strong>
+        <div class="commerce-product-card__meta">
+          <span>${product.category}</span>
+          <span aria-label="Five star style rating">★★★★★</span>
         </div>
-        <p class="member-price">Member Price INR ${pricing.member} <a href="/collections/all">JOIN NOW</a></p>
-        <p class="product-excerpt">${shortCaption(product)}</p>
-        <button class="product-item__quick-form" type="button" ${buttonAction}>
-          ${selected ? "ADDED" : quick ? "QUICK VIEW" : "ADD TO CART"}
+        <button class="product-item-meta__title" type="button" data-quick="${product.id}">${product.title}</button>
+        <div class="price-list">
+          <strong>₹${pricing.price}</strong>
+          <s>₹${pricing.compareAt}</s>
+        </div>
+        <button class="product-item__quick-form ${selected ? "is-added" : ""}" type="button" data-add="${product.id}">
+          <span>${selected ? "Add another" : "Add to bag"}</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 8h13l-1 12h-11l-1-12Z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9 8a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
         </button>
       </div>
     </product-item>
@@ -395,6 +395,85 @@ function renderHome() {
   });
 }
 
+function renderCommerceHome(filter = "All") {
+  if (!document.body.classList.contains("commerce-home")) return;
+
+  const categoryGrid = document.querySelector("#commerce-category-grid");
+  if (categoryGrid) {
+    const featuredCategories = [
+      categories.find((item) => item.category === "Rings"),
+      categories.find((item) => item.category === "Bracelets"),
+      categories.find((item) => item.category === "Pendants"),
+      categories.find((item) => item.category === "Earrings"),
+      categories.find((item) => item.category === "Evil Eye"),
+      categories.find((item) => item.category === "Gifting")
+    ].filter(Boolean);
+    categoryGrid.innerHTML = featuredCategories
+      .map(
+        (item) => `
+          <a class="commerce-category" href="${item.href}">
+            <span class="commerce-category__image"><img src="/assets/instagram-shop/${item.image}" alt="${item.title} collection" loading="lazy" decoding="async" /></span>
+            <span class="commerce-category__label">${item.title}<small>Explore collection</small></span>
+          </a>
+        `
+      )
+      .join("");
+  }
+
+  const bestsellers = document.querySelector('[data-commerce-products="bestsellers"]');
+  if (bestsellers) bestsellers.innerHTML = products.slice(0, 8).map((product, index) => productCard(product, { eager: index < 4 })).join("");
+
+  const filteredGrid = document.querySelector("#filtered-product-grid");
+  if (filteredGrid) {
+    const source = filter === "All" ? products.slice(8, 16) : products.filter((product) => product.category === filter).slice(0, 8);
+    filteredGrid.innerHTML = source.map((product) => productCard(product)).join("");
+  }
+
+  renderWishlist();
+}
+
+function renderWishlist() {
+  const count = socialState.saved.size;
+  document.querySelectorAll("[data-wishlist-count]").forEach((badge) => {
+    badge.textContent = String(count);
+    badge.hidden = count === 0;
+  });
+
+  const mount = document.querySelector("#wishlist-items");
+  if (!mount) return;
+  const savedProducts = products.filter((product) => socialState.saved.has(product.id));
+  mount.innerHTML = savedProducts.length
+    ? savedProducts
+        .map((product) => {
+          const pricing = productPricing(product);
+          return `
+            <article class="wishlist-line">
+              <button type="button" data-quick="${product.id}"><img src="/${product.image}" alt="${product.title}" loading="lazy" /></button>
+              <div>
+                <span>${product.category}</span>
+                <button type="button" data-quick="${product.id}"><strong>${product.title}</strong></button>
+                <p>₹${pricing.price} <s>₹${pricing.compareAt}</s></p>
+                <button type="button" data-add="${product.id}">Add to bag</button>
+                <button type="button" data-save-post="${product.id}">Remove</button>
+              </div>
+            </article>
+          `;
+        })
+        .join("")
+    : '<div class="wishlist-empty"><span>♡</span><strong>Your wishlist is empty.</strong><p>Save the pieces that catch your eye and find them here anytime.</p><button class="store-button store-button--dark" type="button" data-wishlist-close>Explore the collection</button></div>';
+}
+
+function setWishlistOpen(open) {
+  const drawer = document.querySelector("#wishlist-drawer");
+  drawer?.classList.toggle("is-open", open);
+  drawer?.setAttribute("aria-hidden", String(!open));
+  document.body.classList.toggle("wishlist-open", open);
+  if (open) {
+    renderWishlist();
+    window.requestAnimationFrame(() => drawer?.querySelector("[data-wishlist-close]")?.focus());
+  }
+}
+
 function filterMarkup(collection) {
   const counts = products.reduce((acc, product) => {
     acc[product.category] = (acc[product.category] || 0) + 1;
@@ -474,7 +553,7 @@ function renderSearch(query = "") {
 
 function searchResultMarkup(product) {
   const pricing = productPricing(product);
-  return `<button class="search-result" type="button" data-search-result="${product.id}" data-post-id="${product.id}"><img src="/${product.image}" alt="" loading="lazy" /><span><strong>${product.title}</strong><small>${product.category} collection</small></span><b>INR ${pricing.price}</b></button>`;
+  return `<button class="search-result" type="button" data-search-result="${product.id}" data-quick="${product.id}"><img src="/${product.image}" alt="" loading="lazy" /><span><strong>${product.title}</strong><small>${product.category} collection</small></span><b>₹${pricing.price}</b></button>`;
 }
 
 function rememberSearch(value) {
@@ -1255,7 +1334,19 @@ document.addEventListener("click", (event) => {
     syncSocialCounters();
     renderSocialNav();
     if (socialState.showingSaved) renderActiveTab();
+    renderWishlist();
     showToast(socialState.saved.has(id) ? "Saved to your wishlist" : "Removed from your wishlist");
+    return;
+  }
+  const productFilter = target.closest("[data-product-filter]");
+  if (productFilter) {
+    const filter = productFilter.getAttribute("data-product-filter") || "All";
+    document.querySelectorAll("[data-product-filter]").forEach((button) => {
+      const active = button === productFilter;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-selected", String(active));
+    });
+    renderCommerceHome(filter);
     return;
   }
   const captionButton = target.closest("[data-expand-caption]");
@@ -1359,12 +1450,21 @@ document.addEventListener("click", (event) => {
     setCartOpen(false);
     return;
   }
+  if (target.closest("[data-wishlist-open]")) {
+    setWishlistOpen(true);
+    return;
+  }
+  if (target.closest("[data-wishlist-close]")) {
+    setWishlistOpen(false);
+    return;
+  }
   const addButton = target.closest("[data-add]");
   if (addButton) {
     const id = addButton.getAttribute("data-add");
     cart.set(id, (cart.get(id) || 0) + 1);
     renderCart();
     closeQuickView();
+    setWishlistOpen(false);
     setCartOpen(true);
     showToast("Added to your inquiry bag");
     return;
@@ -1427,6 +1527,7 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     closeDrawers();
     setCartOpen(false);
+    setWishlistOpen(false);
     closeQuickView();
     closeSocialModal();
   }
@@ -1527,4 +1628,5 @@ renderHome();
 renderCollection();
 renderCart();
 renderSocialHome();
+renderCommerceHome();
 if (document.body.classList.contains("social-home") && !window.location.hash) window.history.replaceState({ tab: socialState.tab }, "", `#${socialState.tab}`);
