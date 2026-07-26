@@ -3,6 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { execFileSync } = require("node:child_process");
 const { loadCatalog } = require("./scripts/catalog-lib");
+const storefrontRenderer = require("./storefront-renderer");
 const packageInfo = require("./package.json");
 
 const root = __dirname;
@@ -94,16 +95,12 @@ function priceHtml(product, className) {
   return `<div class="${className}"><strong>${money(product.price)}</strong>${value.compareAt ? `<s>${money(value.compareAt)}</s><span>${value.discount}% off</span>` : ""}</div>`;
 }
 
-function semanticCard(product, index = 0) {
-  if (!catalogApi.validateCommerceObject(product, "server semanticCard")) return "";
-  const primary = product.images[0];
-  const secondary = product.images.find((image) => image !== primary);
-  const badge = product.badge ? `<span class="stable-card__badge">${escapeHtml(product.badge)}</span>` : "";
-  const direct = pricing(product).confirmed && product.optionsStatus === "none" && !product.variants.length;
-  return `<article class="stable-card ssr-product-card" data-product-card="${escapeHtml(product.id)}" data-category="${escapeHtml(product.category)}" itemscope itemtype="https://schema.org/Product">
-    <div class="stable-card__media"><a href="${productUrl(product)}" itemprop="url" aria-label="View ${escapeHtml(product.title)}"><img class="stable-card__image stable-card__image--primary" src="/${escapeHtml(primary)}" alt="${escapeHtml(product.imageAlt)}" width="640" height="800" ${index < 5 ? 'fetchpriority="high"' : 'loading="lazy"'} itemprop="image" />${secondary ? `<img class="stable-card__image stable-card__image--secondary" src="/${escapeHtml(secondary)}" alt="" width="640" height="800" loading="lazy" />` : ""}</a>${badge}<button class="stable-card__wish" type="button" data-wishlist-toggle="${escapeHtml(product.id)}" aria-label="Save ${escapeHtml(product.title)}">♡</button><button class="stable-card__quick" type="button" data-quick-view="${escapeHtml(product.id)}">Quick View</button></div>
-    <div class="stable-card__body"><a class="stable-card__title" href="${productUrl(product)}" itemprop="name">${escapeHtml(product.title)}</a>${priceHtml(product, "stable-card__price")}${product.optionsStatus === "confirm" ? '<small class="stable-card__options">Options confirmed on WhatsApp</small>' : ""}<button class="stable-card__add ${direct ? "" : "stable-card__add--enquire"}" type="button" ${direct ? `data-card-add="${escapeHtml(product.id)}"` : `data-quick-view="${escapeHtml(product.id)}"`}>${direct ? "Add to Bag" : "Enquire"}</button></div>
-  </article>`;
+function productCard(product, index = 0) {
+  return storefrontRenderer.renderProductCard(catalogApi, product, {
+    index,
+    origin: siteUrl,
+    context: "server shared product card renderer"
+  });
 }
 
 function injectMetadata(html, { title, description, canonical, image, type = "website" }) {
@@ -125,13 +122,13 @@ function injectHome(html) {
   const selections = {
     "new-arrivals": collectionProducts("new-arrivals").slice(0, 10),
     bestsellers: catalogApi.getFeaturedProducts(10),
-    all: products.slice(0, 15),
+    all: products,
     rings: collectionProducts("rings").slice(0, 10),
     "neck-wear": collectionProducts("necklaces").slice(0, 10)
   };
   html = html.replace(/<div class="commerce-product-grid" data-product-section="([^"]+)"><\/div>/g, (match, section) => {
     const selected = selections[section] || [];
-    return `<div class="commerce-product-grid" data-product-section="${section}">${selected.map(semanticCard).join("")}</div>`;
+    return `<div class="commerce-product-grid" data-product-section="${section}">${selected.map(productCard).join("")}</div>`;
   });
   return injectMetadata(html, {
     title: "Shivara | Curated Jewellery",
@@ -151,7 +148,8 @@ function injectCollection(html, slug) {
     .replace(/<h1 data-collection-title>[\s\S]*?<\/h1>/, `<h1 data-collection-title>${escapeHtml(meta.title)}</h1>`)
     .replace(/<p data-collection-description>[\s\S]*?<\/p>/, `<p data-collection-description>${escapeHtml(meta.description)}</p>`)
     .replace(/<strong data-collection-count>[\s\S]*?<\/strong>/, `<strong data-collection-count>${selected.length} ${selected.length === 1 ? "product" : "products"}</strong>`)
-    .replace('<div class="commerce-product-grid" id="collection-grid"></div>', `<div class="commerce-product-grid" id="collection-grid">${selected.map(semanticCard).join("")}</div>`);
+    .replace('<div class="commerce-product-grid" id="collection-grid"></div>', `<div class="commerce-product-grid" id="collection-grid">${selected.map(productCard).join("")}</div>`)
+    .replace("<!-- COLLECTION_EMPTY_STATE -->", selected.length ? "" : '<div class="stable-empty" id="collection-empty"><h2>No products are currently available</h2><p>Explore the complete curated catalogue while this edit is updated.</p><a href="/collections/all">Browse all products</a></div>');
   return injectMetadata(html, {
     title: `${meta.title} | Shivara`,
     description: meta.description,
@@ -180,8 +178,11 @@ function injectProduct(html, product) {
     brand: { "@type": "Brand", name: "Shivara" },
     ...(offer ? { offers: offer } : {})
   };
-  const commerceAction = value.confirmed && product.optionsStatus === "none" ? `<button class="stable-button stable-button--dark" type="button" data-pdp-add="${escapeHtml(product.id)}">Add to Bag</button>` : "";
-  const body = `<nav class="stable-breadcrumb"><a href="/">Home</a><span>/</span><a href="/collections/${escapeHtml(product.category)}">${escapeHtml(collectionMeta[product.category]?.title || product.category)}</a><span>/</span><span>${escapeHtml(product.title)}</span></nav><article class="stable-pdp" itemscope itemtype="https://schema.org/Product"><div class="stable-pdp__media"><div class="stable-pdp__thumbs"><button class="is-active" type="button"><img src="/${escapeHtml(product.images[0])}" alt="" /></button></div><div class="stable-pdp__gallery"><img src="/${escapeHtml(product.images[0])}" alt="${escapeHtml(product.imageAlt)}" itemprop="image" /></div></div><div class="stable-pdp__info"><p>${escapeHtml(collectionMeta[product.category]?.title || product.category)}</p><h1 itemprop="name">${escapeHtml(product.title)}</h1><small>SKU: ${escapeHtml(product.sku)}</small>${priceHtml(product, "stable-pdp__price")}<p itemprop="description">${escapeHtml(product.description)}</p>${product.optionsStatus === "confirm" ? '<div class="stable-notice">Options are confirmed on WhatsApp; no unverified choices are shown.</div>' : ""}<div class="stable-pdp__actions">${commerceAction}<a class="stable-button stable-button--whatsapp" href="https://wa.me/919457041215" target="_blank" rel="noreferrer">${value.confirmed ? "Order on WhatsApp" : "Confirm Price on WhatsApp"}</a></div></div></article><section class="stable-products stable-products--pdp"><div class="stable-section-heading"><div><p>YOU MAY ALSO LIKE</p><h2>Related products</h2></div></div><div class="commerce-product-grid">${related.map(semanticCard).join("")}</div></section>`;
+  const body = storefrontRenderer.renderProductPage(catalogApi, product, {
+    related,
+    origin: siteUrl,
+    context: "server shared product page renderer"
+  });
   html = html
     .replace('<div id="product-page"></div>', `<div id="product-page">${body}</div>`)
     .replace("</head>", `<script type="application/ld+json">${JSON.stringify(structuredData).replace(/</g, "\\u003c")}</script></head>`);
@@ -200,7 +201,7 @@ function unavailablePage(title, message, status = 404) {
 }
 
 function policyPage(policy) {
-  return `<!doctype html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="description" content="${escapeHtml(policy.copy)}" /><title>${escapeHtml(policy.title)} | Shivara</title><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&amp;family=Italiana&amp;display=swap" rel="stylesheet" /><link rel="stylesheet" href="/commerce-stable.css?v=2" /><link rel="stylesheet" href="/phase-b.css?v=1" /></head><body class="catalog-stable"><main class="stable-page"><nav class="stable-breadcrumb"><a href="/">Home</a><span>/</span><span>${escapeHtml(policy.title)}</span></nav><article style="max-width:760px;padding:8vh 0 16vh"><p style="font-size:10px;font-weight:700;letter-spacing:1.6px">SHIVARA POLICIES</p><h1 style="font:400 clamp(48px,8vw,90px)/1 Italiana,serif;letter-spacing:0;margin:12px 0 24px">${escapeHtml(policy.title)}</h1><p style="font-size:14px;line-height:1.8">${escapeHtml(policy.copy)}</p><a class="stable-button stable-button--dark" href="https://wa.me/919457041215" target="_blank" rel="noreferrer">Ask Shivara</a></article></main></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="description" content="${escapeHtml(policy.copy)}" /><title>${escapeHtml(policy.title)} | Shivara</title><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&amp;family=Italiana&amp;display=swap" rel="stylesheet" /><link rel="stylesheet" href="/commerce-stable.css?v=2" /></head><body class="catalog-stable"><main class="stable-page"><nav class="stable-breadcrumb"><a href="/">Home</a><span>/</span><span>${escapeHtml(policy.title)}</span></nav><article style="max-width:760px;padding:8vh 0 16vh"><p style="font-size:10px;font-weight:700;letter-spacing:1.6px">SHIVARA POLICIES</p><h1 style="font:400 clamp(48px,8vw,90px)/1 Italiana,serif;letter-spacing:0;margin:12px 0 24px">${escapeHtml(policy.title)}</h1><p style="font-size:14px;line-height:1.8">${escapeHtml(policy.copy)}</p><a class="stable-button stable-button--dark" href="https://wa.me/919457041215" target="_blank" rel="noreferrer">Ask Shivara</a></article></main></body></html>`;
 }
 
 function sendHtml(response, html, status = 200) {

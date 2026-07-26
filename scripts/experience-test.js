@@ -57,7 +57,8 @@ async function main() {
     product.id, product.title, product.price, product.priceStatus, product.category, product.optionsStatus, product.variants
   ])));
   assert(await page.locator("html.phase-b-ready").count() === 1, "Phase B experience bootstrap completes");
-  assert((await page.locator("[data-experience]").count()) >= 8, "signature and supporting experiences mount");
+  assert((await page.locator("[data-experience]").count()) === 3, "only the three approved homepage experiences mount");
+  assert(await page.evaluate(() => Object.entries(window.STOREFRONT_FEATURES).filter(([, enabled]) => !enabled).length === 7), "nonessential homepage experiences are feature-disabled");
   assert((await page.locator("html").getAttribute("data-visual-tier")) === "high", "development performance-tier override works");
 
   const heroBefore = await page.locator("[data-hero-title]").textContent();
@@ -84,18 +85,6 @@ async function main() {
     count: card.querySelector("span")?.textContent
   })));
   assert(categoryChecks.length === 8 && categoryChecks.every((item) => /^\/collections\//.test(item.href) && /^\d+ products?$/.test(item.count)), "category universe uses real routes and counts");
-
-  const wantedBefore = await page.locator("#wanted-info h3").textContent();
-  await page.locator("[data-wanted-next]").click();
-  assert((await page.locator("#wanted-info h3").textContent()) !== wantedBefore, "Most Wanted stage switches verified products");
-
-  const stackOptions = page.locator("#stack-tray [data-stack-toggle]");
-  await stackOptions.nth(0).click();
-  await stackOptions.nth(1).click();
-  assert((await page.locator("#stack-preview figure").count()) === 2, "Stacking Studio adds selected pieces");
-  assert((await page.locator("#stack-summary").textContent()).includes("Confirmed subtotal"), "Stacking Studio labels its confirmed subtotal");
-  await page.locator("[data-stack-reset]").click();
-  assert((await page.locator("#stack-preview figure").count()) === 0, "Stacking Studio reset clears the composition");
 
   const quickTrigger = page.locator('[data-quick-view="tulip-pendant"]').last();
   await quickTrigger.click();

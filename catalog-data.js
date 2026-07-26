@@ -73,7 +73,7 @@
         bySlug.get(product.slug) === product
       );
       if (!valid && typeof console !== "undefined") {
-        console.warn(`[ShivaraCatalog] Rejected non-curated object in ${context}`, product?.id || product);
+        console.error(`[ShivaraCatalog] BLOCKED non-curated commerce object in ${context}`, product?.id || product);
       }
       return valid;
     }
@@ -137,29 +137,47 @@
         .slice(0, Math.max(0, limit));
     }
 
-    function getNewArrivals() {
-      return getCollection("new-arrivals");
+    function getNewArrivals(limit = Infinity) {
+      return getCollection("new-arrivals").slice(0, Math.max(0, limit));
     }
 
     function getRelatedProducts(product, limit = 5) {
       if (!validateCommerceObject(product, "getRelatedProducts")) return [];
+      const complementary = {
+        earrings: ["necklaces", "pendants"], necklaces: ["earrings", "pendants"], pendants: ["earrings", "bracelets"],
+        bracelets: ["rings", "watches"], rings: ["bracelets", "earrings"], watches: ["bracelets"],
+        sets: ["earrings", "rings"], "evil-eye": ["bracelets", "pendants"]
+      };
       return products
-        .filter((item) => item.id !== product.id && (
-          item.category === product.category ||
-          item.collections.some((collection) => product.collections.includes(collection))
-        ))
-        .slice(0, Math.max(0, limit));
+        .filter((item) => item.id !== product.id)
+        .map((item) => {
+          const sameCategory = item.category === product.category;
+          const sharedCollection = item.collections.some((collection) => product.collections.includes(collection));
+          const complementaryCategory = (complementary[product.category] || []).includes(item.category);
+          const featuredFallback = getFeaturedProducts(products.length).some((featured) => featured.id === item.id);
+          const score = sameCategory ? 4 : sharedCollection ? 3 : complementaryCategory ? 2 : featuredFallback ? 1 : 0;
+          return { item, score };
+        })
+        .filter(({ score }) => score > 0)
+        .sort((a, b) => b.score - a.score || a.item.sourceIndex - b.item.sourceIndex)
+        .slice(0, Math.max(0, limit))
+        .map(({ item }) => item);
     }
 
     return Object.freeze({
       version: catalog.version,
+      getAll: getAllProducts,
+      getBySlug: getProductBySlug,
+      getByLegacyId: getProductByLegacyId,
       getAllProducts,
       getProductBySlug,
       getProductByLegacyId,
       getCollection,
       search,
       getFeaturedProducts,
+      getFeatured: getFeaturedProducts,
       getNewArrivals,
+      getRelated: getRelatedProducts,
       getRelatedProducts,
       formatPrice,
       getPurchaseMode,

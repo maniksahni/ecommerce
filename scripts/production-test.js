@@ -15,7 +15,9 @@ const blockedTitles = [
   "Life these days",
   "Packaging little happiness",
   "Are you a silver girlie too",
-  "Make her hands look pretty"
+  "Make her hands look pretty",
+  "Comment for links",
+  "Cocktail saree"
 ];
 const { catalogApi } = loadCatalog();
 let failures = 0;
@@ -71,6 +73,12 @@ async function main() {
     stdio: "inherit"
   });
   assert(smoke.status === 0, "complete smoke suite passes against production");
+  const storefront = spawnSync(process.execPath, ["scripts/storefront-consistency-test.js"], {
+    cwd: root,
+    env: { ...process.env, STOREFRONT_BASE_URL: baseUrl },
+    stdio: "inherit"
+  });
+  assert(storefront.status === 0, "unified storefront consistency suite passes against production");
   const experience = spawnSync(process.execPath, ["scripts/experience-test.js"], {
     cwd: root,
     env: { ...process.env, EXPERIENCE_BASE_URL: baseUrl },
@@ -85,7 +93,7 @@ async function main() {
   assert(headerCommit === expectedCommit, `response build stamp matches ${expectedCommit.slice(0, 8)}`);
   assert(html.includes(`<meta name="shivara-build" content="${expectedCommit}"`), "HTML build meta matches intended commit");
   assert(html.includes('name="shivara-catalog-version" content="1"'), "HTML exposes catalogue version 1");
-  const scriptOrder = ["shop-data.js", "catalog-overrides.js", "catalog-data.js", "script.js", "experience.js", "motion-controller.js"].map((asset) => html.indexOf(asset));
+  const scriptOrder = ["shop-data.js", "catalog-overrides.js", "catalog-data.js", "storefront-renderer.js", "script.js", "experience.js", "motion-controller.js"].map((asset) => html.indexOf(asset));
   assert(scriptOrder.every((index) => index >= 0) && scriptOrder.every((index, position) => position === 0 || index > scriptOrder[position - 1]), "production script loading order is deterministic");
   assert(!/commerce-stable\.css\?v=2|script\.js\?v=stable-2/.test(html), "production HTML uses build-versioned assets instead of stale static versions");
 
@@ -141,7 +149,7 @@ async function main() {
     assert(card.badge === product.badge, `${card.id} shows only its verified badge`);
     if (product.priceStatus === "enquiry") {
       assert(/Confirm price|Price on request/i.test(card.price), `${card.id} remains in enquiry price mode`);
-      assert(card.action === "Enquire", `${card.id} exposes enquiry rather than a fabricated purchase action`);
+      assert(card.action === "Enquire on WhatsApp", `${card.id} exposes enquiry rather than a fabricated purchase action`);
     }
   }
 

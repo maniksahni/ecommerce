@@ -2,7 +2,8 @@
   "use strict";
 
   const catalogApi = window.ShivaraCatalog;
-  if (!catalogApi) {
+  const cardRenderer = window.ShivaraStorefrontRenderer;
+  if (!catalogApi || !cardRenderer) {
     console.error("[Shivara] Curated catalogue failed to load. Commerce has been disabled.");
     document.querySelector("#main")?.insertAdjacentHTML("afterbegin", '<div class="stable-shop-unavailable" role="alert"><strong>The Shivara shop is temporarily unavailable.</strong><span>Please contact us on WhatsApp for assistance.</span></div>');
     document.querySelectorAll("[data-card-add], [data-pdp-add], [data-quick-add]").forEach((control) => {
@@ -14,7 +15,13 @@
   const products = catalogApi.getAllProducts();
   const productMap = new Map(products.map((product) => [product.id, product]));
   const whatsappNumber = "919457041215";
-  const storageKeys = { cart: "shivara-cart-v2", wishlist: "shivara-wishlist-v2", recent: "shivara-recent-v2" };
+  const storageKeys = {
+    cart: "shivara-cart-v3",
+    wishlist: "shivara-wishlist-v3",
+    recent: "shivara-recent-v2",
+    legacyCart: "shivara-cart-v2",
+    legacyWishlist: "shivara-wishlist-v2"
+  };
   const allowedBadges = new Set(["New", "Best Seller", "Limited", "Low Stock", "Sale", "Exclusive"]);
   const categoryMeta = {
     all: { title: "All products", kicker: "THE COMPLETE CATALOGUE", description: "Every Shivara product that has been manually reviewed for catalogue accuracy." },
@@ -48,8 +55,17 @@
     "Personal shopping: +91 94570 41215"
   ];
 
-  let cart = normalizeCart(readStorage(storageKeys.cart, []));
-  const wishlist = new Set(readStorage(storageKeys.wishlist, []).filter((id) => productMap.has(id)));
+  const migratedCart = readVersionedItems(storageKeys.cart, storageKeys.legacyCart);
+  const normalizedMigratedCart = normalizeCart(migratedCart);
+  const wishlistItems = readVersionedItems(storageKeys.wishlist, storageKeys.legacyWishlist);
+  let cart = normalizedMigratedCart;
+  const wishlist = new Set(wishlistItems.filter((id) => productMap.has(id)));
+  if (migratedCart.length !== cart.length) console.info(`[Shivara] Discarded ${migratedCart.length - cart.length} invalid legacy cart item(s).`);
+  if (wishlistItems.length !== wishlist.size) console.info(`[Shivara] Discarded ${wishlistItems.length - wishlist.size} invalid legacy wishlist item(s).`);
+  saveStorage(storageKeys.cart, { version: 3, items: cart });
+  saveStorage(storageKeys.wishlist, { version: 3, items: [...wishlist] });
+  localStorage.removeItem(storageKeys.legacyCart);
+  localStorage.removeItem(storageKeys.legacyWishlist);
   let recent = readStorage(storageKeys.recent, []).filter((id) => productMap.has(id)).slice(0, 8);
   let activeLayer = null;
   let lastFocus = null;
@@ -74,6 +90,19 @@
 
   function saveStorage(key, value) {
     localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  function readVersionedItems(key, legacyKey) {
+    const current = readStorage(key, null);
+    if (current?.version === 3 && Array.isArray(current.items)) return current.items;
+    const legacy = readStorage(legacyKey, []);
+    const items = Array.isArray(current) ? current : Array.isArray(legacy) ? legacy : [];
+    if (items.length && typeof console !== "undefined") console.info(`[Shivara] Migrating ${items.length} legacy storefront item(s) to state version 3.`);
+    return items;
+  }
+
+  function saveCart() {
+    saveStorage(storageKeys.cart, { version: 3, items: cart });
   }
 
   function formatMoney(value) {
@@ -126,31 +155,13 @@
   }
 
   function productCard(product, index = 0) {
-    if (!catalogApi.validateCommerceObject(product, "productCard")) return "";
-    const saved = wishlist.has(product.id);
-    const primary = product.images[0];
-    const secondary = product.images.find((image) => image !== primary);
-    const badge = allowedBadges.has(product.badge) ? product.badge : null;
-    const action = canAddDirectly(product)
-      ? `<button class="stable-card__add" type="button" data-card-add="${escapeHtml(product.id)}">Add to Bag</button>`
-      : `<button class="stable-card__add stable-card__add--enquire" type="button" data-quick-view="${escapeHtml(product.id)}">Enquire</button>`;
-    return `<article class="stable-card" data-product-card="${escapeHtml(product.id)}" data-category="${escapeHtml(product.category)}">
-      <div class="stable-card__media">
-        <a href="${productUrl(product)}" aria-label="View ${escapeHtml(product.title)}">
-          <img class="stable-card__image stable-card__image--primary" src="/${escapeHtml(primary)}" alt="${escapeHtml(product.imageAlt)}" width="640" height="800" ${index < 5 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" />
-          ${secondary ? `<img class="stable-card__image stable-card__image--secondary" src="/${escapeHtml(secondary)}" alt="" width="640" height="800" loading="lazy" decoding="async" />` : ""}
-        </a>
-        ${badge ? `<span class="stable-card__badge">${escapeHtml(badge)}</span>` : ""}
-        <button class="stable-card__wish ${saved ? "is-active" : ""}" type="button" data-wishlist-toggle="${escapeHtml(product.id)}" aria-label="${saved ? "Remove" : "Save"} ${escapeHtml(product.title)}" aria-pressed="${saved}">♡</button>
-        <button class="stable-card__quick" type="button" data-quick-view="${escapeHtml(product.id)}">Quick View</button>
-      </div>
-      <div class="stable-card__body">
-        <a class="stable-card__title" href="${productUrl(product)}">${escapeHtml(product.title)}</a>
-        ${priceMarkup(product, "stable-card__price")}
-        ${product.optionsStatus === "confirm" ? `<small class="stable-card__options">Options confirmed on WhatsApp</small>` : ""}
-        ${action}
-      </div>
-    </article>`;
+    return cardRenderer.renderProductCard(catalogApi, product, {
+      index,
+      isWishlisted: wishlist.has(product.id),
+      origin: location.origin,
+      whatsappNumber,
+      context: "client shared product card renderer"
+    });
   }
 
   function renderGrid(mount, source) {
@@ -268,8 +279,16 @@
   }
 
   function saveWishlist() {
-    saveStorage(storageKeys.wishlist, [...wishlist]);
+    saveStorage(storageKeys.wishlist, { version: 3, items: [...wishlist] });
     updateCounts();
+  }
+
+  function syncWishlistControls() {
+    document.querySelectorAll("[data-wishlist-toggle]").forEach((button) => {
+      const saved = wishlist.has(button.dataset.wishlistToggle);
+      button.classList.toggle("is-active", saved);
+      button.setAttribute("aria-pressed", String(saved));
+    });
   }
 
   function toggleWishlist(id) {
@@ -301,7 +320,7 @@
     const existing = cart.find((item) => item.id === id && item.variantId === normalizedVariant);
     if (existing) existing.qty += Math.max(1, Number(quantity) || 1);
     else cart.push({ id, variantId: normalizedVariant, qty: Math.max(1, Number(quantity) || 1) });
-    saveStorage(storageKeys.cart, cart);
+    saveCart();
     renderCart();
     updateCounts();
     document.querySelectorAll("[data-cart-count]").forEach((badge) => {
@@ -420,22 +439,8 @@
   function openQuick(id, trigger) {
     const product = productMap.get(id);
     if (!product) return;
-    const sourceImage = trigger?.closest?.("[data-product-card], .featured-product-card, section, article")?.querySelector?.("img");
-    const transitionName = `shivara-product-${product.id}`;
-    const reveal = () => {
-      if (sourceImage) sourceImage.style.viewTransitionName = "";
-      renderQuick(product);
-      const targetImage = document.querySelector("#quick-view [data-quick-media='0'] img");
-      if (targetImage) targetImage.style.viewTransitionName = transitionName;
-      openLayer("#quick-view", trigger);
-    };
-    if (document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches && sourceImage) {
-      sourceImage.style.viewTransitionName = transitionName;
-      document.startViewTransition(reveal).finished.finally(() => {
-        const targetImage = document.querySelector("#quick-view [data-quick-media='0'] img");
-        if (targetImage) targetImage.style.viewTransitionName = "";
-      });
-    } else reveal();
+    renderQuick(product);
+    openLayer("#quick-view", trigger);
   }
 
   function renderSearch(query = "") {
@@ -444,7 +449,7 @@
     const term = query.trim().toLowerCase();
     const matches = (term ? catalogApi.search(term) : catalogApi.getFeaturedProducts(6)).slice(0, 12);
     document.querySelector("#search-count").textContent = `${matches.length} ${matches.length === 1 ? "piece" : "pieces"}${term ? ` for “${query.trim()}”` : " selected for you"}`;
-    mount.innerHTML = matches.length ? matches.map((product, index) => `<article data-search-result="${index}"><a href="${productUrl(product)}"><img src="/${escapeHtml(product.images[0])}" alt="" /><span><small>${escapeHtml(categoryMeta[product.category]?.title || product.category)}</small><strong>${escapeHtml(product.title)}</strong>${priceMarkup(product, "stable-search-price")}</span></a><button type="button" data-quick-view="${product.id}">Quick View</button></article>`).join("") : `<div class="stable-empty"><p>No products match “${escapeHtml(query)}”.</p><a href="/collections/all">Browse the curated catalogue</a></div>`;
+    mount.innerHTML = matches.length ? matches.map(productCard).join("") : `<div class="stable-empty"><p>No products match “${escapeHtml(query)}”.</p><a href="/collections/all">Browse the curated catalogue</a></div>`;
     document.querySelector("#search-discovery").hidden = Boolean(term);
   }
 
@@ -485,10 +490,20 @@
   function renderHome() {
     if (document.body.dataset.page !== "home") return;
     renderCategoryRail();
-    renderGrid(document.querySelector('[data-product-section="new-arrivals"]'), productsForCollection("new-arrivals").slice(0, 10));
-    renderGrid(document.querySelector('[data-product-section="all"]'), products.slice(0, 15));
-    renderGrid(document.querySelector('[data-product-section="rings"]'), productsForCollection("rings").slice(0, 10));
-    renderGrid(document.querySelector('[data-product-section="neck-wear"]'), productsForCollection("necklaces").slice(0, 10));
+    [
+      ["new-arrivals", productsForCollection("new-arrivals").slice(0, 10)],
+      ["all", products],
+      ["rings", productsForCollection("rings").slice(0, 10)],
+      ["neck-wear", productsForCollection("necklaces").slice(0, 10)]
+    ].forEach(([section, source]) => {
+      const mount = document.querySelector(`[data-product-section="${section}"]`);
+      if (!mount) return;
+      const renderedIds = [...mount.querySelectorAll("[data-product-card]")].map((card) => card.dataset.productCard);
+      const sourceIds = source.map((product) => product.id);
+      const serverMarkupMatches = renderedIds.length === sourceIds.length && renderedIds.every((id, index) => id === sourceIds[index]);
+      if (!serverMarkupMatches) renderGrid(mount, source);
+    });
+    syncWishlistControls();
     renderHero();
     renderSignature();
   }
@@ -511,7 +526,7 @@
     renderCollection();
   }
 
-  function renderCollection() {
+  function renderCollection({ hydrateServerMarkup = false } = {}) {
     if (document.body.dataset.page !== "collection") return;
     const slug = collectionSlug();
     const meta = categoryMeta[slug];
@@ -531,9 +546,19 @@
     document.querySelector("[data-collection-count]").textContent = `${selected.length} ${selected.length === 1 ? "product" : "products"}`;
     document.querySelector("#collection-sort").value = state.sort;
     document.querySelector("#collection-filters").innerHTML = `<fieldset><legend>Price status</legend>${[["all", "All products"], ["confirmed", "Confirmed price"], ["enquiry", "Price on request"]].map(([value, label]) => `<label><input type="radio" name="price-filter" value="${value}" ${state.price === value ? "checked" : ""} />${label}</label>`).join("")}</fieldset><nav><strong>Collections</strong>${Object.entries(categoryMeta).map(([key, item]) => `<a class="${key === slug ? "is-active" : ""}" href="${collectionUrl(key)}">${item.title}<span>${productsForCollection(key).length}</span></a>`).join("")}</nav>`;
-    renderGrid(document.querySelector("#collection-grid"), selected);
-    document.querySelector("#collection-grid").hidden = !selected.length;
-    document.querySelector("#collection-empty").hidden = Boolean(selected.length);
+    const grid = document.querySelector("#collection-grid");
+    const renderedIds = [...grid.querySelectorAll("[data-product-card]")].map((card) => card.dataset.productCard);
+    const selectedIds = selected.map((product) => product.id);
+    const defaultState = state.sort === "featured" && state.price === "all";
+    const serverMarkupMatches = renderedIds.length === selectedIds.length && renderedIds.every((id, index) => id === selectedIds[index]);
+    if (!(hydrateServerMarkup && defaultState && serverMarkupMatches)) renderGrid(grid, selected);
+    grid.hidden = !selected.length;
+    document.querySelector("#collection-empty")?.remove();
+    if (!selected.length) {
+      const filtered = state.price !== "all";
+      grid.insertAdjacentHTML("afterend", `<div class="stable-empty" id="collection-empty"><h2>${filtered ? "No products match these filters" : "No products are currently available"}</h2><p>${filtered ? "Clear the active filters to see the complete curated collection." : "Explore the complete catalogue while this edit is updated."}</p>${filtered ? '<button class="stable-button stable-button--dark" type="button" data-clear-filters>Clear Filters</button>' : '<a href="/collections/all">Browse all products</a>'}</div>`);
+    }
+    syncWishlistControls();
   }
 
   function rememberProduct(id) {
@@ -548,24 +573,22 @@
     const mount = document.querySelector("#product-page");
     if (!product) return;
     rememberProduct(product.id);
-    const value = pricing(product);
     const related = catalogApi.getRelatedProducts(product, 5);
     const recentProducts = recent.filter((recentId) => recentId !== product.id).map((recentId) => productMap.get(recentId)).filter(Boolean).slice(0, 5);
-    const variantMarkup = product.variants.length ? `<fieldset class="stable-variants"><legend>Options</legend>${product.variants.map((variant, index) => `<label><input type="radio" name="pdp-variant" value="${escapeHtml(variant.id)}" ${index === 0 ? "checked" : ""} ${variant.available ? "" : "disabled"} />${escapeHtml(variant.label)}</label>`).join("")}</fieldset>` : product.optionsStatus === "confirm" ? `<div class="stable-notice">Options have not been verified for this product. Shivara will confirm them on WhatsApp.</div>` : "";
-    const commerceAction = canAddDirectly(product) || product.variants.length
-      ? `<button class="stable-button stable-button--dark" type="button" data-pdp-add="${product.id}">Add to Bag</button>`
-      : "";
-    mount.innerHTML = `<nav class="stable-breadcrumb"><a href="/">Home</a><span>/</span><a href="${collectionUrl(product.category)}">${escapeHtml(categoryMeta[product.category]?.title || product.category)}</a><span>/</span><span>${escapeHtml(product.title)}</span></nav>
-      <article class="stable-pdp">
-        <div class="stable-pdp__media"><div class="stable-pdp__thumbs">${product.images.map((image, index) => `<button type="button" data-pdp-thumb="${index}" class="${index === 0 ? "is-active" : ""}"><img src="/${escapeHtml(image)}" alt="" /></button>`).join("")}</div><div class="stable-pdp__gallery" id="pdp-gallery">${product.images.map((image, index) => `<img src="/${escapeHtml(image)}" alt="${index === 0 ? escapeHtml(product.imageAlt) : ""}" />`).join("")}</div></div>
-        <div class="stable-pdp__info"><p>${escapeHtml(categoryMeta[product.category]?.title || product.category)}</p><h1>${escapeHtml(product.title)}</h1><small>SKU: ${escapeHtml(product.sku)}</small>${priceMarkup(product, "stable-pdp__price")}${product.offerText ? `<p class="stable-offer">${escapeHtml(product.offerText)}</p>` : ""}<p>${escapeHtml(product.description)}</p>${variantMarkup}
-        <div class="stable-pdp__qty"><span>Quantity</span><div class="stable-qty"><button type="button" data-pdp-qty="-1" aria-label="Decrease quantity">−</button><span id="pdp-qty">1</span><button type="button" data-pdp-qty="1" aria-label="Increase quantity">+</button></div></div>
-        <div class="stable-pdp__actions">${commerceAction}<a class="stable-button stable-button--whatsapp" id="pdp-whatsapp" target="_blank" rel="noreferrer">${value.confirmed ? "Order on WhatsApp" : "Confirm Price on WhatsApp"}</a><button class="stable-button stable-button--plain ${wishlist.has(product.id) ? "is-active" : ""}" type="button" data-wishlist-toggle="${product.id}">♡ Wishlist</button><button class="stable-share" type="button" data-share>Share</button></div>
-        <div class="stable-accordions"><details open><summary>Product Details</summary><p>${escapeHtml(product.description)}</p><p>Category: ${escapeHtml(categoryMeta[product.category]?.title || product.category)}.</p></details><details><summary>Shipping and Exchange</summary><p>PAN India delivery, shipping charges, timelines and exchange eligibility are confirmed before payment on WhatsApp.</p></details><details><summary>Care Instructions</summary><p>Keep the piece dry and store it separately. Ask Shivara for product-specific material and care guidance.</p></details></div></div>
-      </article>
-      <section class="stable-products stable-products--pdp"><div class="stable-section-heading"><div><p>YOU MAY ALSO LIKE</p><h2>Related products</h2></div></div><div class="commerce-product-grid">${related.map(productCard).join("")}</div></section>
-      ${recentProducts.length ? `<section class="stable-products stable-products--pdp"><div class="stable-section-heading"><div><p>YOUR TRAIL</p><h2>Recently viewed</h2></div></div><div class="commerce-product-grid">${recentProducts.map(productCard).join("")}</div></section>` : ""}
-      <div class="stable-mobile-buy">${priceMarkup(product, "stable-mobile-buy__price")}${commerceAction || `<a class="stable-button stable-button--whatsapp" id="pdp-mobile-whatsapp" target="_blank">Enquire</a>`}</div>`;
+    const serverPage = mount.querySelector(`[data-shared-product-page="${CSS.escape(product.id)}"]`);
+    if (!serverPage) {
+      mount.innerHTML = cardRenderer.renderProductPage(catalogApi, product, {
+        related,
+        recent: recentProducts,
+        isWishlisted: wishlist.has(product.id),
+        origin: location.origin,
+        whatsappNumber,
+        context: "client shared product page renderer"
+      });
+    } else if (recentProducts.length && !mount.querySelector("[data-recently-viewed]")) {
+      const mobileBuy = mount.querySelector(".stable-mobile-buy");
+      mobileBuy?.insertAdjacentHTML("beforebegin", `<section class="stable-products stable-products--pdp" data-recently-viewed><div class="stable-section-heading"><div><p>YOUR TRAIL</p><h2>Recently viewed</h2></div></div><div class="commerce-product-grid">${recentProducts.map(productCard).join("")}</div></section>`);
+    }
     updatePdpWhatsapp(product);
     if (sessionStorage.getItem("shivara-transition-product") === product.id) {
       const destinationImage = mount.querySelector(".stable-pdp__gallery img");
@@ -650,6 +673,7 @@
     }
     if (target.closest("[data-layer-close]")) return closeLayer();
     if (target.closest("[data-account]")) return showToast("Customer accounts are coming soon");
+    if (target.closest("[data-clear-filters]")) return updateCollectionState({ sort: "featured", price: "all" });
     const wish = target.closest("[data-wishlist-toggle]");
     if (wish) return toggleWishlist(wish.dataset.wishlistToggle);
     const quick = target.closest("[data-quick-view]");
@@ -685,14 +709,14 @@
       const item = cart.find((line) => line.id === delta.dataset.cartId && (line.variantId || "") === delta.dataset.variantId);
       if (item) item.qty += Number(delta.dataset.cartDelta);
       cart = cart.filter((line) => line.qty > 0);
-      saveStorage(storageKeys.cart, cart);
+      saveCart();
       renderCart();
       return;
     }
     const remove = target.closest("[data-cart-remove]");
     if (remove) {
       cart = cart.filter((line) => !(line.id === remove.dataset.cartRemove && (line.variantId || "") === remove.dataset.variantId));
-      saveStorage(storageKeys.cart, cart);
+      saveCart();
       renderCart();
       return;
     }
@@ -700,7 +724,7 @@
     if (moveToWishlist) {
       if (!wishlist.has(moveToWishlist.dataset.cartWishlist)) toggleWishlist(moveToWishlist.dataset.cartWishlist);
       cart = cart.filter((line) => !(line.id === moveToWishlist.dataset.cartWishlist && (line.variantId || "") === moveToWishlist.dataset.variantId));
-      saveStorage(storageKeys.cart, cart);
+      saveCart();
       renderCart();
       showToast("Moved to Your Shivara Edit.");
       return;
@@ -770,10 +794,10 @@
     if (event.key === "Escape") closeLayer();
     if (activeLayer?.id === "search-drawer" && event.target.matches("#stable-search") && event.key === "ArrowDown") {
       event.preventDefault();
-      activeLayer.querySelector("[data-search-result] a")?.focus();
+      activeLayer.querySelector("[data-product-card] a")?.focus();
     }
     if (activeLayer?.id === "search-drawer" && event.key === "Enter" && event.target.matches("#stable-search")) {
-      activeLayer.querySelector("[data-search-result] a")?.click();
+      activeLayer.querySelector("[data-product-card] a")?.click();
     }
   });
 
@@ -786,10 +810,11 @@
     if (catalogApi.getAllProducts().length !== 25) throw new Error("Curated catalogue integrity check failed during bootstrap");
     renderChrome();
     renderHome();
-    renderCollection();
+    renderCollection({ hydrateServerMarkup: true });
     renderProductPage();
     renderWishlist();
     renderCart();
+    syncWishlistControls();
     document.dispatchEvent(new CustomEvent("shivara:storefront-ready", {
       detail: { catalogueVersion: catalogApi.version, productCount: products.length }
     }));

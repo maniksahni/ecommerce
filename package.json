@@ -6,8 +6,10 @@
   "scripts": {
     "start": "node server.js",
     "audit:catalog": "node scripts/catalog-audit.js",
+    "audit:routes": "node scripts/storefront-route-audit.js",
     "test:smoke": "node scripts/smoke-test.js",
     "test:experience": "node scripts/experience-test.js",
+    "test:storefront": "node scripts/storefront-consistency-test.js",
     "test:production": "node scripts/production-test.js"
   },
   "devDependencies": {

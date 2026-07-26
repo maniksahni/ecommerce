@@ -4,6 +4,19 @@
   const api = window.ShivaraCatalog;
   const store = window.ShivaraStorefront;
   if (!api || !store || document.body.dataset.page !== "home") return;
+  const STOREFRONT_FEATURES = Object.freeze({
+    hero: true,
+    categoryGallery: true,
+    productDeck: true,
+    mostWanted: false,
+    productStory: false,
+    evilEyeOrbit: false,
+    stackingStudio: false,
+    ringConstellation: false,
+    shopTheLook: false,
+    watchShop: false
+  });
+  window.STOREFRONT_FEATURES = STOREFRONT_FEATURES;
 
   const products = api.getAllProducts();
   const byId = new Map(products.map((product) => [product.id, product]));
@@ -276,13 +289,6 @@
     renderHero();
     renderUniverse();
     renderDeck();
-    renderWanted();
-    renderStory();
-    renderOrbit();
-    renderStack();
-    renderRings();
-    renderLook();
-    renderWatch();
   }
 
   function handleAction(event) {
@@ -373,7 +379,7 @@
     const hero = document.querySelector("#floating-atelier");
     const deck = document.querySelector("#living-deck-stage");
     const universe = document.querySelector(".universe-gallery__viewport");
-    const watch = document.querySelector("#watch-stage");
+    const watch = STOREFRONT_FEATURES.watchShop ? document.querySelector("#watch-stage") : null;
     let universePointer = null;
     let watchPointer = null;
     hero.addEventListener("pointermove", (event) => {
@@ -444,11 +450,11 @@
       renderUniverse(state.universe + (event.deltaX > 0 ? 1 : -1));
     }, { passive: false });
 
-    watch.addEventListener("pointerdown", (event) => {
+    watch?.addEventListener("pointerdown", (event) => {
       if (event.target.closest("a, button")) return;
       watchPointer = { id: event.pointerId, x: event.clientX };
     });
-    watch.addEventListener("pointerup", (event) => {
+    watch?.addEventListener("pointerup", (event) => {
       if (!watchPointer || watchPointer.id !== event.pointerId) return;
       const distance = event.clientX - watchPointer.x;
       if (Math.abs(distance) > 50) renderWatch(state.watch + (distance < 0 ? 1 : -1));
@@ -488,13 +494,6 @@
       resume: resetHeroTimer,
       destroy() { clearTimeout(heroTimer); }
     });
-    motion.register("product-story", {
-      element: document.querySelector("#product-story"),
-      initialize() {},
-      pause() {},
-      resume() {},
-      destroy() {}
-    });
     motion.addFrameCallback(() => {
       state.heroX += (state.heroTargetX - state.heroX) * .07;
       state.heroY += (state.heroTargetY - state.heroY) * .07;
@@ -506,11 +505,6 @@
         state.activeTilt.style.setProperty("--tilt-x", state.tiltX.toFixed(3));
         state.activeTilt.style.setProperty("--tilt-y", state.tiltY.toFixed(3));
       }
-      const story = document.querySelector("#product-story");
-      const rect = story.getBoundingClientRect();
-      const range = Math.max(1, rect.height - innerHeight);
-      const progress = Math.max(0, Math.min(1, -rect.top / range));
-      story.style.setProperty("--story-progress", progress.toFixed(3));
     });
   }
 
