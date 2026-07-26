@@ -74,6 +74,7 @@
   let signatureIndex = 0;
   let announcementIndex = 0;
   let searchTimer = 0;
+  let collectionVisible = 24;
 
   function escapeHtml(value) {
     return String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
@@ -491,9 +492,9 @@
     if (document.body.dataset.page !== "home") return;
     renderCategoryRail();
     [
-      ["new-arrivals", productsForCollection("new-arrivals").slice(0, 10)],
-      ["all", products],
-      ["rings", productsForCollection("rings").slice(0, 10)],
+      ["new-arrivals", productsForCollection("new-arrivals").slice(0, 12)],
+      ["all", products.slice(12, 24)],
+      ["rings", productsForCollection("rings").slice(0, 8)],
       ["neck-wear", productsForCollection("necklaces").slice(0, 10)]
     ].forEach(([section, source]) => {
       const mount = document.querySelector(`[data-product-section="${section}"]`);
@@ -519,6 +520,7 @@
   }
 
   function updateCollectionState(state) {
+    collectionVisible = 24;
     const params = new URLSearchParams();
     if (state.sort !== "featured") params.set("sort", state.sort);
     if (state.price !== "all") params.set("price", state.price);
@@ -547,12 +549,18 @@
     document.querySelector("#collection-sort").value = state.sort;
     document.querySelector("#collection-filters").innerHTML = `<fieldset><legend>Price status</legend>${[["all", "All products"], ["confirmed", "Confirmed price"], ["enquiry", "Price on request"]].map(([value, label]) => `<label><input type="radio" name="price-filter" value="${value}" ${state.price === value ? "checked" : ""} />${label}</label>`).join("")}</fieldset><nav><strong>Collections</strong>${Object.entries(categoryMeta).map(([key, item]) => `<a class="${key === slug ? "is-active" : ""}" href="${collectionUrl(key)}">${item.title}<span>${productsForCollection(key).length}</span></a>`).join("")}</nav>`;
     const grid = document.querySelector("#collection-grid");
+    const visible = selected.slice(0, collectionVisible);
     const renderedIds = [...grid.querySelectorAll("[data-product-card]")].map((card) => card.dataset.productCard);
-    const selectedIds = selected.map((product) => product.id);
+    const selectedIds = visible.map((product) => product.id);
     const defaultState = state.sort === "featured" && state.price === "all";
     const serverMarkupMatches = renderedIds.length === selectedIds.length && renderedIds.every((id, index) => id === selectedIds[index]);
-    if (!(hydrateServerMarkup && defaultState && serverMarkupMatches)) renderGrid(grid, selected);
+    if (!(hydrateServerMarkup && defaultState && serverMarkupMatches)) renderGrid(grid, visible);
     grid.hidden = !selected.length;
+    const loadMore = document.querySelector("#collection-load-more");
+    if (loadMore) {
+      loadMore.hidden = visible.length >= selected.length;
+      loadMore.textContent = `Load more products (${selected.length - visible.length} remaining)`;
+    }
     document.querySelector("#collection-empty")?.remove();
     if (!selected.length) {
       const filtered = state.price !== "all";
@@ -699,6 +707,11 @@
     if (target.closest("[data-layer-close]")) return closeLayer();
     if (target.closest("[data-account]")) return showToast("Customer accounts are coming soon");
     if (target.closest("[data-clear-filters]")) return updateCollectionState({ sort: "featured", price: "all" });
+    if (target.closest("[data-load-more]")) {
+      collectionVisible += 24;
+      renderCollection();
+      return;
+    }
     const wish = target.closest("[data-wishlist-toggle]");
     if (wish) return toggleWishlist(wish.dataset.wishlistToggle);
     const quick = target.closest("[data-quick-view]");
@@ -826,7 +839,10 @@
     }
   });
 
-  window.addEventListener("popstate", renderCollection);
+  window.addEventListener("popstate", () => {
+    collectionVisible = 24;
+    renderCollection();
+  });
   document.addEventListener("visibilitychange", () => {
     document.body.classList.toggle("stable-page-hidden", document.hidden);
   });

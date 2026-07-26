@@ -22,8 +22,7 @@ function assert(condition, message) {
 async function waitForServer() {
   for (let attempt = 0; attempt < 60; attempt += 1) {
     try {
-      const response = await fetch(baseUrl);
-      if (response.ok) return;
+      if ((await fetch(baseUrl)).ok) return;
     } catch {}
     await new Promise((resolve) => setTimeout(resolve, 150));
   }
@@ -46,7 +45,6 @@ async function main() {
   });
 
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
-  await context.addInitScript(() => { window.SHIVARA_VISUAL_TIER = "high"; });
   const page = await context.newPage();
   const errors = [];
   page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
@@ -56,42 +54,24 @@ async function main() {
   const initialTruth = await page.evaluate(() => JSON.stringify(window.ShivaraCatalog.getAllProducts().map((product) => [
     product.id, product.title, product.price, product.priceStatus, product.category, product.optionsStatus, product.variants
   ])));
-  assert(await page.locator("html.phase-b-ready").count() === 1, "Phase B experience bootstrap completes");
-  assert((await page.locator("[data-experience]").count()) === 3, "only the three approved homepage experiences mount");
-  assert(await page.evaluate(() => Object.entries(window.STOREFRONT_FEATURES).filter(([, enabled]) => !enabled).length === 7), "nonessential homepage experiences are feature-disabled");
-  assert((await page.locator("html").getAttribute("data-visual-tier")) === "high", "development performance-tier override works");
+  assert(await page.locator(".stable-hero").count() === 1, "one stable commerce hero is mounted");
+  assert(await page.locator(".floating-atelier, #shivara-deck, .universe-card").count() === 0, "legacy overlapping experience systems are absent");
+  assert((await page.locator('script[src*="experience.js"], script[src*="motion-controller.js"]').count()) === 0, "optional motion bundles stay disabled");
+  assert((await page.locator('[data-product-section="new-arrivals"] [data-product-card]').count()) === 12, "New Arrivals is intentionally capped at twelve products");
+  assert((await page.locator('[data-product-section="rings"] [data-product-card]').count()) === 8, "ring edit remains compact");
+  assert((await page.locator('[data-product-section="all"] [data-product-card]').count()) === 12, "catalogue preview remains compact");
+  assert((await page.locator("#commerce-category-grid a").count()) >= 9, "category rail exposes the complete shopping journey");
 
   const heroBefore = await page.locator("[data-hero-title]").textContent();
   await page.locator("[data-hero-next]").click();
   await page.waitForFunction((before) => document.querySelector("[data-hero-title]")?.textContent !== before, heroBefore);
-  assert((await page.locator("[data-hero-title]").textContent()) !== heroBefore, "hero arrow changes verified product");
-  await page.locator("#floating-atelier").focus();
-  const heroKeyboardBefore = await page.locator("[data-hero-title]").textContent();
-  await page.keyboard.press("ArrowRight");
-  await page.waitForFunction((before) => document.querySelector("[data-hero-title]")?.textContent !== before, heroKeyboardBefore);
-  assert((await page.locator("[data-hero-title]").textContent()) !== heroKeyboardBefore, "hero keyboard navigation works");
+  assert((await page.locator("[data-hero-title]").textContent()) !== heroBefore, "hero controls change the verified product");
 
-  const deckBefore = await page.locator("#deck-count").textContent();
-  await page.locator("[data-deck-next]").click();
-  assert((await page.locator("#deck-count").textContent()) !== deckBefore, "Living Product Deck advances");
-  await page.locator("#shivara-deck").focus();
-  const deckKeyboardBefore = await page.locator("#deck-count").textContent();
-  await page.keyboard.press("ArrowLeft");
-  assert((await page.locator("#deck-count").textContent()) !== deckKeyboardBefore, "Living Product Deck supports keyboard control");
-  assert(await page.locator(".featured-product-card:not([inert])").count() === 1, "only the active deck card is interactive");
-
-  const categoryChecks = await page.locator(".universe-card").evaluateAll((cards) => cards.map((card) => ({
-    href: card.querySelector("a")?.getAttribute("href"),
-    count: card.querySelector("span")?.textContent
-  })));
-  assert(categoryChecks.length === 8 && categoryChecks.every((item) => /^\/collections\//.test(item.href) && /^\d+ products?$/.test(item.count)), "category universe uses real routes and counts");
-
-  const quickTrigger = page.locator('[data-quick-view="tulip-pendant"]').last();
-  await quickTrigger.click();
-  await page.waitForFunction(() => document.querySelector("#quick-view")?.getAttribute("aria-hidden") === "false");
-  assert(await page.locator("#quick-view").getAttribute("aria-hidden") === "false", "Jewellery Detail Quick View opens");
-  assert(await page.locator("#main").evaluate((node) => node.inert), "Quick View makes background content inert");
-  assert((await page.locator("#quick-title").textContent()) === "Tulip Pendant", "Quick View uses locked catalogue data");
+  const quickCard = page.locator('[data-product-section="new-arrivals"] [data-product-card]').first();
+  const quickTitle = await quickCard.locator(".stable-card__title").textContent();
+  await quickCard.locator("[data-quick-view]").click();
+  assert(await page.locator("#quick-view").getAttribute("aria-hidden") === "false", "Quick View opens from the stable storefront");
+  assert((await page.locator("#quick-title").textContent()) === quickTitle, "Quick View uses locked catalogue data");
   await page.keyboard.press("Escape");
   assert(await page.locator("#quick-view").getAttribute("aria-hidden") === "true", "Quick View closes with Escape");
 
@@ -99,34 +79,36 @@ async function main() {
     product.id, product.title, product.price, product.priceStatus, product.category, product.optionsStatus, product.variants
   ])));
   assert(initialTruth === finalTruth, "visual interactions do not mutate catalogue truth");
-  assert(errors.length === 0, `signature experiences emit no console errors${errors.length ? `: ${errors.join(" | ")}` : ""}`);
+  assert(errors.length === 0, `stable experience emits no console errors${errors.length ? `: ${errors.join(" | ")}` : ""}`);
   await context.close();
-
-  const reducedContext = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce" });
-  const reducedPage = await reducedContext.newPage();
-  await reducedPage.goto(baseUrl, { waitUntil: "networkidle" });
-  assert((await reducedPage.locator("html").getAttribute("data-visual-tier")) === "lite", "reduced motion selects the Lite visual tier");
-  assert(await reducedPage.locator("html.motion-reduced").count() === 1, "reduced-motion fallback is active");
-  await reducedContext.close();
 
   for (const [width, height] of viewports) {
     const viewportContext = await browser.newContext({ viewport: { width, height } });
     const viewportPage = await viewportContext.newPage();
     await viewportPage.goto(baseUrl, { waitUntil: "networkidle" });
-    const state = await viewportPage.evaluate(() => ({
-      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      columns: getComputedStyle(document.querySelector(".commerce-product-grid")).gridTemplateColumns.split(" ").length,
-      broken: [...document.images].filter((image) => image.complete && !image.naturalWidth).length
-    }));
-    assert(state.overflow <= 1, `${width}x${height} signature layout has no horizontal overflow`);
+    const state = await viewportPage.evaluate(() => {
+      const grid = document.querySelector(".commerce-product-grid");
+      const hero = document.querySelector(".stable-hero")?.getBoundingClientRect();
+      const title = document.querySelector(".stable-hero h1")?.getBoundingClientRect();
+      return {
+        overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        columns: getComputedStyle(grid).gridTemplateColumns.split(" ").length,
+        heroFits: Boolean(hero && title && title.left >= hero.left && title.right <= hero.right + 1 && title.bottom <= hero.bottom + 1),
+        broken: [...document.images].filter((image) => image.complete && !image.naturalWidth).length
+      };
+    });
+    assert(state.overflow <= 1, `${width}x${height} has no horizontal overflow`);
     if (width <= 430) assert(state.columns === 2, `${width}x${height} preserves two catalogue columns`);
+    if (width === 768) assert(state.columns === 3, "768px tablet layout has three product columns");
+    if (width >= 1280) assert(state.columns === 5, `${width}px desktop layout has five product columns`);
+    assert(state.heroFits, `${width}x${height} keeps hero content inside its bounds`);
     assert(state.broken === 0, `${width}x${height} has no broken loaded images`);
     await viewportContext.close();
   }
 
   await browser.close();
   if (failures) throw new Error(`${failures} experience assertion(s) failed`);
-  console.log("Phase B experience suite passed.");
+  console.log("Stable storefront experience suite passed.");
 }
 
 main()

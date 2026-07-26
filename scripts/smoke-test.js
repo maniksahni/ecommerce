@@ -125,7 +125,8 @@ async function main() {
   assert((await page.locator("#search-results").getByText("Tulip Pendant", { exact: true }).count()) === 1, "search returns a real catalogue product");
   await page.keyboard.press("Escape");
 
-  await page.locator('[data-card-add="tulip-pendant"]').first().click();
+  await page.goto(`${baseUrl}/products/tulip-pendant`, { waitUntil: "networkidle" });
+  await page.locator('[data-pdp-add="tulip-pendant"]').first().click();
   assert((await page.locator("#cart-lines").getByText("Tulip Pendant", { exact: true }).count()) === 1, "Add to Bag adds the correct product");
   const cartHref = await page.locator(".stable-cart-footer a[href*='wa.me']").getAttribute("href");
   const cartMessage = decodeURIComponent(cartHref);
@@ -161,21 +162,27 @@ async function main() {
     await viewportPage.goto(baseUrl, { waitUntil: "networkidle" });
     const layout = await viewportPage.evaluate(() => {
       const grid = document.querySelector(".commerce-product-grid");
-      const heroImage = document.querySelector(".floating-atelier__product")?.getBoundingClientRect();
-      const heroCopy = document.querySelector(".floating-atelier__editorial")?.getBoundingClientRect();
+      const hero = document.querySelector(".stable-hero")?.getBoundingClientRect();
+      const heroTitle = document.querySelector(".stable-hero h1")?.getBoundingClientRect();
+      const heroActions = document.querySelector(".stable-hero__content > div")?.getBoundingClientRect();
       const skipLink = document.querySelector(".skip-to-content")?.getBoundingClientRect();
+      const concierge = document.querySelector(".ask-shivara");
       return {
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
         columns: getComputedStyle(grid).gridTemplateColumns.split(" ").length,
-        heroOverlap: heroImage && heroCopy ? Math.max(0, heroImage.bottom - heroCopy.top) : 0,
+        heroContentFits: Boolean(hero && heroTitle && heroActions &&
+          heroTitle.left >= hero.left &&
+          heroTitle.right <= hero.right + 1 &&
+          heroActions.right <= hero.right + 1 &&
+          heroActions.bottom <= hero.bottom + 1),
         skipLinkHidden: !skipLink || (skipLink.width <= 1 && skipLink.height <= 1),
-        conciergeHidden: getComputedStyle(document.querySelector(".ask-shivara")).visibility === "hidden"
+        conciergeHidden: !concierge || getComputedStyle(concierge).visibility === "hidden"
       };
     });
     assert(layout.overflow <= 1, `${width}×${height} has no horizontal overflow`);
     if (width <= 430) {
       assert(layout.columns === 2, `${width}×${height} has exactly two product columns`);
-      assert(layout.heroOverlap === 0, `${width}×${height} keeps hero copy clear of the product photo`);
+      assert(layout.heroContentFits, `${width}×${height} keeps hero title and actions inside the viewport`);
       assert(layout.skipLinkHidden, `${width}×${height} hides the skip link until keyboard focus`);
       assert(layout.conciergeHidden, `${width}×${height} keeps assistance controls off the hero`);
     }

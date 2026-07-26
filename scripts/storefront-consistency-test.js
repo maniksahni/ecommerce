@@ -89,11 +89,12 @@ async function main() {
       js: [...document.scripts].map((node) => node.src && new URL(node.src).pathname).filter(Boolean),
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth
     }));
+    const initialExpected = expected.slice(0, 24);
     assert(response?.status() === 200, `${slug} returns 200`);
     assert(state.title && state.description, `${slug} has route-specific title and description`);
     assert(state.canonical === `${baseUrl}/collections/${slug}`, `${slug} has the correct canonical URL`);
     assert(state.count === `${expected.length} ${expected.length === 1 ? "product" : "products"}`, `${slug} reports ${expected.length} curated products`);
-    assert(JSON.stringify(state.cards.map((card) => card.id)) === JSON.stringify(expected.map((product) => product.id)), `${slug} card IDs exactly match the curated API`);
+    assert(JSON.stringify(state.cards.map((card) => card.id)) === JSON.stringify(initialExpected.map((product) => product.id)), `${slug} initial page matches the curated API`);
     assert(new Set(state.cards.map((card) => card.id)).size === state.cards.length, `${slug} has no duplicate product IDs`);
     assert(state.cards.every((card) => card.renderer === "shared-v1"), `${slug} uses the shared card renderer only`);
     assert(state.cards.every((card) => blocked(card.title).length === 0), `${slug} contains no blocked social title`);
@@ -107,6 +108,11 @@ async function main() {
     assert(state.overflow <= 1, `${slug} has no horizontal overflow`);
     assert(errors.length === 0 && missing.length === 0, `${slug} has no console or asset errors`);
     assert(state.cards.every((card) => card.image && card.image.startsWith("/assets/")), `${slug} cards expose audited local images`);
+    while (await page.locator("[data-load-more]:visible").count()) {
+      await page.locator("[data-load-more]").click();
+    }
+    const completeIds = await page.locator("#collection-grid [data-product-card]").evaluateAll((cards) => cards.map((card) => card.dataset.productCard));
+    assert(JSON.stringify(completeIds) === JSON.stringify(expected.map((product) => product.id)), `${slug} load-more journey exactly matches the complete curated API`);
     await context.close();
   }
 

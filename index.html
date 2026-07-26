@@ -10,59 +10,52 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Italiana&amp;display=swap" rel="stylesheet" />
     <link rel="preload" as="image" href="/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" />
     <link rel="stylesheet" href="/commerce-stable.css?v=2" />
-    <link rel="stylesheet" href="/phase-b.css?v=1" />
   </head>
-  <body data-page="home" class="catalog-stable phase-b-storefront">
+  <body data-page="home" class="catalog-stable">
     <a class="visually-hidden skip-to-content" href="#main">Skip to content</a>
     <div id="shared-header"></div>
     <main id="main" tabindex="-1">
-      <section class="floating-atelier" id="floating-atelier" data-experience="hero" tabindex="0" aria-labelledby="hero-title">
-        <div class="floating-atelier__background" aria-hidden="true"><img data-hero-background src="/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" alt="" /></div>
-        <div class="floating-atelier__atmosphere" aria-hidden="true"></div>
-        <div class="floating-atelier__wordmark" aria-hidden="true">SHIVARA</div>
-        <div class="floating-atelier__fragments" aria-hidden="true"><img data-hero-fragment-one src="/assets/instagram-shop/post-036-DXRflQ2ARK2.jpg" alt="" /><img data-hero-fragment-two src="/assets/instagram-shop/post-062-DWss1yNkbcd.jpg" alt="" /></div>
-        <div class="floating-atelier__product" aria-hidden="true"><div class="floating-atelier__shadow"></div><img data-hero-product src="/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" alt="" /><i></i></div>
-        <div class="floating-atelier__editorial">
-          <p>THE FLOATING ATELIER</p>
+      <section class="stable-hero" data-hero aria-labelledby="hero-title">
+        <img data-hero-image src="/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" alt="Curated Shivara jewellery" />
+        <div class="stable-hero__shade" aria-hidden="true"></div>
+        <div class="stable-hero__content">
+          <p>THE SHIVARA EDIT</p>
           <h1 id="hero-title" data-hero-title>Boxed Evil Eye Bracelet</h1>
-          <p data-hero-editorial>A structured bracelet arranged with blue evil-eye details.</p>
-          <a href="/collections/new-arrivals">Explore the Curated Edit</a>
-        </div>
-        <article class="floating-atelier__card">
-          <div><span data-hero-category>Bracelets</span><span data-hero-sku>SHV-BRC-004</span></div>
-          <h2 data-hero-card-title>Boxed Evil Eye Bracelet</h2>
-          <div data-hero-price></div>
-          <p data-hero-card-copy>A considered finishing piece from the Shivara edit.</p>
-          <div class="floating-atelier__actions">
-            <a class="stable-button stable-button--light" data-hero-product-link href="/products/boxed-evil-eye-bracelet">View Product</a>
-            <button class="stable-button stable-button--dark" type="button" data-hero-purchase></button>
-            <button class="floating-atelier__wish" type="button" data-hero-wishlist aria-label="Save featured product">♡</button>
+          <p data-hero-copy>A structured bracelet arranged with blue evil-eye details.</p>
+          <div>
+            <a class="stable-button stable-button--light" href="/products/boxed-evil-eye-bracelet">View product</a>
+            <a class="stable-button stable-button--line" href="/collections/new-arrivals">Shop new arrivals</a>
           </div>
-        </article>
-        <div class="floating-atelier__navigation">
+        </div>
+        <div class="stable-hero__controls">
           <button type="button" data-hero-prev aria-label="Previous featured product">←</button>
-          <div><span data-hero-progress></span></div>
-          <small data-hero-count>01 / 03</small>
+          <span data-hero-count>1 / 3</span>
           <button type="button" data-hero-next aria-label="Next featured product">→</button>
         </div>
-        <p class="visually-hidden" data-hero-status role="status" aria-live="polite"></p>
       </section>
 
-      <section class="universe-gallery" id="category-universe" data-experience="categories" tabindex="0" aria-labelledby="universe-title">
-        <header class="phase-heading"><div><p>ENTER THE SHIVARA UNIVERSE</p><h2 id="universe-title">Choose your point of view.</h2></div><p>Eight curated paths into the edit.</p></header>
-        <div class="universe-gallery__viewport"><div class="universe-gallery__track" id="universe-track"></div></div>
-        <div class="universe-gallery__controls"><button type="button" data-universe-prev aria-label="Previous category">←</button><div id="universe-dots" role="tablist" aria-label="Choose category"></div><button type="button" data-universe-next aria-label="Next category">→</button></div>
+      <section class="category-rail-section" aria-labelledby="category-title">
+        <div class="stable-section-heading"><div><p>SHOP BY CATEGORY</p><h2 id="category-title">Find your next piece</h2></div></div>
+        <div class="stable-category-rail" id="commerce-category-grid"></div>
       </section>
 
-      <section class="living-deck phase-shell" id="shivara-deck" data-experience="deck" tabindex="0" aria-labelledby="deck-title">
-        <header class="phase-heading"><div><p>THE SHIVARA DECK</p><h2 id="deck-title">Swipe through the pieces that define the edit.</h2></div><p>Drag, swipe, use arrow keys, or choose the controls.</p></header>
-        <div class="living-deck__stage" id="living-deck-stage" aria-roledescription="carousel" aria-label="Signature product deck"></div>
-        <div class="living-deck__controls"><button type="button" data-deck-prev aria-label="Previous product">←</button><span id="deck-count">01 / 06</span><button type="button" data-deck-next aria-label="Next product">→</button></div>
-        <p class="visually-hidden" id="deck-status" role="status" aria-live="polite"></p>
+      <section class="stable-products home-products" aria-labelledby="new-title">
+        <div class="stable-section-heading"><div><p>JUST ADDED</p><h2 id="new-title">New arrivals</h2></div><a href="/collections/new-arrivals">View all</a></div>
+        <div class="commerce-product-grid" data-product-section="new-arrivals"></div>
       </section>
 
-      <section class="stable-products phase-browse" aria-labelledby="catalogue-title">
-        <div class="stable-section-heading"><div><p>THE CURATED CATALOGUE</p><h2 id="catalogue-title">Shop without the guesswork</h2></div><a href="/collections/all">Explore full catalogue</a></div>
+      <section class="signature-edit" aria-labelledby="signature-title">
+        <div class="signature-edit__copy"><p>CONFIRMED PRICE EDIT</p><h2 id="signature-title">Ready to add to your bag</h2><div class="signature-edit__controls"><button type="button" data-signature-prev aria-label="Previous product">←</button><button type="button" data-signature-next aria-label="Next product">→</button></div></div>
+        <div class="signature-edit__product" id="signature-product"></div>
+      </section>
+
+      <section class="stable-products home-products" aria-labelledby="ring-title">
+        <div class="stable-section-heading"><div><p>STATEMENT DETAILS</p><h2 id="ring-title">Rings</h2></div><a href="/collections/rings">View all</a></div>
+        <div class="commerce-product-grid" data-product-section="rings"></div>
+      </section>
+
+      <section class="stable-products home-products" aria-labelledby="catalogue-title">
+        <div class="stable-section-heading"><div><p>CURATED FOR YOU</p><h2 id="catalogue-title">More from Shivara</h2></div><a href="/collections/all">Explore full catalogue</a></div>
         <div class="commerce-product-grid" data-product-section="all"></div>
       </section>
 
@@ -80,7 +73,5 @@
     <script src="/catalog-data.js?v=3"></script>
     <script src="/storefront-renderer.js?v=1"></script>
     <script src="/script.js?v=stable-2"></script>
-    <script src="/experience.js?v=1"></script>
-    <script src="/motion-controller.js?v=stable-2"></script>
   </body>
 </html>

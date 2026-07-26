@@ -120,10 +120,10 @@ function stampHtml(html) {
 
 function injectHome(html) {
   const selections = {
-    "new-arrivals": collectionProducts("new-arrivals").slice(0, 10),
+    "new-arrivals": collectionProducts("new-arrivals").slice(0, 12),
     bestsellers: catalogApi.getFeaturedProducts(10),
-    all: products,
-    rings: collectionProducts("rings").slice(0, 10),
+    all: products.slice(12, 24),
+    rings: collectionProducts("rings").slice(0, 8),
     "neck-wear": collectionProducts("necklaces").slice(0, 10)
   };
   html = html.replace(/<div class="commerce-product-grid" data-product-section="([^"]+)"><\/div>/g, (match, section) => {
@@ -141,6 +141,7 @@ function injectHome(html) {
 function injectCollection(html, slug) {
   const meta = collectionMeta[slug];
   const selected = collectionProducts(slug);
+  const initiallyVisible = selected.slice(0, 24);
   html = html
     .replace('data-collection="all"', `data-collection="${escapeHtml(slug)}"`)
     .replace(/<span data-collection-breadcrumb>[\s\S]*?<\/span>/, `<span data-collection-breadcrumb>${escapeHtml(meta.title)}</span>`)
@@ -148,7 +149,7 @@ function injectCollection(html, slug) {
     .replace(/<h1 data-collection-title>[\s\S]*?<\/h1>/, `<h1 data-collection-title>${escapeHtml(meta.title)}</h1>`)
     .replace(/<p data-collection-description>[\s\S]*?<\/p>/, `<p data-collection-description>${escapeHtml(meta.description)}</p>`)
     .replace(/<strong data-collection-count>[\s\S]*?<\/strong>/, `<strong data-collection-count>${selected.length} ${selected.length === 1 ? "product" : "products"}</strong>`)
-    .replace('<div class="commerce-product-grid" id="collection-grid"></div>', `<div class="commerce-product-grid" id="collection-grid">${selected.map(productCard).join("")}</div>`)
+    .replace('<div class="commerce-product-grid" id="collection-grid"></div>', `<div class="commerce-product-grid" id="collection-grid">${initiallyVisible.map(productCard).join("")}</div>`)
     .replace("<!-- COLLECTION_EMPTY_STATE -->", selected.length ? "" : '<div class="stable-empty" id="collection-empty"><h2>No products are currently available</h2><p>Explore the complete curated catalogue while this edit is updated.</p><a href="/collections/all">Browse all products</a></div>');
   return injectMetadata(html, {
     title: `${meta.title} | Shivara`,
