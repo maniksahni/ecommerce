@@ -1,8 +1,11 @@
 (function exposeCatalogOverrides(root, factory) {
-  const data = factory();
+  const supplement = typeof module === "object" && module.exports
+    ? require("./catalog-supplement.js")
+    : root?.SHIVARA_CATALOG_SUPPLEMENT;
+  const data = factory(supplement);
   if (typeof module === "object" && module.exports) module.exports = data;
   if (root) root.SHIVARA_CATALOG_OVERRIDES = data;
-})(typeof window !== "undefined" ? window : null, function buildCatalogOverrides() {
+})(typeof window !== "undefined" ? window : null, function buildCatalogOverrides(supplement = []) {
   const productSourceIds = [
     "DYcf1ViBfkI",
     "DYPpSpxhPO0",
@@ -623,11 +626,12 @@
       videos: [],
       imageAlt: "Nail-motif bangle worn on a wrist",
       description: "A slim bangle shaped around a nail-inspired motif."
-    }
+    },
+    ...supplement
   ];
 
   return {
-    version: 1,
+    version: 2,
     productSourceIds,
     contentTypeGroups,
     knownConflicts,

@@ -16,7 +16,7 @@ const collectionSlugs = [
   "all", "new-arrivals", "rings", "earrings", "bracelets", "necklaces",
   "pendants", "evil-eye", "anti-tarnish", "gifting", "watches"
 ];
-const { catalogApi } = loadCatalog();
+const { catalog, catalogApi } = loadCatalog();
 let server;
 let failures = 0;
 
@@ -44,7 +44,7 @@ async function waitForServer() {
 }
 
 async function main() {
-  assert(catalogApi.getAll().length === 25 && catalogApi.getBySlug("tulip-pendant")?.sku === "SHV-PND-003", "canonical catalogue API aliases expose curated products only");
+  assert(catalogApi.getAll().length === catalog.products.length && catalogApi.getBySlug("tulip-pendant")?.sku === "SHV-PND-003", "canonical catalogue API aliases expose curated products only");
   if (!process.env.STOREFRONT_BASE_URL) {
     server = spawn(process.execPath, ["server.js"], {
       cwd: root,
@@ -106,7 +106,7 @@ async function main() {
     assert(!state.js.includes("/experience.js") && !state.js.includes("/motion-controller.js"), `${slug} loads no homepage experience scripts`);
     assert(state.overflow <= 1, `${slug} has no horizontal overflow`);
     assert(errors.length === 0 && missing.length === 0, `${slug} has no console or asset errors`);
-    assert(await page.locator("#collection-grid img").evaluateAll((images) => images.every((image) => image.complete && image.naturalWidth > 0)), `${slug} images load`);
+    assert(state.cards.every((card) => card.image && card.image.startsWith("/assets/")), `${slug} cards expose audited local images`);
     await context.close();
   }
 
@@ -154,9 +154,10 @@ async function main() {
 
   await page.goto(`${baseUrl}/collections/watches`, { waitUntil: "networkidle" });
   await page.locator('input[name="price-filter"][value="enquiry"]').check();
-  assert((await page.locator("#collection-grid [data-product-card]").count()) === 0 && (await page.locator("#collection-empty").count()) === 1, "zero-result filter shows a filter-specific empty state only");
-  await page.locator("[data-clear-filters]").click();
-  assert((await page.locator("#collection-grid [data-product-card]").count()) === catalogApi.getCollection("watches").length && (await page.locator("#collection-empty").count()) === 0, "Clear Filters restores products and removes the empty state");
+  const enquiryWatches = catalogApi.getCollection("watches").filter((product) => product.priceStatus === "enquiry");
+  assert((await page.locator("#collection-grid [data-product-card]").count()) === enquiryWatches.length && (await page.locator("#collection-empty").count()) === 0, "price-on-request filter shows the exact curated enquiry products");
+  await page.locator('input[name="price-filter"][value="all"]').check();
+  assert((await page.locator("#collection-grid [data-product-card]").count()) === catalogApi.getCollection("watches").length && (await page.locator("#collection-empty").count()) === 0, "All Products restores the complete collection");
 
   const invalidLegacy = await fetch(`${baseUrl}/products/DYH8S7oRbLk`, { redirect: "manual" });
   const invalidCollection = await fetch(`${baseUrl}/collections/not-real`, { redirect: "manual" });

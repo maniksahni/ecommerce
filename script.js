@@ -832,7 +832,7 @@
   });
 
   async function bootstrapStorefront() {
-    if (catalogApi.getAllProducts().length !== 25) throw new Error("Curated catalogue integrity check failed during bootstrap");
+    if (!catalogApi.getAllProducts().length) throw new Error("Curated catalogue integrity check failed during bootstrap");
     renderChrome();
     renderHome();
     renderCollection({ hydrateServerMarkup: true });

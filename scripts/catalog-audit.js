@@ -5,6 +5,8 @@ const { duplicates, loadCatalog, root, validateProduct } = require("./catalog-li
 const { source, overrides, catalog } = loadCatalog();
 const sourcePosts = source.products || [];
 const products = catalog.products || [];
+const directProducts = products.filter((product) => product.sourceType === "whatsapp");
+const instagramProducts = products.filter((product) => product.sourceType !== "whatsapp");
 const sourceById = new Map(sourcePosts.map((post) => [post.id, post]));
 const contentCounts = catalog.socialContent.reduce((counts, item) => {
   counts[item.contentType] = (counts[item.contentType] || 0) + 1;
@@ -29,7 +31,7 @@ const invalidVariants = products
   .filter((product) => validateProduct(product).some((message) => message.includes("variant")))
   .map((product) => product.id);
 const unclassifiedSource = catalog.socialContent.filter((item) => item.contentType === "unavailable").map((item) => item.id);
-const missingSourceReferences = products.filter((product) => !sourceById.has(product.sourcePostId)).map((product) => product.id);
+const missingSourceReferences = instagramProducts.filter((product) => !sourceById.has(product.sourcePostId)).map((product) => product.id);
 const socialCtaTitles = products.filter((product) => /\b(dm now|comment for|grab yours|coming soon|last chance|followed us|packaging|feminine urge)\b/i.test(product.title)).map((product) => product.id);
 const invalidPrices = products.filter((product) => product.priceStatus === "confirmed" && (!Number.isFinite(product.price) || product.price <= 0)).map((product) => product.id);
 const invalidCompareAtPrices = products.filter((product) => product.compareAtPrice !== null && (!Number.isFinite(product.compareAtPrice) || product.compareAtPrice <= product.price)).map((product) => product.id);
@@ -38,7 +40,7 @@ const incorrectDiscounts = products.filter((product) => {
   if (!Number.isFinite(product.compareAtPrice) || !Number.isFinite(product.price)) return true;
   return product.discountPercentage !== Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100);
 }).map((product) => product.id);
-const campaignProductPages = products.filter((product) => catalog.contentTypeBySourceId[product.sourcePostId] !== "product").map((product) => product.id);
+const campaignProductPages = instagramProducts.filter((product) => catalog.contentTypeBySourceId[product.sourcePostId] !== "product").map((product) => product.id);
 const unrelatedCollections = products.filter((product) => validateProduct(product).includes("product included in an unrelated collection")).map((product) => product.id);
 
 const audit = {
@@ -46,7 +48,8 @@ const audit = {
   source: {
     totalPosts: sourcePosts.length,
     contentTypes: contentCounts,
-    postsRemovedFromCommerce: sourcePosts.length - products.length,
+    postsRemovedFromCommerce: sourcePosts.length - instagramProducts.length,
+    directUploadProducts: directProducts.length,
     campaignOnlyPosts: contentCounts.campaign || 0,
     packagingContentPosts: contentCounts.packaging || 0,
     unclassifiedUnavailablePosts: unclassifiedSource

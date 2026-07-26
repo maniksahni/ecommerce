@@ -137,7 +137,7 @@ async function main() {
   }));
 
   assert(liveState.build.commit === expectedCommit, "window.SHIVARA_BUILD_INFO matches intended commit");
-  assert(liveState.products.length === 25, "production catalogue API contains exactly 25 products");
+  assert(liveState.products.length === catalogApi.getAllProducts().length, "production catalogue API contains the complete curated product set");
   assert(fingerprint(liveState.products) === fingerprint(commerceSnapshot(catalogApi.getAllProducts())), "production commerce data matches the locked local catalogue");
   assert(blockedTitles.every((blocked) => !liveState.cardTitles.some((title) => title.includes(blocked))), "no blocked social-caption title appears");
   assert(liveState.cardTitles.includes("Halo Gift Ring") && liveState.cardTitles.includes("Blue Charm Evil Eye Bracelet"), "homepage contains curated product titles");

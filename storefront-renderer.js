@@ -106,10 +106,19 @@
       : "";
     const whatsapp = enquiryHref(product, origin, whatsappNumber);
     const cardOptions = { origin, whatsappNumber, context: "shared related product renderer" };
+    const media = [
+      ...product.images.map((src, index) => ({ type: "image", src, index })),
+      ...(product.videos || []).map((src, index) => ({ type: "video", src, index }))
+    ];
+    const mediaThumbs = media.map((item, index) => `<button type="button" data-pdp-thumb="${index}" class="${index === 0 ? "is-active" : ""}" aria-label="${item.type === "video" ? "Play product video" : `View image ${item.index + 1}`}"><img src="/${escapeHtml(product.images[Math.min(item.index, product.images.length - 1)])}" alt="" />${item.type === "video" ? '<span class="stable-pdp__play" aria-hidden="true">▶</span>' : ""}</button>`).join("");
+    const mediaSlides = media.map((item, index) => item.type === "video"
+      ? `<video src="/${escapeHtml(item.src)}" aria-label="${escapeHtml(product.title)} product video ${item.index + 1}" controls playsinline preload="metadata"></video>`
+      : `<img src="/${escapeHtml(item.src)}" alt="${index === 0 ? escapeHtml(product.imageAlt) : `${escapeHtml(product.title)} detail ${item.index + 1}`}" itemprop="${index === 0 ? "image" : ""}" />`
+    ).join("");
     return `<div data-shared-product-page="${escapeHtml(product.id)}">
       <nav class="stable-breadcrumb"><a href="/">Home</a><span>/</span><a href="/collections/${escapeHtml(product.category)}">${escapeHtml(category)}</a><span>/</span><span>${escapeHtml(product.title)}</span></nav>
       <article class="stable-pdp" itemscope itemtype="https://schema.org/Product">
-        <div class="stable-pdp__media"><div class="stable-pdp__thumbs">${product.images.map((image, index) => `<button type="button" data-pdp-thumb="${index}" class="${index === 0 ? "is-active" : ""}"><img src="/${escapeHtml(image)}" alt="" /></button>`).join("")}</div><div class="stable-pdp__gallery" id="pdp-gallery">${product.images.map((image, index) => `<img src="/${escapeHtml(image)}" alt="${index === 0 ? escapeHtml(product.imageAlt) : `${escapeHtml(product.title)} detail ${index + 1}`}" itemprop="${index === 0 ? "image" : ""}" />`).join("")}</div></div>
+        <div class="stable-pdp__media"><div class="stable-pdp__thumbs">${mediaThumbs}</div><div class="stable-pdp__gallery" id="pdp-gallery">${mediaSlides}</div></div>
         <div class="stable-pdp__info"><p>${escapeHtml(category)}</p><h1 itemprop="name">${escapeHtml(product.title)}</h1><small>SKU: ${escapeHtml(product.sku)}</small>${priceMarkup(api, product, "stable-pdp__price")}${product.offerText ? `<p class="stable-offer">${escapeHtml(product.offerText)}</p>` : ""}<p itemprop="description">${escapeHtml(product.description)}</p>${variantMarkup}
         ${mode === "direct" || mode === "variant" ? '<div class="stable-pdp__qty"><span>Quantity</span><div class="stable-qty"><button type="button" data-pdp-qty="-1" aria-label="Decrease quantity">−</button><span id="pdp-qty">1</span><button type="button" data-pdp-qty="1" aria-label="Increase quantity">+</button></div></div>' : ""}
         <div class="stable-pdp__actions">${commerceAction}<a class="stable-button stable-button--whatsapp" id="pdp-whatsapp" href="${escapeHtml(whatsapp)}" target="_blank" rel="noreferrer">${value.confirmed ? "Order on WhatsApp" : "Confirm Price on WhatsApp"}</a><button class="stable-button stable-button--plain ${isWishlisted ? "is-active" : ""}" type="button" data-wishlist-toggle="${escapeHtml(product.id)}" aria-pressed="${isWishlisted}">♡ Wishlist</button><button class="stable-share" type="button" data-share>Share</button></div>

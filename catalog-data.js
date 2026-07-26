@@ -35,17 +35,18 @@
 
     const products = (overrides?.products || []).map((product) => {
       const sourcePost = sourceMap.get(product.sourcePostId);
-      if (!sourcePost) throw new Error(`Missing Instagram source post for ${product.sourcePostId}`);
+      const isDirectSource = product.sourceType === "whatsapp";
+      if (!sourcePost && !isDirectSource) throw new Error(`Missing Instagram source post for ${product.sourcePostId}`);
       return freezeProduct({
         ...product,
         id: product.slug,
         contentType: "product",
         isPurchasable: true,
         requiresReview: false,
-        socialCaption: sourcePost.caption || "",
-        instagram: sourcePost.instagram,
-        sourceDate: sourcePost.date,
-        sourceIndex: sourcePost.index
+        socialCaption: sourcePost?.caption || "",
+        instagram: sourcePost?.instagram || null,
+        sourceDate: product.sourceDate || sourcePost?.date || null,
+        sourceIndex: Number.isFinite(product.sourceIndex) ? product.sourceIndex : sourcePost?.index
       });
     });
 
@@ -93,7 +94,11 @@
     function getCollection(slug) {
       const key = String(slug || "all");
       if (key === "all") return getAllProducts();
-      if (key === "new-arrivals") return products.filter((product) => product.collections.includes("new-arrivals"));
+      if (key === "new-arrivals") {
+        return products
+          .filter((product) => product.collections.includes("new-arrivals"))
+          .sort((a, b) => b.sourceIndex - a.sourceIndex);
+      }
       if (key === "necklaces") return products.filter((product) => product.category === "necklaces" || product.category === "pendants");
       return products.filter((product) => product.category === key || product.collections.includes(key));
     }
