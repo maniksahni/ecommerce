@@ -93,8 +93,9 @@ async function main() {
   assert(headerCommit === expectedCommit, `response build stamp matches ${expectedCommit.slice(0, 8)}`);
   assert(html.includes(`<meta name="shivara-build" content="${expectedCommit}"`), "HTML build meta matches intended commit");
   assert(html.includes(`name="shivara-catalog-version" content="${catalogApi.version}"`), `HTML exposes catalogue version ${catalogApi.version}`);
-  const scriptOrder = ["shop-data.js", "catalog-supplement.js", "catalog-overrides.js", "catalog-data.js", "storefront-renderer.js", "script.js", "experience.js", "motion-controller.js"].map((asset) => html.indexOf(asset));
+  const scriptOrder = ["shop-data.js", "catalog-supplement.js", "catalog-overrides.js", "catalog-data.js", "storefront-renderer.js", "script.js"].map((asset) => html.indexOf(asset));
   assert(scriptOrder.every((index) => index >= 0) && scriptOrder.every((index, position) => position === 0 || index > scriptOrder[position - 1]), "production script loading order is deterministic");
+  assert(!html.includes("experience.js") && !html.includes("motion-controller.js"), "removed motion bundles stay out of production");
   assert(!/commerce-stable\.css\?v=2|script\.js\?v=stable-2/.test(html), "production HTML uses build-versioned assets instead of stale static versions");
 
   const browser = await chromium.launch({
@@ -109,7 +110,7 @@ async function main() {
     }
   });
   await page.goto(baseUrl, { waitUntil: "networkidle" });
-  assert(await page.locator("html.phase-b-ready").count() === 1, "production signature experience bootstrap completes");
+  assert(await page.locator(".stable-hero [data-hero-title]").count() === 1, "production stable storefront bootstrap completes");
 
   const liveState = await page.evaluate(() => ({
     build: window.SHIVARA_BUILD_INFO,
@@ -140,7 +141,7 @@ async function main() {
   assert(liveState.products.length === catalogApi.getAllProducts().length, "production catalogue API contains the complete curated product set");
   assert(fingerprint(liveState.products) === fingerprint(commerceSnapshot(catalogApi.getAllProducts())), "production commerce data matches the locked local catalogue");
   assert(blockedTitles.every((blocked) => !liveState.cardTitles.some((title) => title.includes(blocked))), "no blocked social-caption title appears");
-  assert(liveState.cardTitles.includes("Halo Gift Ring") && liveState.cardTitles.includes("Blue Charm Evil Eye Bracelet"), "homepage contains curated product titles");
+  assert(liveState.cardTitles.includes("Halo Gift Ring") && liveState.cardTitles.includes("Gold Rose Pendant"), "homepage contains curated product titles");
 
   for (const card of liveState.cards) {
     const product = catalogApi.getProductBySlug(card.id);
@@ -153,8 +154,9 @@ async function main() {
     }
   }
 
-  const tulipCard = liveState.cards.find((card) => card.id === "tulip-pendant");
-  assert(tulipCard?.price.includes("₹299"), "confirmed Tulip Pendant price is exactly ₹299");
+  await page.goto(`${baseUrl}/products/tulip-pendant`, { waitUntil: "networkidle" });
+  const tulipPrice = (await page.locator(".stable-pdp__price").first().textContent())?.replace(/\s+/g, " ").trim() || "";
+  assert(tulipPrice.includes("₹299"), "confirmed Tulip Pendant price is exactly ₹299");
   assert(failedAssets.length === 0, `no failed JavaScript or CSS requests${failedAssets.length ? `: ${failedAssets.join(" | ")}` : ""}`);
 
   await Promise.race([browser.close(), new Promise((resolve) => setTimeout(resolve, 2500))]);
