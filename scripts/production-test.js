@@ -92,8 +92,8 @@ async function main() {
   assert(response.ok, "production homepage responds successfully");
   assert(headerCommit === expectedCommit, `response build stamp matches ${expectedCommit.slice(0, 8)}`);
   assert(html.includes(`<meta name="shivara-build" content="${expectedCommit}"`), "HTML build meta matches intended commit");
-  assert(html.includes('name="shivara-catalog-version" content="1"'), "HTML exposes catalogue version 1");
-  const scriptOrder = ["shop-data.js", "catalog-overrides.js", "catalog-data.js", "storefront-renderer.js", "script.js", "experience.js", "motion-controller.js"].map((asset) => html.indexOf(asset));
+  assert(html.includes(`name="shivara-catalog-version" content="${catalogApi.version}"`), `HTML exposes catalogue version ${catalogApi.version}`);
+  const scriptOrder = ["shop-data.js", "catalog-supplement.js", "catalog-overrides.js", "catalog-data.js", "storefront-renderer.js", "script.js", "experience.js", "motion-controller.js"].map((asset) => html.indexOf(asset));
   assert(scriptOrder.every((index) => index >= 0) && scriptOrder.every((index, position) => position === 0 || index > scriptOrder[position - 1]), "production script loading order is deterministic");
   assert(!/commerce-stable\.css\?v=2|script\.js\?v=stable-2/.test(html), "production HTML uses build-versioned assets instead of stale static versions");
 
