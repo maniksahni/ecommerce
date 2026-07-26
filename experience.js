@@ -523,6 +523,7 @@
 
   function setupMobileControls() {
     const dock = document.querySelector(".mobile-commerce-dock");
+    const concierge = document.querySelector(".ask-shivara");
     const universeViewport = document.querySelector(".universe-gallery__viewport");
     let lastY = window.scrollY;
     let universeTimer = 0;
@@ -535,6 +536,7 @@
       const shouldShow = matchMedia("(max-width: 767px)").matches && beyondHero && !movingDown && !modalOpen;
       dock.classList.toggle("is-visible", shouldShow);
       dock.setAttribute("aria-hidden", String(!shouldShow));
+      concierge.classList.toggle("is-mobile-visible", matchMedia("(max-width: 767px)").matches && beyondHero && !modalOpen);
       lastY = currentY;
     };
 

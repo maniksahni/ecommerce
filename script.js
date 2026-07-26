@@ -590,6 +590,7 @@
       mobileBuy?.insertAdjacentHTML("beforebegin", `<section class="stable-products stable-products--pdp" data-recently-viewed><div class="stable-section-heading"><div><p>YOUR TRAIL</p><h2>Recently viewed</h2></div></div><div class="commerce-product-grid">${recentProducts.map(productCard).join("")}</div></section>`);
     }
     updatePdpWhatsapp(product);
+    setupMobileBuyBar();
     if (sessionStorage.getItem("shivara-transition-product") === product.id) {
       const destinationImage = mount.querySelector(".stable-pdp__gallery img");
       if (destinationImage) {
@@ -598,6 +599,30 @@
       }
       sessionStorage.removeItem("shivara-transition-product");
     }
+  }
+
+  function setupMobileBuyBar() {
+    const bar = document.querySelector(".stable-mobile-buy");
+    const nativeActions = document.querySelector(".stable-pdp__actions");
+    if (!bar || !nativeActions || bar.dataset.mobileBuyReady) return;
+    bar.dataset.mobileBuyReady = "true";
+    let scheduled = false;
+    const update = () => {
+      scheduled = false;
+      const mobile = matchMedia("(max-width: 767px)").matches;
+      const actionsPassed = nativeActions.getBoundingClientRect().bottom < 0;
+      const modalOpen = document.body.classList.contains("stable-modal-open");
+      bar.classList.toggle("is-visible", mobile && actionsPassed && !modalOpen);
+    };
+    const schedule = () => {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(update);
+    };
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule, { passive: true });
+    document.addEventListener("shivara:modal-change", schedule);
+    update();
   }
 
   function pdpQuantity() {

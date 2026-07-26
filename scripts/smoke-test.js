@@ -161,17 +161,44 @@ async function main() {
     await viewportPage.goto(baseUrl, { waitUntil: "networkidle" });
     const layout = await viewportPage.evaluate(() => {
       const grid = document.querySelector(".commerce-product-grid");
+      const heroImage = document.querySelector(".floating-atelier__product")?.getBoundingClientRect();
+      const heroCopy = document.querySelector(".floating-atelier__editorial")?.getBoundingClientRect();
+      const skipLink = document.querySelector(".skip-to-content")?.getBoundingClientRect();
       return {
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-        columns: getComputedStyle(grid).gridTemplateColumns.split(" ").length
+        columns: getComputedStyle(grid).gridTemplateColumns.split(" ").length,
+        heroOverlap: heroImage && heroCopy ? Math.max(0, heroImage.bottom - heroCopy.top) : 0,
+        skipLinkHidden: !skipLink || (skipLink.width <= 1 && skipLink.height <= 1),
+        conciergeHidden: getComputedStyle(document.querySelector(".ask-shivara")).visibility === "hidden"
       };
     });
     assert(layout.overflow <= 1, `${width}×${height} has no horizontal overflow`);
-    if (width <= 430) assert(layout.columns === 2, `${width}×${height} has exactly two product columns`);
+    if (width <= 430) {
+      assert(layout.columns === 2, `${width}×${height} has exactly two product columns`);
+      assert(layout.heroOverlap === 0, `${width}×${height} keeps hero copy clear of the product photo`);
+      assert(layout.skipLinkHidden, `${width}×${height} hides the skip link until keyboard focus`);
+      assert(layout.conciergeHidden, `${width}×${height} keeps assistance controls off the hero`);
+    }
     if (width === 768) assert(layout.columns === 3, "768px tablet layout has three product columns");
     if (width >= 1280) assert(layout.columns === 5, `${width}px desktop layout has five product columns`);
     await viewportContext.close();
   }
+
+  const mobileContext = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const mobilePage = await mobileContext.newPage();
+  await mobilePage.goto(`${baseUrl}/collections/all`, { waitUntil: "networkidle" });
+  const filtersFit = await mobilePage.locator(".stable-filters fieldset").evaluate((fieldset) => (
+    fieldset.scrollWidth <= fieldset.clientWidth &&
+    [...fieldset.querySelectorAll("label")].every((label) => label.getBoundingClientRect().right <= fieldset.getBoundingClientRect().right + 1)
+  ));
+  assert(filtersFit, "390px collection filters remain fully visible");
+  await mobilePage.goto(`${baseUrl}/products/tulip-pendant`, { waitUntil: "networkidle" });
+  assert(!await mobilePage.locator(".stable-mobile-buy").evaluate((bar) => bar.classList.contains("is-visible")), "mobile sticky Add to Bag does not cover initial product content");
+  await mobilePage.locator(".stable-pdp__actions").scrollIntoViewIfNeeded();
+  await mobilePage.evaluate(() => scrollBy(0, innerHeight));
+  await mobilePage.waitForFunction(() => document.querySelector(".stable-mobile-buy")?.classList.contains("is-visible"));
+  assert(await mobilePage.locator(".stable-mobile-buy").evaluate((bar) => bar.classList.contains("is-visible")), "mobile sticky Add to Bag appears after native actions pass");
+  await mobileContext.close();
 
   await closeBrowser();
   if (failures) throw new Error(`${failures} smoke test assertion(s) failed`);
