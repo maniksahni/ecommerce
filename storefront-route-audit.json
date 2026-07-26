@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-07-26T10:34:55.134Z",
-  "buildCommit": null,
+  "generatedAt": "2026-07-26T10:40:38.687Z",
+  "buildCommit": "70da86e315f776404abd9835fe24a60e6e3331e5",
   "curatedProductCount": 25,
   "baseline": {
     "generatedAt": "2026-07-26T10:16:55.884Z",
@@ -2251,7 +2251,7 @@
       "baseUrl": "https://shivara.up.railway.app",
       "routes": {
         "/": {
-          "rendererUsed": "shared client page renderer",
+          "rendererUsed": "shared storefront product-card renderer",
           "catalogueSourceUsed": "ShivaraCatalog v1",
           "productCount": 25,
           "pageTitle": "Shivara | Curated Jewellery",
@@ -2268,9 +2268,6 @@
           "productsAndEmptyStateVisible": false,
           "cssFiles": [
             "/css2",
-            "/styles.css",
-            "/storefront-v2.css",
-            "/atelier.css",
             "/commerce-stable.css",
             "/phase-b.css"
           ],
@@ -2278,21 +2275,12 @@
             "/shop-data.js",
             "/catalog-overrides.js",
             "/catalog-data.js",
+            "/storefront-renderer.js",
             "/script.js",
             "/experience.js",
             "/motion-controller.js"
           ],
           "productIds": [
-            "butterfly-earring-edit",
-            "tulip-pendant",
-            "floral-charm-pendant",
-            "boxed-evil-eye-bracelet",
-            "floral-statement-ring",
-            "gold-rose-pendant",
-            "minimal-heart-pendant",
-            "snake-chain-watch",
-            "green-ad-jewellery-set",
-            "floral-pendant-trio",
             "halo-gift-ring",
             "blue-charm-evil-eye-bracelet",
             "cluster-gift-ring",
@@ -2307,19 +2295,19 @@
             "floral-charm-pendant",
             "bow-love-earrings",
             "solitaire-promise-ring",
-            "infinity-shine-ring"
+            "infinity-shine-ring",
+            "heart-halo-ring",
+            "geometric-boxed-bracelet",
+            "boxed-evil-eye-bracelet",
+            "floral-statement-ring",
+            "gold-rose-pendant",
+            "minimal-heart-pendant",
+            "snake-chain-watch",
+            "green-ad-jewellery-set",
+            "floral-pendant-trio",
+            "nail-motif-bangle"
           ],
           "productTitles": [
-            "Butterfly Earring Edit",
-            "Tulip Pendant",
-            "Floral Charm Pendant",
-            "Boxed Evil Eye Bracelet",
-            "Floral Statement Ring",
-            "Gold Rose Pendant",
-            "Minimal Heart Pendant",
-            "Snake Chain Watch",
-            "Green AD Jewellery Set",
-            "Floral Pendant Trio",
             "Halo Gift Ring",
             "Blue Charm Evil Eye Bracelet",
             "Cluster Gift Ring",
@@ -2334,7 +2322,17 @@
             "Floral Charm Pendant",
             "Bow Love Earrings",
             "Solitaire Promise Ring",
-            "Infinity Shine Ring"
+            "Infinity Shine Ring",
+            "Heart Halo Ring",
+            "Geometric Boxed Bracelet",
+            "Boxed Evil Eye Bracelet",
+            "Floral Statement Ring",
+            "Gold Rose Pendant",
+            "Minimal Heart Pendant",
+            "Snake Chain Watch",
+            "Green AD Jewellery Set",
+            "Floral Pendant Trio",
+            "Nail Motif Bangle"
           ],
           "blockedPhraseAnywhere": [],
           "httpStatus": 200,
@@ -2342,7 +2340,7 @@
           "missingAssets": []
         },
         "/collections/all": {
-          "rendererUsed": "shared client page renderer",
+          "rendererUsed": "shared storefront product-card renderer",
           "catalogueSourceUsed": "ShivaraCatalog v1",
           "productCount": 25,
           "pageTitle": "All products | Shivara",
@@ -2354,22 +2352,19 @@
           "fakeBadgesPresent": [],
           "duplicateEventListenersDetected": false,
           "commerceRenderPasses": 1,
-          "emptyStatePresent": true,
+          "emptyStatePresent": false,
           "emptyStateVisible": false,
           "productsAndEmptyStateVisible": false,
           "cssFiles": [
             "/css2",
-            "/styles.css",
-            "/storefront-v2.css",
-            "/atelier.css",
             "/commerce-stable.css"
           ],
           "javascriptFiles": [
             "/shop-data.js",
             "/catalog-overrides.js",
             "/catalog-data.js",
-            "/script.js",
-            "/motion-controller.js"
+            "/storefront-renderer.js",
+            "/script.js"
           ],
           "productIds": [
             "halo-gift-ring",
@@ -2431,7 +2426,7 @@
           "missingAssets": []
         },
         "/collections/new-arrivals": {
-          "rendererUsed": "shared client page renderer",
+          "rendererUsed": "shared storefront product-card renderer",
           "catalogueSourceUsed": "ShivaraCatalog v1",
           "productCount": 8,
           "pageTitle": "New Arrivals | Shivara",
@@ -2443,22 +2438,19 @@
           "fakeBadgesPresent": [],
           "duplicateEventListenersDetected": false,
           "commerceRenderPasses": 1,
-          "emptyStatePresent": true,
+          "emptyStatePresent": false,
           "emptyStateVisible": false,
           "productsAndEmptyStateVisible": false,
           "cssFiles": [
             "/css2",
-            "/styles.css",
-            "/storefront-v2.css",
-            "/atelier.css",
             "/commerce-stable.css"
           ],
           "javascriptFiles": [
             "/shop-data.js",
             "/catalog-overrides.js",
             "/catalog-data.js",
-            "/script.js",
-            "/motion-controller.js"
+            "/storefront-renderer.js",
+            "/script.js"
           ],
           "productIds": [
             "halo-gift-ring",
@@ -2486,7 +2478,7 @@
           "missingAssets": []
         },
         "/collections/rings": {
-          "rendererUsed": "shared client page renderer",
+          "rendererUsed": "shared storefront product-card renderer",
           "catalogueSourceUsed": "ShivaraCatalog v1",
           "productCount": 7,
           "pageTitle": "Rings | Shivara",
@@ -2498,22 +2490,19 @@
           "fakeBadgesPresent": [],
           "duplicateEventListenersDetected": false,
           "commerceRenderPasses": 1,
-          "emptyStatePresent": true,
+          "emptyStatePresent": false,
           "emptyStateVisible": false,
           "productsAndEmptyStateVisible": false,
           "cssFiles": [
             "/css2",
-            "/styles.css",
-            "/storefront-v2.css",
-            "/atelier.css",
             "/commerce-stable.css"
           ],
           "javascriptFiles": [
             "/shop-data.js",
             "/catalog-overrides.js",
             "/catalog-data.js",
-            "/script.js",
-            "/motion-controller.js"
+            "/storefront-renderer.js",
+            "/script.js"
           ],
           "productIds": [
             "halo-gift-ring",
@@ -2539,7 +2528,7 @@
           "missingAssets": []
         },
         "/collections/earrings": {
-          "rendererUsed": "shared client page renderer",
+          "rendererUsed": "shared storefront product-card renderer",
           "catalogueSourceUsed": "ShivaraCatalog v1",
           "productCount": 3,
           "pageTitle": "Earrings | Shivara",
@@ -2551,22 +2540,19 @@
           "fakeBadgesPresent": [],
           "duplicateEventListenersDetected": false,
           "commerceRenderPasses": 1,
-          "emptyStatePresent": true,
+          "emptyStatePresent": false,
           "emptyStateVisible": false,
           "productsAndEmptyStateVisible": false,
           "cssFiles": [
             "/css2",
-            "/styles.css",
-            "/storefront-v2.css",
-            "/atelier.css",
             "/commerce-stable.css"
           ],
           "javascriptFiles": [
             "/shop-data.js",
             "/catalog-overrides.js",
             "/catalog-data.js",
-            "/script.js",
-            "/motion-controller.js"
+            "/storefront-renderer.js",
+            "/script.js"
           ],
           "productIds": [
             "butterfly-earring-edit",
@@ -2584,7 +2570,7 @@
           "missingAssets": []
         },
         "/collections/bracelets": {
-          "rendererUsed": "shared client page renderer",
+          "rendererUsed": "shared storefront product-card renderer",
           "catalogueSourceUsed": "ShivaraCatalog v1",
           "productCount": 5,
           "pageTitle": "Bracelets | Shivara",
@@ -2596,22 +2582,19 @@
           "fakeBadgesPresent": [],
           "duplicateEventListenersDetected": false,
           "commerceRenderPasses": 1,
-          "emptyStatePresent": true,
+          "emptyStatePresent": false,
           "emptyStateVisible": false,
           "productsAndEmptyStateVisible": false,
           "cssFiles": [
             "/css2",
-            "/styles.css",
-            "/storefront-v2.css",
-            "/atelier.css",
             "/commerce-stable.css"
           ],
           "javascriptFiles": [
             "/shop-data.js",
             "/catalog-overrides.js",
             "/catalog-data.js",
-            "/script.js",
-            "/motion-controller.js"
+            "/storefront-renderer.js",
+            "/script.js"
           ],
           "productIds": [
             "blue-charm-evil-eye-bracelet",
@@ -2633,7 +2616,7 @@
           "missingAssets": []
         },
         "/collections/necklaces": {
-          "rendererUsed": "shared client page renderer",
+          "rendererUsed": "shared storefront product-card renderer",
           "catalogueSourceUsed": "ShivaraCatalog v1",
           "productCount": 7,
           "pageTitle": "Necklaces | Shivara",
@@ -2645,22 +2628,19 @@
           "fakeBadgesPresent": [],
           "duplicateEventListenersDetected": false,
           "commerceRenderPasses": 1,
-          "emptyStatePresent": true,
+          "emptyStatePresent": false,
           "emptyStateVisible": false,
           "productsAndEmptyStateVisible": false,
           "cssFiles": [
             "/css2",
-            "/styles.css",
-            "/storefront-v2.css",
-            "/atelier.css",
             "/commerce-stable.css"
           ],
           "javascriptFiles": [
             "/shop-data.js",
             "/catalog-overrides.js",
             "/catalog-data.js",
-            "/script.js",
-            "/motion-controller.js"
+            "/storefront-renderer.js",
+            "/script.js"
           ],
           "productIds": [
             "heart-pendant-edit",
@@ -2686,7 +2666,7 @@
           "missingAssets": []
         },
         "/collections/evil-eye": {
-          "rendererUsed": "shared client page renderer",
+          "rendererUsed": "shared storefront product-card renderer",
           "catalogueSourceUsed": "ShivaraCatalog v1",
           "productCount": 3,
           "pageTitle": "Evil Eye | Shivara",
@@ -2698,22 +2678,19 @@
           "fakeBadgesPresent": [],
           "duplicateEventListenersDetected": false,
           "commerceRenderPasses": 1,
-          "emptyStatePresent": true,
+          "emptyStatePresent": false,
           "emptyStateVisible": false,
           "productsAndEmptyStateVisible": false,
           "cssFiles": [
             "/css2",
-            "/styles.css",
-            "/storefront-v2.css",
-            "/atelier.css",
             "/commerce-stable.css"
           ],
           "javascriptFiles": [
             "/shop-data.js",
             "/catalog-overrides.js",
             "/catalog-data.js",
-            "/script.js",
-            "/motion-controller.js"
+            "/storefront-renderer.js",
+            "/script.js"
           ],
           "productIds": [
             "blue-charm-evil-eye-bracelet",
@@ -2731,7 +2708,7 @@
           "missingAssets": []
         },
         "/collections/anti-tarnish": {
-          "rendererUsed": "shared client page renderer",
+          "rendererUsed": "shared storefront product-card renderer",
           "catalogueSourceUsed": "ShivaraCatalog v1",
           "productCount": 16,
           "pageTitle": "Anti Tarnish | Shivara",
@@ -2743,22 +2720,19 @@
           "fakeBadgesPresent": [],
           "duplicateEventListenersDetected": false,
           "commerceRenderPasses": 1,
-          "emptyStatePresent": true,
+          "emptyStatePresent": false,
           "emptyStateVisible": false,
           "productsAndEmptyStateVisible": false,
           "cssFiles": [
             "/css2",
-            "/styles.css",
-            "/storefront-v2.css",
-            "/atelier.css",
             "/commerce-stable.css"
           ],
           "javascriptFiles": [
             "/shop-data.js",
             "/catalog-overrides.js",
             "/catalog-data.js",
-            "/script.js",
-            "/motion-controller.js"
+            "/storefront-renderer.js",
+            "/script.js"
           ],
           "productIds": [
             "halo-gift-ring",
@@ -2802,7 +2776,7 @@
           "missingAssets": []
         },
         "/collections/gifting": {
-          "rendererUsed": "shared client page renderer",
+          "rendererUsed": "shared storefront product-card renderer",
           "catalogueSourceUsed": "ShivaraCatalog v1",
           "productCount": 23,
           "pageTitle": "Gifting | Shivara",
@@ -2814,22 +2788,19 @@
           "fakeBadgesPresent": [],
           "duplicateEventListenersDetected": false,
           "commerceRenderPasses": 1,
-          "emptyStatePresent": true,
+          "emptyStatePresent": false,
           "emptyStateVisible": false,
           "productsAndEmptyStateVisible": false,
           "cssFiles": [
             "/css2",
-            "/styles.css",
-            "/storefront-v2.css",
-            "/atelier.css",
             "/commerce-stable.css"
           ],
           "javascriptFiles": [
             "/shop-data.js",
             "/catalog-overrides.js",
             "/catalog-data.js",
-            "/script.js",
-            "/motion-controller.js"
+            "/storefront-renderer.js",
+            "/script.js"
           ],
           "productIds": [
             "halo-gift-ring",
@@ -2904,31 +2875,28 @@
           "productsAndEmptyStateVisible": false,
           "cssFiles": [
             "/css2",
-            "/styles.css",
-            "/storefront-v2.css",
-            "/atelier.css",
             "/commerce-stable.css"
           ],
           "javascriptFiles": [
             "/shop-data.js",
             "/catalog-overrides.js",
             "/catalog-data.js",
-            "/script.js",
-            "/motion-controller.js"
+            "/storefront-renderer.js",
+            "/script.js"
           ],
           "productIds": [
-            "halo-gift-ring",
-            "blue-charm-evil-eye-bracelet",
-            "cluster-gift-ring",
             "heart-pendant-edit",
-            "crystal-halo-ring-pair"
+            "cherry-charm-pendant",
+            "floral-charm-pendant",
+            "gold-rose-pendant",
+            "minimal-heart-pendant"
           ],
           "productTitles": [
-            "Halo Gift Ring",
-            "Blue Charm Evil Eye Bracelet",
-            "Cluster Gift Ring",
             "Heart Pendant Edit",
-            "Crystal Halo Ring Pair"
+            "Cherry Charm Pendant",
+            "Floral Charm Pendant",
+            "Gold Rose Pendant",
+            "Minimal Heart Pendant"
           ],
           "blockedPhraseAnywhere": [],
           "httpStatus": 200,
@@ -2953,31 +2921,28 @@
           "productsAndEmptyStateVisible": false,
           "cssFiles": [
             "/css2",
-            "/styles.css",
-            "/storefront-v2.css",
-            "/atelier.css",
             "/commerce-stable.css"
           ],
           "javascriptFiles": [
             "/shop-data.js",
             "/catalog-overrides.js",
             "/catalog-data.js",
-            "/script.js",
-            "/motion-controller.js"
+            "/storefront-renderer.js",
+            "/script.js"
           ],
           "productIds": [
-            "blue-charm-evil-eye-bracelet",
             "cluster-gift-ring",
-            "heart-pendant-edit",
             "crystal-halo-ring-pair",
-            "butterfly-drop-necklace"
+            "solitaire-promise-ring",
+            "infinity-shine-ring",
+            "heart-halo-ring"
           ],
           "productTitles": [
-            "Blue Charm Evil Eye Bracelet",
             "Cluster Gift Ring",
-            "Heart Pendant Edit",
             "Crystal Halo Ring Pair",
-            "Butterfly Drop Necklace"
+            "Solitaire Promise Ring",
+            "Infinity Shine Ring",
+            "Heart Halo Ring"
           ],
           "blockedPhraseAnywhere": [],
           "httpStatus": 200,
@@ -3002,17 +2967,14 @@
           "productsAndEmptyStateVisible": false,
           "cssFiles": [
             "/css2",
-            "/styles.css",
-            "/storefront-v2.css",
-            "/atelier.css",
             "/commerce-stable.css"
           ],
           "javascriptFiles": [
             "/shop-data.js",
             "/catalog-overrides.js",
             "/catalog-data.js",
-            "/script.js",
-            "/motion-controller.js"
+            "/storefront-renderer.js",
+            "/script.js"
           ],
           "productIds": [],
           "productTitles": [],
