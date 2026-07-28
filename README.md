@@ -2,7 +2,7 @@
 
 A responsive website matched to the public Instagram profile [@shivara.luxe](https://www.instagram.com/shivara.luxe).
 
-Production storefront: https://dulcet-starburst-517553.netlify.app
+Production storefront: https://shivaraluxe.netlify.app
 
 Netlify runs `npm run build:netlify` and publishes `dist`. The build creates
 static product and collection routes from the curated catalogue, adds deployment

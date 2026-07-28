@@ -68,7 +68,7 @@ function withSeo(html, { title, description, canonical }) {
   return html
     .replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(title)}</title>`)
     .replace(/<meta name="description" content="[^"]*" \/>/, `<meta name="description" content="${escapeHtml(description)}" />`)
-    .replace("</head>", `<link rel="canonical" href="${escapeHtml(`https://dulcet-starburst-517553.netlify.app${canonical}`)}" /></head>`);
+    .replace("</head>", `<link rel="canonical" href="${escapeHtml(`https://shivaraluxe.netlify.app${canonical}`)}" /></head>`);
 }
 
 function write(relative, content) {
