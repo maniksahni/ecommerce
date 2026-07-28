@@ -126,13 +126,20 @@ async function main() {
   await page.keyboard.press("Escape");
 
   await page.goto(`${baseUrl}/products/tulip-pendant`, { waitUntil: "networkidle" });
+  await page.locator("[data-delivery-form] input").fill("243001");
+  await page.locator("[data-delivery-form]").evaluate((form) => form.requestSubmit());
+  assert((await page.locator("[data-delivery-result]").textContent()).includes("243001"), "delivery assistance validates and reflects an Indian pincode");
   await page.locator('[data-pdp-add="tulip-pendant"]').first().click();
   assert((await page.locator("#cart-lines").getByText("Tulip Pendant", { exact: true }).count()) === 1, "Add to Bag adds the correct product");
+  await page.locator("[data-cart-note]").fill("Gift wrap please");
   const cartHref = await page.locator(".stable-cart-footer a[href*='wa.me']").getAttribute("href");
   const cartMessage = decodeURIComponent(cartHref);
-  assert(cartMessage.includes("Tulip Pendant") && cartMessage.includes("SHV-PND-003") && cartMessage.includes("Quantity: 1") && cartMessage.includes("₹299"), "WhatsApp bag message contains product, SKU, quantity and confirmed price");
+  assert(cartMessage.includes("Tulip Pendant") && cartMessage.includes("SHV-PND-003") && cartMessage.includes("Quantity: 1") && cartMessage.includes("₹299") && cartMessage.includes("Gift wrap please"), "WhatsApp bag message contains product, SKU, quantity, confirmed price and order note");
   await page.reload({ waitUntil: "networkidle" });
   assert((await page.locator("[data-cart-count]").first().textContent()) === "1", "cart persists after refresh");
+  await page.locator("[data-cart-open]").click();
+  assert((await page.locator("[data-cart-note]").inputValue()) === "Gift wrap please", "cart order note persists after refresh");
+  await page.keyboard.press("Escape");
 
   await page.locator('[data-wishlist-toggle="tulip-pendant"]').first().click();
   await page.reload({ waitUntil: "networkidle" });
@@ -193,11 +200,17 @@ async function main() {
 
   const mobileContext = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   const mobilePage = await mobileContext.newPage();
+  await mobilePage.goto(baseUrl, { waitUntil: "networkidle" });
+  await mobilePage.locator("[data-menu-open]").click();
+  assert(await mobilePage.locator("#menu-drawer").getAttribute("aria-hidden") === "false", "mobile navigation drawer opens");
+  await mobilePage.locator("[data-menu-search]").click();
+  assert(await mobilePage.locator("#search-drawer").getAttribute("aria-hidden") === "false", "mobile drawer search opens the catalogue search");
+  await mobilePage.keyboard.press("Escape");
   await mobilePage.goto(`${baseUrl}/collections/all`, { waitUntil: "networkidle" });
-  const filtersFit = await mobilePage.locator(".stable-filters fieldset").evaluate((fieldset) => (
+  const filtersFit = await mobilePage.locator(".stable-filters fieldset").evaluateAll((fieldsets) => fieldsets.every((fieldset) => (
     fieldset.scrollWidth <= fieldset.clientWidth &&
     [...fieldset.querySelectorAll("label")].every((label) => label.getBoundingClientRect().right <= fieldset.getBoundingClientRect().right + 1)
-  ));
+  )));
   assert(filtersFit, "390px collection filters remain fully visible");
   await mobilePage.goto(`${baseUrl}/products/tulip-pendant`, { waitUntil: "networkidle" });
   assert(!await mobilePage.locator(".stable-mobile-buy").evaluate((bar) => bar.classList.contains("is-visible")), "mobile sticky Add to Bag does not cover initial product content");

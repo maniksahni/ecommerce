@@ -17,6 +17,7 @@
   const whatsappNumber = "919457041215";
   const storageKeys = {
     cart: "shivara-cart-v3",
+    cartNote: "shivara-cart-note-v1",
     wishlist: "shivara-wishlist-v3",
     recent: "shivara-recent-v2",
     legacyCart: "shivara-cart-v2",
@@ -59,6 +60,7 @@
   const normalizedMigratedCart = normalizeCart(migratedCart);
   const wishlistItems = readVersionedItems(storageKeys.wishlist, storageKeys.legacyWishlist);
   let cart = normalizedMigratedCart;
+  let cartNote = String(localStorage.getItem(storageKeys.cartNote) || "").slice(0, 240);
   const wishlist = new Set(wishlistItems.filter((id) => productMap.has(id)));
   if (migratedCart.length !== cart.length) console.info(`[Shivara] Discarded ${migratedCart.length - cart.length} invalid legacy cart item(s).`);
   if (wishlistItems.length !== wishlist.size) console.info(`[Shivara] Discarded ${wishlistItems.length - wishlist.size} invalid legacy wishlist item(s).`);
@@ -197,10 +199,14 @@
   }
 
   function layerShell() {
+    const menuFeature = productMap.get("boxed-evil-eye-bracelet") || products[0];
     return `<div class="stable-backdrop" data-layer-close hidden></div>
       <aside class="stable-drawer stable-drawer--menu" id="menu-drawer" role="dialog" aria-modal="true" aria-labelledby="menu-title" aria-hidden="true">
-        <div class="stable-layer__head"><h2 id="menu-title">Shop Shivara</h2><button type="button" data-layer-close aria-label="Close menu">×</button></div>
-        <nav>${categoryRail.map(([label, slug]) => `<a href="${collectionUrl(slug)}">${label}<span>→</span></a>`).join("")}<a href="/collections/all">All Products<span>→</span></a></nav>
+        <div class="stable-layer__head"><div><small>JEWELLERY ATELIER</small><h2 id="menu-title">Shop Shivara</h2></div><button type="button" data-layer-close aria-label="Close menu">×</button></div>
+        <div class="stable-menu-utility"><button type="button" data-menu-search>Search products <span>⌕</span></button><a href="/wishlist">Your wishlist <span data-wishlist-count>0</span></a></div>
+        <nav><small>SHOP BY CATEGORY</small>${categoryRail.map(([label, slug]) => `<a href="${collectionUrl(slug)}">${label}<span>${productsForCollection(slug).length}</span></a>`).join("")}<a href="/collections/all"><strong>All Products</strong><span>${products.length}</span></a></nav>
+        <a class="stable-menu-feature" href="${productUrl(menuFeature)}"><img src="/${escapeHtml(menuFeature.images[0])}" alt="${escapeHtml(menuFeature.imageAlt)}" /><span><small>THE SHIVARA EDIT</small><strong>${escapeHtml(menuFeature.title)}</strong><em>View product →</em></span></a>
+        <div class="stable-menu-help"><p>Need help choosing?</p><a href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hi Shivara, I would like help choosing a jewellery piece.")}" target="_blank" rel="noreferrer">Chat with Shivara on WhatsApp</a></div>
       </aside>
       <aside class="stable-drawer stable-drawer--search" id="search-drawer" role="dialog" aria-modal="true" aria-labelledby="search-title" aria-hidden="true">
         <div class="stable-layer__head"><div><small>DISCOVER THE EDIT</small><h2 id="search-title">Search Shivara</h2></div><button type="button" data-layer-close aria-label="Close search">×</button></div>
@@ -361,6 +367,7 @@
     });
     if (summary.confirmedTotal) lines.push(`Confirmed-price subtotal: ${formatMoney(summary.confirmedTotal)}`);
     if (summary.enquiryCount) lines.push(`${summary.enquiryCount} item(s) require price confirmation.`);
+    if (cartNote.trim()) lines.push(`Order note: ${cartNote.trim()}`);
     lines.push("Please confirm availability, final payable total, delivery and payment details.");
     return lines.join("\n");
   }
@@ -391,7 +398,7 @@
     lines.innerHTML = `${confirmed.length ? `<h3 class="stable-cart-group">Confirmed items</h3>${confirmed.map(renderLine).join("")}` : ""}${enquiries.length ? `<h3 class="stable-cart-group">Price confirmation needed</h3>${enquiries.map(renderLine).join("")}` : ""}`;
     const summary = cartSummary();
     const complement = catalogApi.getRelatedProducts(productMap.get(cart[0].id)).find((product) => !cart.some((item) => item.id === product.id));
-    footer.innerHTML = `${complement ? `<article class="stable-cart-complement"><img src="/${escapeHtml(complement.images[0])}" alt="" /><div><small>COMPLETE THE EDIT</small><strong>${escapeHtml(complement.title)}</strong>${priceMarkup(complement, "stable-search-price")}</div><button type="button" data-quick-view="${complement.id}">View</button></article>` : ""}<div class="stable-cart-total"><span>Confirmed-price subtotal</span><strong>${formatMoney(summary.confirmedTotal)}</strong></div>${summary.enquiryCount ? `<p>${summary.enquiryCount} item(s) need price confirmation and are not included in the subtotal.</p>` : ""}<a class="stable-button stable-button--whatsapp" href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent(cartMessage())}" target="_blank" rel="noreferrer">Continue on WhatsApp</a><button class="stable-button stable-button--plain" type="button" data-layer-close>Continue Shopping</button>`;
+    footer.innerHTML = `${complement ? `<article class="stable-cart-complement"><img src="/${escapeHtml(complement.images[0])}" alt="" /><div><small>COMPLETE THE EDIT</small><strong>${escapeHtml(complement.title)}</strong>${priceMarkup(complement, "stable-search-price")}</div><button type="button" data-quick-view="${complement.id}">View</button></article>` : ""}<label class="stable-cart-note"><span>Order note or gifting request <small>Optional</small></span><textarea data-cart-note maxlength="240" rows="2" placeholder="Gift message, preferred delivery date, or anything Shivara should know">${escapeHtml(cartNote)}</textarea></label><div class="stable-cart-total"><span>Confirmed-price subtotal</span><strong>${formatMoney(summary.confirmedTotal)}</strong></div>${summary.enquiryCount ? `<p>${summary.enquiryCount} item(s) need price confirmation and are not included in the subtotal.</p>` : ""}<div class="stable-cart-service"><span>✓ Catalogue-verified products</span><span>✓ Final total confirmed before payment</span></div><a class="stable-button stable-button--whatsapp" data-cart-whatsapp href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent(cartMessage())}" target="_blank" rel="noreferrer">Send order enquiry on WhatsApp</a><button class="stable-button stable-button--plain" type="button" data-layer-close>Continue Shopping</button>`;
     updateCounts();
   }
 
@@ -516,7 +523,7 @@
 
   function collectionState() {
     const params = new URLSearchParams(location.search);
-    return { sort: params.get("sort") || "featured", price: params.get("price") || "all", query: params.get("q") || "" };
+    return { sort: params.get("sort") || "featured", price: params.get("price") || "all", category: params.get("category") || "all", query: params.get("q") || "" };
   }
 
   function updateCollectionState(state, { replace = false } = {}) {
@@ -524,6 +531,7 @@
     const params = new URLSearchParams();
     if (state.sort !== "featured") params.set("sort", state.sort);
     if (state.price !== "all") params.set("price", state.price);
+    if (state.category && state.category !== "all") params.set("category", state.category);
     if (state.query?.trim()) params.set("q", state.query.trim());
     history[replace ? "replaceState" : "pushState"]({}, "", `${location.pathname}${params.size ? `?${params}` : ""}`);
     renderCollection();
@@ -537,6 +545,9 @@
     let selected = productsForCollection(slug);
     if (state.price === "confirmed") selected = selected.filter((product) => pricing(product).confirmed);
     if (state.price === "enquiry") selected = selected.filter((product) => !pricing(product).confirmed);
+    if (slug === "all" && state.category !== "all" && categoryMeta[state.category]) {
+      selected = selected.filter((product) => product.category === state.category || (product.collections || []).includes(state.category));
+    }
     if (state.query.trim()) {
       const query = state.query.trim().toLowerCase();
       selected = selected.filter((product) => [
@@ -563,12 +574,13 @@
     document.querySelectorAll(".stable-collection-chips a").forEach((link) => {
       link.classList.toggle("is-active", link.pathname === location.pathname);
     });
-    document.querySelector("#collection-filters").innerHTML = `<fieldset><legend>Price status</legend>${[["all", "All products"], ["confirmed", "Confirmed price"], ["enquiry", "Price on request"]].map(([value, label]) => `<label><input type="radio" name="price-filter" value="${value}" ${state.price === value ? "checked" : ""} />${label}</label>`).join("")}</fieldset><nav><strong>Collections</strong>${Object.entries(categoryMeta).map(([key, item]) => `<a class="${key === slug ? "is-active" : ""}" href="${collectionUrl(key)}">${item.title}<span>${productsForCollection(key).length}</span></a>`).join("")}</nav>`;
+    const categoryFilter = slug === "all" ? `<fieldset><legend>Product type</legend>${[["all", "All types"], ...Object.entries(categoryMeta).filter(([key]) => !["all", "new-arrivals"].includes(key)).map(([key, item]) => [key, item.title])].map(([value, label]) => `<label><input type="radio" name="category-filter" value="${value}" ${state.category === value ? "checked" : ""} />${label}</label>`).join("")}</fieldset>` : "";
+    document.querySelector("#collection-filters").innerHTML = `<fieldset><legend>Price status</legend>${[["all", "All products"], ["confirmed", "Confirmed price"], ["enquiry", "Price on request"]].map(([value, label]) => `<label><input type="radio" name="price-filter" value="${value}" ${state.price === value ? "checked" : ""} />${label}</label>`).join("")}</fieldset>${categoryFilter}<nav><strong>Collections</strong>${Object.entries(categoryMeta).map(([key, item]) => `<a class="${key === slug ? "is-active" : ""}" href="${collectionUrl(key)}">${item.title}<span>${productsForCollection(key).length}</span></a>`).join("")}</nav>`;
     const grid = document.querySelector("#collection-grid");
     const visible = selected.slice(0, collectionVisible);
     const renderedIds = [...grid.querySelectorAll("[data-product-card]")].map((card) => card.dataset.productCard);
     const selectedIds = visible.map((product) => product.id);
-    const defaultState = state.sort === "featured" && state.price === "all";
+    const defaultState = state.sort === "featured" && state.price === "all" && state.category === "all";
     const serverMarkupMatches = renderedIds.length === selectedIds.length && renderedIds.every((id, index) => id === selectedIds[index]);
     if (!(hydrateServerMarkup && defaultState && serverMarkupMatches)) renderGrid(grid, visible);
     grid.hidden = !selected.length;
@@ -579,7 +591,7 @@
     }
     document.querySelector("#collection-empty")?.remove();
     if (!selected.length) {
-      const filtered = state.price !== "all" || Boolean(state.query);
+      const filtered = state.price !== "all" || state.category !== "all" || Boolean(state.query);
       grid.insertAdjacentHTML("afterend", `<div class="stable-empty" id="collection-empty"><h2>${filtered ? "No products match these filters" : "No products are currently available"}</h2><p>${filtered ? "Clear the active filters to see the complete curated collection." : "Explore the complete catalogue while this edit is updated."}</p>${filtered ? '<button class="stable-button stable-button--dark" type="button" data-clear-filters>Clear Filters</button>' : '<a href="/collections/all">Browse all products</a>'}</div>`);
     }
     syncWishlistControls();
@@ -615,6 +627,7 @@
     }
     updatePdpWhatsapp(product);
     setupMobileBuyBar();
+    setupPdpGallery();
     if (sessionStorage.getItem("shivara-transition-product") === product.id) {
       const destinationImage = mount.querySelector(".stable-pdp__gallery img");
       if (destinationImage) {
@@ -646,6 +659,26 @@
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule, { passive: true });
     document.addEventListener("shivara:modal-change", schedule);
+    update();
+  }
+
+  function setupPdpGallery() {
+    const gallery = document.querySelector("#pdp-gallery");
+    if (!gallery || gallery.dataset.galleryReady) return;
+    gallery.dataset.galleryReady = "true";
+    let scheduled = false;
+    const update = () => {
+      scheduled = false;
+      const index = Math.max(0, Math.round(gallery.scrollLeft / Math.max(1, gallery.clientWidth)));
+      document.querySelectorAll("[data-pdp-thumb]").forEach((button, buttonIndex) => button.classList.toggle("is-active", buttonIndex === index));
+      const count = document.querySelector("[data-pdp-gallery-count]");
+      if (count) count.textContent = `${index + 1} / ${gallery.children.length}`;
+    };
+    gallery.addEventListener("scroll", () => {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(update);
+    }, { passive: true });
     update();
   }
 
@@ -712,6 +745,11 @@
       return;
     }
     if (target.closest("[data-menu-open]")) return openLayer("#menu-drawer", target.closest("[data-menu-open]"));
+    if (target.closest("[data-menu-search]")) {
+      renderSearch();
+      closeLayer(false);
+      return openLayer("#search-drawer", document.querySelector(".stable-header [data-search-open]"));
+    }
     if (target.closest("[data-search-open]")) {
       renderSearch();
       return openLayer("#search-drawer", target.closest("[data-search-open]"));
@@ -722,7 +760,7 @@
     }
     if (target.closest("[data-layer-close]")) return closeLayer();
     if (target.closest("[data-account]")) return showToast("Customer accounts are coming soon");
-    if (target.closest("[data-clear-filters]")) return updateCollectionState({ sort: "featured", price: "all", query: "" });
+    if (target.closest("[data-clear-filters]")) return updateCollectionState({ sort: "featured", price: "all", category: "all", query: "" });
     const filterToggle = target.closest("[data-filter-toggle]");
     if (filterToggle) {
       const filters = document.querySelector("#collection-filters");
@@ -849,11 +887,18 @@
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => updateCollectionState({ ...collectionState(), query: event.target.value }, { replace: true }), 180);
     }
+    if (event.target.matches("[data-cart-note]")) {
+      cartNote = event.target.value.slice(0, 240);
+      localStorage.setItem(storageKeys.cartNote, cartNote);
+      const link = document.querySelector("[data-cart-whatsapp]");
+      if (link) link.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(cartMessage())}`;
+    }
   });
 
   document.addEventListener("change", (event) => {
     if (event.target.matches("#collection-sort")) updateCollectionState({ ...collectionState(), sort: event.target.value });
     if (event.target.matches('input[name="price-filter"]')) updateCollectionState({ ...collectionState(), price: event.target.value });
+    if (event.target.matches('input[name="category-filter"]')) updateCollectionState({ ...collectionState(), category: event.target.value });
     if (event.target.matches('input[name="pdp-variant"]')) {
       const product = productMap.get(decodeURIComponent(location.pathname.split("/").filter(Boolean)[1] || ""));
       updatePdpWhatsapp(product);
@@ -870,6 +915,33 @@
     if (activeLayer?.id === "search-drawer" && event.key === "Enter" && event.target.matches("#stable-search")) {
       activeLayer.querySelector("[data-product-card] a")?.click();
     }
+    if (activeLayer?.id === "quick-view" && ["ArrowLeft", "ArrowRight"].includes(event.key) && quickState.product?.images.length > 1) {
+      event.preventDefault();
+      const direction = event.key === "ArrowLeft" ? -1 : 1;
+      const total = [...new Set(quickState.product.images)].length;
+      quickState.image = (quickState.image + direction + total) % total;
+      document.querySelectorAll("[data-quick-media]").forEach((media, index) => media.classList.toggle("is-active", index === quickState.image));
+      document.querySelectorAll("[data-quick-thumb]").forEach((thumb, index) => thumb.classList.toggle("is-active", index === quickState.image));
+      const pagination = document.querySelector(".stable-quick__pagination");
+      if (pagination) pagination.textContent = `${quickState.image + 1} / ${total}`;
+    }
+  });
+
+  document.addEventListener("submit", (event) => {
+    const form = event.target.closest?.("[data-delivery-form]");
+    if (!form) return;
+    event.preventDefault();
+    const input = form.querySelector('input[name="pincode"]');
+    const result = document.querySelector("[data-delivery-result]");
+    const pincode = String(input?.value || "").trim();
+    if (!/^[1-9][0-9]{5}$/.test(pincode)) {
+      input?.setAttribute("aria-invalid", "true");
+      if (result) result.textContent = "Enter a valid 6-digit Indian pincode.";
+      input?.focus();
+      return;
+    }
+    input.removeAttribute("aria-invalid");
+    if (result) result.innerHTML = `Shivara serves PAN India. Delivery timeline and charges for <strong>${escapeHtml(pincode)}</strong> will be confirmed on WhatsApp before payment.`;
   });
 
   window.addEventListener("popstate", () => {
