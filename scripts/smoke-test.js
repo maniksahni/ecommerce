@@ -99,6 +99,9 @@ async function main() {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const { page, errors } = await pageWithErrors(context);
   await page.goto(baseUrl, { waitUntil: "networkidle" });
+  const initialAnnouncement = await page.locator("[data-announcement-text]").textContent();
+  await page.waitForFunction((initial) => document.querySelector("[data-announcement-text]")?.textContent !== initial, initialAnnouncement, { timeout: 6000 });
+  assert(await page.locator("[data-announcement-text]").textContent() !== initialAnnouncement, "announcement bar rotates automatically");
   const bootstrapState = await page.evaluate(() => ({
     build: window.SHIVARA_BUILD_INFO,
     api: Boolean(window.ShivaraCatalog),

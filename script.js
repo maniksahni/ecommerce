@@ -75,6 +75,7 @@
   let heroIndex = 0;
   let signatureIndex = 0;
   let announcementIndex = 0;
+  let announcementTimer = 0;
   let searchTimer = 0;
   let collectionVisible = 24;
 
@@ -241,6 +242,21 @@
   function renderAnnouncement() {
     const node = document.querySelector("[data-announcement-text]");
     if (node) node.textContent = announcements[announcementIndex];
+  }
+
+  function advanceAnnouncement(direction = 1) {
+    announcementIndex = (announcementIndex + direction + announcements.length) % announcements.length;
+    renderAnnouncement();
+  }
+
+  function scheduleAnnouncementRotation() {
+    window.clearTimeout(announcementTimer);
+    if (document.hidden || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    announcementTimer = window.setTimeout(() => {
+      const bar = document.querySelector(".stable-announcement");
+      if (!bar?.matches(":hover") && !bar?.contains(document.activeElement)) advanceAnnouncement();
+      scheduleAnnouncementRotation();
+    }, 4000);
   }
 
   function openLayer(selector, trigger) {
@@ -740,8 +756,8 @@
     const target = event.target instanceof Element ? event.target : null;
     if (!target) return;
     if (target.closest("[data-announcement-prev], [data-announcement-next]")) {
-      announcementIndex = (announcementIndex + (target.closest("[data-announcement-prev]") ? -1 : 1) + announcements.length) % announcements.length;
-      renderAnnouncement();
+      advanceAnnouncement(target.closest("[data-announcement-prev]") ? -1 : 1);
+      scheduleAnnouncementRotation();
       return;
     }
     if (target.closest("[data-menu-open]")) return openLayer("#menu-drawer", target.closest("[data-menu-open]"));
@@ -950,11 +966,13 @@
   });
   document.addEventListener("visibilitychange", () => {
     document.body.classList.toggle("stable-page-hidden", document.hidden);
+    scheduleAnnouncementRotation();
   });
 
   async function bootstrapStorefront() {
     if (!catalogApi.getAllProducts().length) throw new Error("Curated catalogue integrity check failed during bootstrap");
     renderChrome();
+    scheduleAnnouncementRotation();
     renderHome();
     renderCollection({ hydrateServerMarkup: true });
     renderProductPage();
