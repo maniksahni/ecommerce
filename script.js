@@ -516,15 +516,16 @@
 
   function collectionState() {
     const params = new URLSearchParams(location.search);
-    return { sort: params.get("sort") || "featured", price: params.get("price") || "all" };
+    return { sort: params.get("sort") || "featured", price: params.get("price") || "all", query: params.get("q") || "" };
   }
 
-  function updateCollectionState(state) {
+  function updateCollectionState(state, { replace = false } = {}) {
     collectionVisible = 24;
     const params = new URLSearchParams();
     if (state.sort !== "featured") params.set("sort", state.sort);
     if (state.price !== "all") params.set("price", state.price);
-    history.pushState({}, "", `${location.pathname}${params.size ? `?${params}` : ""}`);
+    if (state.query?.trim()) params.set("q", state.query.trim());
+    history[replace ? "replaceState" : "pushState"]({}, "", `${location.pathname}${params.size ? `?${params}` : ""}`);
     renderCollection();
   }
 
@@ -536,6 +537,15 @@
     let selected = productsForCollection(slug);
     if (state.price === "confirmed") selected = selected.filter((product) => pricing(product).confirmed);
     if (state.price === "enquiry") selected = selected.filter((product) => !pricing(product).confirmed);
+    if (state.query.trim()) {
+      const query = state.query.trim().toLowerCase();
+      selected = selected.filter((product) => [
+        product.title,
+        product.sku,
+        product.category,
+        ...(product.collections || [])
+      ].some((value) => String(value || "").toLowerCase().includes(query)));
+    }
     if (state.sort === "newest") selected.sort((a, b) => b.sourceIndex - a.sourceIndex);
     if (state.sort === "price-low") selected.sort((a, b) => (pricing(a).price ?? Infinity) - (pricing(b).price ?? Infinity));
     if (state.sort === "price-high") selected.sort((a, b) => (pricing(b).price ?? -1) - (pricing(a).price ?? -1));
@@ -547,6 +557,12 @@
     document.querySelector("[data-collection-breadcrumb]").textContent = meta.title;
     document.querySelector("[data-collection-count]").textContent = `${selected.length} ${selected.length === 1 ? "product" : "products"}`;
     document.querySelector("#collection-sort").value = state.sort;
+    const collectionSearch = document.querySelector("#collection-search");
+    if (collectionSearch && collectionSearch.value !== state.query) collectionSearch.value = state.query;
+    document.querySelector("[data-collection-search-clear]")?.toggleAttribute("hidden", !state.query);
+    document.querySelectorAll(".stable-collection-chips a").forEach((link) => {
+      link.classList.toggle("is-active", link.pathname === location.pathname);
+    });
     document.querySelector("#collection-filters").innerHTML = `<fieldset><legend>Price status</legend>${[["all", "All products"], ["confirmed", "Confirmed price"], ["enquiry", "Price on request"]].map(([value, label]) => `<label><input type="radio" name="price-filter" value="${value}" ${state.price === value ? "checked" : ""} />${label}</label>`).join("")}</fieldset><nav><strong>Collections</strong>${Object.entries(categoryMeta).map(([key, item]) => `<a class="${key === slug ? "is-active" : ""}" href="${collectionUrl(key)}">${item.title}<span>${productsForCollection(key).length}</span></a>`).join("")}</nav>`;
     const grid = document.querySelector("#collection-grid");
     const visible = selected.slice(0, collectionVisible);
@@ -563,7 +579,7 @@
     }
     document.querySelector("#collection-empty")?.remove();
     if (!selected.length) {
-      const filtered = state.price !== "all";
+      const filtered = state.price !== "all" || Boolean(state.query);
       grid.insertAdjacentHTML("afterend", `<div class="stable-empty" id="collection-empty"><h2>${filtered ? "No products match these filters" : "No products are currently available"}</h2><p>${filtered ? "Clear the active filters to see the complete curated collection." : "Explore the complete catalogue while this edit is updated."}</p>${filtered ? '<button class="stable-button stable-button--dark" type="button" data-clear-filters>Clear Filters</button>' : '<a href="/collections/all">Browse all products</a>'}</div>`);
     }
     syncWishlistControls();
@@ -706,7 +722,20 @@
     }
     if (target.closest("[data-layer-close]")) return closeLayer();
     if (target.closest("[data-account]")) return showToast("Customer accounts are coming soon");
-    if (target.closest("[data-clear-filters]")) return updateCollectionState({ sort: "featured", price: "all" });
+    if (target.closest("[data-clear-filters]")) return updateCollectionState({ sort: "featured", price: "all", query: "" });
+    const filterToggle = target.closest("[data-filter-toggle]");
+    if (filterToggle) {
+      const filters = document.querySelector("#collection-filters");
+      const expanded = filterToggle.getAttribute("aria-expanded") === "true";
+      filterToggle.setAttribute("aria-expanded", String(!expanded));
+      filters?.classList.toggle("is-open", !expanded);
+      return;
+    }
+    if (target.closest("[data-collection-search-clear]")) {
+      updateCollectionState({ ...collectionState(), query: "" });
+      document.querySelector("#collection-search")?.focus();
+      return;
+    }
     if (target.closest("[data-load-more]")) {
       collectionVisible += 24;
       renderCollection();
@@ -815,6 +844,10 @@
     if (event.target.matches("#stable-search")) {
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => renderSearch(event.target.value), 90);
+    }
+    if (event.target.matches("#collection-search")) {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => updateCollectionState({ ...collectionState(), query: event.target.value }, { replace: true }), 180);
     }
   });
 

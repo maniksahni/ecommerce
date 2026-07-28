@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Italiana&amp;display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/commerce-stable.css?v=2" />
+    <link rel="stylesheet" href="/commerce-stable.css?v=3" />
   </head>
   <body data-page="collection" data-collection="all" class="catalog-stable">
     <a class="visually-hidden skip-to-content" href="#main">Skip to content</a>
@@ -20,9 +20,30 @@
         <h1 data-collection-title>All products</h1>
         <p data-collection-description>Browse Shivara products that have been manually reviewed for catalogue accuracy.</p>
       </header>
+      <nav class="stable-collection-chips" aria-label="Shop by category">
+        <a href="/collections/all">All</a>
+        <a href="/collections/new-arrivals">New</a>
+        <a href="/collections/earrings">Earrings</a>
+        <a href="/collections/necklaces">Neck Wear</a>
+        <a href="/collections/bracelets">Bracelets</a>
+        <a href="/collections/rings">Rings</a>
+        <a href="/collections/evil-eye">Evil Eye</a>
+        <a href="/collections/watches">Watches</a>
+      </nav>
+      <div class="stable-collection-search">
+        <label for="collection-search">Search this collection</label>
+        <div>
+          <span aria-hidden="true">⌕</span>
+          <input id="collection-search" type="search" inputmode="search" autocomplete="off" placeholder="Search jewellery" />
+          <button type="button" data-collection-search-clear aria-label="Clear collection search" hidden>×</button>
+        </div>
+      </div>
       <div class="stable-collection-toolbar">
         <strong data-collection-count>0 products</strong>
-        <label>Sort <select id="collection-sort"><option value="featured">Featured</option><option value="newest">Newest</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="title">Alphabetical</option></select></label>
+        <div class="stable-collection-toolbar__actions">
+          <button type="button" data-filter-toggle aria-expanded="false" aria-controls="collection-filters">Filter</button>
+          <label><span>Sort</span><select id="collection-sort" aria-label="Sort products"><option value="featured">Featured</option><option value="newest">Newest</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="title">Alphabetical</option></select></label>
+        </div>
       </div>
       <div class="stable-collection-layout">
         <aside class="stable-filters" id="collection-filters"></aside>
@@ -34,7 +55,7 @@
     <script src="/catalog-supplement.js?v=3"></script>
     <script src="/catalog-overrides.js?v=3"></script>
     <script src="/catalog-data.js?v=3"></script>
-    <script src="/storefront-renderer.js?v=1"></script>
-    <script src="/script.js?v=stable-2"></script>
+    <script src="/storefront-renderer.js?v=2"></script>
+    <script src="/script.js?v=stable-3"></script>
   </body>
 </html>

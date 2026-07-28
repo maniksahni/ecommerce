@@ -75,7 +75,7 @@
         </a>
         ${badge ? `<span class="stable-card__badge">${escapeHtml(badge)}</span>` : ""}
         <button class="stable-card__wish ${isWishlisted ? "is-active" : ""}" type="button" data-wishlist-toggle="${escapeHtml(product.id)}" aria-label="${isWishlisted ? "Remove" : "Save"} ${escapeHtml(product.title)}" aria-pressed="${isWishlisted}">♡</button>
-        <button class="stable-card__quick" type="button" data-quick-view="${escapeHtml(product.id)}">Quick View</button>
+        <button class="stable-card__quick" type="button" data-quick-view="${escapeHtml(product.id)}" aria-label="Quick view ${escapeHtml(product.title)}" title="Quick view"><span aria-hidden="true">⌕</span><span>Quick view</span></button>
       </div>
       <div class="stable-card__body">
         <small class="stable-card__category">${escapeHtml(categoryLabels[product.category] || product.category)}</small>
