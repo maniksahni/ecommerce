@@ -207,6 +207,8 @@ async function main() {
   assert(await mobilePage.locator("#search-drawer").getAttribute("aria-hidden") === "false", "mobile drawer search opens the catalogue search");
   await mobilePage.keyboard.press("Escape");
   await mobilePage.goto(`${baseUrl}/collections/all`, { waitUntil: "networkidle" });
+  const mobileToolbarPosition = await mobilePage.locator(".stable-collection-toolbar").evaluate((toolbar) => getComputedStyle(toolbar).position);
+  assert(mobileToolbarPosition === "static", "mobile collection Filter toolbar stays in the document flow");
   const filtersFit = await mobilePage.locator(".stable-filters fieldset").evaluateAll((fieldsets) => fieldsets.every((fieldset) => (
     fieldset.scrollWidth <= fieldset.clientWidth &&
     [...fieldset.querySelectorAll("label")].every((label) => label.getBoundingClientRect().right <= fieldset.getBoundingClientRect().right + 1)

@@ -760,7 +760,7 @@ body.catalog-stable a { color: inherit; }
   .stable-collection-search > label { display: none; }
   .stable-collection-search > div { min-height: 38px; }
   .stable-collection-search input { min-height: 36px; font-size: 11px; }
-  .stable-collection-toolbar { position: sticky; z-index: 8; top: 56px; padding: 8px 0; background: var(--stable-paper); }
+  .stable-collection-toolbar { position: static; padding: 8px 0; background: var(--stable-paper); }
   .stable-collection-layout { padding-top: 10px; }
   .stable-filters fieldset { grid-template-columns: repeat(3, 1fr); }
   .stable-filters label {
