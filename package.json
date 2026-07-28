@@ -10,7 +10,9 @@
     "test:smoke": "node scripts/smoke-test.js",
     "test:experience": "node scripts/experience-test.js",
     "test:storefront": "node scripts/storefront-consistency-test.js",
-    "test:production": "node scripts/production-test.js"
+    "test:production": "node scripts/production-test.js",
+    "build:netlify": "node scripts/netlify-build.js",
+    "test:netlify": "npm run build:netlify && node scripts/netlify-build-test.js"
   },
   "devDependencies": {
     "playwright": "1.61.1"

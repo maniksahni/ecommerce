@@ -6,7 +6,7 @@ const { chromium } = require("playwright");
 const { loadCatalog } = require("./catalog-lib");
 
 const root = path.resolve(__dirname, "..");
-const baseUrl = (process.env.PRODUCTION_URL || "https://shivara.up.railway.app").replace(/\/$/, "");
+const baseUrl = (process.env.PRODUCTION_URL || "https://dulcet-starburst-517553.netlify.app").replace(/\/$/, "");
 const expectedCommit = process.env.EXPECTED_COMMIT || execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
 const chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const blockedTitles = [
