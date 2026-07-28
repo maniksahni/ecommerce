@@ -23,6 +23,9 @@ check(fs.existsSync(path.join(dist, "collections/rings/index.html")), "readable 
 check(!fs.existsSync(path.join(dist, "products/packaging-little-happiness/index.html")), "social content cannot receive a product route");
 check(fs.existsSync(path.join(dist, "404.html")), "static 404 page is generated");
 check(fs.existsSync(path.join(dist, "_headers")), "Netlify deployment headers are generated");
+const redirects = fs.readFileSync(path.join(dist, "_redirects"), "utf8");
+check(redirects.includes("/collections/rings /collections/rings/index.html 200!"), "collection routes bypass directory redirects");
+check(redirects.includes("/products/DW3H_GZDD_4 /products/boxed-evil-eye-bracelet 301!"), "verified legacy IDs redirect to curated slugs");
 check(
   catalogApi.getAllProducts().every((product) => fs.existsSync(path.join(dist, `products/${product.slug}/index.html`))),
   "every curated product has a static route"

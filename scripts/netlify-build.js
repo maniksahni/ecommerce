@@ -38,7 +38,7 @@ const publicFiles = [
 
 const collectionMeta = {
   all: ["All products", "THE COMPLETE CATALOGUE", "Browse Shivara products that have been manually reviewed for catalogue accuracy."],
-  "new-arrivals": ["New arrivals", "JUST IN", "Discover the newest verified additions to the Shivara edit."],
+  "new-arrivals": ["New Arrivals", "JUST IN", "Discover the newest verified additions to the Shivara edit."],
   earrings: ["Earrings", "FRAME THE FACE", "Explore curated Shivara earrings for everyday and occasion styling."],
   necklaces: ["Neck wear", "LAYER YOUR STORY", "Shop necklaces and neck wear selected for effortless styling."],
   pendants: ["Pendants", "SMALL DETAILS", "Discover expressive pendants from the curated Shivara catalogue."],
@@ -125,5 +125,15 @@ for (const product of catalogApi.getAllProducts()) {
 write("netlify-build-info.js", `window.SHIVARA_BUILD_INFO=Object.freeze(${JSON.stringify(buildInfo)});\n`);
 write("404.html", stamp(`<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Page not found | Shivara</title><link rel="stylesheet" href="/commerce-stable.css?v=4"></head><body class="catalog-stable"><main class="stable-empty" style="min-height:100vh;display:grid;place-content:center;text-align:center;padding:24px"><p>404</p><h1 style="font:400 52px/1 Italiana,serif;letter-spacing:0">Page not found</h1><p>This page is not part of the curated Shivara catalogue.</p><a class="stable-button stable-button--dark" href="/collections/all">Browse jewellery</a></main></body></html>`));
 write("_headers", `/*\n  X-Shivara-Build: ${buildInfo.commit}\n  X-Shivara-Catalog-Version: ${buildInfo.catalogVersion}\n  X-Shivara-App-Version: ${buildInfo.appVersion}\n  Cache-Control: public, max-age=0, must-revalidate\n`);
+
+const routeRules = [
+  ...Object.keys(collectionMeta).map((slug) => `/collections/${slug} /collections/${slug}/index.html 200!`),
+  ...catalogApi.getAllProducts().map((product) => `/products/${product.slug} /products/${product.slug}/index.html 200!`),
+  ...catalogApi.getAllProducts()
+    .filter((product) => product.sourcePostId && product.sourcePostId !== product.slug)
+    .map((product) => `/products/${product.sourcePostId} /products/${product.slug} 301!`),
+  "/wishlist /wishlist/index.html 200!"
+];
+write("_redirects", `${routeRules.join("\n")}\n`);
 
 console.log(`Netlify storefront built: ${catalogApi.getAllProducts().length} products, ${Object.keys(collectionMeta).length} collections, commit ${buildInfo.commit.slice(0, 8)}.`);
