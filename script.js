@@ -76,6 +76,8 @@
   let signatureIndex = 0;
   let announcementIndex = 0;
   let announcementTimer = 0;
+  let heroTimer = 0;
+  let signatureTimer = 0;
   let searchTimer = 0;
   let collectionVisible = 24;
 
@@ -174,7 +176,7 @@
   }
 
   function sharedHeader() {
-    return `<div class="stable-announcement"><button type="button" data-announcement-prev aria-label="Previous announcement">←</button><span data-announcement-text>${announcements[0]}</span><button type="button" data-announcement-next aria-label="Next announcement">→</button></div>
+    return `<div class="stable-announcement"><span data-announcement-text>${announcements[0]}</span></div>
       <header class="stable-header">
         <button class="stable-header__menu" type="button" data-menu-open aria-label="Open menu">☰</button>
         <a class="stable-logo" href="/" aria-label="Shivara home">SHIVARA<small>JEWELLERY ATELIER</small></a>
@@ -206,7 +208,7 @@
         <div class="stable-layer__head"><div><small>JEWELLERY ATELIER</small><h2 id="menu-title">Shop Shivara</h2></div><button type="button" data-layer-close aria-label="Close menu">×</button></div>
         <div class="stable-menu-utility"><button type="button" data-menu-search>Search products <span>⌕</span></button><a href="/wishlist">Your wishlist <span data-wishlist-count>0</span></a></div>
         <nav><small>SHOP BY CATEGORY</small>${categoryRail.map(([label, slug]) => `<a href="${collectionUrl(slug)}">${label}<span>${productsForCollection(slug).length}</span></a>`).join("")}<a href="/collections/all"><strong>All Products</strong><span>${products.length}</span></a></nav>
-        <a class="stable-menu-feature" href="${productUrl(menuFeature)}"><img src="/${escapeHtml(menuFeature.images[0])}" alt="${escapeHtml(menuFeature.imageAlt)}" /><span><small>THE SHIVARA EDIT</small><strong>${escapeHtml(menuFeature.title)}</strong><em>View product →</em></span></a>
+        <a class="stable-menu-feature" href="${productUrl(menuFeature)}"><img src="/${escapeHtml(menuFeature.images[0])}" alt="${escapeHtml(menuFeature.imageAlt)}" /><span><small>THE SHIVARA EDIT</small><strong>${escapeHtml(menuFeature.title)}</strong><em>View product</em></span></a>
         <div class="stable-menu-help"><p>Need help choosing?</p><a href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hi Shivara, I would like help choosing a jewellery piece.")}" target="_blank" rel="noreferrer">Chat with Shivara on WhatsApp</a></div>
       </aside>
       <aside class="stable-drawer stable-drawer--search" id="search-drawer" role="dialog" aria-modal="true" aria-labelledby="search-title" aria-hidden="true">
@@ -257,6 +259,26 @@
       if (!bar?.matches(":hover") && !bar?.contains(document.activeElement)) advanceAnnouncement();
       scheduleAnnouncementRotation();
     }, 4000);
+  }
+
+  function scheduleHeroRotation() {
+    window.clearTimeout(heroTimer);
+    const hero = document.querySelector("[data-hero]");
+    if (document.hidden || window.matchMedia("(prefers-reduced-motion: reduce)").matches || !hero) return;
+    heroTimer = window.setTimeout(() => {
+      if (!hero.matches(":hover") && !hero.contains(document.activeElement)) renderHero(heroIndex + 1);
+      scheduleHeroRotation();
+    }, 5000);
+  }
+
+  function scheduleSignatureRotation() {
+    window.clearTimeout(signatureTimer);
+    const edit = document.querySelector(".signature-edit");
+    if (document.hidden || window.matchMedia("(prefers-reduced-motion: reduce)").matches || !edit) return;
+    signatureTimer = window.setTimeout(() => {
+      if (!edit.matches(":hover") && !edit.contains(document.activeElement)) renderSignature(signatureIndex + 1);
+      scheduleSignatureRotation();
+    }, 6500);
   }
 
   function openLayer(selector, trigger) {
@@ -755,11 +777,6 @@
   document.addEventListener("click", (event) => {
     const target = event.target instanceof Element ? event.target : null;
     if (!target) return;
-    if (target.closest("[data-announcement-prev], [data-announcement-next]")) {
-      advanceAnnouncement(target.closest("[data-announcement-prev]") ? -1 : 1);
-      scheduleAnnouncementRotation();
-      return;
-    }
     if (target.closest("[data-menu-open]")) return openLayer("#menu-drawer", target.closest("[data-menu-open]"));
     if (target.closest("[data-menu-search]")) {
       renderSearch();
@@ -865,8 +882,6 @@
       input.focus();
       return;
     }
-    if (target.closest("[data-hero-prev], [data-hero-next]")) return renderHero(heroIndex + (target.closest("[data-hero-prev]") ? -1 : 1));
-    if (target.closest("[data-signature-prev], [data-signature-next]")) return renderSignature(signatureIndex + (target.closest("[data-signature-prev]") ? -1 : 1));
     const pdpQtyButton = target.closest("[data-pdp-qty]");
     if (pdpQtyButton) {
       const amount = Math.max(1, pdpQuantity() + Number(pdpQtyButton.dataset.pdpQty));
@@ -967,6 +982,8 @@
   document.addEventListener("visibilitychange", () => {
     document.body.classList.toggle("stable-page-hidden", document.hidden);
     scheduleAnnouncementRotation();
+    scheduleHeroRotation();
+    scheduleSignatureRotation();
   });
 
   async function bootstrapStorefront() {
@@ -974,6 +991,8 @@
     renderChrome();
     scheduleAnnouncementRotation();
     renderHome();
+    scheduleHeroRotation();
+    scheduleSignatureRotation();
     renderCollection({ hydrateServerMarkup: true });
     renderProductPage();
     renderWishlist();

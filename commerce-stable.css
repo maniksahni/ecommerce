@@ -64,15 +64,6 @@ body.catalog-stable a { color: inherit; }
   font-size: 11px;
   text-transform: uppercase;
 }
-.stable-announcement button {
-  width: 24px;
-  height: 20px;
-  padding: 0;
-  border: 0;
-  color: inherit;
-  background: transparent;
-  cursor: pointer;
-}
 .stable-header {
   position: relative;
   z-index: 30;
@@ -164,10 +155,8 @@ body.catalog-stable a { color: inherit; }
 .stable-button--dark { color: #fff !important; background: var(--stable-ink); }
 .stable-button--whatsapp { border-color: var(--stable-green); color: #fff !important; background: var(--stable-green); }
 .stable-button--plain { background: transparent; }
-.stable-hero__controls { position: absolute; z-index: 2; right: clamp(18px, 4vw, 58px); bottom: 30px; display: flex; align-items: center; gap: 8px; }
-.stable-hero__controls button,
-.signature-edit__controls button { width: 42px; height: 42px; border: 1px solid currentColor; border-radius: 50%; color: inherit; background: transparent; cursor: pointer; }
-.stable-hero__controls span { min-width: 44px; text-align: center; font-size: 11px; }
+.stable-hero__progress { position: absolute; z-index: 2; right: clamp(18px, 4vw, 58px); bottom: 30px; color: #fff; }
+.stable-hero__progress span { font-size: 11px; }
 .category-rail-section,
 .stable-products,
 .stable-page { width: min(100%, 1500px); margin: 0 auto; padding: clamp(28px, 4vw, 58px) clamp(12px, 3vw, 42px); }
@@ -250,7 +239,6 @@ body.catalog-stable a { color: inherit; }
 .signature-edit { min-height: 580px; display: grid; grid-template-columns: .75fr 1.25fr; color: #fff; background: #1c2822; }
 .signature-edit__copy { display: flex; flex-direction: column; justify-content: center; padding: clamp(36px, 6vw, 90px); }
 .signature-edit__copy h2 { margin: 0; font: 400 clamp(38px, 5vw, 70px)/1 "Italiana", serif; letter-spacing: 0; }
-.signature-edit__controls { display: flex; gap: 8px; margin-top: 32px; }
 .signature-edit__product { min-width: 0; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(240px, .85fr); align-items: center; gap: clamp(24px, 4vw, 60px); padding: 40px clamp(24px, 5vw, 80px) 40px 0; }
 .signature-edit__image { height: min(70vh, 600px); overflow: hidden; background: #eee; }
 .signature-edit__image img { width: 100%; height: 100%; object-fit: contain; }
@@ -547,7 +535,7 @@ body.catalog-stable a { color: inherit; }
   .stable-hero h1 { max-width: 92%; font-size: 46px; }
   .stable-hero__content > p:nth-of-type(2) { max-width: 90%; margin: 12px 0 18px; font-size: 13px; }
   .stable-hero__content > div { flex-direction: column; align-items: flex-start; }
-  .stable-hero__controls { right: 14px; bottom: 12px; }
+  .stable-hero__progress { right: 14px; bottom: 12px; }
   .category-rail-section, .stable-products, .stable-page { padding: 25px 10px; }
   .category-rail-section { padding-top: 22px; padding-bottom: 16px; }
   .stable-section-heading { margin-bottom: 13px; }
@@ -569,7 +557,6 @@ body.catalog-stable a { color: inherit; }
   .signature-edit { min-height: 0; grid-template-columns: 1fr; }
   .signature-edit__copy { padding: 36px 18px 20px; }
   .signature-edit__copy h2 { font-size: 42px; }
-  .signature-edit__controls { position: absolute; right: 16px; margin-top: 96px; }
   .signature-edit__product { grid-template-columns: 1fr; gap: 20px; padding: 18px 18px 38px; }
   .signature-edit__image { height: 440px; }
   .signature-edit__product h3 { font-size: 36px; }
@@ -691,9 +678,8 @@ body.catalog-stable a { color: inherit; }
   }
   .stable-hero__content > div { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 7px; }
   .stable-hero .stable-button { min-height: 40px; padding: 8px; font-size: 9px; }
-  .stable-hero__controls { right: 12px; bottom: 12px; }
-  .stable-hero__controls button { width: 38px; height: 38px; }
-  .stable-hero__controls span { min-width: 36px; font-size: 9px; }
+  .stable-hero__progress { right: 12px; bottom: 12px; }
+  .stable-hero__progress span { font-size: 9px; }
 
   .category-rail-section,
   .stable-products,
@@ -742,8 +728,6 @@ body.catalog-stable a { color: inherit; }
   .signature-edit { display: block; }
   .signature-edit__copy { position: relative; padding: 30px 14px 16px; }
   .signature-edit__copy h2 { max-width: 310px; font-size: 34px; }
-  .signature-edit__controls { right: 14px; bottom: 18px; margin: 0; }
-  .signature-edit__controls button { width: 38px; height: 38px; }
   .signature-edit__product { display: grid; grid-template-columns: 1.05fr .95fr; gap: 12px; padding: 10px 14px 30px; }
   .signature-edit__image { height: auto; aspect-ratio: 4 / 5; }
   .signature-edit__product h3 { margin: 6px 0; font-size: 24px; }
