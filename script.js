@@ -55,6 +55,11 @@
     "PAN India delivery confirmed on WhatsApp",
     "Personal shopping: +91 94570 41215"
   ];
+  const rotationDelays = Object.freeze({
+    announcement: 6000,
+    hero: 8000,
+    signature: 12000
+  });
 
   const migratedCart = readVersionedItems(storageKeys.cart, storageKeys.legacyCart);
   const normalizedMigratedCart = normalizeCart(migratedCart);
@@ -251,14 +256,20 @@
     renderAnnouncement();
   }
 
+  function isVisibleInViewport(element) {
+    if (!element) return false;
+    const bounds = element.getBoundingClientRect();
+    return bounds.bottom > 0 && bounds.top < window.innerHeight;
+  }
+
   function scheduleAnnouncementRotation() {
     window.clearTimeout(announcementTimer);
     if (document.hidden || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     announcementTimer = window.setTimeout(() => {
       const bar = document.querySelector(".stable-announcement");
-      if (!bar?.matches(":hover") && !bar?.contains(document.activeElement)) advanceAnnouncement();
+      if (isVisibleInViewport(bar) && !bar.matches(":hover") && !bar.contains(document.activeElement)) advanceAnnouncement();
       scheduleAnnouncementRotation();
-    }, 4000);
+    }, rotationDelays.announcement);
   }
 
   function scheduleHeroRotation() {
@@ -266,9 +277,9 @@
     const hero = document.querySelector("[data-hero]");
     if (document.hidden || window.matchMedia("(prefers-reduced-motion: reduce)").matches || !hero) return;
     heroTimer = window.setTimeout(() => {
-      if (!hero.matches(":hover") && !hero.contains(document.activeElement)) renderHero(heroIndex + 1);
+      if (isVisibleInViewport(hero) && !hero.matches(":hover") && !hero.contains(document.activeElement)) renderHero(heroIndex + 1);
       scheduleHeroRotation();
-    }, 5000);
+    }, rotationDelays.hero);
   }
 
   function scheduleSignatureRotation() {
@@ -276,9 +287,9 @@
     const edit = document.querySelector(".signature-edit");
     if (document.hidden || window.matchMedia("(prefers-reduced-motion: reduce)").matches || !edit) return;
     signatureTimer = window.setTimeout(() => {
-      if (!edit.matches(":hover") && !edit.contains(document.activeElement)) renderSignature(signatureIndex + 1);
+      if (isVisibleInViewport(edit) && !edit.matches(":hover") && !edit.contains(document.activeElement)) renderSignature(signatureIndex + 1);
       scheduleSignatureRotation();
-    }, 6500);
+    }, rotationDelays.signature);
   }
 
   function openLayer(selector, trigger) {

@@ -100,13 +100,14 @@ async function main() {
   const { page, errors } = await pageWithErrors(context);
   await page.goto(baseUrl, { waitUntil: "networkidle" });
   const initialAnnouncement = await page.locator("[data-announcement-text]").textContent();
-  await page.waitForFunction((initial) => document.querySelector("[data-announcement-text]")?.textContent !== initial, initialAnnouncement, { timeout: 6000 });
+  await page.waitForFunction((initial) => document.querySelector("[data-announcement-text]")?.textContent !== initial, initialAnnouncement, { timeout: 8000 });
   assert(await page.locator("[data-announcement-text]").textContent() !== initialAnnouncement, "announcement bar rotates automatically");
   assert(await page.locator("[data-announcement-prev], [data-announcement-next], [data-hero-prev], [data-hero-next], [data-signature-prev], [data-signature-next]").count() === 0, "automatic storefront rotations render without arrow controls");
   const initialHero = await page.locator("[data-hero-title]").textContent();
-  const initialSignature = await page.locator("#signature-product h3").textContent();
   await page.waitForFunction((initial) => document.querySelector("[data-hero-title]")?.textContent !== initial, initialHero, { timeout: 4000 });
-  await page.waitForFunction((initial) => document.querySelector("#signature-product h3")?.textContent !== initial, initialSignature, { timeout: 4000 });
+  const initialSignature = await page.locator("#signature-product h3").textContent();
+  await page.locator(".signature-edit").scrollIntoViewIfNeeded();
+  await page.waitForFunction((initial) => document.querySelector("#signature-product h3")?.textContent !== initial, initialSignature, { timeout: 14000 });
   assert(true, "hero and confirmed-price edit rotate automatically");
   const bootstrapState = await page.evaluate(() => ({
     build: window.SHIVARA_BUILD_INFO,

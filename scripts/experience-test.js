@@ -63,7 +63,7 @@ async function main() {
   assert((await page.locator("#commerce-category-grid a").count()) >= 9, "category rail exposes the complete shopping journey");
 
   const heroBefore = await page.locator("[data-hero-title]").textContent();
-  await page.waitForFunction((before) => document.querySelector("[data-hero-title]")?.textContent !== before, heroBefore, { timeout: 7000 });
+  await page.waitForFunction((before) => document.querySelector("[data-hero-title]")?.textContent !== before, heroBefore, { timeout: 10000 });
   assert((await page.locator("[data-hero-title]").textContent()) !== heroBefore, "hero automatically changes the verified product");
   assert(await page.locator("[data-hero-prev], [data-hero-next], [data-signature-prev], [data-signature-next]").count() === 0, "automatic edits do not render arrow controls");
 
