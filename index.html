@@ -10,17 +10,30 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Italiana&amp;display=swap" rel="stylesheet" />
     <link rel="preload" as="image" href="/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" />
-    <link rel="stylesheet" href="/commerce-stable.css?v=4" />
+    <link rel="stylesheet" href="/commerce-stable.css?v=5" />
   </head>
   <body data-page="home" class="catalog-stable">
     <a class="visually-hidden skip-to-content" href="#main">Skip to content</a>
     <div id="shared-header"></div>
     <main id="main" tabindex="-1">
       <section class="stable-hero" data-hero aria-labelledby="hero-title">
-        <img data-hero-image src="/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" alt="Curated Shivara jewellery" />
+        <div class="stable-hero__backdrop">
+          <img data-hero-image src="/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" alt="Curated Shivara jewellery" />
+        </div>
         <div class="stable-hero__shade" aria-hidden="true"></div>
+        <div class="stable-hero__glow" aria-hidden="true"></div>
+        <a class="stable-hero__float stable-hero__float--one" href="/products/lavender-bloom-ring" aria-label="View Lavender Bloom Ring">
+          <span>RING EDIT</span>
+          <img src="/assets/catalog-2026-07-26/item-076.jpg" alt="" />
+          <strong>Lavender Bloom Ring</strong>
+          <small>Price on request</small>
+        </a>
+        <a class="stable-hero__float stable-hero__float--two" href="/products/tulip-pendant" aria-label="View Tulip Pendant">
+          <img src="/assets/instagram-shop/post-036-DXRflQ2ARK2.jpg" alt="" />
+          <span><strong>Tulip Pendant</strong><small>View the piece</small></span>
+        </a>
         <div class="stable-hero__content">
-          <p>THE SHIVARA EDIT</p>
+          <p><span></span> THE SHIVARA ATELIER</p>
           <h1 id="hero-title" data-hero-title>Boxed Evil Eye Bracelet</h1>
           <p data-hero-copy>A structured bracelet arranged with blue evil-eye details.</p>
           <div>
@@ -29,13 +42,26 @@
           </div>
         </div>
         <div class="stable-hero__progress" aria-label="Featured product position">
-          <span data-hero-count>1 / 3</span>
+          <i aria-hidden="true"><b data-hero-progress></b></i><span data-hero-count>1 / 3</span>
         </div>
       </section>
 
+      <div class="atelier-marquee" aria-hidden="true">
+        <div><span>CURATED JEWELLERY</span><i></i><span>PERSONAL STYLING</span><i></i><span>GIFT-READY EDITS</span><i></i><span>PAN INDIA</span><i></i><span>CURATED JEWELLERY</span><i></i><span>PERSONAL STYLING</span><i></i><span>GIFT-READY EDITS</span><i></i><span>PAN INDIA</span></div>
+      </div>
+
       <section class="category-rail-section" aria-labelledby="category-title">
-        <div class="stable-section-heading"><div><p>SHOP BY CATEGORY</p><h2 id="category-title">Find your next piece</h2></div></div>
+        <div class="stable-section-heading"><div><p>ENTER THE JEWELLERY ROOM</p><h2 id="category-title">Shop your kind of shine</h2></div><a href="/collections/all">Explore all pieces</a></div>
         <div class="stable-category-rail" id="commerce-category-grid"></div>
+      </section>
+
+      <section class="living-deck" aria-labelledby="living-deck-title">
+        <div class="living-deck__intro">
+          <p>THE LIVING PRODUCT DECK</p>
+          <h2 id="living-deck-title">Jewellery with a point of view.</h2>
+          <span>Three distinctive Shivara pieces, selected from the verified catalogue and ready to explore.</span>
+        </div>
+        <div class="living-deck__stage" id="living-product-deck"></div>
       </section>
 
       <nav class="stable-shop-intents" aria-label="Quick shopping edits">
@@ -78,6 +104,6 @@
     <script src="/catalog-overrides.js?v=3"></script>
     <script src="/catalog-data.js?v=3"></script>
     <script src="/storefront-renderer.js?v=3"></script>
-    <script src="/script.js?v=stable-4"></script>
+    <script src="/script.js?v=stable-5"></script>
   </body>
 </html>

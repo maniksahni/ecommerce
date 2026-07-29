@@ -106,7 +106,10 @@ async function main() {
     await viewportContext.close();
   }
 
-  await browser.close();
+  await Promise.race([
+    browser.close(),
+    new Promise((resolve) => setTimeout(resolve, 2500))
+  ]);
   if (failures) throw new Error(`${failures} experience assertion(s) failed`);
   console.log("Stable storefront experience suite passed.");
 }

@@ -520,6 +520,29 @@
     }).join("");
   }
 
+  function renderLivingDeck() {
+    const mount = document.querySelector("#living-product-deck");
+    if (!mount) return;
+    const deckIds = ["lavender-bloom-ring", "boxed-evil-eye-bracelet", "tulip-pendant"];
+    mount.innerHTML = deckIds.map((id, index) => {
+      const product = productMap.get(id);
+      if (!catalogApi.validateCommerceObject(product, "living product deck")) return "";
+      const value = pricing(product);
+      return `<article class="living-card living-card--${index + 1}">
+        <a class="living-card__media" href="${productUrl(product)}">
+          <img src="/${escapeHtml(product.images[0])}" alt="${escapeHtml(product.imageAlt)}" loading="${index ? "lazy" : "eager"}" />
+          <span>${String(index + 1).padStart(2, "0")}</span>
+        </a>
+        <div class="living-card__copy">
+          <small>${escapeHtml(categoryMeta[product.category]?.kicker || product.category)}</small>
+          <h3><a href="${productUrl(product)}">${escapeHtml(product.title)}</a></h3>
+          <div>${value.confirmed ? `<strong>${formatMoney(value.price)}</strong>` : "<strong>Price on request</strong>"}</div>
+          <button type="button" data-quick-view="${escapeHtml(product.id)}">Quick view <span aria-hidden="true">↗</span></button>
+        </div>
+      </article>`;
+    }).join("");
+  }
+
   function renderHero(nextIndex = heroIndex) {
     const mount = document.querySelector("[data-hero]");
     if (!mount) return;
@@ -530,6 +553,8 @@
     mount.querySelector("[data-hero-title]").textContent = product.title;
     mount.querySelector("[data-hero-copy]").textContent = product.description;
     mount.querySelector("[data-hero-count]").textContent = `${heroIndex + 1} / ${heroIds.length}`;
+    mount.style.setProperty("--hero-progress", `${((heroIndex + 1) / heroIds.length) * 100}%`);
+    mount.dataset.heroIndex = String(heroIndex);
     const productLink = mount.querySelector(".stable-hero__content .stable-button--light");
     productLink.href = productUrl(product);
     productLink.textContent = pricing(product).confirmed ? `Shop ${product.title}` : `View ${product.title}`;
@@ -547,6 +572,7 @@
   function renderHome() {
     if (document.body.dataset.page !== "home") return;
     renderCategoryRail();
+    renderLivingDeck();
     [
       ["new-arrivals", productsForCollection("new-arrivals").slice(0, 12)],
       ["all", products.slice(12, 24)],
@@ -563,6 +589,40 @@
     syncWishlistControls();
     renderHero();
     renderSignature();
+  }
+
+  function initialisePremiumMotion() {
+    const hero = document.querySelector("[data-hero]");
+    const precisePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (hero && precisePointer.matches && !reducedMotion.matches) {
+      hero.addEventListener("pointermove", (event) => {
+        const bounds = hero.getBoundingClientRect();
+        const x = ((event.clientX - bounds.left) / bounds.width - .5) * 2;
+        const y = ((event.clientY - bounds.top) / bounds.height - .5) * 2;
+        hero.style.setProperty("--pointer-x", x.toFixed(3));
+        hero.style.setProperty("--pointer-y", y.toFixed(3));
+      }, { passive: true });
+      hero.addEventListener("pointerleave", () => {
+        hero.style.setProperty("--pointer-x", "0");
+        hero.style.setProperty("--pointer-y", "0");
+      }, { passive: true });
+    }
+
+    if ("IntersectionObserver" in window && !reducedMotion.matches) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-in-view");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: .08, rootMargin: "0px 0px -6% 0px" });
+      document.querySelectorAll(".category-rail-section, .living-deck, .home-products, .signature-edit, .stable-reassurance").forEach((section) => {
+        section.classList.add("motion-reveal");
+        observer.observe(section);
+      });
+    }
   }
 
   function collectionSlug() {
@@ -1002,6 +1062,7 @@
     renderChrome();
     scheduleAnnouncementRotation();
     renderHome();
+    initialisePremiumMotion();
     scheduleHeroRotation();
     scheduleSignatureRotation();
     renderCollection({ hydrateServerMarkup: true });
