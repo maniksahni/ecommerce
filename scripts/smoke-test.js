@@ -130,7 +130,7 @@ async function main() {
   await page.keyboard.press("Escape");
   assert(await page.locator("#quick-view").getAttribute("aria-hidden") === "true", "Quick View closes with Escape");
 
-  await page.locator("[data-search-open]").click();
+  await page.locator(".stable-header [data-search-open]").click();
   await page.locator("#stable-search").fill("Tulip");
   assert((await page.locator("#search-results").getByText("Tulip Pendant", { exact: true }).count()) === 1, "search returns a real catalogue product");
   await page.keyboard.press("Escape");
@@ -147,7 +147,7 @@ async function main() {
   assert(cartMessage.includes("Tulip Pendant") && cartMessage.includes("SHV-PND-003") && cartMessage.includes("Quantity: 1") && cartMessage.includes("₹299") && cartMessage.includes("Gift wrap please"), "WhatsApp bag message contains product, SKU, quantity, confirmed price and order note");
   await page.reload({ waitUntil: "networkidle" });
   assert((await page.locator("[data-cart-count]").first().textContent()) === "1", "cart persists after refresh");
-  await page.locator("[data-cart-open]").click();
+  await page.locator(".stable-header [data-cart-open]").click();
   assert((await page.locator("[data-cart-note]").inputValue()) === "Gift wrap please", "cart order note persists after refresh");
   await page.keyboard.press("Escape");
 
@@ -211,7 +211,22 @@ async function main() {
   const mobileContext = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   const mobilePage = await mobileContext.newPage();
   await mobilePage.goto(baseUrl, { waitUntil: "networkidle" });
-  await mobilePage.locator("[data-menu-open]").click();
+  assert(await mobilePage.locator(".stable-mobile-dock").isVisible(), "mobile shopping dock is visible");
+  assert(
+    await mobilePage.locator(".stable-mobile-dock [data-cart-count]").textContent() ===
+      await mobilePage.locator(".stable-header [data-cart-count]").textContent(),
+    "mobile dock cart badge matches the header"
+  );
+  await mobilePage.locator(".stable-mobile-dock [data-menu-open]").click();
+  assert(await mobilePage.locator("#menu-drawer").getAttribute("aria-hidden") === "false", "mobile dock opens navigation");
+  await mobilePage.keyboard.press("Escape");
+  await mobilePage.locator(".stable-mobile-dock [data-search-open]").click();
+  assert(await mobilePage.locator("#search-drawer").getAttribute("aria-hidden") === "false", "mobile dock opens catalogue search");
+  await mobilePage.keyboard.press("Escape");
+  await mobilePage.locator(".stable-mobile-dock [data-cart-open]").click();
+  assert(await mobilePage.locator("#cart-drawer").getAttribute("aria-hidden") === "false", "mobile dock opens the bag");
+  await mobilePage.keyboard.press("Escape");
+  await mobilePage.locator(".stable-header [data-menu-open]").click();
   assert(await mobilePage.locator("#menu-drawer").getAttribute("aria-hidden") === "false", "mobile navigation drawer opens");
   await mobilePage.locator("[data-menu-search]").click();
   assert(await mobilePage.locator("#search-drawer").getAttribute("aria-hidden") === "false", "mobile drawer search opens the catalogue search");
@@ -225,12 +240,25 @@ async function main() {
   )));
   assert(filtersFit, "390px collection filters remain fully visible");
   await mobilePage.goto(`${baseUrl}/products/tulip-pendant`, { waitUntil: "networkidle" });
+  assert(!await mobilePage.locator(".stable-mobile-dock").isVisible(), "product page hides the shopping dock in favour of sticky Add to Bag");
   assert(!await mobilePage.locator(".stable-mobile-buy").evaluate((bar) => bar.classList.contains("is-visible")), "mobile sticky Add to Bag does not cover initial product content");
   await mobilePage.locator(".stable-pdp__actions").scrollIntoViewIfNeeded();
   await mobilePage.evaluate(() => scrollBy(0, innerHeight));
   await mobilePage.waitForFunction(() => document.querySelector(".stable-mobile-buy")?.classList.contains("is-visible"));
   assert(await mobilePage.locator(".stable-mobile-buy").evaluate((bar) => bar.classList.contains("is-visible")), "mobile sticky Add to Bag appears after native actions pass");
   await mobileContext.close();
+
+  const desktopNavigationContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  const desktopNavigationPage = await desktopNavigationContext.newPage();
+  await desktopNavigationPage.goto(baseUrl, { waitUntil: "networkidle" });
+  const megaMenu = desktopNavigationPage.locator(".stable-nav__mega");
+  assert(await megaMenu.count() === 1, "desktop catalogue mega menu is rendered");
+  assert(await megaMenu.locator(".stable-nav__mega-features > a").count() === 3, "desktop mega menu features three curated products");
+  await desktopNavigationPage.locator(".stable-nav__mega-wrap").hover();
+  await desktopNavigationPage.waitForFunction(() => getComputedStyle(document.querySelector(".stable-nav__mega")).opacity === "1");
+  assert(await megaMenu.evaluate((menu) => getComputedStyle(menu).visibility === "visible"), "desktop mega menu opens on hover");
+  assert(await megaMenu.locator("a[href='/products/lavender-bloom-ring']").count() === 1, "desktop mega menu links to curated product routes");
+  await desktopNavigationContext.close();
 
   await closeBrowser();
   if (failures) throw new Error(`${failures} smoke test assertion(s) failed`);

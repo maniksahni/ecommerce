@@ -132,7 +132,7 @@ async function main() {
   assert(migration.cart.version === 3 && migration.cart.items.length === 1 && migration.cart.items[0].id === "tulip-pendant", "cart migration keeps only valid curated entries");
   assert(migration.wishlist.version === 3 && migration.wishlist.items.length === 1 && migration.wishlist.items[0] === "tulip-pendant", "wishlist migration keeps only valid curated entries");
   assert(migration.oldCart === null && migration.oldWishlist === null, "obsolete state keys are removed after migration");
-  await page.locator("[data-cart-open]").click();
+  await page.locator(".stable-header [data-cart-open]").click();
   assert((await page.locator("#cart-lines").textContent()).includes("Tulip Pendant") && (await page.locator("#cart-lines").textContent()).includes("SHV-PND-003"), "cart uses the curated title and SKU");
   assert(blocked(await page.locator("#cart-drawer").textContent()).length === 0, "cart contains no blocked social content");
   await page.keyboard.press("Escape");
@@ -177,7 +177,7 @@ async function main() {
   const allLinks = await home.locator('a[href="/collections/all"]').count();
   assert(allLinks >= 2, "homepage View All journeys use the curated /collections/all route");
   assert(blocked(await home.locator("body").textContent()).length === 0, "homepage commerce contains no blocked social content");
-  await home.locator("[data-search-open]").click();
+  await home.locator(".stable-header [data-search-open]").click();
   await home.locator("#stable-search").fill("ring");
   await home.waitForTimeout(120);
   assert(blocked(await home.locator("#search-results").textContent()).length === 0, "search results contain curated products only");

@@ -181,11 +181,24 @@
   }
 
   function sharedHeader() {
+    const megaFeatures = [
+      ["lavender-bloom-ring", "RINGS"],
+      ["mint-butterfly-earrings", "EARRINGS"],
+      ["green-coil-watch", "WATCHES"]
+    ].map(([id, label]) => [productMap.get(id), label]).filter(([product]) => product);
     return `<div class="stable-announcement"><span data-announcement-text>${announcements[0]}</span></div>
       <header class="stable-header">
         <button class="stable-header__menu" type="button" data-menu-open aria-label="Open menu">☰</button>
         <a class="stable-logo" href="/" aria-label="Shivara home">SHIVARA<small>JEWELLERY ATELIER</small></a>
         <nav class="stable-nav" aria-label="Main navigation">
+          <div class="stable-nav__mega-wrap">
+            <button type="button" aria-haspopup="true">Shop</button>
+            <div class="stable-nav__mega">
+              <div class="stable-nav__mega-links"><small>SHOP THE CATALOGUE</small><a href="/collections/new-arrivals">New Arrivals</a><a href="/collections/all?price=confirmed">Ready to Order</a><a href="/collections/gifting">Gifting Edit</a><a href="/collections/anti-tarnish">Anti Tarnish</a><a href="/collections/all">View All Products</a></div>
+              <div class="stable-nav__mega-categories"><small>BY CATEGORY</small><a href="/collections/earrings">Earrings</a><a href="/collections/necklaces">Neck Wear</a><a href="/collections/bracelets">Bracelets</a><a href="/collections/rings">Rings</a><a href="/collections/evil-eye">Evil Eye</a><a href="/collections/watches">Watches</a></div>
+              <div class="stable-nav__mega-features">${megaFeatures.map(([product, label]) => `<a href="${productUrl(product)}"><img src="/${escapeHtml(product.images[0])}" alt="" /><span><small>${label}</small><strong>${escapeHtml(product.title)}</strong></span></a>`).join("")}</div>
+            </div>
+          </div>
           <a href="/collections/new-arrivals">New Arrivals</a><a href="/collections/earrings">Earrings</a><a href="/collections/necklaces">Neck Wear</a><a href="/collections/bracelets">Bracelets</a><a href="/collections/rings">Rings</a><a href="/collections/evil-eye">Evil Eye</a>
         </nav>
         <div class="stable-header__actions">
@@ -194,7 +207,14 @@
           <a class="stable-wish-link" href="/wishlist" aria-label="Wishlist">♡<span data-wishlist-count>0</span></a>
           <button type="button" data-cart-open aria-label="Open bag">Bag <span data-cart-count>0</span></button>
         </div>
-      </header>`;
+      </header>
+      <nav class="stable-mobile-dock" aria-label="Mobile shopping navigation">
+        <a href="/"><span aria-hidden="true">⌂</span><small>Home</small></a>
+        <button type="button" data-menu-open><span aria-hidden="true">☰</span><small>Shop</small></button>
+        <button type="button" data-search-open><span aria-hidden="true">⌕</span><small>Search</small></button>
+        <a href="/wishlist"><span aria-hidden="true">♡</span><small>Wishlist</small><b data-wishlist-count>0</b></a>
+        <button type="button" data-cart-open><span aria-hidden="true">Bag</span><small>Bag</small><b data-cart-count>0</b></button>
+      </nav>`;
   }
 
   function sharedFooter() {
