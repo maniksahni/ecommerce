@@ -160,6 +160,22 @@ function productSource(product) {
   return product.sourceType || "instagram";
 }
 
+function adminProductSummary(product) {
+  const primaryImage = Array.isArray(product.images) ? product.images.find(Boolean) || null : null;
+  return {
+    slug: String(product.slug || ""),
+    title: String(product.title || "Untitled product"),
+    sku: String(product.sku || ""),
+    category: String(product.category || "other"),
+    price: Number.isFinite(product.price) ? product.price : null,
+    priceStatus: product.priceStatus === "confirmed" ? "confirmed" : "enquiry",
+    images: primaryImage ? [String(primaryImage)] : [],
+    imageAlt: String(product.imageAlt || product.title || "Product image"),
+    sourceType: productSource(product),
+    _source: productSource(product)
+  };
+}
+
 function money(value) {
   return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value);
 }
@@ -345,10 +361,7 @@ const server = http.createServer(async (request, response) => {
   }
   if (pathname === "/admin/api/products" && request.method === "GET") {
     if (!requireAdmin(request, response)) return;
-    return sendJson(response, 200, products.map((product) => ({
-      ...product,
-      _source: productSource(product)
-    })));
+    return sendJson(response, 200, products.map(adminProductSummary));
   }
   if (pathname === "/admin/api/products" && request.method === "POST") {
     if (!requireAdmin(request, response)) return;
