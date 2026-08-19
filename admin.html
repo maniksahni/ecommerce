@@ -794,7 +794,7 @@
     async function checkSession() {
       if (!sessionToken) return false;
       try {
-        const r = await fetch('/admin/api/products', { headers: { 'x-admin-token': sessionToken } });
+        const r = await fetch('/admin/api/session', { headers: { 'x-admin-token': sessionToken } });
         return r.ok;
       } catch { return false; }
     }
@@ -856,20 +856,56 @@
 
     /* ── Load products ── */
     let allProducts = [];
+    let productLoadPromise = null;
+
+    function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function fetchProductsWithRetry() {
+      let lastError;
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 12000);
+        try {
+          const r = await fetch('/admin/api/products', {
+            headers: { 'x-admin-token': sessionToken },
+            signal: controller.signal,
+            cache: 'no-store'
+          });
+          if (r.status === 401) throw new Error('Unauthorized');
+          if (!r.ok) throw new Error(`Request failed (${r.status})`);
+          const data = await r.json();
+          if (!Array.isArray(data)) throw new Error('Invalid product response');
+          return data;
+        } catch (error) {
+          lastError = error;
+          if (error.message === 'Unauthorized') throw error;
+          if (attempt < 2) await delay(350 * (attempt + 1));
+        } finally {
+          clearTimeout(timeout);
+        }
+      }
+      throw lastError || new Error('Unable to load products');
+    }
 
     async function loadProducts() {
-      try {
-        const r = await fetch('/admin/api/products', {
-          headers: { 'x-admin-token': sessionToken }
-        });
-        if (!r.ok) throw new Error('Unauthorized');
-        allProducts = await r.json();
-        renderTable(allProducts);
-        renderStats(allProducts);
-      } catch (err) {
-        if (err.message === 'Unauthorized') { doLogout(); return; }
-        toast('Failed to load products', true);
-      }
+      if (productLoadPromise) return productLoadPromise;
+      productLoadPromise = (async () => {
+        try {
+          allProducts = await fetchProductsWithRetry();
+          renderTable(allProducts);
+          renderStats(allProducts);
+        } catch (err) {
+          if (err.message === 'Unauthorized') { doLogout(); return; }
+          $('#products-tbody').innerHTML = `<tr><td colspan="7"><div class="admin-empty"><div class="admin-empty__icon">!</div><h3>Could not load products</h3><p>Check the connection and try again.</p><button class="admin-btn" id="retry-products" type="button">Retry</button></div></td></tr>`;
+          $('#retry-products').addEventListener('click', () => loadProducts());
+          toast('Products could not load. Retrying is available below.', true);
+        } finally {
+          productLoadPromise = null;
+        }
+      })();
+      return productLoadPromise;
     }
 
     function renderStats(products) {

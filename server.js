@@ -17,6 +17,8 @@ const adminSessions = new Set();
 let catalog;
 let catalogApi;
 let products;
+let adminProductSummaries = [];
+let adminProductPayload = "[]";
 let lastAdminMtime = null;
 
 function refreshCatalog() {
@@ -24,6 +26,8 @@ function refreshCatalog() {
   catalog = loaded.catalog;
   catalogApi = loaded.catalogApi;
   products = catalogApi.getAllProducts();
+  adminProductSummaries = products.map(adminProductSummary);
+  adminProductPayload = JSON.stringify(adminProductSummaries);
   lastAdminMtime = adminStoreMtime();
 }
 
@@ -113,8 +117,29 @@ function credentialsMatch(username, password) {
 }
 
 function sendJson(response, status, payload) {
-  response.writeHead(status, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
-  response.end(JSON.stringify(payload));
+  let serialized;
+  try {
+    serialized = JSON.stringify(payload);
+  } catch (error) {
+    console.error("Unable to serialize JSON response", error);
+    serialized = JSON.stringify({ error: "Unable to prepare response" });
+    status = 500;
+  }
+  response.writeHead(status, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store",
+    "Content-Length": Buffer.byteLength(serialized)
+  });
+  response.end(serialized);
+}
+
+function sendPrecomputedJson(response, payload) {
+  response.writeHead(200, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store",
+    "Content-Length": Buffer.byteLength(payload)
+  });
+  response.end(payload);
 }
 
 function readJsonBody(request, limit = 1_000_000) {
@@ -359,9 +384,13 @@ const server = http.createServer(async (request, response) => {
       return sendJson(response, 400, { error: "Invalid request" });
     }
   }
+  if (pathname === "/admin/api/session" && request.method === "GET") {
+    if (!requireAdmin(request, response)) return;
+    return sendJson(response, 200, { ok: true });
+  }
   if (pathname === "/admin/api/products" && request.method === "GET") {
     if (!requireAdmin(request, response)) return;
-    return sendJson(response, 200, products.map(adminProductSummary));
+    return sendPrecomputedJson(response, adminProductPayload);
   }
   if (pathname === "/admin/api/products" && request.method === "POST") {
     if (!requireAdmin(request, response)) return;
