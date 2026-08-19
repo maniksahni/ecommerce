@@ -142,6 +142,12 @@ function sendPrecomputedJson(response, payload) {
   response.end(payload);
 }
 
+function injectAdminBootstrap(html) {
+  const safePayload = adminProductPayload.replace(/</g, "\\u003c");
+  const bootstrap = `<script>window.SHIVARA_ADMIN_INITIAL_PRODUCTS=${safePayload};</script>`;
+  return html.replace("</head>", `${bootstrap}</head>`);
+}
+
 function readJsonBody(request, limit = 1_000_000) {
   return new Promise((resolve, reject) => {
     const chunks = [];
@@ -368,7 +374,7 @@ const server = http.createServer(async (request, response) => {
 
   if (pathname === "/admin") {
     const html = fs.readFileSync(path.join(root, "admin.html"), "utf8");
-    return sendHtml(response, html.replace("</head>", '<meta name="robots" content="noindex, nofollow" /></head>'));
+    return sendHtml(response, injectAdminBootstrap(html.replace("</head>", '<meta name="robots" content="noindex, nofollow" /></head>')));
   }
   if (pathname === "/admin/login" && request.method === "POST") {
     try {
