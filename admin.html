@@ -546,8 +546,11 @@
         <span>ADMIN PORTAL</span>
       </div>
       <span class="login-divider"></span>
-      <p>Enter your admin password to access the control panel</p>
+      <p>Enter your administrator credentials to access the control panel</p>
       <form id="login-form" autocomplete="off">
+        <div class="login-field">
+          <input type="text" id="username-input" placeholder="Admin ID" autocomplete="username" required />
+        </div>
         <div class="login-field">
           <input type="password" id="password-input" placeholder="Admin password" autocomplete="current-password" required />
           <button type="button" id="toggle-pw" title="Show/hide password">👁</button>
@@ -798,6 +801,7 @@
 
     async function doLogin(e) {
       e.preventDefault();
+      const username = $('#username-input').value;
       const pw = $('#password-input').value;
       const btn = $('#login-submit');
       btn.textContent = 'Checking…';
@@ -806,7 +810,7 @@
         const r = await fetch('/admin/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: pw })
+          body: JSON.stringify({ username, password: pw })
         });
         const data = await r.json();
         if (r.ok && data.token) {
@@ -818,7 +822,7 @@
           $('#password-input').classList.add('is-error');
         }
       } catch {
-        $('#login-error').textContent = 'Server error. Is the server running?';
+        $('#login-error').textContent = 'Server error. Check the admin configuration.';
         $('#login-error').classList.add('is-visible');
       }
       btn.textContent = 'Enter Admin';

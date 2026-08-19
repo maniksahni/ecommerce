@@ -11,7 +11,8 @@ const packageInfo = require("./package.json");
 const root = __dirname;
 const port = Number(process.env.PORT || 3000);
 const siteUrl = (process.env.SITE_URL || "https://shivara.up.railway.app").replace(/\/$/, "");
-const adminPassword = process.env.ADMIN_PASSWORD || "shivara2024";
+const adminUsername = String(process.env.ADMIN_USERNAME || "").trim();
+const adminPassword = String(process.env.ADMIN_PASSWORD || "");
 const adminSessions = new Set();
 let catalog;
 let catalogApi;
@@ -101,10 +102,14 @@ function absoluteMediaUrl(image) {
   return `${siteUrl}/${value.replace(/^\/+/, "")}`;
 }
 
-function passwordMatches(input) {
-  const given = crypto.createHash("sha256").update(String(input || "")).digest();
-  const expected = crypto.createHash("sha256").update(String(adminPassword)).digest();
-  return crypto.timingSafeEqual(given, expected);
+function credentialsMatch(username, password) {
+  if (!adminUsername || !adminPassword) return false;
+  const givenUsername = crypto.createHash("sha256").update(String(username || "")).digest();
+  const expectedUsername = crypto.createHash("sha256").update(adminUsername).digest();
+  const givenPassword = crypto.createHash("sha256").update(String(password || "")).digest();
+  const expectedPassword = crypto.createHash("sha256").update(adminPassword).digest();
+  return crypto.timingSafeEqual(givenUsername, expectedUsername)
+    && crypto.timingSafeEqual(givenPassword, expectedPassword);
 }
 
 function sendJson(response, status, payload) {
@@ -327,7 +332,10 @@ const server = http.createServer(async (request, response) => {
   if (pathname === "/admin/login" && request.method === "POST") {
     try {
       const body = await readJsonBody(request);
-      if (!passwordMatches(body.password)) return sendJson(response, 401, { error: "Invalid password" });
+      if (!adminUsername || !adminPassword) {
+        return sendJson(response, 503, { error: "Admin access has not been configured" });
+      }
+      if (!credentialsMatch(body.username, body.password)) return sendJson(response, 401, { error: "Invalid credentials" });
       const token = crypto.randomBytes(32).toString("hex");
       adminSessions.add(token);
       return sendJson(response, 200, { token });

@@ -1,7 +1,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
-const file = path.join(__dirname, "admin-products.json");
+const dataDirectory = process.env.ADMIN_DATA_DIR || (fs.existsSync("/data") ? "/data" : __dirname);
+const file = path.join(dataDirectory, "admin-products.json");
 const allowedCategories = new Set([
   "earrings", "necklaces", "pendants", "bracelets", "rings", "evil-eye",
   "anti-tarnish", "gifting", "sets", "watches", "other"
@@ -33,7 +34,8 @@ function saveAdminStore(store) {
     products: Array.isArray(store.products) ? store.products : [],
     deleted: Array.isArray(store.deleted) ? [...new Set(store.deleted.map(String))] : []
   };
-  fs.writeFileSync(file, `${JSON.stringify(payload, null, 2)}\n`);
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `${JSON.stringify(payload, null, 2)}\n`, { mode: 0o600 });
   return payload;
 }
 
