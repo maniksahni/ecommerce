@@ -792,10 +792,27 @@
     /* ── Auth ── */
     let sessionToken = sessionStorage.getItem('shivara_admin_token') || '';
 
+    function authHeaders(headers = {}) {
+      return sessionToken ? { ...headers, 'x-admin-token': sessionToken } : headers;
+    }
+
+    function expireAdminSession(message = 'Your admin session expired. Please log in again.') {
+      sessionToken = '';
+      sessionStorage.removeItem('shivara_admin_token');
+      $('#admin-screen').classList.remove('is-active');
+      $('#login-screen').style.display = '';
+      $('#login-error').textContent = message;
+      $('#login-error').classList.add('is-visible');
+      $('#password-input').focus();
+    }
+
     async function checkSession() {
-      if (!sessionToken) return false;
       try {
-        const r = await fetch('/admin/api/session', { headers: { 'x-admin-token': sessionToken } });
+        const r = await fetch('/admin/api/session', {
+          headers: authHeaders(),
+          credentials: 'same-origin',
+          cache: 'no-store'
+        });
         return r.ok;
       } catch { return false; }
     }
@@ -811,6 +828,7 @@
         const r = await fetch('/admin/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
           body: JSON.stringify({ username, password: pw })
         });
         const data = await r.json();
@@ -833,6 +851,7 @@
     function doLogout() {
       sessionToken = '';
       sessionStorage.removeItem('shivara_admin_token');
+      void fetch('/admin/logout', { method: 'POST', credentials: 'same-origin', keepalive: true });
       location.reload();
     }
 
@@ -879,7 +898,8 @@
         const timeout = setTimeout(() => controller.abort(), 12000);
         try {
           const r = await fetch('/admin/api/products', {
-            headers: { 'x-admin-token': sessionToken },
+            headers: authHeaders(),
+            credentials: 'same-origin',
             signal: controller.signal,
             cache: 'no-store'
           });
@@ -911,7 +931,7 @@
           renderTable(allProducts);
           renderStats(allProducts);
         } catch (err) {
-          if (err.message === 'Unauthorized') { doLogout(); return; }
+          if (err.message === 'Unauthorized') { expireAdminSession(); return; }
           if (allProducts.length) {
             renderTable(allProducts);
             renderStats(allProducts);
@@ -997,8 +1017,13 @@
       try {
         const r = await fetch(`/admin/api/products/${encodeURIComponent(deleteSlug)}`, {
           method: 'DELETE',
-          headers: { 'x-admin-token': sessionToken }
+          headers: authHeaders(),
+          credentials: 'same-origin'
         });
+        if (r.status === 401) {
+          expireAdminSession();
+          return;
+        }
         if (!r.ok) throw new Error('Failed');
         toast(`Product deleted successfully ✓`);
         allProducts = allProducts.filter(product => product.slug !== deleteSlug);
@@ -1073,11 +1098,16 @@
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'x-admin-token': sessionToken
+            ...authHeaders()
           },
+          credentials: 'same-origin',
           body: JSON.stringify(payload)
         });
         const data = await r.json();
+        if (r.status === 401) {
+          expireAdminSession();
+          return;
+        }
         if (!r.ok) {
           toast(data.error || 'Failed to add product', true);
         } else {

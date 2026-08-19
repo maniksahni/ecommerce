@@ -13,7 +13,7 @@ const port = Number(process.env.PORT || 3000);
 const siteUrl = (process.env.SITE_URL || "https://shivara.up.railway.app").replace(/\/$/, "");
 const adminUsername = String(process.env.ADMIN_USERNAME || "").trim();
 const adminPassword = String(process.env.ADMIN_PASSWORD || "");
-const adminSessions = new Set();
+const adminSessionTtlMs = 12 * 60 * 60 * 1000;
 let catalog;
 let catalogApi;
 let products;
@@ -116,7 +116,7 @@ function credentialsMatch(username, password) {
     && crypto.timingSafeEqual(givenPassword, expectedPassword);
 }
 
-function sendJson(response, status, payload) {
+function sendJson(response, status, payload, extraHeaders = {}) {
   let serialized;
   try {
     serialized = JSON.stringify(payload);
@@ -128,7 +128,8 @@ function sendJson(response, status, payload) {
   response.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
-    "Content-Length": Buffer.byteLength(serialized)
+    "Content-Length": Buffer.byteLength(serialized),
+    ...extraHeaders
   });
   response.end(serialized);
 }
@@ -173,13 +174,56 @@ function readJsonBody(request, limit = 1_000_000) {
   });
 }
 
-function adminTokenFrom(request) {
-  return String(request.headers["x-admin-token"] || "").trim();
+function parseCookies(request) {
+  return String(request.headers.cookie || "").split(";").reduce((cookies, entry) => {
+    const separator = entry.indexOf("=");
+    if (separator === -1) return cookies;
+    const name = entry.slice(0, separator).trim();
+    const value = entry.slice(separator + 1).trim();
+    if (!name) return cookies;
+    try {
+      cookies[name] = decodeURIComponent(value);
+    } catch {
+      cookies[name] = value;
+    }
+    return cookies;
+  }, {});
+}
+
+function signAdminSession(payload) {
+  return crypto.createHmac("sha256", adminPassword).update(payload).digest("base64url");
+}
+
+function createAdminSession() {
+  const expiresAt = Date.now() + adminSessionTtlMs;
+  const payload = Buffer.from(JSON.stringify({ v: 1, exp: expiresAt, nonce: crypto.randomBytes(16).toString("hex") })).toString("base64url");
+  return { token: `${payload}.${signAdminSession(payload)}`, expiresAt };
+}
+
+function isValidAdminSession(token) {
+  if (!token || !adminPassword) return false;
+  const [payload, signature, extra] = String(token).split(".");
+  if (!payload || !signature || extra) return false;
+  const expected = signAdminSession(payload);
+  const providedBuffer = Buffer.from(signature);
+  const expectedBuffer = Buffer.from(expected);
+  if (providedBuffer.length !== expectedBuffer.length || !crypto.timingSafeEqual(providedBuffer, expectedBuffer)) return false;
+  try {
+    const session = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+    return session && session.v === 1 && Number.isFinite(session.exp) && session.exp > Date.now();
+  } catch {
+    return false;
+  }
+}
+
+function adminTokensFrom(request) {
+  const headerToken = String(request.headers["x-admin-token"] || "").trim();
+  const cookieToken = String(parseCookies(request).shivara_admin_token || "").trim();
+  return [...new Set([headerToken, cookieToken].filter(Boolean))];
 }
 
 function requireAdmin(request, response) {
-  const token = adminTokenFrom(request);
-  if (!token || !adminSessions.has(token)) {
+  if (!adminTokensFrom(request).some(isValidAdminSession)) {
     sendJson(response, 401, { error: "Unauthorized" });
     return false;
   }
@@ -386,12 +430,19 @@ const server = http.createServer(async (request, response) => {
         return sendJson(response, 503, { error: "Admin access has not been configured" });
       }
       if (!credentialsMatch(body.username, body.password)) return sendJson(response, 401, { error: "Invalid credentials" });
-      const token = crypto.randomBytes(32).toString("hex");
-      adminSessions.add(token);
-      return sendJson(response, 200, { token });
+      const session = createAdminSession();
+      const maxAge = Math.floor(adminSessionTtlMs / 1000);
+      return sendJson(response, 200, session, {
+        "Set-Cookie": `shivara_admin_token=${encodeURIComponent(session.token)}; Path=/; Max-Age=${maxAge}; HttpOnly; SameSite=Lax; Secure`
+      });
     } catch {
       return sendJson(response, 400, { error: "Invalid request" });
     }
+  }
+  if (pathname === "/admin/logout" && request.method === "POST") {
+    return sendJson(response, 200, { ok: true }, {
+      "Set-Cookie": "shivara_admin_token=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax; Secure"
+    });
   }
   if (pathname === "/admin/api/session" && request.method === "GET") {
     if (!requireAdmin(request, response)) return;
