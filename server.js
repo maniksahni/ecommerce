@@ -1,16 +1,37 @@
 const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
+const crypto = require("node:crypto");
 const { execFileSync } = require("node:child_process");
 const { loadCatalog } = require("./scripts/catalog-lib");
 const storefrontRenderer = require("./storefront-renderer");
+const { loadAdminStore, saveAdminStore, adminStoreMtime, normalizeAdminProductInput } = require("./admin-store");
 const packageInfo = require("./package.json");
 
 const root = __dirname;
 const port = Number(process.env.PORT || 3000);
 const siteUrl = (process.env.SITE_URL || "https://shivara.up.railway.app").replace(/\/$/, "");
-const { catalog, catalogApi } = loadCatalog();
-const products = catalogApi.getAllProducts();
+const adminPassword = process.env.ADMIN_PASSWORD || "shivara2024";
+const adminSessions = new Set();
+let catalog;
+let catalogApi;
+let products;
+let lastAdminMtime = null;
+
+function refreshCatalog() {
+  const loaded = loadCatalog();
+  catalog = loaded.catalog;
+  catalogApi = loaded.catalogApi;
+  products = catalogApi.getAllProducts();
+  lastAdminMtime = adminStoreMtime();
+}
+
+function ensureFreshCatalog() {
+  const mtime = adminStoreMtime();
+  if (mtime !== lastAdminMtime) refreshCatalog();
+}
+
+refreshCatalog();
 const gitCommit = process.env.RAILWAY_GIT_COMMIT_SHA || process.env.GIT_COMMIT_SHA || (() => {
   try {
     return execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
@@ -73,6 +94,67 @@ function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
 }
 
+function absoluteMediaUrl(image) {
+  const value = String(image || "");
+  if (/^https?:\/\//i.test(value)) return value;
+  if (value.startsWith("//")) return `https:${value}`;
+  return `${siteUrl}/${value.replace(/^\/+/, "")}`;
+}
+
+function passwordMatches(input) {
+  const given = crypto.createHash("sha256").update(String(input || "")).digest();
+  const expected = crypto.createHash("sha256").update(String(adminPassword)).digest();
+  return crypto.timingSafeEqual(given, expected);
+}
+
+function sendJson(response, status, payload) {
+  response.writeHead(status, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
+  response.end(JSON.stringify(payload));
+}
+
+function readJsonBody(request, limit = 1_000_000) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let size = 0;
+    request.on("data", (chunk) => {
+      size += chunk.length;
+      if (size > limit) {
+        request.destroy();
+        reject(new Error("too large"));
+        return;
+      }
+      chunks.push(chunk);
+    });
+    request.on("end", () => {
+      try {
+        const text = Buffer.concat(chunks).toString("utf8").trim();
+        resolve(text ? JSON.parse(text) : {});
+      } catch {
+        reject(new Error("invalid json"));
+      }
+    });
+    request.on("error", reject);
+  });
+}
+
+function adminTokenFrom(request) {
+  return String(request.headers["x-admin-token"] || "").trim();
+}
+
+function requireAdmin(request, response) {
+  const token = adminTokenFrom(request);
+  if (!token || !adminSessions.has(token)) {
+    sendJson(response, 401, { error: "Unauthorized" });
+    return false;
+  }
+  return true;
+}
+
+function productSource(product) {
+  if (product._source === "admin" || product.sourceType === "admin") return "admin";
+  return product.sourceType || "instagram";
+}
+
 function money(value) {
   return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value);
 }
@@ -104,7 +186,7 @@ function productCard(product, index = 0) {
 }
 
 function injectMetadata(html, { title, description, canonical, image, type = "website" }) {
-  const absoluteImage = `${siteUrl}/${image || "assets/instagram-shop/post-051-DW3H_GZDD_4.jpg"}`;
+  const absoluteImage = absoluteMediaUrl(image || products[0]?.images[0] || "assets/instagram-shop/post-051-DW3H_GZDD_4.jpg");
   return html
     .replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(title)}</title>`)
     .replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/, `<meta name="description" content="${escapeHtml(description)}" />`)
@@ -113,9 +195,13 @@ function injectMetadata(html, { title, description, canonical, image, type = "we
 
 function stampHtml(html) {
   const stampedAssets = html.replace(/((?:src|href)="\/[^"]+\.(?:js|css))\?v=[^"]+"/g, `$1?v=${assetVersion}"`);
-  if (stampedAssets.includes('name="shivara-build"')) return stampedAssets;
+  const adminStoreScript = `<script>window.SHIVARA_ADMIN_STORE=${JSON.stringify(loadAdminStore()).replace(/</g, "\\u003c")};</script>`;
+  const withAdminStore = stampedAssets.includes("SHIVARA_ADMIN_STORE")
+    ? stampedAssets
+    : stampedAssets.replace('<script src="/catalog-data.js', `${adminStoreScript}<script src="/catalog-data.js`);
+  if (withAdminStore.includes('name="shivara-build"')) return withAdminStore;
   const serialized = JSON.stringify(buildInfo).replace(/</g, "\\u003c");
-  return stampedAssets.replace("</head>", `<meta name="shivara-build" content="${escapeHtml(buildInfo.commit)}" /><meta name="shivara-catalog-version" content="${escapeHtml(buildInfo.catalogVersion)}" /><meta name="shivara-build-timestamp" content="${escapeHtml(buildInfo.builtAt)}" /><meta name="shivara-app-version" content="${escapeHtml(buildInfo.appVersion)}" /><script>window.SHIVARA_BUILD_INFO=Object.freeze(${serialized});</script></head>`);
+  return withAdminStore.replace("</head>", `<meta name="shivara-build" content="${escapeHtml(buildInfo.commit)}" /><meta name="shivara-catalog-version" content="${escapeHtml(buildInfo.catalogVersion)}" /><meta name="shivara-build-timestamp" content="${escapeHtml(buildInfo.builtAt)}" /><meta name="shivara-app-version" content="${escapeHtml(buildInfo.appVersion)}" /><script>window.SHIVARA_BUILD_INFO=Object.freeze(${serialized});</script></head>`);
 }
 
 function injectHome(html) {
@@ -134,7 +220,7 @@ function injectHome(html) {
     title: "Shivara | Curated Jewellery",
     description: "Shop Shivara's manually curated jewellery catalogue with transparent pricing and personal WhatsApp assistance.",
     canonical: "/",
-    image: products[0].images[0]
+    image: products[0]?.images[0]
   });
 }
 
@@ -173,7 +259,7 @@ function injectProduct(html, product) {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.title,
-    image: product.images.map((image) => `${siteUrl}/${image}`),
+    image: product.images.map((image) => absoluteMediaUrl(image)),
     description: product.description,
     sku: product.sku,
     brand: { "@type": "Brand", name: "Shivara" },
@@ -229,9 +315,74 @@ function safeStaticPath(pathname) {
   return resolved === root || resolved.startsWith(`${root}${path.sep}`) ? resolved : null;
 }
 
-const server = http.createServer((request, response) => {
+const server = http.createServer(async (request, response) => {
   const requestUrl = new URL(request.url || "/", `http://localhost:${port}`);
   const pathname = decodeURIComponent(requestUrl.pathname).replace(/\/+$/, "") || "/";
+  ensureFreshCatalog();
+
+  if (pathname === "/admin") {
+    const html = fs.readFileSync(path.join(root, "admin.html"), "utf8");
+    return sendHtml(response, html.replace("</head>", '<meta name="robots" content="noindex, nofollow" /></head>'));
+  }
+  if (pathname === "/admin/login" && request.method === "POST") {
+    try {
+      const body = await readJsonBody(request);
+      if (!passwordMatches(body.password)) return sendJson(response, 401, { error: "Invalid password" });
+      const token = crypto.randomBytes(32).toString("hex");
+      adminSessions.add(token);
+      return sendJson(response, 200, { token });
+    } catch {
+      return sendJson(response, 400, { error: "Invalid request" });
+    }
+  }
+  if (pathname === "/admin/api/products" && request.method === "GET") {
+    if (!requireAdmin(request, response)) return;
+    return sendJson(response, 200, products.map((product) => ({
+      ...product,
+      _source: productSource(product)
+    })));
+  }
+  if (pathname === "/admin/api/products" && request.method === "POST") {
+    if (!requireAdmin(request, response)) return;
+    try {
+      const body = await readJsonBody(request);
+      const store = loadAdminStore();
+      const existingSlugs = new Set([
+        ...products.map((product) => product.slug),
+        ...store.products.map((product) => product.slug)
+      ]);
+      const result = normalizeAdminProductInput(body, { existingSlugs });
+      if (result.error) return sendJson(response, 400, { error: result.error });
+      store.products.unshift(result.product);
+      store.deleted = store.deleted.filter((slug) => slug !== result.product.slug);
+      saveAdminStore(store);
+      refreshCatalog();
+      return sendJson(response, 201, { ok: true, product: result.product });
+    } catch {
+      return sendJson(response, 400, { error: "Invalid request" });
+    }
+  }
+  if (pathname.startsWith("/admin/api/products/") && request.method === "DELETE") {
+    if (!requireAdmin(request, response)) return;
+    const slug = pathname.slice("/admin/api/products/".length);
+    if (!slug) return sendJson(response, 400, { error: "Missing product slug" });
+    const store = loadAdminStore();
+    const before = store.products.length;
+    store.products = store.products.filter((product) => product.slug !== slug);
+    const removedAdmin = store.products.length !== before;
+    if (!removedAdmin) {
+      if (!store.deleted.includes(slug)) store.deleted.push(slug);
+    } else {
+      store.deleted = store.deleted.filter((value) => value !== slug);
+    }
+    saveAdminStore(store);
+    refreshCatalog();
+    return sendJson(response, 200, { ok: true });
+  }
+  if (pathname === "/admin-products.json") {
+    const page = unavailablePage("Page not found", "The page you requested does not exist.");
+    return sendHtml(response, page.html, page.status);
+  }
   if (pathname === "/robots.txt") {
     response.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
     return response.end(`User-agent: *\nAllow: /\nSitemap: ${siteUrl}/sitemap.xml\n`);

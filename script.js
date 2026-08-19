@@ -3,6 +3,9 @@
 
   const catalogApi = window.ShivaraCatalog;
   const cardRenderer = window.ShivaraStorefrontRenderer;
+  const mediaHref = typeof cardRenderer?.mediaHref === "function"
+    ? cardRenderer.mediaHref
+    : (src) => `/${String(src || "").replace(/^\/+/, "")}`;
   if (!catalogApi || !cardRenderer) {
     console.error("[Shivara] Curated catalogue failed to load. Commerce has been disabled.");
     document.querySelector("#main")?.insertAdjacentHTML("afterbegin", '<div class="stable-shop-unavailable" role="alert"><strong>The Shivara shop is temporarily unavailable.</strong><span>Please contact us on WhatsApp for assistance.</span></div>');
@@ -196,7 +199,7 @@
             <div class="stable-nav__mega">
               <div class="stable-nav__mega-links"><small>SHOP THE CATALOGUE</small><a href="/collections/new-arrivals">New Arrivals</a><a href="/collections/all?price=confirmed">Ready to Order</a><a href="/collections/gifting">Gifting Edit</a><a href="/collections/anti-tarnish">Anti Tarnish</a><a href="/collections/all">View All Products</a></div>
               <div class="stable-nav__mega-categories"><small>BY CATEGORY</small><a href="/collections/earrings">Earrings</a><a href="/collections/necklaces">Neck Wear</a><a href="/collections/bracelets">Bracelets</a><a href="/collections/rings">Rings</a><a href="/collections/evil-eye">Evil Eye</a><a href="/collections/watches">Watches</a></div>
-              <div class="stable-nav__mega-features">${megaFeatures.map(([product, label]) => `<a href="${productUrl(product)}"><img src="/${escapeHtml(product.images[0])}" alt="" /><span><small>${label}</small><strong>${escapeHtml(product.title)}</strong></span></a>`).join("")}</div>
+              <div class="stable-nav__mega-features">${megaFeatures.map(([product, label]) => `<a href="${productUrl(product)}"><img src="${escapeHtml(mediaHref(product.images[0]))}" alt="" /><span><small>${label}</small><strong>${escapeHtml(product.title)}</strong></span></a>`).join("")}</div>
             </div>
           </div>
           <a href="/collections/new-arrivals">New Arrivals</a><a href="/collections/earrings">Earrings</a><a href="/collections/necklaces">Neck Wear</a><a href="/collections/bracelets">Bracelets</a><a href="/collections/rings">Rings</a><a href="/collections/evil-eye">Evil Eye</a>
@@ -220,7 +223,7 @@
   function sharedFooter() {
     const footerProduct = productMap.get("tulip-pendant");
     return `<footer class="stable-footer phase-footer">
-      <section class="phase-footer__finale"><div><p>THE LOOK IS NEVER FINISHED</p><h2>Until the<br />jewellery is.</h2><a class="stable-button stable-button--light" href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hi Shivara, I would like help styling a jewellery look.")}" target="_blank" rel="noreferrer">Style with Shivara</a></div><figure aria-hidden="true"><span></span><img src="/${escapeHtml(footerProduct.images[0])}" alt="" /></figure><strong aria-hidden="true">SHIVARA</strong></section>
+      <section class="phase-footer__finale"><div><p>THE LOOK IS NEVER FINISHED</p><h2>Until the<br />jewellery is.</h2><a class="stable-button stable-button--light" href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hi Shivara, I would like help styling a jewellery look.")}" target="_blank" rel="noreferrer">Style with Shivara</a></div><figure aria-hidden="true"><span></span><img src="${escapeHtml(mediaHref(footerProduct.images[0]))}" alt="" /></figure><strong aria-hidden="true">SHIVARA</strong></section>
       <div class="phase-footer__links"><div><a class="stable-logo stable-logo--footer" href="/">SHIVARA<small>JEWELLERY ATELIER</small></a><p>A manually curated jewellery catalogue with personal ordering support from Bareilly.</p></div><div><strong>Shop</strong><a href="/collections/all">All Products</a><a href="/collections/new-arrivals">New Arrivals</a><a href="/collections/gifting">Gifting</a><a href="/wishlist">Wishlist</a></div><div><strong>Help</strong><a href="https://wa.me/${whatsappNumber}" target="_blank" rel="noreferrer">WhatsApp Shivara</a><a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">Instagram</a><span>PAN India delivery</span></div><div><strong>Policies</strong><a href="/policies/shipping">Shipping &amp; Exchange</a><a href="/policies/privacy">Privacy</a><a href="/policies/terms">Terms</a></div></div>
       <small>© ${new Date().getFullYear()} Shivara. Availability and unconfirmed prices are verified before purchase.</small>
     </footer>`;
@@ -233,7 +236,7 @@
         <div class="stable-layer__head"><div><small>JEWELLERY ATELIER</small><h2 id="menu-title">Shop Shivara</h2></div><button type="button" data-layer-close aria-label="Close menu">×</button></div>
         <div class="stable-menu-utility"><button type="button" data-menu-search>Search products <span>⌕</span></button><a href="/wishlist">Your wishlist <span data-wishlist-count>0</span></a></div>
         <nav><small>SHOP BY CATEGORY</small>${categoryRail.map(([label, slug]) => `<a href="${collectionUrl(slug)}">${label}<span>${productsForCollection(slug).length}</span></a>`).join("")}<a href="/collections/all"><strong>All Products</strong><span>${products.length}</span></a></nav>
-        <a class="stable-menu-feature" href="${productUrl(menuFeature)}"><img src="/${escapeHtml(menuFeature.images[0])}" alt="${escapeHtml(menuFeature.imageAlt)}" /><span><small>THE SHIVARA EDIT</small><strong>${escapeHtml(menuFeature.title)}</strong><em>View product</em></span></a>
+        <a class="stable-menu-feature" href="${productUrl(menuFeature)}"><img src="${escapeHtml(mediaHref(menuFeature.images[0]))}" alt="${escapeHtml(menuFeature.imageAlt)}" /><span><small>THE SHIVARA EDIT</small><strong>${escapeHtml(menuFeature.title)}</strong><em>View product</em></span></a>
         <div class="stable-menu-help"><p>Need help choosing?</p><a href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hi Shivara, I would like help choosing a jewellery piece.")}" target="_blank" rel="noreferrer">Chat with Shivara on WhatsApp</a></div>
       </aside>
       <aside class="stable-drawer stable-drawer--search" id="search-drawer" role="dialog" aria-modal="true" aria-labelledby="search-title" aria-hidden="true">
@@ -348,7 +351,7 @@
   function showToast(message, product = null) {
     const toast = document.querySelector("#stable-toast");
     if (!toast) return;
-    toast.innerHTML = product ? `<img src="/${escapeHtml(product.images[0])}" alt="" /><span>${escapeHtml(message)}</span>` : `<span>${escapeHtml(message)}</span>`;
+    toast.innerHTML = product ? `<img src="${escapeHtml(mediaHref(product.images[0]))}" alt="" /><span>${escapeHtml(message)}</span>` : `<span>${escapeHtml(message)}</span>`;
     toast.classList.add("is-visible");
     clearTimeout(showToast.timer);
     showToast.timer = setTimeout(() => toast.classList.remove("is-visible"), 2200);
@@ -456,7 +459,7 @@
       const variant = validVariant(product, item.variantId);
       const value = pricing(product);
       return `<article class="stable-cart-line">
-        <img src="/${escapeHtml(product.images[0])}" alt="${escapeHtml(product.imageAlt)}" />
+        <img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(product.imageAlt)}" />
         <div><a href="${productUrl(product)}">${escapeHtml(product.title)}</a><small>${escapeHtml(product.sku)}${variant ? ` · ${escapeHtml(variant.label)}` : product.optionsStatus === "confirm" ? " · Options to be confirmed" : ""}</small><span class="stable-cart-line__mode">${value.confirmed ? `Unit price ${formatMoney(value.price)}` : "Price confirmation needed"}</span><strong>${value.confirmed ? `Line total ${formatMoney(value.price * item.qty)}` : "To be confirmed"}</strong>
         <div class="stable-qty"><button type="button" data-cart-delta="-1" data-cart-id="${product.id}" data-variant-id="${variant?.id || ""}" aria-label="Decrease quantity">−</button><span>${item.qty}</span><button type="button" data-cart-delta="1" data-cart-id="${product.id}" data-variant-id="${variant?.id || ""}" aria-label="Increase quantity">+</button></div>
         <div class="stable-cart-line__links"><button type="button" data-cart-wishlist="${product.id}" data-variant-id="${variant?.id || ""}">Move to Wishlist</button><button class="stable-remove" type="button" data-cart-remove="${product.id}" data-variant-id="${variant?.id || ""}">Remove</button></div></div>
@@ -467,7 +470,7 @@
     lines.innerHTML = `${confirmed.length ? `<h3 class="stable-cart-group">Confirmed items</h3>${confirmed.map(renderLine).join("")}` : ""}${enquiries.length ? `<h3 class="stable-cart-group">Price confirmation needed</h3>${enquiries.map(renderLine).join("")}` : ""}`;
     const summary = cartSummary();
     const complement = catalogApi.getRelatedProducts(productMap.get(cart[0].id)).find((product) => !cart.some((item) => item.id === product.id));
-    footer.innerHTML = `${complement ? `<article class="stable-cart-complement"><img src="/${escapeHtml(complement.images[0])}" alt="" /><div><small>COMPLETE THE EDIT</small><strong>${escapeHtml(complement.title)}</strong>${priceMarkup(complement, "stable-search-price")}</div><button type="button" data-quick-view="${complement.id}">View</button></article>` : ""}<label class="stable-cart-note"><span>Order note or gifting request <small>Optional</small></span><textarea data-cart-note maxlength="240" rows="2" placeholder="Gift message, preferred delivery date, or anything Shivara should know">${escapeHtml(cartNote)}</textarea></label><div class="stable-cart-total"><span>Confirmed-price subtotal</span><strong>${formatMoney(summary.confirmedTotal)}</strong></div>${summary.enquiryCount ? `<p>${summary.enquiryCount} item(s) need price confirmation and are not included in the subtotal.</p>` : ""}<div class="stable-cart-service"><span>✓ Catalogue-verified products</span><span>✓ Final total confirmed before payment</span></div><a class="stable-button stable-button--whatsapp" data-cart-whatsapp href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent(cartMessage())}" target="_blank" rel="noreferrer">Send order enquiry on WhatsApp</a><button class="stable-button stable-button--plain" type="button" data-layer-close>Continue Shopping</button>`;
+    footer.innerHTML = `${complement ? `<article class="stable-cart-complement"><img src="${escapeHtml(mediaHref(complement.images[0]))}" alt="" /><div><small>COMPLETE THE EDIT</small><strong>${escapeHtml(complement.title)}</strong>${priceMarkup(complement, "stable-search-price")}</div><button type="button" data-quick-view="${complement.id}">View</button></article>` : ""}<label class="stable-cart-note"><span>Order note or gifting request <small>Optional</small></span><textarea data-cart-note maxlength="240" rows="2" placeholder="Gift message, preferred delivery date, or anything Shivara should know">${escapeHtml(cartNote)}</textarea></label><div class="stable-cart-total"><span>Confirmed-price subtotal</span><strong>${formatMoney(summary.confirmedTotal)}</strong></div>${summary.enquiryCount ? `<p>${summary.enquiryCount} item(s) need price confirmation and are not included in the subtotal.</p>` : ""}<div class="stable-cart-service"><span>✓ Catalogue-verified products</span><span>✓ Final total confirmed before payment</span></div><a class="stable-button stable-button--whatsapp" data-cart-whatsapp href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent(cartMessage())}" target="_blank" rel="noreferrer">Send order enquiry on WhatsApp</a><button class="stable-button stable-button--plain" type="button" data-layer-close>Continue Shopping</button>`;
     updateCounts();
   }
 
@@ -479,8 +482,8 @@
       ? `<button class="stable-button stable-button--dark" type="button" data-quick-add="${product.id}">Add to Bag</button>`
       : `<a class="stable-button stable-button--whatsapp" data-quick-whatsapp target="_blank" rel="noreferrer">Confirm on WhatsApp</a>`;
     const distinctImages = [...new Set(product.images)];
-    const gallery = distinctImages.map((image, index) => `<figure class="${index === 0 ? "is-active" : ""}" data-quick-media="${index}"><img src="/${escapeHtml(image)}" alt="${index === 0 ? escapeHtml(product.imageAlt) : `${escapeHtml(product.title)} detail ${index + 1}`}" ${index ? "loading=\"lazy\"" : ""} /></figure>`).join("");
-    const thumbs = distinctImages.length > 1 ? `<div class="stable-quick__thumbs">${distinctImages.map((image, index) => `<button class="${index === 0 ? "is-active" : ""}" type="button" data-quick-thumb="${index}" aria-label="View image ${index + 1}"><img src="/${escapeHtml(image)}" alt="" /></button>`).join("")}</div>` : "";
+    const gallery = distinctImages.map((image, index) => `<figure class="${index === 0 ? "is-active" : ""}" data-quick-media="${index}"><img src="${escapeHtml(mediaHref(image))}" alt="${index === 0 ? escapeHtml(product.imageAlt) : `${escapeHtml(product.title)} detail ${index + 1}`}" ${index ? "loading=\"lazy\"" : ""} /></figure>`).join("");
+    const thumbs = distinctImages.length > 1 ? `<div class="stable-quick__thumbs">${distinctImages.map((image, index) => `<button class="${index === 0 ? "is-active" : ""}" type="button" data-quick-thumb="${index}" aria-label="View image ${index + 1}"><img src="${escapeHtml(mediaHref(image))}" alt="" /></button>`).join("")}</div>` : "";
     const badge = allowedBadges.has(product.badge) ? `<span class="stable-quick__badge">${escapeHtml(product.badge)}</span>` : "";
     const modal = document.querySelector("#quick-view");
     modal.innerHTML = `<button class="stable-quick__close" type="button" data-layer-close aria-label="Close Quick View">×</button>
@@ -536,7 +539,7 @@
     mount.innerHTML = categoryRail.map(([label, slug, productId]) => {
       const product = productMap.get(productId);
       const count = productsForCollection(slug).length;
-      return `<a href="${collectionUrl(slug)}"><span><img src="/${escapeHtml(product.images[0])}" alt="${escapeHtml(label)} collection" loading="lazy" /></span><strong>${escapeHtml(label)}</strong><small>${count} ${count === 1 ? "product" : "products"}</small></a>`;
+      return `<a href="${collectionUrl(slug)}"><span><img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(label)} collection" loading="lazy" /></span><strong>${escapeHtml(label)}</strong><small>${count} ${count === 1 ? "product" : "products"}</small></a>`;
     }).join("");
   }
 
@@ -550,7 +553,7 @@
       const value = pricing(product);
       return `<article class="living-card living-card--${index + 1}">
         <a class="living-card__media" href="${productUrl(product)}">
-          <img src="/${escapeHtml(product.images[0])}" alt="${escapeHtml(product.imageAlt)}" loading="${index ? "lazy" : "eager"}" />
+          <img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(product.imageAlt)}" loading="${index ? "lazy" : "eager"}" />
           <span>${String(index + 1).padStart(2, "0")}</span>
         </a>
         <div class="living-card__copy">
@@ -586,7 +589,7 @@
     const signatureProducts = catalogApi.getFeaturedProducts(12).filter((product) => pricing(product).confirmed).slice(0, 6);
     signatureIndex = (nextIndex + signatureProducts.length) % signatureProducts.length;
     const product = signatureProducts[signatureIndex];
-    mount.innerHTML = `<a class="signature-edit__image" href="${productUrl(product)}"><img src="/${escapeHtml(product.images[0])}" alt="${escapeHtml(product.imageAlt)}" loading="lazy" /></a><div><small>${signatureIndex + 1} / ${signatureProducts.length} · ${escapeHtml(product.sku)}</small><h3>${escapeHtml(product.title)}</h3>${priceMarkup(product, "signature-edit__price")}<p>${escapeHtml(product.description)}</p><button class="stable-button stable-button--light" type="button" data-quick-view="${product.id}">Quick View</button></div>`;
+    mount.innerHTML = `<a class="signature-edit__image" href="${productUrl(product)}"><img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(product.imageAlt)}" loading="lazy" /></a><div><small>${signatureIndex + 1} / ${signatureProducts.length} · ${escapeHtml(product.sku)}</small><h3>${escapeHtml(product.title)}</h3>${priceMarkup(product, "signature-edit__price")}<p>${escapeHtml(product.description)}</p><button class="stable-button stable-button--light" type="button" data-quick-view="${product.id}">Quick View</button></div>`;
   }
 
   function renderHome() {

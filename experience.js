@@ -87,7 +87,9 @@
   }
 
   function image(product) {
-    return `/${product.images[0]}`;
+    const src = product.images[0] || "";
+    if (/^(https?:)?\/\//i.test(src) || src.startsWith("data:")) return src;
+    return `/${String(src).replace(/^\/+/, "")}`;
   }
 
   function category(product) {

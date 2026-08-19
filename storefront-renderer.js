@@ -23,6 +23,12 @@
     })[character]);
   }
 
+  function mediaHref(src) {
+    const value = String(src || "");
+    if (/^(https?:)?\/\//i.test(value) || value.startsWith("data:")) return value;
+    return `/${value.replace(/^\/+/, "")}`;
+  }
+
   function productUrl(product) {
     return `/products/${encodeURIComponent(product.slug)}`;
   }
@@ -70,8 +76,8 @@
     return `<article class="stable-card" data-commerce-renderer="shared-v1" data-product-card="${escapeHtml(product.id)}" data-category="${escapeHtml(product.category)}" itemscope itemtype="https://schema.org/Product">
       <div class="stable-card__media">
         <a href="${productUrl(product)}" aria-label="View ${escapeHtml(product.title)}" itemprop="url">
-          <img class="stable-card__image stable-card__image--primary" src="/${escapeHtml(primary)}" alt="${escapeHtml(product.imageAlt)}" width="640" height="800" ${index < 5 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" itemprop="image" />
-          ${secondary ? `<img class="stable-card__image stable-card__image--secondary" src="/${escapeHtml(secondary)}" alt="" width="640" height="800" loading="lazy" decoding="async" />` : ""}
+          <img class="stable-card__image stable-card__image--primary" src="${escapeHtml(mediaHref(primary))}" alt="${escapeHtml(product.imageAlt)}" width="640" height="800" ${index < 5 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" itemprop="image" />
+          ${secondary ? `<img class="stable-card__image stable-card__image--secondary" src="${escapeHtml(mediaHref(secondary))}" alt="" width="640" height="800" loading="lazy" decoding="async" />` : ""}
         </a>
         ${badge ? `<span class="stable-card__badge">${escapeHtml(badge)}</span>` : ""}
         <button class="stable-card__wish ${isWishlisted ? "is-active" : ""}" type="button" data-wishlist-toggle="${escapeHtml(product.id)}" aria-label="${isWishlisted ? "Remove" : "Save"} ${escapeHtml(product.title)}" aria-pressed="${isWishlisted}">♡</button>
@@ -110,10 +116,10 @@
       ...product.images.map((src, index) => ({ type: "image", src, index })),
       ...(product.videos || []).map((src, index) => ({ type: "video", src, index }))
     ];
-    const mediaThumbs = media.map((item, index) => `<button type="button" data-pdp-thumb="${index}" class="${index === 0 ? "is-active" : ""}" aria-label="${item.type === "video" ? "Play product video" : `View image ${item.index + 1}`}"><img src="/${escapeHtml(product.images[Math.min(item.index, product.images.length - 1)])}" alt="" />${item.type === "video" ? '<span class="stable-pdp__play" aria-hidden="true">▶</span>' : ""}</button>`).join("");
+    const mediaThumbs = media.map((item, index) => `<button type="button" data-pdp-thumb="${index}" class="${index === 0 ? "is-active" : ""}" aria-label="${item.type === "video" ? "Play product video" : `View image ${item.index + 1}`}"><img src="${escapeHtml(mediaHref(product.images[Math.min(item.index, product.images.length - 1)]))}" alt="" />${item.type === "video" ? '<span class="stable-pdp__play" aria-hidden="true">▶</span>' : ""}</button>`).join("");
     const mediaSlides = media.map((item, index) => item.type === "video"
-      ? `<video src="/${escapeHtml(item.src)}" aria-label="${escapeHtml(product.title)} product video ${item.index + 1}" controls playsinline preload="metadata"></video>`
-      : `<img src="/${escapeHtml(item.src)}" alt="${index === 0 ? escapeHtml(product.imageAlt) : `${escapeHtml(product.title)} detail ${item.index + 1}`}" itemprop="${index === 0 ? "image" : ""}" />`
+      ? `<video src="${escapeHtml(mediaHref(item.src))}" aria-label="${escapeHtml(product.title)} product video ${item.index + 1}" controls playsinline preload="metadata"></video>`
+      : `<img src="${escapeHtml(mediaHref(item.src))}" alt="${index === 0 ? escapeHtml(product.imageAlt) : `${escapeHtml(product.title)} detail ${item.index + 1}`}" itemprop="${index === 0 ? "image" : ""}" />`
     ).join("");
     const availabilityLabel = product.priceStatus === "unavailable"
       ? "Currently unavailable"
@@ -135,5 +141,5 @@
     </div>`;
   }
 
-  return Object.freeze({ renderProductCard, renderProductPage, priceMarkup, productUrl, categoryLabels, allowedBadges: [...allowedBadges] });
+  return Object.freeze({ renderProductCard, renderProductPage, priceMarkup, productUrl, mediaHref, categoryLabels, allowedBadges: [...allowedBadges] });
 });
