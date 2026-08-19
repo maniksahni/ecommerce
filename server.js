@@ -357,7 +357,10 @@ function sendHtml(response, html, status = 200) {
 
 function sendStatic(response, filePath) {
   const extension = path.extname(filePath).toLowerCase();
-  response.writeHead(200, { "Content-Type": mimeTypes[extension] || "application/octet-stream", "Cache-Control": extension === ".html" ? "no-cache" : "public, max-age=3600" });
+  const cacheControl = path.basename(filePath) === "admin-catalog-snapshot.js" || extension === ".html"
+    ? "no-cache, must-revalidate"
+    : "public, max-age=3600";
+  response.writeHead(200, { "Content-Type": mimeTypes[extension] || "application/octet-stream", "Cache-Control": cacheControl });
   fs.createReadStream(filePath).pipe(response);
 }
 

@@ -768,6 +768,7 @@
   <!-- Toast -->
   <div class="admin-toast" id="admin-toast"></div>
 
+  <script src="/admin-catalog-snapshot.js?v=20260820"></script>
   <script>
     const COLLECTIONS = [
       'new-arrivals','gifting','anti-tarnish','evil-eye',
@@ -890,7 +891,10 @@
         } catch (error) {
           lastError = error;
           if (error.message === 'Unauthorized') throw error;
-          $('#products-tbody').innerHTML = `<tr><td colspan="7"><div class="admin-empty"><div class="admin-empty__icon">...</div><h3>Refreshing products</h3><p>Trying again (${attempt + 1}/3).</p></div></td></tr>`;
+          // The embedded snapshot remains usable while the live refresh retries.
+          if (!allProducts.length) {
+            $('#products-tbody').innerHTML = `<tr><td colspan="7"><div class="admin-empty"><div class="admin-empty__icon">...</div><h3>Refreshing products</h3><p>Trying again (${attempt + 1}/3).</p></div></td></tr>`;
+          }
           if (attempt < 2) await delay(350 * (attempt + 1));
         } finally {
           clearTimeout(timeout);
