@@ -32,8 +32,9 @@ function loadSourceData() {
 function loadCatalog() {
   const source = loadSourceData();
   const overrides = require(path.join(root, "catalog-overrides.js"));
-  const { build, createAccessLayer } = require(path.join(root, "catalog-data.js"));
-  const catalog = build(source, overrides);
+  const { build, createAccessLayer, mergeAdminCatalog } = require(path.join(root, "catalog-data.js"));
+  const { loadAdminStore } = require(path.join(root, "admin-store.js"));
+  const catalog = mergeAdminCatalog(build(source, overrides), loadAdminStore());
   return { source, overrides, catalog, catalogApi: createAccessLayer(catalog) };
 }
 
@@ -59,6 +60,7 @@ function validateProduct(product) {
   }
   if (!Array.isArray(product.images) || !product.images.length) errors.push("missing image");
   (product.images || []).forEach((image) => {
+    if (/^(https?:)?\/\//i.test(image) || String(image).startsWith("data:")) return;
     if (!fs.existsSync(path.join(root, image))) errors.push(`broken local image path: ${image}`);
   });
   if (new Set(product.images || []).size !== (product.images || []).length) errors.push("duplicate gallery image");
