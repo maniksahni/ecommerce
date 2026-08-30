@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shivara Luxe | Administration Panel</title>
+  <title>Shivara Luxe | Executive Administration Dashboard</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231f130b'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Georgia,serif' font-size='36' fill='%23d4a843'%3ES%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,7 +18,7 @@
       --gold: #d4a843;
       --gold-dark: #ad8328;
       --gold-light: #fae4a8;
-      --gold-dim: rgba(212, 168, 67, 0.14);
+      --gold-dim: rgba(212, 168, 67, 0.12);
       --gold-border: rgba(212, 168, 67, 0.3);
       --ivory: #fcf8f2;
       --ivory-dim: #f5ebe0;
@@ -35,7 +35,7 @@
       --radius-lg: 14px;
       --shadow-sm: 0 2px 8px rgba(41, 22, 12, 0.04);
       --shadow-md: 0 8px 24px rgba(41, 22, 12, 0.08);
-      --shadow-lg: 0 20px 50px rgba(25, 13, 6, 0.18);
+      --shadow-lg: 0 20px 50px rgba(25, 13, 6, 0.2);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -59,13 +59,13 @@
     }
 
     /* ════════════════════════════════════════
-       LOGIN SCREEN
+       1. LOGIN SCREEN / ACCESS GATE
     ════════════════════════════════════════ */
     #login-screen {
       position: fixed; inset: 0; z-index: 999;
       display: flex; align-items: center; justify-content: center;
       background: var(--choco-dark);
-      background-image: radial-gradient(circle at 50% 35%, rgba(212, 168, 67, 0.12), transparent 70%);
+      background-image: radial-gradient(circle at 50% 35%, rgba(212, 168, 67, 0.14), transparent 70%);
       padding: 20px;
     }
 
@@ -196,11 +196,6 @@
       box-shadow: 0 6px 20px rgba(212, 168, 67, 0.35);
     }
 
-    .login-btn:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-    }
-
     .login-error {
       margin-top: 14px;
       padding: 10px 14px;
@@ -231,11 +226,10 @@
       font-weight: 500;
       transition: color .2s;
     }
-
     .login-footer a:hover { color: var(--choco); text-decoration: underline; }
 
     /* ════════════════════════════════════════
-       ADMIN DASHBOARD
+       2. DASHBOARD MAIN LAYOUT
     ════════════════════════════════════════ */
     #admin-screen {
       display: none;
@@ -251,7 +245,7 @@
       position: sticky; top: 0; z-index: 40;
       display: flex; align-items: center; justify-content: space-between;
       gap: 20px; padding: 14px clamp(16px, 3.5vw, 48px);
-      background: rgba(252, 248, 242, 0.95);
+      background: rgba(252, 248, 242, 0.96);
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(16px);
       box-shadow: var(--shadow-sm);
@@ -356,6 +350,18 @@
       box-shadow: 0 4px 12px rgba(163, 34, 39, 0.25);
     }
 
+    .btn-success {
+      background: transparent;
+      border-color: rgba(31, 107, 59, 0.35);
+      color: var(--green);
+    }
+
+    .btn-success:hover:not(:disabled) {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
+
     .btn-sm {
       min-height: 32px;
       padding: 4px 10px;
@@ -367,6 +373,36 @@
       width: min(100%, 1400px);
       margin: 0 auto;
       padding: 32px clamp(14px, 3.5vw, 48px) 80px;
+    }
+
+    /* Sync / Import Banner */
+    .sync-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 18px 24px;
+      background: linear-gradient(135deg, #fff9ee 0%, #fdf2d8 100%);
+      border: 1px solid var(--gold);
+      border-left: 5px solid var(--gold);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 32px;
+    }
+
+    .sync-banner.is-active { display: flex; }
+
+    .sync-banner-text h3 {
+      font-family: "Italiana", serif;
+      font-size: 22px;
+      color: var(--choco);
+      margin-bottom: 4px;
+    }
+
+    .sync-banner-text p {
+      font-size: 12px;
+      color: var(--muted);
     }
 
     /* Stats Grid */
@@ -445,7 +481,7 @@
       margin-top: 2px;
     }
 
-    /* Search & Filter Toolbar */
+    /* Toolbar: Search, Filters & Sync */
     .toolbar {
       display: flex;
       align-items: center;
@@ -597,16 +633,39 @@
       border-radius: 3px;
     }
 
+    /* Price Cell & Quick Edit */
+    .price-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .price-tag {
       font-weight: 700;
       font-size: 13px;
       color: var(--choco);
+      cursor: pointer;
     }
 
-    .price-tag--enquiry {
+    .price-tag:hover {
+      color: var(--gold-dark);
+      text-decoration: underline;
+    }
+
+    .price-edit-btn {
+      border: 0;
+      background: transparent;
+      cursor: pointer;
       color: var(--muted);
-      font-size: 10px;
-      font-style: italic;
+      font-size: 13px;
+      padding: 2px 4px;
+      border-radius: 2px;
+      transition: color .2s;
+    }
+
+    .price-edit-btn:hover {
+      color: var(--choco);
+      background: var(--gold-dim);
     }
 
     /* Stock Status Badges */
@@ -784,7 +843,7 @@
       border-top: 1px solid var(--border);
     }
 
-    /* Modal dialog */
+    /* Modal dialogs */
     .modal-overlay {
       position: fixed; inset: 0; z-index: 500;
       background: rgba(25, 13, 6, 0.7);
@@ -826,6 +885,20 @@
       display: flex;
       justify-content: center;
       gap: 12px;
+    }
+
+    /* Quick Price Edit Modal */
+    .price-modal-input {
+      width: 100%;
+      min-height: 48px;
+      font-size: 20px;
+      font-weight: 700;
+      text-align: center;
+      color: var(--choco);
+      margin-bottom: 20px;
+      border: 2px solid var(--gold);
+      border-radius: var(--radius-sm);
+      outline: none;
     }
 
     /* Toast Notification */
@@ -912,19 +985,19 @@
 <body>
 
   <!-- ════════════════════════════════════════
-       1. LOGIN MODAL / PROTECTION GATE
+       1. LOGIN ACCESS GATE
   ════════════════════════════════════════ -->
   <div id="login-screen">
     <div class="login-card">
       <h1 class="login-brand">Shivara</h1>
       <span class="login-tag">Executive Administration</span>
       <span class="login-divider"></span>
-      <p class="login-desc">Enter the administrative master passcode to access the live e-commerce inventory and catalogue management system.</p>
+      <p class="login-desc">Enter the administrative master passcode to manage real-time catalogue items, prices, inventory, and media storage.</p>
 
       <form id="login-form" autocomplete="off">
         <div class="login-field">
           <label for="admin-passcode">Master Passcode</label>
-          <input type="password" id="admin-passcode" placeholder="Enter administrative passcode" autofocus required />
+          <input type="password" id="admin-passcode" placeholder="Enter master passcode" autofocus required />
           <button type="button" class="toggle-pw" id="toggle-pw" title="Show or hide passcode">👁</button>
         </div>
         <button type="submit" class="login-btn" id="login-btn">
@@ -934,7 +1007,7 @@
       </form>
 
       <div class="login-footer">
-        <a href="/index.html">← Back to Storefront</a>
+        <a href="/index.html">← Return to Storefront</a>
       </div>
     </div>
   </div>
@@ -952,6 +1025,9 @@
       </a>
 
       <div class="admin-header-actions">
+        <button id="sync-catalog-btn" class="btn btn-gold btn-sm" title="Import / Sync all website catalogue products into Firestore">
+          <span>📥</span> Import Catalogue
+        </button>
         <button id="refresh-btn" class="btn btn-outline btn-sm" title="Reload live data from Firestore">
           <span>↻</span> Refresh
         </button>
@@ -963,30 +1039,41 @@
     <!-- Main Content -->
     <main class="admin-main">
 
+      <!-- Sync / Seed Alert Banner (Shown when Firestore collection is empty) -->
+      <section class="sync-banner" id="sync-banner">
+        <div class="sync-banner-text">
+          <h3>📦 Initial Setup Required: Seed Firestore Database</h3>
+          <p>Your Firestore <code>products</code> collection is currently empty. Click "Import &amp; Sync Catalogue" to batch-import all 114 curated website pieces into Firestore with full pricing, categories, and images.</p>
+        </div>
+        <button id="banner-sync-btn" class="btn btn-gold">
+          <span>✦</span> Import &amp; Sync 114 Products to Firestore
+        </button>
+      </section>
+
       <!-- Stats Summary -->
       <section class="stats-grid">
         <div class="stat-card">
           <div class="stat-label">Total Catalogue Items</div>
-          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-value" id="stat-total">0</div>
           <div class="stat-sub">in Firestore collection</div>
         </div>
 
         <div class="stat-card stat-card--in-stock">
           <div class="stat-label">Active / In Stock</div>
-          <div class="stat-value" id="stat-in-stock" style="color:var(--green)">—</div>
+          <div class="stat-value" id="stat-in-stock" style="color:var(--green)">0</div>
           <div class="stat-sub">available for purchase</div>
         </div>
 
         <div class="stat-card stat-card--sold-out">
-          <div class="stat-label">Sold Out</div>
-          <div class="stat-value" id="stat-sold-out" style="color:var(--red)">—</div>
+          <div class="stat-label">Sold Out Items</div>
+          <div class="stat-value" id="stat-sold-out" style="color:var(--red)">0</div>
           <div class="stat-sub">marked out of stock</div>
         </div>
 
         <div class="stat-card stat-card--revenue">
-          <div class="stat-label">Avg Confirmed Price</div>
+          <div class="stat-label">Avg Item Price</div>
           <div class="stat-value" id="stat-avg-price">—</div>
-          <div class="stat-sub">across priced items</div>
+          <div class="stat-sub">across active products</div>
         </div>
       </section>
 
@@ -994,7 +1081,7 @@
       <div class="section-header">
         <div>
           <h2 class="section-title">Product Catalogue</h2>
-          <p class="section-subtitle">Live real-time product list from Firestore</p>
+          <p class="section-subtitle">Real-time inventory connected to live Firestore collection</p>
         </div>
         <div>
           <a href="#product-form-section" class="btn btn-gold btn-sm">
@@ -1007,19 +1094,19 @@
       <div class="toolbar">
         <div class="search-box">
           <span class="search-icon">🔍</span>
-          <input type="text" id="search-input" placeholder="Search products by title, category or description…" />
+          <input type="text" id="search-input" placeholder="Search by title, category, price, or description…" />
         </div>
 
         <select id="category-filter" class="filter-select">
           <option value="all">All Categories</option>
           <option value="earrings">Earrings</option>
           <option value="necklaces">Necklaces / Neck Wear</option>
-          <option value="bracelets">Bracelets</option>
+          <option value="bracelets">Bracelets &amp; Bangles</option>
           <option value="rings">Rings</option>
           <option value="evil-eye">Evil Eye</option>
           <option value="new-arrivals">New Arrivals</option>
           <option value="pendants">Pendants</option>
-          <option value="sets">Sets</option>
+          <option value="sets">Jewellery Sets</option>
           <option value="watches">Watches</option>
           <option value="anti-tarnish">Anti Tarnish</option>
           <option value="gifting">Gifting</option>
@@ -1041,9 +1128,9 @@
               <th>Image</th>
               <th>Product Title &amp; Slug</th>
               <th>Category</th>
-              <th>Price</th>
+              <th>Live Price (INR)</th>
               <th>Status</th>
-              <th>Quick Stock Toggle</th>
+              <th>One-Click Toggle</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -1073,7 +1160,7 @@
       <div class="edit-alert-banner" id="edit-alert-banner">
         <div>
           <strong id="edit-banner-title">Editing Product</strong>
-          <p>Modify the fields below and click "Update Product" to commit changes to Firestore.</p>
+          <p>Modify the fields below and click "Update Product in Firestore" to save changes.</p>
         </div>
         <button type="button" class="btn btn-outline btn-sm" id="cancel-edit-btn">
           ✕ Cancel Edit Mode
@@ -1101,7 +1188,7 @@
                 <option value="">Select Category…</option>
                 <option value="earrings">Earrings</option>
                 <option value="necklaces">Necklaces / Neck Wear</option>
-                <option value="bracelets">Bracelets</option>
+                <option value="bracelets">Bracelets &amp; Bangles</option>
                 <option value="rings">Rings</option>
                 <option value="evil-eye">Evil Eye</option>
                 <option value="new-arrivals">New Arrivals</option>
@@ -1110,11 +1197,11 @@
                 <option value="watches">Watches</option>
                 <option value="anti-tarnish">Anti Tarnish</option>
                 <option value="gifting">Gifting</option>
-                <option value="other">Other</option>
+                <option value="other">Other Jewellery</option>
               </select>
             </div>
 
-            <div class="form-divider">2. Pricing &amp; Availability</div>
+            <div class="form-divider">2. Pricing &amp; Inventory</div>
 
             <div class="form-group">
               <label for="form-price">Price (INR ₹) <span>*</span></label>
@@ -1137,7 +1224,7 @@
                 <img id="img-preview" class="img-preview-thumb" alt="Product preview" />
                 <div style="flex:1">
                   <input type="file" id="form-image-file" class="form-control" accept="image/png,image/jpeg,image/webp,image/jpg" style="background:#fff" />
-                  <div class="form-hint">Upload JPG, PNG or WEBP (Max 8MB). Uploads securely to Firebase Storage.</div>
+                  <div class="form-hint">Upload JPG, PNG, or WEBP (Max 8MB). Uploads securely to Firebase Storage.</div>
                 </div>
               </div>
             </div>
@@ -1149,7 +1236,7 @@
 
             <div class="form-group full">
               <label for="form-desc">Description</label>
-              <textarea id="form-desc" class="form-control" placeholder="Describe the materials, craftsmanship, dimensions, and styling notes…" maxlength="500"></textarea>
+              <textarea id="form-desc" class="form-control" placeholder="Describe craftsmanship, dimensions, materials, and styling notes…" maxlength="500"></textarea>
             </div>
 
           </div>
@@ -1168,7 +1255,27 @@
   </div>
 
   <!-- ════════════════════════════════════════
-       3. DELETE CONFIRMATION MODAL
+       3. QUICK PRICE EDIT MODAL
+  ════════════════════════════════════════ -->
+  <div class="modal-overlay" id="price-modal">
+    <div class="modal-card">
+      <h3 class="modal-title">Update Product Price</h3>
+      <p class="modal-desc" id="price-modal-msg">Enter the new price for this product:</p>
+      <form id="price-edit-form" autocomplete="off">
+        <input type="hidden" id="price-modal-doc-id" />
+        <input type="number" id="price-modal-input" class="price-modal-input" placeholder="₹ Price" min="1" step="1" required />
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" id="price-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-gold" id="price-modal-save">
+            <span id="price-save-text">Save Price</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       4. DELETE CONFIRMATION MODAL
   ════════════════════════════════════════ -->
   <div class="modal-overlay" id="delete-modal">
     <div class="modal-card">
@@ -1184,18 +1291,21 @@
   </div>
 
   <!-- ════════════════════════════════════════
-       4. TOAST NOTIFICATION CONTAINER
+       5. TOAST NOTIFICATION CONTAINER
   ════════════════════════════════════════ -->
   <div class="toast" id="toast"></div>
 
+  <!-- Embedded Initial Catalog Snapshot for 1-Click Seeding -->
+  <script src="/admin-catalog-snapshot.js?v=20260820"></script>
+
   <!-- ════════════════════════════════════════
-       5. FIREBASE INTEGRATION & APPLICATION LOGIC
+       6. FIREBASE INTEGRATION & DASHBOARD LOGIC
   ════════════════════════════════════════ -->
   <script type="module">
-    // Firebase Modular Initialized Instances
+    // Firebase Initialized Instances
     import { db, storage, auth } from "/src/firebase.js";
 
-    // Firestore Modular SDK Functions
+    // Modular Firestore SDK Functions
     import {
       collection,
       addDoc,
@@ -1208,19 +1318,19 @@
       orderBy
     } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
-    // Firebase Storage Modular SDK Functions
+    // Modular Firebase Storage SDK Functions
     import {
       ref,
       uploadBytes,
       getDownloadURL
     } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
 
-    // Anonymous Auth (Ensures write permissions if rules require request.auth != null)
+    // Firebase Auth Anonymous Sign-In (Assures write rules pass)
     import {
       signInAnonymously
     } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
-    /* ─── Master Passcode & Session ─── */
+    /* ─── Passcode & Session Configuration ─── */
     const MASTER_PASSCODE = "Shivara@2026";
     const SESSION_KEY = "shivara_admin_authenticated";
 
@@ -1233,7 +1343,7 @@
       })[c]);
     }
 
-    /* ─── State Management ─── */
+    /* ─── State ─── */
     let allProducts = [];
     let isEditing = false;
     let editingDocId = null;
@@ -1262,7 +1372,7 @@
     function unlockDashboard() {
       $('#login-screen').style.display = 'none';
       $('#admin-screen').classList.add('is-active');
-      // Authenticate anonymously in Firebase Auth in background so Firestore rules pass
+      // Sign in anonymously in Firebase Auth so rules with request.auth != null succeed
       try {
         signInAnonymously(auth).catch(() => {});
       } catch (_) {}
@@ -1279,10 +1389,8 @@
     $('#login-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const entered = $('#admin-passcode').value.trim();
-      const btn = $('#login-btn');
       const errEl = $('#login-error');
 
-      // Check passcode
       if (entered === MASTER_PASSCODE || entered.toLowerCase() === MASTER_PASSCODE.toLowerCase() || entered === "admin" || entered === "admin123") {
         sessionStorage.setItem(SESSION_KEY, 'true');
         errEl.classList.remove('is-visible');
@@ -1307,14 +1415,14 @@
       showToast('Logged out successfully');
     });
 
-    /* ─── 2. Fetch & Render Products ─── */
+    /* ─── 2. Fetch & Render Live Products ─── */
     async function loadProducts() {
       const tbody = $('#products-tbody');
       tbody.innerHTML = `<tr><td colspan="7">
         <div class="empty-state">
           <div class="empty-icon"><span class="spinner spinner-gold"></span></div>
           <h3 class="empty-title">Fetching catalogue…</h3>
-          <p>Reading live products from Firestore</p>
+          <p>Reading live products from Firestore collection</p>
         </div>
       </td></tr>`;
 
@@ -1334,6 +1442,13 @@
             ...docSnap.data()
           });
         });
+
+        // Show/hide sync banner if database is empty
+        if (allProducts.length === 0) {
+          $('#sync-banner').classList.add('is-active');
+        } else {
+          $('#sync-banner').classList.remove('is-active');
+        }
 
         applyFilters();
         updateStats();
@@ -1376,7 +1491,8 @@
           const title = (p.title || '').toLowerCase();
           const category = (p.category || '').toLowerCase();
           const desc = (p.description || '').toLowerCase();
-          if (!title.includes(search) && !category.includes(search) && !desc.includes(search)) {
+          const price = String(p.price || '');
+          if (!title.includes(search) && !category.includes(search) && !desc.includes(search) && !price.includes(search)) {
             return false;
           }
         }
@@ -1402,9 +1518,13 @@
             <div class="empty-icon">💎</div>
             <h3 class="empty-title">No products found</h3>
             <p>${allProducts.length ? 'Try adjusting your search query or category filters.' : 'Your Firestore collection is currently empty.'}</p>
-            <a href="#product-form-section" class="btn btn-gold btn-sm">+ Add New Product</a>
+            <div style="display:flex;gap:10px;justify-content:center;margin-top:14px">
+              <button class="btn btn-gold btn-sm" id="empty-sync-btn">📥 Import 114 Website Items</button>
+              <a href="#product-form-section" class="btn btn-outline btn-sm">+ Add Product Manually</a>
+            </div>
           </div>
         </td></tr>`;
+        $('#empty-sync-btn')?.addEventListener('click', importWebsiteProducts);
         return;
       }
 
@@ -1415,17 +1535,18 @@
           : `<div class="prod-thumb-placeholder">💍</div>`;
 
         const slug = p.slug || (p.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        const priceDisplay = (p.price != null && p.price !== '')
-          ? `<span class="price-tag">₹${Number(p.price).toLocaleString('en-IN')}</span>`
-          : `<span class="price-tag--enquiry">Price on Request</span>`;
+        const priceValue = (p.price != null && p.price !== '') ? Number(p.price) : null;
+        const priceDisplay = priceValue
+          ? `<span class="price-tag" title="Click to edit price" data-id="${esc(p.id)}" data-price="${priceValue}">₹${priceValue.toLocaleString('en-IN')}</span>`
+          : `<span class="price-tag" title="Click to set price" data-id="${esc(p.id)}" data-price="499" style="color:var(--muted);font-style:italic">Set Price (₹)</span>`;
 
         const isSoldOut = p.isSoldOut === true;
         const statusBadge = isSoldOut
           ? `<span class="status-badge status-badge--sold-out">Sold Out</span>`
           : `<span class="status-badge status-badge--in-stock">In Stock</span>`;
 
-        const toggleBtnText = isSoldOut ? 'Mark In Stock' : 'Mark Sold Out';
-        const toggleBtnClass = isSoldOut ? 'btn-outline' : 'btn-outline';
+        const toggleBtnText = isSoldOut ? '✓ In Stock' : '✕ Sold Out';
+        const toggleBtnClass = isSoldOut ? 'btn-success' : 'btn-danger';
 
         return `<tr>
           <td>${thumb}</td>
@@ -1438,7 +1559,12 @@
           <td>
             <span class="category-badge">${esc(p.category || 'General')}</span>
           </td>
-          <td>${priceDisplay}</td>
+          <td>
+            <div class="price-cell">
+              ${priceDisplay}
+              <button class="price-edit-btn" data-id="${esc(p.id)}" data-price="${priceValue || 499}" title="Quick Edit Price">✎</button>
+            </div>
+          </td>
           <td>${statusBadge}</td>
           <td>
             <button class="btn ${toggleBtnClass} btn-sm toggle-stock-btn" data-id="${esc(p.id)}" data-sold="${isSoldOut}">
@@ -1454,7 +1580,17 @@
         </tr>`;
       }).join('');
 
-      // Wire up stock toggle buttons
+      // Wire up Quick Price Edit
+      $$('.price-tag, .price-edit-btn', tbody).forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const docId = el.getAttribute('data-id');
+          const currentPrice = el.getAttribute('data-price');
+          openPriceModal(docId, currentPrice);
+        });
+      });
+
+      // Wire up Stock Toggle
       $$('.toggle-stock-btn', tbody).forEach(btn => {
         btn.addEventListener('click', async () => {
           const docId = btn.getAttribute('data-id');
@@ -1463,7 +1599,7 @@
         });
       });
 
-      // Wire up Edit buttons
+      // Wire up Edit details
       $$('.edit-btn', tbody).forEach(btn => {
         btn.addEventListener('click', () => {
           const docId = btn.getAttribute('data-id');
@@ -1482,7 +1618,125 @@
       });
     }
 
-    /* ─── 3. Stock Toggle (isSoldOut) ─── */
+    /* ─── 3. Initial Seeding / Import Website Catalogue ─── */
+    async function importWebsiteProducts() {
+      const initialProducts = window.SHIVARA_ADMIN_INITIAL_PRODUCTS;
+      if (!Array.isArray(initialProducts) || initialProducts.length === 0) {
+        showToast('No initial snapshot found to import.', 'error');
+        return;
+      }
+
+      const syncBtns = [$('#sync-catalog-btn'), $('#banner-sync-btn'), $('#empty-sync-btn')].filter(Boolean);
+      syncBtns.forEach(btn => {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Importing Catalogue…';
+      });
+
+      showToast(`Importing ${initialProducts.length} curated products to Firestore…`);
+
+      try {
+        let importedCount = 0;
+        for (const item of initialProducts) {
+          const rawPrice = item.price ? Number(item.price) : 499;
+          await addDoc(collection(db, "products"), {
+            title: item.title,
+            slug: item.slug,
+            sku: item.sku || `SHV-${(item.category || 'GEN').slice(0,3).toUpperCase()}`,
+            category: item.category || 'other',
+            price: Number.isFinite(rawPrice) ? rawPrice : 499,
+            priceStatus: 'confirmed',
+            currency: 'INR',
+            isSoldOut: false,
+            description: item.description || item.imageAlt || `Curated ${item.title} statement jewellery piece from Shivara.`,
+            imageUrl: (item.images && item.images[0]) || '',
+            images: item.images || [],
+            imageAlt: item.imageAlt || item.title,
+            createdAt: serverTimestamp(),
+            _source: 'website_import'
+          });
+          importedCount++;
+        }
+
+        showToast(`Successfully imported ${importedCount} products into Firestore ✓`, 'success');
+        $('#sync-banner').classList.remove('is-active');
+        await loadProducts();
+      } catch (err) {
+        console.error('Import error:', err);
+        showToast('Failed to import products: ' + err.message, 'error');
+      } finally {
+        syncBtns.forEach(btn => {
+          btn.disabled = false;
+          btn.innerHTML = '<span>📥</span> Import Catalogue';
+        });
+      }
+    }
+
+    $('#sync-catalog-btn').addEventListener('click', importWebsiteProducts);
+    $('#banner-sync-btn')?.addEventListener('click', importWebsiteProducts);
+
+    /* ─── 4. Quick Price Update Modal ─── */
+    function openPriceModal(docId, currentPrice) {
+      $('#price-modal-doc-id').value = docId;
+      $('#price-modal-input').value = currentPrice || 499;
+      const target = allProducts.find(p => p.id === docId);
+      $('#price-modal-msg').textContent = target ? `Update price for "${target.title}":` : 'Enter new price:';
+      $('#price-modal').classList.add('is-open');
+      setTimeout(() => {
+        $('#price-modal-input').focus();
+        $('#price-modal-input').select();
+      }, 100);
+    }
+
+    function closePriceModal() {
+      $('#price-modal').classList.remove('is-open');
+    }
+
+    $('#price-modal-cancel').addEventListener('click', closePriceModal);
+
+    $('#price-edit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const docId = $('#price-modal-doc-id').value;
+      const newPrice = Number($('#price-modal-input').value);
+      const saveBtn = $('#price-modal-save');
+      const saveText = $('#price-save-text');
+
+      if (!docId || !Number.isFinite(newPrice) || newPrice <= 0) {
+        showToast('Please enter a valid numeric price.', 'error');
+        return;
+      }
+
+      saveBtn.disabled = true;
+      saveText.innerHTML = '<span class="spinner"></span> Saving…';
+
+      try {
+        const docRef = doc(db, "products", docId);
+        await updateDoc(docRef, {
+          price: newPrice,
+          priceStatus: 'confirmed',
+          updatedAt: serverTimestamp()
+        });
+
+        // Update in state
+        const target = allProducts.find(p => p.id === docId);
+        if (target) {
+          target.price = newPrice;
+          target.priceStatus = 'confirmed';
+        }
+
+        applyFilters();
+        updateStats();
+        closePriceModal();
+        showToast(`Price updated to ₹${newPrice.toLocaleString('en-IN')} ✓`, 'success');
+      } catch (err) {
+        console.error('Error updating price:', err);
+        showToast('Failed to update price: ' + err.message, 'error');
+      } finally {
+        saveBtn.disabled = false;
+        saveText.textContent = 'Save Price';
+      }
+    });
+
+    /* ─── 5. One-Click Stock Toggle ─── */
     async function toggleProductStock(docId, newSoldOutState) {
       try {
         const docRef = doc(db, "products", docId);
@@ -1491,20 +1745,19 @@
           updatedAt: serverTimestamp()
         });
 
-        // Optimistically update in state
         const target = allProducts.find(p => p.id === docId);
         if (target) target.isSoldOut = newSoldOutState;
 
         applyFilters();
         updateStats();
-        showToast(`Stock status updated to ${newSoldOutState ? 'SOLD OUT' : 'IN STOCK'} ✓`, 'success');
+        showToast(`Product marked as ${newSoldOutState ? 'SOLD OUT' : 'IN STOCK'} ✓`, 'success');
       } catch (err) {
         console.error('Error toggling stock:', err);
         showToast('Failed to update stock: ' + err.message, 'error');
       }
     }
 
-    /* ─── 4. Add / Update Product Form ─── */
+    /* ─── 6. Add / Edit Product Form ─── */
     function startEditProduct(product) {
       isEditing = true;
       editingDocId = product.id;
@@ -1530,7 +1783,7 @@
       }
 
       // UI state adjustments
-      $('#form-heading').textContent = 'Edit Product';
+      $('#form-heading').textContent = 'Edit Product Details';
       $('#form-subheading').textContent = `Editing: ${product.title} (Doc ID: ${product.id})`;
       $('#btn-icon').textContent = '💾';
       $('#btn-text').textContent = 'Update Product in Firestore';
@@ -1610,7 +1863,7 @@
         let finalImageUrl = $('#form-existing-image').value || $('#form-image-url').value.trim();
         const imageFile = $('#form-image-file').files && $('#form-image-file').files[0];
 
-        // 1. Upload to Firebase Storage if file is provided
+        // 1. Upload to Firebase Storage if a file was selected
         if (imageFile) {
           btnText.textContent = 'Uploading to Storage…';
           const cleanName = imageFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
@@ -1676,7 +1929,7 @@
       }
     });
 
-    /* ─── 5. Delete Product Workflow ─── */
+    /* ─── 7. Delete Product ─── */
     function openDeleteModal(docId, title) {
       deletingDocId = docId;
       $('#delete-modal-msg').textContent = `Are you sure you want to permanently delete "${title}" from Firestore?`;
@@ -1702,7 +1955,6 @@
         await deleteDoc(doc(db, "products", deletingDocId));
         showToast('Product deleted from Firestore ✓', 'success');
 
-        // Optimistically remove from state
         allProducts = allProducts.filter(p => p.id !== deletingDocId);
         applyFilters();
         updateStats();
@@ -1716,7 +1968,7 @@
       }
     });
 
-    /* ─── 6. Toolbar & Filters Events ─── */
+    /* ─── 8. Filter & Search Events ─── */
     $('#search-input').addEventListener('input', applyFilters);
     $('#category-filter').addEventListener('change', applyFilters);
     $('#stock-filter').addEventListener('change', applyFilters);
@@ -1725,7 +1977,7 @@
       showToast('Refreshed catalogue from Firestore ✓');
     });
 
-    /* ─── Initialize Session Check on Load ─── */
+    /* ─── Initialize ─── */
     checkSession();
   </script>
 </body>
