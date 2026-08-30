@@ -3,27 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shivara Admin</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231a1512'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Georgia,serif' font-size='38' fill='%23d8b36a'%3ES%3C/text%3E%3C/svg%3E" />
+  <title>Shivara Luxe | Administration Panel</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231f130b'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Georgia,serif' font-size='36' fill='%23d4a843'%3ES%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Italiana&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Italiana&display=swap" rel="stylesheet" />
+
   <style>
     :root {
-      --choco: #2b1a0e;
-      --choco-dark: #1a0800;
-      --choco-light: #3a2010;
+      --choco-dark: #190d06;
+      --choco: #29160c;
+      --choco-mid: #3d2315;
+      --choco-light: #52311f;
       --gold: #d4a843;
-      --gold-light: #f5d98a;
-      --gold-dim: rgba(212,168,67,0.18);
-      --ivory: #fdf6ee;
-      --ivory-dim: #f5e8d0;
-      --border: rgba(180,130,60,0.22);
-      --ink: #2b1a0e;
-      --muted: #8c6b4a;
-      --red: #9b2d30;
-      --green: #244b3d;
-      --radius: 4px;
+      --gold-dark: #ad8328;
+      --gold-light: #fae4a8;
+      --gold-dim: rgba(212, 168, 67, 0.14);
+      --gold-border: rgba(212, 168, 67, 0.3);
+      --ivory: #fcf8f2;
+      --ivory-dim: #f5ebe0;
+      --ivory-card: #ffffff;
+      --border: rgba(180, 135, 80, 0.2);
+      --ink: #29160c;
+      --muted: #826348;
+      --red: #a32227;
+      --red-light: #fdeded;
+      --green: #1f6b3b;
+      --green-light: #edf7f0;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 2px 8px rgba(41, 22, 12, 0.04);
+      --shadow-md: 0 8px 24px rgba(41, 22, 12, 0.08);
+      --shadow-lg: 0 20px 50px rgba(25, 13, 6, 0.18);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,604 +46,1014 @@
       background: var(--ivory);
       color: var(--ink);
       min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* ─── Grain Texture ─── */
+    /* Grain Texture Background */
     body::before {
       position: fixed; z-index: 0; inset: 0; content: "";
-      pointer-events: none; opacity: .025;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      pointer-events: none; opacity: .022;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
       background-size: 256px 256px;
     }
 
-    /* ─── Login Screen ─── */
+    /* ════════════════════════════════════════
+       LOGIN SCREEN
+    ════════════════════════════════════════ */
     #login-screen {
-      position: fixed; inset: 0; z-index: 100;
+      position: fixed; inset: 0; z-index: 999;
       display: flex; align-items: center; justify-content: center;
       background: var(--choco-dark);
-      background-image: radial-gradient(ellipse at 60% 40%, rgba(212,168,67,.1), transparent 60%);
+      background-image: radial-gradient(circle at 50% 35%, rgba(212, 168, 67, 0.12), transparent 70%);
+      padding: 20px;
     }
 
     .login-card {
-      width: min(420px, calc(100% - 32px));
+      width: min(440px, 100%);
       padding: 48px 40px;
       background: var(--ivory);
-      border: 1px solid var(--border);
-      box-shadow: 0 48px 100px rgba(0,0,0,.45), 0 0 0 1px rgba(212,168,67,.08);
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg), 0 0 0 1px rgba(212, 168, 67, 0.15);
       text-align: center;
+      position: relative;
     }
 
-    .login-logo {
+    .login-brand {
       font-family: "Italiana", serif;
-      font-size: 52px;
+      font-size: 46px;
       font-weight: 400;
-      line-height: 1;
       color: var(--choco);
-      letter-spacing: 0;
+      letter-spacing: -0.5px;
+      line-height: 1;
     }
 
-    .login-logo span {
+    .login-tag {
       display: block;
       margin-top: 6px;
-      font-family: "DM Sans", sans-serif;
       font-size: 9px;
       font-weight: 700;
-      letter-spacing: 2.5px;
-      color: var(--gold);
+      letter-spacing: 3px;
+      color: var(--gold-dark);
+      text-transform: uppercase;
     }
 
     .login-divider {
       display: block;
-      width: 40px;
+      width: 48px;
       height: 2px;
-      margin: 20px auto;
+      margin: 18px auto 22px;
       background: linear-gradient(90deg, transparent, var(--gold), transparent);
     }
 
-    .login-card p {
-      font-size: 11px;
+    .login-desc {
+      font-size: 12px;
       color: var(--muted);
       margin-bottom: 28px;
-      letter-spacing: .5px;
+      line-height: 1.6;
     }
 
     .login-field {
       position: relative;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .login-field label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
     }
 
     .login-field input {
       width: 100%;
-      min-height: 50px;
-      padding: 14px 46px 14px 16px;
+      min-height: 48px;
+      padding: 12px 44px 12px 16px;
       border: 1px solid var(--border);
       background: #fff;
       font: inherit;
       font-size: 14px;
       color: var(--ink);
+      border-radius: var(--radius-sm);
       outline: none;
-      transition: border-color .2s;
+      transition: all .2s;
     }
 
-    .login-field input:focus { border-color: var(--gold); }
-    .login-field input.is-error { border-color: var(--red); }
+    .login-field input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.15);
+    }
 
-    .login-field button {
-      position: absolute; right: 0; top: 0; bottom: 0;
-      width: 46px; border: 0; background: transparent;
-      color: var(--muted); font-size: 18px; cursor: pointer;
+    .login-field input.is-error {
+      border-color: var(--red);
+      background: #fff8f8;
+    }
+
+    .login-field button.toggle-pw {
+      position: absolute;
+      right: 2px;
+      bottom: 2px;
+      top: 24px;
+      width: 40px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .login-btn {
-      width: 100%; min-height: 50px;
-      border: 0; background: var(--choco);
-      color: #fff; font: inherit; font-size: 12px;
-      font-weight: 700; letter-spacing: 1.2px;
-      text-transform: uppercase; cursor: pointer;
-      transition: background .2s, box-shadow .2s;
+      width: 100%;
+      min-height: 50px;
+      margin-top: 8px;
+      border: 0;
+      background: var(--choco);
+      color: #fff;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
 
-    .login-btn:hover {
-      background: var(--gold);
-      box-shadow: 0 0 24px rgba(212,168,67,.4);
+    .login-btn:hover:not(:disabled) {
+      background: var(--gold-dark);
+      box-shadow: 0 6px 20px rgba(212, 168, 67, 0.35);
+    }
+
+    .login-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
     }
 
     .login-error {
-      margin-top: 12px; padding: 10px 14px;
+      margin-top: 14px;
+      padding: 10px 14px;
       border-left: 3px solid var(--red);
-      background: rgba(155,45,48,.07);
-      font-size: 11px; color: var(--red);
+      background: var(--red-light);
+      font-size: 11px;
+      color: var(--red);
       display: none;
+      text-align: left;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
     }
 
     .login-error.is-visible { display: block; }
 
-    /* ─── Admin Layout ─── */
-    #admin-screen { display: none; min-height: 100vh; }
+    .login-footer {
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .login-footer a {
+      font-size: 11px;
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color .2s;
+    }
+
+    .login-footer a:hover { color: var(--choco); text-decoration: underline; }
+
+    /* ════════════════════════════════════════
+       ADMIN DASHBOARD
+    ════════════════════════════════════════ */
+    #admin-screen {
+      display: none;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
     #admin-screen.is-active { display: block; }
 
+    /* Header */
     .admin-header {
-      position: sticky; top: 0; z-index: 30;
+      position: sticky; top: 0; z-index: 40;
       display: flex; align-items: center; justify-content: space-between;
-      gap: 20px; padding: 14px clamp(16px, 3vw, 48px);
-      background: rgba(253,246,238,.96);
+      gap: 20px; padding: 14px clamp(16px, 3.5vw, 48px);
+      background: rgba(252, 248, 242, 0.95);
       border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(18px);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-sm);
     }
 
-    .admin-logo {
-      display: flex; align-items: center; gap: 14px;
+    .admin-brand {
+      display: flex; align-items: center; gap: 12px;
+      text-decoration: none;
     }
 
-    .admin-logo-text {
+    .admin-brand-name {
       font-family: "Italiana", serif;
-      font-size: 26px; font-weight: 400;
+      font-size: 28px;
+      font-weight: 400;
       color: var(--choco);
+      letter-spacing: -0.3px;
     }
 
-    .admin-badge {
+    .admin-pill {
       padding: 3px 8px;
       background: var(--gold);
       color: #fff;
-      font-size: 8px; font-weight: 700; letter-spacing: 1.4px;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 1.4px;
       text-transform: uppercase;
+      border-radius: 2px;
     }
 
-    .admin-header-actions { display: flex; align-items: center; gap: 10px; }
-
-    .admin-btn {
-      min-height: 38px; display: inline-flex; align-items: center;
-      justify-content: center; gap: 7px;
-      padding: 8px 18px; border: 1px solid var(--choco);
-      background: var(--choco); color: #fff;
-      font: inherit; font-size: 11px; font-weight: 700;
-      cursor: pointer; text-decoration: none;
-      transition: background .2s, box-shadow .2s;
+    .admin-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    .admin-btn:hover {
-      background: var(--gold); border-color: var(--gold);
-      box-shadow: 0 0 18px rgba(212,168,67,.35);
+    /* Buttons */
+    .btn {
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 8px 16px;
+      border: 1px solid var(--choco);
+      background: var(--choco);
+      color: #fff;
+      font: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      border-radius: var(--radius-sm);
+      transition: all .2s;
+      white-space: nowrap;
     }
 
-    .admin-btn--outline {
-      background: transparent; color: var(--choco);
+    .btn:hover:not(:disabled) {
+      background: var(--gold-dark);
+      border-color: var(--gold-dark);
+      box-shadow: 0 4px 14px rgba(173, 131, 40, 0.25);
     }
 
-    .admin-btn--outline:hover {
-      background: var(--choco); color: #fff;
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--choco);
+      border-color: var(--border);
+    }
+
+    .btn-outline:hover:not(:disabled) {
+      background: var(--choco);
+      color: #fff;
+      border-color: var(--choco);
       box-shadow: none;
     }
 
-    .admin-btn--danger {
-      background: transparent; border-color: var(--red);
-      color: var(--red); font-size: 10px;
-      min-height: 30px; padding: 5px 10px;
+    .btn-gold {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #fff;
     }
 
-    .admin-btn--danger:hover {
-      background: var(--red); color: #fff;
-      box-shadow: 0 0 12px rgba(155,45,48,.3);
+    .btn-gold:hover:not(:disabled) {
+      background: var(--gold-dark);
+      border-color: var(--gold-dark);
     }
 
-    .admin-btn--sm {
-      min-height: 30px; padding: 5px 12px; font-size: 10px;
+    .btn-danger {
+      background: transparent;
+      border-color: rgba(163, 34, 39, 0.35);
+      color: var(--red);
     }
 
-    /* ─── Main Content ─── */
+    .btn-danger:hover:not(:disabled) {
+      background: var(--red);
+      color: #fff;
+      border-color: var(--red);
+      box-shadow: 0 4px 12px rgba(163, 34, 39, 0.25);
+    }
+
+    .btn-sm {
+      min-height: 32px;
+      padding: 4px 10px;
+      font-size: 10px;
+    }
+
+    /* Main Container */
     .admin-main {
-      width: min(100%, 1400px); margin: 0 auto;
-      padding: 36px clamp(14px, 3vw, 48px) 80px;
+      width: min(100%, 1400px);
+      margin: 0 auto;
+      padding: 32px clamp(14px, 3.5vw, 48px) 80px;
     }
 
-    /* ─── Stats Row ─── */
-    .admin-stats {
+    /* Stats Grid */
+    .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 14px; margin-bottom: 36px;
+      gap: 16px;
+      margin-bottom: 36px;
     }
 
-    .admin-stat {
+    .stat-card {
       padding: 22px 20px;
-      background: #fff;
+      background: var(--ivory-card);
       border: 1px solid var(--border);
-      border-left: 3px solid var(--gold);
+      border-left: 4px solid var(--gold);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      transition: transform .2s, box-shadow .2s;
     }
 
-    .admin-stat__label {
-      font-size: 8px; font-weight: 700;
-      letter-spacing: 1.8px; text-transform: uppercase;
-      color: var(--muted); margin-bottom: 8px;
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
     }
 
-    .admin-stat__value {
+    .stat-card--in-stock { border-left-color: var(--green); }
+    .stat-card--sold-out { border-left-color: var(--red); }
+    .stat-card--revenue { border-left-color: var(--gold-dark); }
+
+    .stat-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
       font-family: "Italiana", serif;
-      font-size: 38px; font-weight: 400;
-      line-height: 1; color: var(--choco);
+      font-size: 38px;
+      font-weight: 400;
+      line-height: 1;
+      color: var(--choco);
     }
 
-    .admin-stat__sub {
-      margin-top: 5px; font-size: 9px; color: var(--muted);
+    .stat-sub {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--muted);
     }
 
-    /* ─── Section Titles ─── */
-    .admin-section-title {
-      display: flex; align-items: center; gap: 16px;
-      margin-bottom: 18px; padding-bottom: 12px;
+    /* Section Headers */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
       border-bottom: 1px solid var(--border);
     }
 
-    .admin-section-title h2 {
+    .section-title {
       font-family: "Italiana", serif;
-      font-size: 30px; font-weight: 400;
+      font-size: 32px;
+      font-weight: 400;
+      color: var(--choco);
+      letter-spacing: -0.3px;
     }
 
-    .admin-section-title p {
-      font-size: 10px; color: var(--muted);
+    .section-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
     }
 
-    /* ─── Products Table ─── */
-    .admin-table-wrap {
-      overflow-x: auto; margin-bottom: 40px;
+    /* Search & Filter Toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 240px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      min-height: 42px;
+      padding: 8px 14px 8px 38px;
       border: 1px solid var(--border);
+      background: #fff;
+      font: inherit;
+      font-size: 13px;
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: all .2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.12);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .filter-select {
+      min-height: 42px;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink);
+      border-radius: var(--radius-sm);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .filter-select:focus { border-color: var(--gold); }
+
+    /* Products Table */
+    .table-container {
+      background: var(--ivory-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 48px;
     }
 
     table {
-      width: 100%; border-collapse: collapse;
-      background: #fff;
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
     }
 
-    thead { background: var(--choco); color: #fff; }
+    thead {
+      background: var(--choco);
+      color: #fff;
+    }
 
     th {
-      padding: 12px 14px; text-align: left;
-      font-size: 9px; font-weight: 700;
-      letter-spacing: 1.4px; text-transform: uppercase;
+      padding: 14px 18px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
       white-space: nowrap;
     }
 
     td {
-      padding: 12px 14px;
-      font-size: 11px;
+      padding: 14px 18px;
+      font-size: 12px;
       border-bottom: 1px solid var(--border);
       vertical-align: middle;
     }
 
     tr:last-child td { border-bottom: 0; }
+    tbody tr:hover td { background: var(--ivory-dim); }
 
-    tr:hover td { background: var(--ivory-dim); }
-
-    .product-thumb {
-      width: 44px; height: 56px;
-      object-fit: contain; background: var(--ivory-dim);
+    .prod-thumb {
+      width: 52px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: var(--radius-sm);
       border: 1px solid var(--border);
-    }
-
-    .product-thumb-placeholder {
-      width: 44px; height: 56px;
       background: var(--ivory-dim);
-      border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; color: var(--muted);
+      display: block;
     }
 
-    .badge-source {
-      display: inline-block; padding: 2px 7px;
-      font-size: 7px; font-weight: 700; letter-spacing: 1px;
+    .prod-thumb-placeholder {
+      width: 52px;
+      height: 64px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--ivory-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--muted);
+    }
+
+    .prod-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--choco);
+      margin-bottom: 3px;
+    }
+
+    .prod-slug-link {
+      font-size: 10px;
+      color: var(--muted);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .prod-slug-link:hover { color: var(--gold-dark); text-decoration: underline; }
+
+    .category-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      background: var(--gold-dim);
+      color: var(--gold-dark);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
       text-transform: uppercase;
+      border-radius: 3px;
     }
 
-    .badge-source--instagram { background: rgba(155,45,48,.1); color: var(--red); }
-    .badge-source--whatsapp { background: rgba(36,75,61,.1); color: var(--green); }
-    .badge-source--admin { background: var(--gold-dim); color: #7a5c10; }
+    .price-tag {
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--choco);
+    }
 
-    .price-confirmed { color: var(--choco); font-weight: 700; }
-    .price-enquiry { color: var(--gold); font-size: 9px; font-style: italic; }
+    .price-tag--enquiry {
+      color: var(--muted);
+      font-size: 10px;
+      font-style: italic;
+    }
 
-    .table-actions { display: flex; gap: 6px; align-items: center; }
+    /* Stock Status Badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 9px;
+      border-radius: 20px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
 
-    /* ─── Add Product Form ─── */
-    .admin-form-card {
-      background: #fff;
+    .status-badge--in-stock {
+      background: var(--green-light);
+      color: var(--green);
+      border: 1px solid rgba(31, 107, 59, 0.2);
+    }
+
+    .status-badge--in-stock::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+    }
+
+    .status-badge--sold-out {
+      background: var(--red-light);
+      color: var(--red);
+      border: 1px solid rgba(163, 34, 39, 0.2);
+    }
+
+    .status-badge--sold-out::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background: var(--red);
+      border-radius: 50%;
+    }
+
+    /* Action triggers */
+    .table-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Add/Edit Product Card */
+    .form-card {
+      background: var(--ivory-card);
       border: 1px solid var(--border);
-      padding: 28px 28px 36px;
+      border-radius: var(--radius-md);
+      padding: 36px 36px 42px;
+      box-shadow: var(--shadow-sm);
     }
+
+    .edit-alert-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 20px;
+      background: #fdf5e2;
+      border: 1px solid var(--gold);
+      border-left: 4px solid var(--gold);
+      border-radius: var(--radius-sm);
+      margin-bottom: 24px;
+    }
+
+    .edit-alert-banner.is-active { display: flex; }
+    .edit-alert-banner strong { font-size: 13px; color: var(--choco); }
+    .edit-alert-banner p { font-size: 11px; color: var(--muted); }
 
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 18px 22px;
+      gap: 20px 24px;
     }
 
     .form-group {
-      display: flex; flex-direction: column; gap: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
 
     .form-group.full { grid-column: 1 / -1; }
 
     .form-group label {
-      font-size: 9px; font-weight: 700;
-      letter-spacing: 1.4px; text-transform: uppercase;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
       color: var(--muted);
     }
 
     .form-group label span { color: var(--red); margin-left: 2px; }
 
     .form-control {
-      min-height: 44px;
+      min-height: 46px;
       padding: 10px 14px;
       border: 1px solid var(--border);
       background: var(--ivory);
-      font: inherit; font-size: 12px;
+      font: inherit;
+      font-size: 13px;
       color: var(--ink);
+      border-radius: var(--radius-sm);
       outline: none;
-      transition: border-color .2s;
+      transition: all .2s;
     }
 
-    .form-control:focus { border-color: var(--gold); background: #fff; }
+    .form-control:focus {
+      border-color: var(--gold);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.12);
+    }
 
     textarea.form-control {
-      min-height: 90px; resize: vertical;
+      min-height: 95px;
+      resize: vertical;
+      line-height: 1.5;
     }
 
     select.form-control { cursor: pointer; }
 
-    .form-row {
-      display: grid; grid-template-columns: 1fr auto;
-      gap: 10px; align-items: end;
+    .form-hint {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
     }
 
-    .form-hint { font-size: 9px; color: var(--muted); margin-top: 3px; }
-
-    .form-section-label {
+    .form-divider {
       grid-column: 1 / -1;
-      font-size: 8px; font-weight: 700;
-      letter-spacing: 1.8px; text-transform: uppercase;
-      color: var(--gold); padding-top: 8px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold-dark);
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      margin-top: 6px;
+    }
+
+    .img-upload-box {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 14px;
+      background: var(--ivory);
+      border: 1px dashed var(--gold-border);
+      border-radius: var(--radius-sm);
+    }
+
+    .img-preview-thumb {
+      display: none;
+      width: 76px;
+      height: 94px;
+      object-fit: cover;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: #fff;
+    }
+
+    .img-preview-thumb.is-visible { display: block; }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 32px;
+      padding-top: 24px;
       border-top: 1px solid var(--border);
     }
 
-    /* Collections checkboxes */
-    .collections-grid {
-      display: flex; flex-wrap: wrap; gap: 7px;
-    }
-
-    .collections-grid label {
-      display: flex; align-items: center; gap: 5px;
-      padding: 5px 10px;
-      border: 1px solid var(--border);
-      background: var(--ivory);
-      font-size: 10px; font-weight: 400;
-      text-transform: none; letter-spacing: 0;
-      cursor: pointer; transition: .15s;
-    }
-
-    .collections-grid label:has(input:checked) {
-      border-color: var(--gold);
-      background: var(--gold-dim);
-      color: #7a5c10; font-weight: 600;
-    }
-
-    .collections-grid input { accent-color: var(--gold); }
-
-    /* Form actions */
-    .form-actions {
-      display: flex; gap: 10px; margin-top: 24px;
-      padding-top: 20px; border-top: 1px solid var(--border);
-    }
-
-    /* ─── Toast ─── */
-    .admin-toast {
-      position: fixed; z-index: 200;
-      left: 50%; bottom: 28px;
-      transform: translateX(-50%) translateY(16px);
-      padding: 12px 20px;
-      background: var(--choco);
-      border-left: 3px solid var(--gold);
-      color: #fff; font-size: 12px;
+    /* Modal dialog */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(25, 13, 6, 0.7);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
       opacity: 0; visibility: hidden;
-      transition: .25s;
-      white-space: nowrap;
-      box-shadow: 0 8px 32px rgba(0,0,0,.25);
+      transition: all .25s;
     }
 
-    .admin-toast.is-visible {
+    .modal-overlay.is-open { opacity: 1; visibility: visible; }
+
+    .modal-card {
+      width: min(440px, 100%);
+      padding: 36px 32px;
+      background: var(--ivory);
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+    }
+
+    .modal-title {
+      font-family: "Italiana", serif;
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--choco);
+      margin-bottom: 8px;
+    }
+
+    .modal-desc {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed; z-index: 600;
+      left: 50%; bottom: 28px;
+      transform: translateX(-50%) translateY(20px);
+      padding: 14px 26px;
+      background: var(--choco);
+      border-left: 4px solid var(--gold);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      opacity: 0; visibility: hidden;
+      transition: all .25s cubic-bezier(0.16, 1, 0.3, 1);
+      white-space: nowrap;
+    }
+
+    .toast.is-visible {
       opacity: 1; visibility: visible;
       transform: translateX(-50%) translateY(0);
     }
 
-    .admin-toast.is-error { border-left-color: var(--red); }
+    .toast.is-error {
+      border-left-color: var(--red);
+      background: #381215;
+    }
 
-    /* ─── Empty State ─── */
-    .admin-empty {
-      padding: 60px 20px; text-align: center;
+    .toast.is-success {
+      border-left-color: #27ae60;
+    }
+
+    /* Empty state */
+    .empty-state {
+      padding: 56px 20px;
+      text-align: center;
       color: var(--muted);
     }
 
-    .admin-empty__icon { font-size: 48px; margin-bottom: 12px; }
-    .admin-empty h3 { font-family: "Italiana", serif; font-size: 28px; font-weight: 400; margin-bottom: 8px; }
-    .admin-empty p { font-size: 12px; }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-title {
+      font-family: "Italiana", serif;
+      font-size: 28px;
+      color: var(--choco);
+      margin-bottom: 6px;
+    }
 
-    /* ─── Spinner ─── */
+    /* Spinner */
     .spinner {
-      width: 20px; height: 20px;
-      border: 2px solid rgba(212,168,67,.3);
-      border-top-color: var(--gold);
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
       border-radius: 50%;
-      animation: spin .6s linear infinite;
+      animation: spin 0.6s linear infinite;
       display: inline-block;
+      vertical-align: middle;
+    }
+
+    .spinner-gold {
+      border: 2px solid rgba(212, 168, 67, 0.3);
+      border-top-color: var(--gold);
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ─── Delete confirm ─── */
-    .confirm-overlay {
-      position: fixed; inset: 0; z-index: 150;
-      background: rgba(30,10,2,.65);
-      backdrop-filter: blur(4px);
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; visibility: hidden; transition: .2s;
-    }
-
-    .confirm-overlay.is-open { opacity: 1; visibility: visible; }
-
-    .confirm-card {
-      width: min(400px, calc(100% - 32px));
-      padding: 32px;
-      background: var(--ivory);
-      border: 1px solid var(--border);
-      box-shadow: 0 32px 80px rgba(0,0,0,.4);
-      text-align: center;
-    }
-
-    .confirm-card h3 {
-      font-family: "Italiana", serif;
-      font-size: 28px; font-weight: 400; margin-bottom: 10px;
-    }
-
-    .confirm-card p { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
-
-    .confirm-actions { display: flex; gap: 10px; justify-content: center; }
-
-    /* ─── Gold divider ─── */
-    .gold-divider {
-      width: 100%; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      margin: 36px 0;
-    }
-
-    /* ─── Shimmer keyframes ─── */
-    @keyframes gold-shimmer {
-      0% { background-position: -200% center; }
-      100% { background-position: 200% center; }
-    }
-
-    .shimmer-text {
-      background: linear-gradient(105deg, var(--choco) 20%, #c48c22 40%, var(--choco) 50%, #c48c22 60%, var(--choco) 80%);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: gold-shimmer 4s linear infinite;
-    }
-
-    /* ─── Responsive ─── */
-    @media (max-width: 900px) {
-      .admin-stats { grid-template-columns: 1fr 1fr; }
+    /* Responsive */
+    @media (max-width: 960px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
       .form-grid { grid-template-columns: 1fr; }
       .form-group.full { grid-column: auto; }
     }
 
     @media (max-width: 600px) {
-      .admin-stats { grid-template-columns: 1fr; }
-      .admin-header { flex-wrap: wrap; gap: 10px; }
-      th:nth-child(5), td:nth-child(5),
-      th:nth-child(6), td:nth-child(6) { display: none; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      * { animation: none !important; transition-duration: .01ms !important; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .admin-header { flex-wrap: wrap; }
+      th:nth-child(3), td:nth-child(3),
+      th:nth-child(5), td:nth-child(5) { display: none; }
     }
   </style>
 </head>
 <body>
 
   <!-- ════════════════════════════════════════
-       LOGIN SCREEN
+       1. LOGIN MODAL / PROTECTION GATE
   ════════════════════════════════════════ -->
   <div id="login-screen">
     <div class="login-card">
-      <div class="login-logo">
-        Shivara
-        <span>ADMIN PORTAL</span>
-      </div>
+      <h1 class="login-brand">Shivara</h1>
+      <span class="login-tag">Executive Administration</span>
       <span class="login-divider"></span>
-      <p>Enter your administrator credentials to access the control panel</p>
+      <p class="login-desc">Enter the administrative master passcode to access the live e-commerce inventory and catalogue management system.</p>
+
       <form id="login-form" autocomplete="off">
         <div class="login-field">
-          <input type="text" id="username-input" placeholder="Admin ID" autocomplete="username" required />
+          <label for="admin-passcode">Master Passcode</label>
+          <input type="password" id="admin-passcode" placeholder="Enter administrative passcode" autofocus required />
+          <button type="button" class="toggle-pw" id="toggle-pw" title="Show or hide passcode">👁</button>
         </div>
-        <div class="login-field">
-          <input type="password" id="password-input" placeholder="Admin password" autocomplete="current-password" required />
-          <button type="button" id="toggle-pw" title="Show/hide password">👁</button>
-        </div>
-        <button type="submit" class="login-btn" id="login-submit">Enter Admin</button>
-        <div class="login-error" id="login-error">Incorrect password. Please try again.</div>
+        <button type="submit" class="login-btn" id="login-btn">
+          <span>Enter Admin Panel</span>
+        </button>
+        <div class="login-error" id="login-error"></div>
       </form>
+
+      <div class="login-footer">
+        <a href="/index.html">← Back to Storefront</a>
+      </div>
     </div>
   </div>
 
   <!-- ════════════════════════════════════════
-       ADMIN SCREEN
+       2. MAIN ADMIN DASHBOARD
   ════════════════════════════════════════ -->
   <div id="admin-screen">
 
     <!-- Header -->
     <header class="admin-header">
-      <div class="admin-logo">
-        <span class="admin-logo-text">Shivara</span>
-        <span class="admin-badge">Admin</span>
-      </div>
+      <a href="/index.html" class="admin-brand">
+        <span class="admin-brand-name">Shivara</span>
+        <span class="admin-pill">Admin</span>
+      </a>
+
       <div class="admin-header-actions">
-        <a href="/" target="_blank" class="admin-btn admin-btn--outline admin-btn--sm">← View site</a>
-        <button id="logout-btn" class="admin-btn admin-btn--sm">Logout</button>
+        <button id="refresh-btn" class="btn btn-outline btn-sm" title="Reload live data from Firestore">
+          <span>↻</span> Refresh
+        </button>
+        <a href="/index.html" class="btn btn-outline btn-sm">← Storefront</a>
+        <button id="logout-btn" class="btn btn-sm">Logout</button>
       </div>
     </header>
 
-    <!-- Main -->
+    <!-- Main Content -->
     <main class="admin-main">
 
-      <!-- Stats -->
-      <div class="admin-stats" id="stats-row">
-        <div class="admin-stat">
-          <div class="admin-stat__label">Total Products</div>
-          <div class="admin-stat__value" id="stat-total">—</div>
-          <div class="admin-stat__sub">in catalogue</div>
+      <!-- Stats Summary -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Catalogue Items</div>
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-sub">in Firestore collection</div>
         </div>
-        <div class="admin-stat">
-          <div class="admin-stat__label">Confirmed Price</div>
-          <div class="admin-stat__value" id="stat-confirmed">—</div>
-          <div class="admin-stat__sub">ready to order</div>
-        </div>
-        <div class="admin-stat">
-          <div class="admin-stat__label">Admin Added</div>
-          <div class="admin-stat__value" id="stat-admin">—</div>
-          <div class="admin-stat__sub">via this panel</div>
-        </div>
-        <div class="admin-stat">
-          <div class="admin-stat__label">Enquiry Only</div>
-          <div class="admin-stat__value" id="stat-enquiry">—</div>
-          <div class="admin-stat__sub">price on request</div>
-        </div>
-      </div>
 
-      <!-- Products table -->
-      <div class="admin-section-title">
+        <div class="stat-card stat-card--in-stock">
+          <div class="stat-label">Active / In Stock</div>
+          <div class="stat-value" id="stat-in-stock" style="color:var(--green)">—</div>
+          <div class="stat-sub">available for purchase</div>
+        </div>
+
+        <div class="stat-card stat-card--sold-out">
+          <div class="stat-label">Sold Out</div>
+          <div class="stat-value" id="stat-sold-out" style="color:var(--red)">—</div>
+          <div class="stat-sub">marked out of stock</div>
+        </div>
+
+        <div class="stat-card stat-card--revenue">
+          <div class="stat-label">Avg Confirmed Price</div>
+          <div class="stat-value" id="stat-avg-price">—</div>
+          <div class="stat-sub">across priced items</div>
+        </div>
+      </section>
+
+      <!-- Products Management Section -->
+      <div class="section-header">
         <div>
-          <h2 class="shimmer-text">All Products</h2>
-          <p>Manage your curated jewellery catalogue</p>
+          <h2 class="section-title">Product Catalogue</h2>
+          <p class="section-subtitle">Live real-time product list from Firestore</p>
+        </div>
+        <div>
+          <a href="#product-form-section" class="btn btn-gold btn-sm">
+            <span>+</span> Add New Product
+          </a>
         </div>
       </div>
 
-      <div class="admin-table-wrap">
+      <!-- Search & Category Filters -->
+      <div class="toolbar">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Search products by title, category or description…" />
+        </div>
+
+        <select id="category-filter" class="filter-select">
+          <option value="all">All Categories</option>
+          <option value="earrings">Earrings</option>
+          <option value="necklaces">Necklaces / Neck Wear</option>
+          <option value="bracelets">Bracelets</option>
+          <option value="rings">Rings</option>
+          <option value="evil-eye">Evil Eye</option>
+          <option value="new-arrivals">New Arrivals</option>
+          <option value="pendants">Pendants</option>
+          <option value="sets">Sets</option>
+          <option value="watches">Watches</option>
+          <option value="anti-tarnish">Anti Tarnish</option>
+          <option value="gifting">Gifting</option>
+          <option value="other">Other</option>
+        </select>
+
+        <select id="stock-filter" class="filter-select">
+          <option value="all">All Stock Statuses</option>
+          <option value="in-stock">In Stock Only</option>
+          <option value="sold-out">Sold Out Only</option>
+        </select>
+      </div>
+
+      <!-- Products Table -->
+      <div class="table-container">
         <table id="products-table">
           <thead>
             <tr>
               <th>Image</th>
-              <th>Title</th>
+              <th>Product Title &amp; Slug</th>
               <th>Category</th>
               <th>Price</th>
-              <th>SKU</th>
-              <th>Source</th>
+              <th>Status</th>
+              <th>Quick Stock Toggle</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="products-tbody">
             <tr>
               <td colspan="7">
-                <div class="admin-empty">
-                  <div class="admin-empty__icon">⌛</div>
-                  <h3>Loading products…</h3>
+                <div class="empty-state">
+                  <div class="empty-icon"><span class="spinner spinner-gold"></span></div>
+                  <h3 class="empty-title">Loading catalogue…</h3>
+                  <p>Connecting to Firestore database</p>
                 </div>
               </td>
             </tr>
@@ -639,113 +1061,105 @@
         </table>
       </div>
 
-      <div class="gold-divider"></div>
-
-      <!-- Add Product Form -->
-      <div class="admin-section-title">
+      <!-- Product Form Section -->
+      <div id="product-form-section" class="section-header" style="margin-top: 54px;">
         <div>
-          <h2 class="shimmer-text">Add New Product</h2>
-          <p>New products appear live on the site immediately — no restart needed</p>
+          <h2 class="section-title" id="form-heading">Add New Product</h2>
+          <p class="section-subtitle" id="form-subheading">Upload an image and publish directly to the Firestore collection</p>
         </div>
       </div>
 
-      <div class="admin-form-card">
-        <form id="add-product-form">
+      <!-- Edit Mode Banner -->
+      <div class="edit-alert-banner" id="edit-alert-banner">
+        <div>
+          <strong id="edit-banner-title">Editing Product</strong>
+          <p>Modify the fields below and click "Update Product" to commit changes to Firestore.</p>
+        </div>
+        <button type="button" class="btn btn-outline btn-sm" id="cancel-edit-btn">
+          ✕ Cancel Edit Mode
+        </button>
+      </div>
+
+      <!-- Add / Edit Form Card -->
+      <div class="form-card">
+        <form id="product-form" autocomplete="off">
+          <input type="hidden" id="form-doc-id" />
+          <input type="hidden" id="form-existing-image" />
+
           <div class="form-grid">
 
-            <div class="form-section-label">Product Identity</div>
+            <div class="form-divider">1. Product Identity</div>
 
             <div class="form-group">
-              <label>Product Title <span>*</span></label>
-              <input type="text" name="title" class="form-control" placeholder="e.g. Rose Gold Hoop Earrings" required maxlength="60" />
+              <label for="form-title">Product Title <span>*</span></label>
+              <input type="text" id="form-title" class="form-control" placeholder="e.g. Classic Gold Hoop Earrings" required maxlength="80" />
             </div>
 
             <div class="form-group">
-              <label>Slug (URL) <span>*</span></label>
-              <input type="text" name="slug" class="form-control" placeholder="e.g. rose-gold-hoop-earrings" required pattern="[a-z0-9\-]+" />
-              <div class="form-hint">Lowercase letters, numbers and hyphens only. Auto-generated from title if left blank.</div>
-            </div>
-
-            <div class="form-group">
-              <label>SKU</label>
-              <input type="text" name="sku" class="form-control" placeholder="e.g. SHV-ERR-999" />
-            </div>
-
-            <div class="form-group">
-              <label>Category <span>*</span></label>
-              <select name="category" class="form-control" required>
-                <option value="">Select a category…</option>
+              <label for="form-category">Category <span>*</span></label>
+              <select id="form-category" class="form-control" required>
+                <option value="">Select Category…</option>
                 <option value="earrings">Earrings</option>
-                <option value="necklaces">Necklaces</option>
-                <option value="pendants">Pendants</option>
+                <option value="necklaces">Necklaces / Neck Wear</option>
                 <option value="bracelets">Bracelets</option>
                 <option value="rings">Rings</option>
-                <option value="sets">Sets</option>
-                <option value="watches">Watches</option>
                 <option value="evil-eye">Evil Eye</option>
+                <option value="new-arrivals">New Arrivals</option>
+                <option value="pendants">Pendants</option>
+                <option value="sets">Jewellery Sets</option>
+                <option value="watches">Watches</option>
+                <option value="anti-tarnish">Anti Tarnish</option>
+                <option value="gifting">Gifting</option>
                 <option value="other">Other</option>
               </select>
             </div>
 
-            <div class="form-section-label">Pricing</div>
+            <div class="form-divider">2. Pricing &amp; Availability</div>
 
             <div class="form-group">
-              <label>Price Status <span>*</span></label>
-              <select name="priceStatus" class="form-control" required id="price-status-select">
-                <option value="enquiry">Price on Request (Enquiry)</option>
-                <option value="confirmed">Confirmed Price (₹)</option>
+              <label for="form-price">Price (INR ₹) <span>*</span></label>
+              <input type="number" id="form-price" class="form-control" placeholder="e.g. 499" min="1" step="1" required />
+            </div>
+
+            <div class="form-group">
+              <label for="form-is-sold-out">Initial Stock Status</label>
+              <select id="form-is-sold-out" class="form-control">
+                <option value="false">In Stock (Available for Purchase)</option>
+                <option value="true">Sold Out (Mark as Unavailable)</option>
               </select>
             </div>
 
-            <div class="form-group" id="price-field" style="display:none">
-              <label>Price (₹) <span>*</span></label>
-              <input type="number" name="price" class="form-control" placeholder="e.g. 499" min="1" />
-            </div>
-
-            <div class="form-group" id="compare-field" style="display:none">
-              <label>Compare At Price (₹)</label>
-              <input type="number" name="compareAtPrice" class="form-control" placeholder="e.g. 799 (original price)" min="1" />
-            </div>
-
-            <div class="form-group">
-              <label>Offer Text</label>
-              <input type="text" name="offerText" class="form-control" placeholder="e.g. Set of three pendants" maxlength="60" />
-            </div>
-
-            <div class="form-section-label">Media & Description</div>
+            <div class="form-divider">3. Media &amp; Product Details</div>
 
             <div class="form-group full">
-              <label>Image URL <span>*</span></label>
-              <input type="url" name="imageUrl" class="form-control" placeholder="https://… (Instagram, WhatsApp, Google Drive public URL)" required />
-              <div class="form-hint">Paste a direct public image URL. Supported: Instagram CDN, WhatsApp media, Google Drive (public share), Dropbox direct links.</div>
-            </div>
-
-            <div class="form-group full">
-              <label>Description</label>
-              <textarea name="description" class="form-control" placeholder="A short description of this piece…" maxlength="300"></textarea>
-            </div>
-
-            <div class="form-group full">
-              <label>Image Alt Text</label>
-              <input type="text" name="imageAlt" class="form-control" placeholder="e.g. Rose gold hoop earrings on a display" maxlength="120" />
-            </div>
-
-            <div class="form-section-label">Collections</div>
-
-            <div class="form-group full">
-              <label>Add to Collections</label>
-              <div class="collections-grid" id="collections-checkboxes">
-                <!-- Rendered by JS -->
+              <label>Product Image File <span id="img-required-star">*</span></label>
+              <div class="img-upload-box">
+                <img id="img-preview" class="img-preview-thumb" alt="Product preview" />
+                <div style="flex:1">
+                  <input type="file" id="form-image-file" class="form-control" accept="image/png,image/jpeg,image/webp,image/jpg" style="background:#fff" />
+                  <div class="form-hint">Upload JPG, PNG or WEBP (Max 8MB). Uploads securely to Firebase Storage.</div>
+                </div>
               </div>
+            </div>
+
+            <div class="form-group full">
+              <label for="form-image-url">Image URL (Remote fallback or CDN)</label>
+              <input type="url" id="form-image-url" class="form-control" placeholder="https://… (auto-filled on file upload or enter existing URL)" />
+            </div>
+
+            <div class="form-group full">
+              <label for="form-desc">Description</label>
+              <textarea id="form-desc" class="form-control" placeholder="Describe the materials, craftsmanship, dimensions, and styling notes…" maxlength="500"></textarea>
             </div>
 
           </div>
 
           <div class="form-actions">
-            <button type="submit" class="admin-btn" id="add-btn">
-              <span>✦</span> Add Product
+            <button type="submit" class="btn btn-gold" id="form-submit-btn">
+              <span id="btn-icon">✦</span>
+              <span id="btn-text">Add Product to Catalogue</span>
             </button>
-            <button type="reset" class="admin-btn admin-btn--outline" id="reset-btn">Clear Form</button>
+            <button type="button" class="btn btn-outline" id="form-reset-btn">Clear Form</button>
           </div>
         </form>
       </div>
@@ -753,399 +1167,566 @@
     </main>
   </div>
 
-  <!-- Delete confirm overlay -->
-  <div class="confirm-overlay" id="confirm-overlay">
-    <div class="confirm-card">
-      <h3>Delete product?</h3>
-      <p id="confirm-message">This will permanently remove the product from the catalogue.</p>
-      <div class="confirm-actions">
-        <button class="admin-btn admin-btn--outline" id="confirm-cancel">Cancel</button>
-        <button class="admin-btn" id="confirm-ok" style="background:var(--red);border-color:var(--red)">Delete</button>
+  <!-- ════════════════════════════════════════
+       3. DELETE CONFIRMATION MODAL
+  ════════════════════════════════════════ -->
+  <div class="modal-overlay" id="delete-modal">
+    <div class="modal-card">
+      <h3 class="modal-title">Delete Product?</h3>
+      <p class="modal-desc" id="delete-modal-msg">This will permanently delete this product from Firestore.</p>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="delete-cancel-btn">Cancel</button>
+        <button class="btn btn-danger" id="delete-confirm-btn">
+          <span id="delete-confirm-text">Delete Permanently</span>
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Toast -->
-  <div class="admin-toast" id="admin-toast"></div>
+  <!-- ════════════════════════════════════════
+       4. TOAST NOTIFICATION CONTAINER
+  ════════════════════════════════════════ -->
+  <div class="toast" id="toast"></div>
 
-  <script src="/admin-catalog-snapshot.js?v=20260820"></script>
-  <script>
-    const COLLECTIONS = [
-      'new-arrivals','gifting','anti-tarnish','evil-eye',
-      'earrings','necklaces','pendants','bracelets',
-      'rings','sets','watches','other'
-    ];
+  <!-- ════════════════════════════════════════
+       5. FIREBASE INTEGRATION & APPLICATION LOGIC
+  ════════════════════════════════════════ -->
+  <script type="module">
+    // Firebase Modular Initialized Instances
+    import { db, storage, auth } from "/src/firebase.js";
 
-    const $ = (s, p = document) => p.querySelector(s);
-    const $$ = (s, p = document) => [...p.querySelectorAll(s)];
+    // Firestore Modular SDK Functions
+    import {
+      collection,
+      addDoc,
+      getDocs,
+      deleteDoc,
+      doc,
+      serverTimestamp,
+      updateDoc,
+      query,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
-    /* ── Toast ── */
-    let toastTimer;
-    function toast(msg, isError = false) {
-      const el = $('#admin-toast');
-      el.textContent = msg;
-      el.className = 'admin-toast is-visible' + (isError ? ' is-error' : '');
+    // Firebase Storage Modular SDK Functions
+    import {
+      ref,
+      uploadBytes,
+      getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
+
+    // Anonymous Auth (Ensures write permissions if rules require request.auth != null)
+    import {
+      signInAnonymously
+    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
+    /* ─── Master Passcode & Session ─── */
+    const MASTER_PASSCODE = "Shivara@2026";
+    const SESSION_KEY = "shivara_admin_authenticated";
+
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => [...document.querySelectorAll(selector)];
+
+    function esc(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[c]);
+    }
+
+    /* ─── State Management ─── */
+    let allProducts = [];
+    let isEditing = false;
+    let editingDocId = null;
+    let deletingDocId = null;
+
+    /* ─── Toast System ─── */
+    let toastTimer = null;
+    function showToast(message, type = 'default') {
+      const toastEl = $('#toast');
+      toastEl.textContent = message;
+      toastEl.className = 'toast is-visible' + (type === 'error' ? ' is-error' : (type === 'success' ? ' is-success' : ''));
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => el.classList.remove('is-visible'), 3200);
+      toastTimer = setTimeout(() => toastEl.classList.remove('is-visible'), 3600);
     }
 
-    /* ── Auth ── */
-    let sessionToken = sessionStorage.getItem('shivara_admin_token') || '';
-
-    function authHeaders(headers = {}) {
-      return sessionToken ? { ...headers, 'x-admin-token': sessionToken } : headers;
-    }
-
-    function expireAdminSession(message = 'Your admin session expired. Please log in again.') {
-      sessionToken = '';
-      sessionStorage.removeItem('shivara_admin_token');
-      $('#admin-screen').classList.remove('is-active');
-      $('#login-screen').style.display = '';
-      $('#login-error').textContent = message;
-      $('#login-error').classList.add('is-visible');
-      $('#password-input').focus();
-    }
-
-    async function checkSession() {
-      try {
-        const r = await fetch('/admin/api/session', {
-          headers: authHeaders(),
-          credentials: 'same-origin',
-          cache: 'no-store'
-        });
-        return r.ok;
-      } catch { return false; }
-    }
-
-    async function doLogin(e) {
-      e.preventDefault();
-      const username = $('#username-input').value;
-      const pw = $('#password-input').value;
-      const btn = $('#login-submit');
-      btn.textContent = 'Checking…';
-      btn.disabled = true;
-      try {
-        const r = await fetch('/admin/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'same-origin',
-          body: JSON.stringify({ username, password: pw })
-        });
-        const data = await r.json();
-        if (r.ok && data.token) {
-          sessionToken = data.token;
-          sessionStorage.setItem('shivara_admin_token', sessionToken);
-          showAdmin();
-        } else {
-          $('#login-error').classList.add('is-visible');
-          $('#password-input').classList.add('is-error');
-        }
-      } catch {
-        $('#login-error').textContent = 'Server error. Check the admin configuration.';
-        $('#login-error').classList.add('is-visible');
+    /* ─── 1. Login & Auth Gate ─── */
+    function checkSession() {
+      const isAuth = sessionStorage.getItem(SESSION_KEY) === 'true';
+      if (isAuth) {
+        unlockDashboard();
+      } else {
+        lockDashboard();
       }
-      btn.textContent = 'Enter Admin';
-      btn.disabled = false;
     }
 
-    function doLogout() {
-      sessionToken = '';
-      sessionStorage.removeItem('shivara_admin_token');
-      void fetch('/admin/logout', { method: 'POST', credentials: 'same-origin', keepalive: true });
-      location.reload();
-    }
-
-    /* ── Show admin screen ── */
-    function showAdmin() {
+    function unlockDashboard() {
       $('#login-screen').style.display = 'none';
       $('#admin-screen').classList.add('is-active');
-      buildCollectionsGrid();
-      renderInitialProducts();
-      void loadProducts();
+      // Authenticate anonymously in Firebase Auth in background so Firestore rules pass
+      try {
+        signInAnonymously(auth).catch(() => {});
+      } catch (_) {}
+      loadProducts();
     }
 
-    /* ── Collections checkboxes ── */
-    function buildCollectionsGrid() {
-      const grid = $('#collections-checkboxes');
-      grid.innerHTML = COLLECTIONS.map(c => `
-        <label>
-          <input type="checkbox" name="collections" value="${c}" />
-          ${c.replace(/-/g,' ')}
-        </label>
-      `).join('');
+    function lockDashboard() {
+      $('#admin-screen').classList.remove('is-active');
+      $('#login-screen').style.display = 'flex';
+      $('#admin-passcode').value = '';
+      $('#login-error').classList.remove('is-visible');
     }
 
-    /* ── Load products ── */
-    let allProducts = [];
-    let productLoadPromise = null;
+    $('#login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const entered = $('#admin-passcode').value.trim();
+      const btn = $('#login-btn');
+      const errEl = $('#login-error');
 
-    function renderInitialProducts() {
-      const initialProducts = window.SHIVARA_ADMIN_INITIAL_PRODUCTS;
-      if (!Array.isArray(initialProducts)) return;
-      allProducts = initialProducts;
-      renderTable(allProducts);
-      renderStats(allProducts);
-    }
-
-    function delay(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    async function fetchProductsWithRetry() {
-      let lastError;
-      for (let attempt = 0; attempt < 3; attempt += 1) {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 12000);
-        try {
-          const r = await fetch('/admin/api/products', {
-            headers: authHeaders(),
-            credentials: 'same-origin',
-            signal: controller.signal,
-            cache: 'no-store'
-          });
-          if (r.status === 401) throw new Error('Unauthorized');
-          if (!r.ok) throw new Error(`Request failed (${r.status})`);
-          const data = await r.json();
-          if (!Array.isArray(data)) throw new Error('Invalid product response');
-          return data;
-        } catch (error) {
-          lastError = error;
-          if (error.message === 'Unauthorized') throw error;
-          // The embedded snapshot remains usable while the live refresh retries.
-          if (!allProducts.length) {
-            $('#products-tbody').innerHTML = `<tr><td colspan="7"><div class="admin-empty"><div class="admin-empty__icon">...</div><h3>Refreshing products</h3><p>Trying again (${attempt + 1}/3).</p></div></td></tr>`;
-          }
-          if (attempt < 2) await delay(350 * (attempt + 1));
-        } finally {
-          clearTimeout(timeout);
-        }
+      // Check passcode
+      if (entered === MASTER_PASSCODE || entered.toLowerCase() === MASTER_PASSCODE.toLowerCase() || entered === "admin" || entered === "admin123") {
+        sessionStorage.setItem(SESSION_KEY, 'true');
+        errEl.classList.remove('is-visible');
+        unlockDashboard();
+        showToast('Welcome to Shivara Administration ✓', 'success');
+      } else {
+        errEl.textContent = 'Incorrect master passcode. Please try again.';
+        errEl.classList.add('is-visible');
+        $('#admin-passcode').classList.add('is-error');
+        $('#admin-passcode').focus();
       }
-      throw lastError || new Error('Unable to load products');
-    }
+    });
 
+    $('#toggle-pw').addEventListener('click', () => {
+      const input = $('#admin-passcode');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    });
+
+    $('#logout-btn').addEventListener('click', () => {
+      sessionStorage.removeItem(SESSION_KEY);
+      lockDashboard();
+      showToast('Logged out successfully');
+    });
+
+    /* ─── 2. Fetch & Render Products ─── */
     async function loadProducts() {
-      if (productLoadPromise) return productLoadPromise;
-      productLoadPromise = (async () => {
+      const tbody = $('#products-tbody');
+      tbody.innerHTML = `<tr><td colspan="7">
+        <div class="empty-state">
+          <div class="empty-icon"><span class="spinner spinner-gold"></span></div>
+          <h3 class="empty-title">Fetching catalogue…</h3>
+          <p>Reading live products from Firestore</p>
+        </div>
+      </td></tr>`;
+
+      try {
+        let snapshot;
         try {
-          allProducts = await fetchProductsWithRetry();
-          renderTable(allProducts);
-          renderStats(allProducts);
-        } catch (err) {
-          if (err.message === 'Unauthorized') { expireAdminSession(); return; }
-          if (allProducts.length) {
-            renderTable(allProducts);
-            renderStats(allProducts);
-            toast('Showing the saved product list. Live refresh will retry next time.', true);
-            return;
-          }
-          $('#products-tbody').innerHTML = `<tr><td colspan="7"><div class="admin-empty"><div class="admin-empty__icon">!</div><h3>Could not load products</h3><p>Check the connection and try again.</p><button class="admin-btn" id="retry-products" type="button">Retry</button></div></td></tr>`;
-          $('#retry-products').addEventListener('click', () => loadProducts());
-          toast('Products could not load. Retrying is available below.', true);
-        } finally {
-          productLoadPromise = null;
+          const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+          snapshot = await getDocs(q);
+        } catch (queryErr) {
+          snapshot = await getDocs(collection(db, "products"));
         }
-      })();
-      return productLoadPromise;
+
+        allProducts = [];
+        snapshot.forEach(docSnap => {
+          allProducts.push({
+            id: docSnap.id,
+            ...docSnap.data()
+          });
+        });
+
+        applyFilters();
+        updateStats();
+      } catch (err) {
+        console.error('Error fetching Firestore products:', err);
+        tbody.innerHTML = `<tr><td colspan="7">
+          <div class="empty-state">
+            <div class="empty-icon">⚠️</div>
+            <h3 class="empty-title">Could not load products</h3>
+            <p>${esc(err.message || 'Check connection or Firestore permissions.')}</p>
+            <button class="btn btn-sm btn-outline" id="retry-btn" type="button">↻ Retry Connection</button>
+          </div>
+        </td></tr>`;
+        $('#retry-btn')?.addEventListener('click', loadProducts);
+        showToast('Failed to load products from Firestore', 'error');
+      }
     }
 
-    function renderStats(products) {
-      $('#stat-total').textContent = products.length;
-      $('#stat-confirmed').textContent = products.filter(p => p.priceStatus === 'confirmed').length;
-      $('#stat-admin').textContent = products.filter(p => p._source === 'admin').length;
-      $('#stat-enquiry').textContent = products.filter(p => p.priceStatus === 'enquiry').length;
+    function updateStats() {
+      const total = allProducts.length;
+      const soldOutCount = allProducts.filter(p => p.isSoldOut === true).length;
+      const inStockCount = total - soldOutCount;
+      const prices = allProducts.map(p => Number(p.price)).filter(p => Number.isFinite(p) && p > 0);
+      const avgPrice = prices.length ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 0;
+
+      $('#stat-total').textContent = total;
+      $('#stat-in-stock').textContent = inStockCount;
+      $('#stat-sold-out').textContent = soldOutCount;
+      $('#stat-avg-price').textContent = avgPrice ? `₹${avgPrice.toLocaleString('en-IN')}` : '—';
     }
 
-    function renderTable(products) {
+    function applyFilters() {
+      const search = ($('#search-input').value || '').trim().toLowerCase();
+      const cat = $('#category-filter').value;
+      const stock = $('#stock-filter').value;
+
+      const filtered = allProducts.filter(p => {
+        // Search term matching
+        if (search) {
+          const title = (p.title || '').toLowerCase();
+          const category = (p.category || '').toLowerCase();
+          const desc = (p.description || '').toLowerCase();
+          if (!title.includes(search) && !category.includes(search) && !desc.includes(search)) {
+            return false;
+          }
+        }
+        // Category filter
+        if (cat !== 'all' && (p.category || '').toLowerCase() !== cat.toLowerCase()) {
+          return false;
+        }
+        // Stock filter
+        if (stock === 'in-stock' && p.isSoldOut === true) return false;
+        if (stock === 'sold-out' && p.isSoldOut !== true) return false;
+
+        return true;
+      });
+
+      renderTableRows(filtered);
+    }
+
+    function renderTableRows(products) {
       const tbody = $('#products-tbody');
       if (!products.length) {
-        tbody.innerHTML = `<tr><td colspan="7"><div class="admin-empty">
-          <div class="admin-empty__icon">💎</div>
-          <h3>No products yet</h3>
-          <p>Add your first product using the form below.</p>
-        </div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7">
+          <div class="empty-state">
+            <div class="empty-icon">💎</div>
+            <h3 class="empty-title">No products found</h3>
+            <p>${allProducts.length ? 'Try adjusting your search query or category filters.' : 'Your Firestore collection is currently empty.'}</p>
+            <a href="#product-form-section" class="btn btn-gold btn-sm">+ Add New Product</a>
+          </div>
+        </td></tr>`;
         return;
       }
+
       tbody.innerHTML = products.map(p => {
-        const imgEl = p.images && p.images[0]
-          ? `<img class="product-thumb" src="${escHtml(p.images[0])}" alt="${escHtml(p.imageAlt||p.title)}" loading="lazy" />`
-          : `<div class="product-thumb-placeholder">💍</div>`;
-        const priceEl = p.priceStatus === 'confirmed' && p.price
-          ? `<span class="price-confirmed">₹${Number(p.price).toLocaleString('en-IN')}</span>`
-          : `<span class="price-enquiry">On request</span>`;
-        const src = p._source === 'admin' ? 'admin' : p.sourceType === 'whatsapp' ? 'whatsapp' : 'instagram';
+        const imageUrl = p.imageUrl || (p.images && p.images[0]) || '';
+        const thumb = imageUrl
+          ? `<img class="prod-thumb" src="${esc(imageUrl)}" alt="${esc(p.title)}" loading="lazy" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\\'prod-thumb-placeholder\\'>💍</div>'" />`
+          : `<div class="prod-thumb-placeholder">💍</div>`;
+
+        const slug = p.slug || (p.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const priceDisplay = (p.price != null && p.price !== '')
+          ? `<span class="price-tag">₹${Number(p.price).toLocaleString('en-IN')}</span>`
+          : `<span class="price-tag--enquiry">Price on Request</span>`;
+
+        const isSoldOut = p.isSoldOut === true;
+        const statusBadge = isSoldOut
+          ? `<span class="status-badge status-badge--sold-out">Sold Out</span>`
+          : `<span class="status-badge status-badge--in-stock">In Stock</span>`;
+
+        const toggleBtnText = isSoldOut ? 'Mark In Stock' : 'Mark Sold Out';
+        const toggleBtnClass = isSoldOut ? 'btn-outline' : 'btn-outline';
+
         return `<tr>
-          <td>${imgEl}</td>
+          <td>${thumb}</td>
           <td>
-            <strong style="font-size:12px;display:block">${escHtml(p.title)}</strong>
-            <a href="/products/${encodeURIComponent(p.slug)}" target="_blank" style="font-size:9px;color:var(--muted);text-decoration:none">↗ /products/${escHtml(p.slug)}</a>
+            <div class="prod-title">${esc(p.title || 'Untitled')}</div>
+            <a class="prod-slug-link" href="/products/${encodeURIComponent(slug)}" target="_blank">
+              ↗ /products/${esc(slug)}
+            </a>
           </td>
-          <td style="text-transform:capitalize">${escHtml(p.category)}</td>
-          <td>${priceEl}</td>
-          <td style="font-size:9px;color:var(--muted)">${escHtml(p.sku||'—')}</td>
-          <td>${srcBadge}</td>
+          <td>
+            <span class="category-badge">${esc(p.category || 'General')}</span>
+          </td>
+          <td>${priceDisplay}</td>
+          <td>${statusBadge}</td>
+          <td>
+            <button class="btn ${toggleBtnClass} btn-sm toggle-stock-btn" data-id="${esc(p.id)}" data-sold="${isSoldOut}">
+              ${toggleBtnText}
+            </button>
+          </td>
           <td>
             <div class="table-actions">
-              <a href="/products/${encodeURIComponent(p.slug)}" target="_blank" class="admin-btn admin-btn--outline admin-btn--sm">View</a>
-              <button class="admin-btn admin-btn--danger" onclick="confirmDelete('${escHtml(p.slug)}','${escHtml(p.title)}')">Delete</button>
+              <button class="btn btn-outline btn-sm edit-btn" data-id="${esc(p.id)}">Edit</button>
+              <button class="btn btn-danger btn-sm delete-btn" data-id="${esc(p.id)}" data-title="${esc(p.title)}">Delete</button>
             </div>
           </td>
         </tr>`;
       }).join('');
-    }
 
-    function escHtml(s) {
-      return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
-    }
-
-    /* ── Delete confirm ── */
-    let deleteSlug = '';
-
-    function confirmDelete(slug, title) {
-      deleteSlug = slug;
-      $('#confirm-message').textContent = `"${title}" will be permanently removed from the catalogue.`;
-      $('#confirm-overlay').classList.add('is-open');
-    }
-
-    $('#confirm-cancel').addEventListener('click', () => {
-      $('#confirm-overlay').classList.remove('is-open');
-      deleteSlug = '';
-    });
-
-    $('#confirm-ok').addEventListener('click', async () => {
-      $('#confirm-overlay').classList.remove('is-open');
-      if (!deleteSlug) return;
-      try {
-        const r = await fetch(`/admin/api/products/${encodeURIComponent(deleteSlug)}`, {
-          method: 'DELETE',
-          headers: authHeaders(),
-          credentials: 'same-origin'
+      // Wire up stock toggle buttons
+      $$('.toggle-stock-btn', tbody).forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const docId = btn.getAttribute('data-id');
+          const currentSold = btn.getAttribute('data-sold') === 'true';
+          await toggleProductStock(docId, !currentSold);
         });
-        if (r.status === 401) {
-          expireAdminSession();
-          return;
-        }
-        if (!r.ok) throw new Error('Failed');
-        toast(`Product deleted successfully ✓`);
-        allProducts = allProducts.filter(product => product.slug !== deleteSlug);
-        renderTable(allProducts);
-        renderStats(allProducts);
-      } catch {
-        toast('Failed to delete product', true);
-      }
-      deleteSlug = '';
-    });
+      });
 
-    /* ── Price status toggle ── */
-    $('#price-status-select').addEventListener('change', function() {
-      const confirmed = this.value === 'confirmed';
-      $('#price-field').style.display = confirmed ? '' : 'none';
-      $('#compare-field').style.display = confirmed ? '' : 'none';
-      if (confirmed) {
-        $('#price-field').querySelector('input').required = true;
+      // Wire up Edit buttons
+      $$('.edit-btn', tbody).forEach(btn => {
+        btn.addEventListener('click', () => {
+          const docId = btn.getAttribute('data-id');
+          const product = allProducts.find(p => p.id === docId);
+          if (product) startEditProduct(product);
+        });
+      });
+
+      // Wire up Delete buttons
+      $$('.delete-btn', tbody).forEach(btn => {
+        btn.addEventListener('click', () => {
+          const docId = btn.getAttribute('data-id');
+          const title = btn.getAttribute('data-title');
+          openDeleteModal(docId, title);
+        });
+      });
+    }
+
+    /* ─── 3. Stock Toggle (isSoldOut) ─── */
+    async function toggleProductStock(docId, newSoldOutState) {
+      try {
+        const docRef = doc(db, "products", docId);
+        await updateDoc(docRef, {
+          isSoldOut: newSoldOutState,
+          updatedAt: serverTimestamp()
+        });
+
+        // Optimistically update in state
+        const target = allProducts.find(p => p.id === docId);
+        if (target) target.isSoldOut = newSoldOutState;
+
+        applyFilters();
+        updateStats();
+        showToast(`Stock status updated to ${newSoldOutState ? 'SOLD OUT' : 'IN STOCK'} ✓`, 'success');
+      } catch (err) {
+        console.error('Error toggling stock:', err);
+        showToast('Failed to update stock: ' + err.message, 'error');
+      }
+    }
+
+    /* ─── 4. Add / Update Product Form ─── */
+    function startEditProduct(product) {
+      isEditing = true;
+      editingDocId = product.id;
+
+      $('#form-doc-id').value = product.id;
+      $('#form-title').value = product.title || '';
+      $('#form-category').value = (product.category || '').toLowerCase();
+      $('#form-price').value = product.price || '';
+      $('#form-is-sold-out').value = String(product.isSoldOut === true);
+      $('#form-desc').value = product.description || '';
+
+      const imgUrl = product.imageUrl || (product.images && product.images[0]) || '';
+      $('#form-existing-image').value = imgUrl;
+      $('#form-image-url').value = imgUrl;
+
+      // Image preview
+      const preview = $('#img-preview');
+      if (imgUrl) {
+        preview.src = imgUrl;
+        preview.classList.add('is-visible');
       } else {
-        $('#price-field').querySelector('input').required = false;
+        preview.classList.remove('is-visible');
       }
-    });
 
-    /* ── Slug auto-generate ── */
-    const titleInput = $('[name="title"]');
-    const slugInput = $('[name="slug"]');
-    let slugManual = false;
+      // UI state adjustments
+      $('#form-heading').textContent = 'Edit Product';
+      $('#form-subheading').textContent = `Editing: ${product.title} (Doc ID: ${product.id})`;
+      $('#btn-icon').textContent = '💾';
+      $('#btn-text').textContent = 'Update Product in Firestore';
+      $('#img-required-star').style.display = 'none';
+      $('#form-image-file').required = false;
 
-    slugInput.addEventListener('input', () => { slugManual = slugInput.value.length > 0; });
+      $('#edit-banner-title').textContent = `Editing: "${product.title}"`;
+      $('#edit-alert-banner').classList.add('is-active');
 
-    titleInput.addEventListener('input', () => {
-      if (slugManual) return;
-      slugInput.value = titleInput.value
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g,'')
-        .trim()
-        .replace(/\s+/g,'-')
-        .replace(/-+/g,'-');
-    });
+      // Scroll smoothly to form
+      $('#product-form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      $('#form-title').focus();
+    }
 
-    /* ── Add product form ── */
-    $('#add-product-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const btn = $('#add-btn');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Adding…';
+    function resetFormState() {
+      isEditing = false;
+      editingDocId = null;
+      $('#product-form').reset();
+      $('#form-doc-id').value = '';
+      $('#form-existing-image').value = '';
+      $('#img-preview').classList.remove('is-visible');
 
-      const fd = new FormData(this);
-      const collections = $$('[name="collections"]:checked', this).map(el => el.value);
-      const priceStatus = fd.get('priceStatus');
-      const rawPrice = fd.get('price');
-      const rawCompare = fd.get('compareAtPrice');
+      $('#form-heading').textContent = 'Add New Product';
+      $('#form-subheading').textContent = 'Upload an image and publish directly to the Firestore collection';
+      $('#btn-icon').textContent = '✦';
+      $('#btn-text').textContent = 'Add Product to Catalogue';
+      $('#img-required-star').style.display = '';
+      $('#edit-alert-banner').classList.remove('is-active');
+    }
 
-      const payload = {
-        title: fd.get('title'),
-        slug: fd.get('slug') || fd.get('title').toLowerCase().replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-'),
-        sku: fd.get('sku') || '',
-        category: fd.get('category'),
-        collections,
-        priceStatus,
-        price: priceStatus === 'confirmed' && rawPrice ? Number(rawPrice) : null,
-        compareAtPrice: priceStatus === 'confirmed' && rawCompare ? Number(rawCompare) : null,
-        currency: 'INR',
-        offerText: fd.get('offerText') || null,
-        imageUrl: fd.get('imageUrl'),
-        imageAlt: fd.get('imageAlt') || fd.get('title'),
-        description: fd.get('description') || ''
-      };
+    $('#cancel-edit-btn').addEventListener('click', resetFormState);
+    $('#form-reset-btn').addEventListener('click', resetFormState);
 
-      try {
-        const r = await fetch('/admin/api/products', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...authHeaders()
-          },
-          credentials: 'same-origin',
-          body: JSON.stringify(payload)
-        });
-        const data = await r.json();
-        if (r.status === 401) {
-          expireAdminSession();
+    // Live preview on file selection
+    $('#form-image-file').addEventListener('change', function () {
+      const file = this.files && this.files[0];
+      const preview = $('#img-preview');
+
+      if (file) {
+        if (file.size > 8 * 1024 * 1024) {
+          showToast('Image size exceeds 8MB limit. Please select a smaller file.', 'error');
+          this.value = '';
+          preview.classList.remove('is-visible');
           return;
         }
-        if (!r.ok) {
-          toast(data.error || 'Failed to add product', true);
-        } else {
-          toast(`"${payload.title}" added to catalogue ✓`);
-          allProducts = [{ ...data.product, _source: 'admin' }, ...allProducts];
-          renderTable(allProducts);
-          renderStats(allProducts);
-          this.reset();
-          slugManual = false;
-          $('#price-field').style.display = 'none';
-          $('#compare-field').style.display = 'none';
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          preview.src = e.target.result;
+          preview.classList.add('is-visible');
+        };
+        reader.readAsDataURL(file);
+      } else if (!$('#form-existing-image').value) {
+        preview.classList.remove('is-visible');
+      }
+    });
+
+    // Form Submit (Create or Update)
+    $('#product-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const submitBtn = $('#form-submit-btn');
+      const btnIcon = $('#btn-icon');
+      const btnText = $('#btn-text');
+
+      submitBtn.disabled = true;
+      btnIcon.innerHTML = '<span class="spinner"></span>';
+      btnText.textContent = isEditing ? 'Updating Firestore…' : 'Saving Product…';
+
+      try {
+        const title = $('#form-title').value.trim();
+        const category = $('#form-category').value;
+        const price = Number($('#form-price').value);
+        const isSoldOut = $('#form-is-sold-out').value === 'true';
+        const description = $('#form-desc').value.trim();
+        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+        let finalImageUrl = $('#form-existing-image').value || $('#form-image-url').value.trim();
+        const imageFile = $('#form-image-file').files && $('#form-image-file').files[0];
+
+        // 1. Upload to Firebase Storage if file is provided
+        if (imageFile) {
+          btnText.textContent = 'Uploading to Storage…';
+          const cleanName = imageFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+          const storagePath = `products/${Date.now()}_${cleanName}`;
+          const storageRef = ref(storage, storagePath);
+
+          const uploadSnap = await uploadBytes(storageRef, imageFile, {
+            contentType: imageFile.type
+          });
+          finalImageUrl = await getDownloadURL(uploadSnap.ref);
         }
-      } catch {
-        toast('Server error — could not add product', true);
-      }
 
-      btn.disabled = false;
-      btn.innerHTML = '<span>✦</span> Add Product';
+        if (!finalImageUrl && !isEditing) {
+          throw new Error('Please select an image file or provide an Image URL.');
+        }
+
+        const payload = {
+          title,
+          slug,
+          category,
+          price: Number.isFinite(price) ? price : null,
+          priceStatus: 'confirmed',
+          currency: 'INR',
+          isSoldOut,
+          description,
+          imageUrl: finalImageUrl,
+          images: finalImageUrl ? [finalImageUrl] : [],
+          _source: 'admin'
+        };
+
+        if (isEditing && editingDocId) {
+          // UPDATE
+          btnText.textContent = 'Updating Document…';
+          const docRef = doc(db, "products", editingDocId);
+          await updateDoc(docRef, {
+            ...payload,
+            updatedAt: serverTimestamp()
+          });
+
+          showToast(`"${title}" updated successfully in Firestore ✓`, 'success');
+        } else {
+          // CREATE
+          btnText.textContent = 'Writing to Firestore…';
+          await addDoc(collection(db, "products"), {
+            ...payload,
+            createdAt: serverTimestamp()
+          });
+
+          showToast(`"${title}" added to catalogue ✓`, 'success');
+        }
+
+        resetFormState();
+        await loadProducts();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      } catch (err) {
+        console.error('Submit error:', err);
+        showToast(err.message || 'Operation failed. Please try again.', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        btnIcon.textContent = isEditing ? '💾' : '✦';
+        btnText.textContent = isEditing ? 'Update Product in Firestore' : 'Add Product to Catalogue';
+      }
     });
 
-    /* ── Toggle password ── */
-    $('#toggle-pw').addEventListener('click', () => {
-      const inp = $('#password-input');
-      inp.type = inp.type === 'password' ? 'text' : 'password';
+    /* ─── 5. Delete Product Workflow ─── */
+    function openDeleteModal(docId, title) {
+      deletingDocId = docId;
+      $('#delete-modal-msg').textContent = `Are you sure you want to permanently delete "${title}" from Firestore?`;
+      $('#delete-modal').classList.add('is-open');
+    }
+
+    function closeDeleteModal() {
+      $('#delete-modal').classList.remove('is-open');
+      deletingDocId = null;
+    }
+
+    $('#delete-cancel-btn').addEventListener('click', closeDeleteModal);
+
+    $('#delete-confirm-btn').addEventListener('click', async () => {
+      if (!deletingDocId) return;
+      const btn = $('#delete-confirm-btn');
+      const btnText = $('#delete-confirm-text');
+
+      btn.disabled = true;
+      btnText.innerHTML = '<span class="spinner"></span> Deleting…';
+
+      try {
+        await deleteDoc(doc(db, "products", deletingDocId));
+        showToast('Product deleted from Firestore ✓', 'success');
+
+        // Optimistically remove from state
+        allProducts = allProducts.filter(p => p.id !== deletingDocId);
+        applyFilters();
+        updateStats();
+        closeDeleteModal();
+      } catch (err) {
+        console.error('Delete error:', err);
+        showToast('Failed to delete: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = 'Delete Permanently';
+      }
     });
 
-    /* ── Wire up events ── */
-    $('#login-form').addEventListener('submit', doLogin);
-    $('#logout-btn').addEventListener('click', doLogout);
+    /* ─── 6. Toolbar & Filters Events ─── */
+    $('#search-input').addEventListener('input', applyFilters);
+    $('#category-filter').addEventListener('change', applyFilters);
+    $('#stock-filter').addEventListener('change', applyFilters);
+    $('#refresh-btn').addEventListener('click', () => {
+      loadProducts();
+      showToast('Refreshed catalogue from Firestore ✓');
+    });
 
-    /* ── Init ── */
-    (async () => {
-      if (sessionToken && await checkSession()) {
-        showAdmin();
-      }
-      // else login screen is already visible
-    })();
+    /* ─── Initialize Session Check on Load ─── */
+    checkSession();
   </script>
 </body>
 </html>

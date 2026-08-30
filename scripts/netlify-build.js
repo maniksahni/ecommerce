@@ -27,6 +27,7 @@ const buildInfo = {
 const publicFiles = [
   "index.html",
   "product.html",
+  "admin.html",
   "shop-data.js",
   "catalog-supplement.js",
   "catalog-overrides.js",
@@ -86,10 +87,13 @@ for (const file of publicFiles) {
   write(file, file.endsWith(".html") ? stamp(content.toString("utf8")) : content);
 }
 
-for (const directory of ["assets", "vendor"]) {
+for (const directory of ["assets", "vendor", "src"]) {
   const source = path.join(root, directory);
   if (fs.existsSync(source)) fs.cpSync(source, path.join(output, directory), { recursive: true });
 }
+
+const adminPage = fs.readFileSync(path.join(output, "admin.html"), "utf8");
+write("admin/index.html", adminPage);
 
 const wishlist = stamp(fs.readFileSync(path.join(root, "wishlist/index.html"), "utf8"));
 write("wishlist/index.html", wishlist);
