@@ -32,6 +32,7 @@ const publicFiles = [
   "catalog-supplement.js",
   "catalog-overrides.js",
   "catalog-data.js",
+  "admin-catalog-snapshot.js",
   "storefront-renderer.js",
   "script.js",
   "commerce-stable.css"
