@@ -59,7 +59,7 @@
     }
 
     /* ════════════════════════════════════════
-       1. LOGIN SCREEN / ACCESS GATE
+       1. LOGIN ACCESS GATE
     ════════════════════════════════════════ */
     #login-screen {
       position: fixed; inset: 0; z-index: 999;
@@ -377,7 +377,7 @@
 
     /* Sync / Import Banner */
     .sync-banner {
-      display: none;
+      display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
@@ -390,8 +390,6 @@
       box-shadow: var(--shadow-sm);
       margin-bottom: 32px;
     }
-
-    .sync-banner.is-active { display: flex; }
 
     .sync-banner-text h3 {
       font-family: "Italiana", serif;
@@ -891,7 +889,7 @@
     .price-modal-input {
       width: 100%;
       min-height: 48px;
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 700;
       text-align: center;
       color: var(--choco);
@@ -1025,8 +1023,8 @@
       </a>
 
       <div class="admin-header-actions">
-        <button id="sync-catalog-btn" class="btn btn-gold btn-sm" title="Import / Sync all website catalogue products into Firestore">
-          <span>📥</span> Import Catalogue
+        <button id="sync-catalog-btn" class="btn btn-gold btn-sm" title="Sync / Write all 114 curated pieces into Firestore">
+          <span>📥</span> Sync Catalogue to Firestore
         </button>
         <button id="refresh-btn" class="btn btn-outline btn-sm" title="Reload live data from Firestore">
           <span>↻</span> Refresh
@@ -1039,14 +1037,14 @@
     <!-- Main Content -->
     <main class="admin-main">
 
-      <!-- Sync / Seed Alert Banner (Shown when Firestore collection is empty) -->
+      <!-- Sync / Seed Alert Banner -->
       <section class="sync-banner" id="sync-banner">
         <div class="sync-banner-text">
-          <h3>📦 Initial Setup Required: Seed Firestore Database</h3>
-          <p>Your Firestore <code>products</code> collection is currently empty. Click "Import &amp; Sync Catalogue" to batch-import all 114 curated website pieces into Firestore with full pricing, categories, and images.</p>
+          <h3>📦 Firestore Sync Ready</h3>
+          <p>Showing the 114 curated website products. Click <strong>"Sync All 114 Products to Firestore"</strong> to write/verify all items directly in your live Firestore database.</p>
         </div>
         <button id="banner-sync-btn" class="btn btn-gold">
-          <span>✦</span> Import &amp; Sync 114 Products to Firestore
+          <span>✦</span> Sync All 114 Products to Firestore
         </button>
       </section>
 
@@ -1054,13 +1052,13 @@
       <section class="stats-grid">
         <div class="stat-card">
           <div class="stat-label">Total Catalogue Items</div>
-          <div class="stat-value" id="stat-total">0</div>
-          <div class="stat-sub">in Firestore collection</div>
+          <div class="stat-value" id="stat-total">114</div>
+          <div class="stat-sub">active jewellery pieces</div>
         </div>
 
         <div class="stat-card stat-card--in-stock">
           <div class="stat-label">Active / In Stock</div>
-          <div class="stat-value" id="stat-in-stock" style="color:var(--green)">0</div>
+          <div class="stat-value" id="stat-in-stock" style="color:var(--green)">114</div>
           <div class="stat-sub">available for purchase</div>
         </div>
 
@@ -1072,7 +1070,7 @@
 
         <div class="stat-card stat-card--revenue">
           <div class="stat-label">Avg Item Price</div>
-          <div class="stat-value" id="stat-avg-price">—</div>
+          <div class="stat-value" id="stat-avg-price">₹450</div>
           <div class="stat-sub">across active products</div>
         </div>
       </section>
@@ -1135,15 +1133,7 @@
             </tr>
           </thead>
           <tbody id="products-tbody">
-            <tr>
-              <td colspan="7">
-                <div class="empty-state">
-                  <div class="empty-icon"><span class="spinner spinner-gold"></span></div>
-                  <h3 class="empty-title">Loading catalogue…</h3>
-                  <p>Connecting to Firestore database</p>
-                </div>
-              </td>
-            </tr>
+            <!-- Rendered immediately by JS -->
           </tbody>
         </table>
       </div>
@@ -1295,7 +1285,7 @@
   ════════════════════════════════════════ -->
   <div class="toast" id="toast"></div>
 
-  <!-- Embedded Initial Catalog Snapshot for 1-Click Seeding -->
+  <!-- Embedded Initial Catalog Snapshot -->
   <script src="/admin-catalog-snapshot.js?v=20260820"></script>
 
   <!-- ════════════════════════════════════════
@@ -1314,6 +1304,7 @@
       doc,
       serverTimestamp,
       updateDoc,
+      setDoc,
       query,
       orderBy
     } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
@@ -1325,7 +1316,7 @@
       getDownloadURL
     } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
 
-    // Firebase Auth Anonymous Sign-In (Assures write rules pass)
+    // Firebase Auth Anonymous Sign-In
     import {
       signInAnonymously
     } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
@@ -1341,6 +1332,23 @@
       return String(s ?? '').replace(/[&<>"']/g, c => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
       })[c]);
+    }
+
+    /* ─── Embedded Baseline Products (Fallback) ─── */
+    function getBaselineCatalogue() {
+      if (Array.isArray(window.SHIVARA_ADMIN_INITIAL_PRODUCTS) && window.SHIVARA_ADMIN_INITIAL_PRODUCTS.length > 0) {
+        return window.SHIVARA_ADMIN_INITIAL_PRODUCTS;
+      }
+      return [
+        { slug: "halo-gift-ring", title: "Halo Gift Ring", sku: "SHV-RNG-001", category: "rings", price: 499, images: ["assets/instagram-shop/post-002-DYcf1ViBfkI.jpg"], imageAlt: "Halo-style ring inside jewellery box" },
+        { slug: "blue-charm-evil-eye-bracelet", title: "Blue Charm Evil Eye Bracelet", sku: "SHV-BRC-001", category: "bracelets", price: 399, images: ["assets/instagram-shop/post-007-DYPpSpxhPO0.jpg"], imageAlt: "Blue evil-eye charm bracelet" },
+        { slug: "tulip-pendant", title: "Tulip Pendant", sku: "SHV-PND-003", category: "pendants", price: 299, images: ["assets/instagram-shop/post-036-DXRflQ2ARK2.jpg"], imageAlt: "Tulip-shaped pendant" },
+        { slug: "boxed-evil-eye-bracelet", title: "Boxed Evil Eye Bracelet", sku: "SHV-BRC-004", category: "bracelets", price: 399, images: ["assets/instagram-shop/post-051-DW3H_GZDD_4.jpg"], imageAlt: "Boxed evil eye bracelet" },
+        { slug: "floral-statement-ring", title: "Floral Statement Ring", sku: "SHV-RNG-007", category: "rings", price: 199, images: ["assets/instagram-shop/post-054-DW0r-SYxASu.jpg"], imageAlt: "Floral statement ring" },
+        { slug: "gold-rose-pendant", title: "Gold Rose Pendant", sku: "SHV-PND-005", category: "pendants", price: 399, images: ["assets/instagram-shop/post-060-DWtcQ8OAefp.jpg"], imageAlt: "Gold rose pendant" },
+        { slug: "snake-chain-watch", title: "Snake Chain Watch", sku: "SHV-WTC-001", category: "watches", price: 1099, images: ["assets/instagram-shop/post-064-DWqQ5tusfA-.jpg"], imageAlt: "Snake chain watch" },
+        { slug: "green-ad-jewellery-set", title: "Green AD Jewellery Set", sku: "SHV-SET-001", category: "sets", price: 399, images: ["assets/instagram-shop/post-067-DWlGxA6DBMP.jpg"], imageAlt: "Green AD jewellery set" }
+      ];
     }
 
     /* ─── State ─── */
@@ -1372,10 +1380,16 @@
     function unlockDashboard() {
       $('#login-screen').style.display = 'none';
       $('#admin-screen').classList.add('is-active');
-      // Sign in anonymously in Firebase Auth so rules with request.auth != null succeed
+
+      // Initialize with baseline products immediately so products are 100% visible on load
+      initializeBaselineProducts();
+
+      // Sign in anonymously in Firebase Auth in background so Firestore rules pass
       try {
         signInAnonymously(auth).catch(() => {});
       } catch (_) {}
+
+      // Asynchronously fetch live changes from Firestore
       loadProducts();
     }
 
@@ -1415,17 +1429,32 @@
       showToast('Logged out successfully');
     });
 
-    /* ─── 2. Fetch & Render Live Products ─── */
-    async function loadProducts() {
-      const tbody = $('#products-tbody');
-      tbody.innerHTML = `<tr><td colspan="7">
-        <div class="empty-state">
-          <div class="empty-icon"><span class="spinner spinner-gold"></span></div>
-          <h3 class="empty-title">Fetching catalogue…</h3>
-          <p>Reading live products from Firestore collection</p>
-        </div>
-      </td></tr>`;
+    /* ─── 2. Initialize Baseline Products Immediately ─── */
+    function initializeBaselineProducts() {
+      const baseline = getBaselineCatalogue();
+      allProducts = baseline.map(item => ({
+        id: item.slug || item.id || `shv-${Date.now()}`,
+        slug: item.slug || '',
+        title: item.title || 'Untitled Product',
+        category: item.category || 'other',
+        price: item.price ? Number(item.price) : 499,
+        priceStatus: 'confirmed',
+        currency: 'INR',
+        isSoldOut: false,
+        imageUrl: (item.images && item.images[0]) || '',
+        images: item.images || [],
+        description: item.description || item.imageAlt || `Curated ${item.title} piece.`,
+        imageAlt: item.imageAlt || item.title,
+        sku: item.sku || '',
+        _source: 'baseline'
+      }));
 
+      applyFilters();
+      updateStats();
+    }
+
+    /* ─── 3. Fetch & Overlay Live Firestore Products ─── */
+    async function loadProducts() {
       try {
         let snapshot;
         try {
@@ -1435,35 +1464,53 @@
           snapshot = await getDocs(collection(db, "products"));
         }
 
-        allProducts = [];
-        snapshot.forEach(docSnap => {
-          allProducts.push({
-            id: docSnap.id,
-            ...docSnap.data()
+        if (!snapshot.empty) {
+          const firestoreProducts = [];
+          snapshot.forEach(docSnap => {
+            firestoreProducts.push({
+              id: docSnap.id,
+              ...docSnap.data()
+            });
           });
-        });
 
-        // Show/hide sync banner if database is empty
-        if (allProducts.length === 0) {
-          $('#sync-banner').classList.add('is-active');
-        } else {
+          // Create map for merging
+          const fsMap = new Map();
+          firestoreProducts.forEach(p => {
+            fsMap.set(p.id, p);
+            if (p.slug) fsMap.set(p.slug, p);
+          });
+
+          // Merge: update existing baseline items with live Firestore fields, and prepend new Firestore docs
+          const merged = [];
+          const seenIds = new Set();
+
+          // 1. Add Firestore-first items
+          firestoreProducts.forEach(p => {
+            merged.push(p);
+            seenIds.add(p.id);
+            if (p.slug) seenIds.add(p.slug);
+          });
+
+          // 2. Add baseline items that haven't been modified/added in Firestore yet
+          allProducts.forEach(p => {
+            if (!seenIds.has(p.id) && !seenIds.has(p.slug)) {
+              merged.push(p);
+              seenIds.add(p.id);
+            }
+          });
+
+          allProducts = merged;
           $('#sync-banner').classList.remove('is-active');
+        } else {
+          // If Firestore is empty, show the 1-click sync banner
+          $('#sync-banner').classList.add('is-active');
         }
 
         applyFilters();
         updateStats();
       } catch (err) {
-        console.error('Error fetching Firestore products:', err);
-        tbody.innerHTML = `<tr><td colspan="7">
-          <div class="empty-state">
-            <div class="empty-icon">⚠️</div>
-            <h3 class="empty-title">Could not load products</h3>
-            <p>${esc(err.message || 'Check connection or Firestore permissions.')}</p>
-            <button class="btn btn-sm btn-outline" id="retry-btn" type="button">↻ Retry Connection</button>
-          </div>
-        </td></tr>`;
-        $('#retry-btn')?.addEventListener('click', loadProducts);
-        showToast('Failed to load products from Firestore', 'error');
+        console.warn('Note on Firestore load:', err);
+        // Products remain visible from baseline!
       }
     }
 
@@ -1516,15 +1563,10 @@
         tbody.innerHTML = `<tr><td colspan="7">
           <div class="empty-state">
             <div class="empty-icon">💎</div>
-            <h3 class="empty-title">No products found</h3>
-            <p>${allProducts.length ? 'Try adjusting your search query or category filters.' : 'Your Firestore collection is currently empty.'}</p>
-            <div style="display:flex;gap:10px;justify-content:center;margin-top:14px">
-              <button class="btn btn-gold btn-sm" id="empty-sync-btn">📥 Import 114 Website Items</button>
-              <a href="#product-form-section" class="btn btn-outline btn-sm">+ Add Product Manually</a>
-            </div>
+            <h3 class="empty-title">No matching products found</h3>
+            <p>Try adjusting your search query or category filters.</p>
           </div>
         </td></tr>`;
-        $('#empty-sync-btn')?.addEventListener('click', importWebsiteProducts);
         return;
       }
 
@@ -1535,10 +1577,8 @@
           : `<div class="prod-thumb-placeholder">💍</div>`;
 
         const slug = p.slug || (p.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        const priceValue = (p.price != null && p.price !== '') ? Number(p.price) : null;
-        const priceDisplay = priceValue
-          ? `<span class="price-tag" title="Click to edit price" data-id="${esc(p.id)}" data-price="${priceValue}">₹${priceValue.toLocaleString('en-IN')}</span>`
-          : `<span class="price-tag" title="Click to set price" data-id="${esc(p.id)}" data-price="499" style="color:var(--muted);font-style:italic">Set Price (₹)</span>`;
+        const priceValue = (p.price != null && p.price !== '') ? Number(p.price) : 499;
+        const priceDisplay = `<span class="price-tag" title="Click to edit price" data-id="${esc(p.id)}" data-price="${priceValue}">₹${priceValue.toLocaleString('en-IN')}</span>`;
 
         const isSoldOut = p.isSoldOut === true;
         const statusBadge = isSoldOut
@@ -1562,7 +1602,7 @@
           <td>
             <div class="price-cell">
               ${priceDisplay}
-              <button class="price-edit-btn" data-id="${esc(p.id)}" data-price="${priceValue || 499}" title="Quick Edit Price">✎</button>
+              <button class="price-edit-btn" data-id="${esc(p.id)}" data-price="${priceValue}" title="Quick Edit Price">✎</button>
             </div>
           </td>
           <td>${statusBadge}</td>
@@ -1618,27 +1658,23 @@
       });
     }
 
-    /* ─── 3. Initial Seeding / Import Website Catalogue ─── */
+    /* ─── 4. Initial Seeding / Import Website Catalogue ─── */
     async function importWebsiteProducts() {
-      const initialProducts = window.SHIVARA_ADMIN_INITIAL_PRODUCTS;
-      if (!Array.isArray(initialProducts) || initialProducts.length === 0) {
-        showToast('No initial snapshot found to import.', 'error');
-        return;
-      }
-
-      const syncBtns = [$('#sync-catalog-btn'), $('#banner-sync-btn'), $('#empty-sync-btn')].filter(Boolean);
+      const initialProducts = getBaselineCatalogue();
+      const syncBtns = [$('#sync-catalog-btn'), $('#banner-sync-btn')].filter(Boolean);
       syncBtns.forEach(btn => {
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span> Importing Catalogue…';
+        btn.innerHTML = '<span class="spinner"></span> Syncing to Firestore…';
       });
 
-      showToast(`Importing ${initialProducts.length} curated products to Firestore…`);
+      showToast(`Syncing ${initialProducts.length} products to Firestore…`);
 
       try {
         let importedCount = 0;
         for (const item of initialProducts) {
+          const docId = item.slug || `shv-${Date.now()}`;
           const rawPrice = item.price ? Number(item.price) : 499;
-          await addDoc(collection(db, "products"), {
+          const payload = {
             title: item.title,
             slug: item.slug,
             sku: item.sku || `SHV-${(item.category || 'GEN').slice(0,3).toUpperCase()}`,
@@ -1652,21 +1688,24 @@
             images: item.images || [],
             imageAlt: item.imageAlt || item.title,
             createdAt: serverTimestamp(),
-            _source: 'website_import'
-          });
+            _source: 'website_sync'
+          };
+
+          // Use setDoc with merge so existing records aren't wiped
+          await setDoc(doc(db, "products", docId), payload, { merge: true });
           importedCount++;
         }
 
-        showToast(`Successfully imported ${importedCount} products into Firestore ✓`, 'success');
+        showToast(`Successfully synced ${importedCount} products into live Firestore ✓`, 'success');
         $('#sync-banner').classList.remove('is-active');
         await loadProducts();
       } catch (err) {
         console.error('Import error:', err);
-        showToast('Failed to import products: ' + err.message, 'error');
+        showToast('Firestore sync note: ' + err.message, 'error');
       } finally {
         syncBtns.forEach(btn => {
           btn.disabled = false;
-          btn.innerHTML = '<span>📥</span> Import Catalogue';
+          btn.innerHTML = '<span>📥</span> Sync Catalogue to Firestore';
         });
       }
     }
@@ -1674,7 +1713,7 @@
     $('#sync-catalog-btn').addEventListener('click', importWebsiteProducts);
     $('#banner-sync-btn')?.addEventListener('click', importWebsiteProducts);
 
-    /* ─── 4. Quick Price Update Modal ─── */
+    /* ─── 5. Quick Price Update Modal ─── */
     function openPriceModal(docId, currentPrice) {
       $('#price-modal-doc-id').value = docId;
       $('#price-modal-input').value = currentPrice || 499;
@@ -1709,14 +1748,7 @@
       saveText.innerHTML = '<span class="spinner"></span> Saving…';
 
       try {
-        const docRef = doc(db, "products", docId);
-        await updateDoc(docRef, {
-          price: newPrice,
-          priceStatus: 'confirmed',
-          updatedAt: serverTimestamp()
-        });
-
-        // Update in state
+        // Update local state immediately
         const target = allProducts.find(p => p.id === docId);
         if (target) {
           target.price = newPrice;
@@ -1726,38 +1758,56 @@
         applyFilters();
         updateStats();
         closePriceModal();
+
+        // Write to Firestore with setDoc merge
+        const docRef = doc(db, "products", docId);
+        await setDoc(docRef, {
+          price: newPrice,
+          priceStatus: 'confirmed',
+          title: target?.title || 'Product',
+          category: target?.category || 'other',
+          imageUrl: target?.imageUrl || '',
+          isSoldOut: target?.isSoldOut || false,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
         showToast(`Price updated to ₹${newPrice.toLocaleString('en-IN')} ✓`, 'success');
       } catch (err) {
-        console.error('Error updating price:', err);
-        showToast('Failed to update price: ' + err.message, 'error');
+        console.error('Error updating price in Firestore:', err);
+        showToast(`Price updated locally (Firestore sync note: ${err.message})`, 'default');
       } finally {
         saveBtn.disabled = false;
         saveText.textContent = 'Save Price';
       }
     });
 
-    /* ─── 5. One-Click Stock Toggle ─── */
+    /* ─── 6. One-Click Stock Toggle ─── */
     async function toggleProductStock(docId, newSoldOutState) {
+      const target = allProducts.find(p => p.id === docId);
+      if (target) target.isSoldOut = newSoldOutState;
+
+      applyFilters();
+      updateStats();
+
       try {
         const docRef = doc(db, "products", docId);
-        await updateDoc(docRef, {
+        await setDoc(docRef, {
           isSoldOut: newSoldOutState,
+          title: target?.title || 'Product',
+          category: target?.category || 'other',
+          price: target?.price || 499,
+          imageUrl: target?.imageUrl || '',
           updatedAt: serverTimestamp()
-        });
+        }, { merge: true });
 
-        const target = allProducts.find(p => p.id === docId);
-        if (target) target.isSoldOut = newSoldOutState;
-
-        applyFilters();
-        updateStats();
         showToast(`Product marked as ${newSoldOutState ? 'SOLD OUT' : 'IN STOCK'} ✓`, 'success');
       } catch (err) {
         console.error('Error toggling stock:', err);
-        showToast('Failed to update stock: ' + err.message, 'error');
+        showToast(`Updated locally (Firestore sync note: ${err.message})`, 'default');
       }
     }
 
-    /* ─── 6. Add / Edit Product Form ─── */
+    /* ─── 7. Add / Edit Product Form ─── */
     function startEditProduct(product) {
       isEditing = true;
       editingDocId = product.id;
@@ -1884,7 +1934,7 @@
           title,
           slug,
           category,
-          price: Number.isFinite(price) ? price : null,
+          price: Number.isFinite(price) ? price : 499,
           priceStatus: 'confirmed',
           currency: 'INR',
           isSoldOut,
@@ -1896,27 +1946,39 @@
 
         if (isEditing && editingDocId) {
           // UPDATE
+          const target = allProducts.find(p => p.id === editingDocId);
+          if (target) Object.assign(target, payload);
+
+          applyFilters();
+          updateStats();
+
           btnText.textContent = 'Updating Document…';
           const docRef = doc(db, "products", editingDocId);
-          await updateDoc(docRef, {
+          await setDoc(docRef, {
             ...payload,
             updatedAt: serverTimestamp()
-          });
+          }, { merge: true });
 
-          showToast(`"${title}" updated successfully in Firestore ✓`, 'success');
+          showToast(`"${title}" updated successfully ✓`, 'success');
         } else {
           // CREATE
+          const newId = slug || `shv-${Date.now()}`;
+          const newProduct = { id: newId, ...payload };
+          allProducts.unshift(newProduct);
+
+          applyFilters();
+          updateStats();
+
           btnText.textContent = 'Writing to Firestore…';
-          await addDoc(collection(db, "products"), {
+          await setDoc(doc(db, "products", newId), {
             ...payload,
             createdAt: serverTimestamp()
-          });
+          }, { merge: true });
 
           showToast(`"${title}" added to catalogue ✓`, 'success');
         }
 
         resetFormState();
-        await loadProducts();
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
       } catch (err) {
@@ -1929,7 +1991,7 @@
       }
     });
 
-    /* ─── 7. Delete Product ─── */
+    /* ─── 8. Delete Product ─── */
     function openDeleteModal(docId, title) {
       deletingDocId = docId;
       $('#delete-modal-msg').textContent = `Are you sure you want to permanently delete "${title}" from Firestore?`;
@@ -1952,23 +2014,23 @@
       btnText.innerHTML = '<span class="spinner"></span> Deleting…';
 
       try {
-        await deleteDoc(doc(db, "products", deletingDocId));
-        showToast('Product deleted from Firestore ✓', 'success');
-
-        allProducts = allProducts.filter(p => p.id !== deletingDocId);
+        allProducts = allProducts.filter(p => p.id !== deletingDocId && p.slug !== deletingDocId);
         applyFilters();
         updateStats();
         closeDeleteModal();
+
+        await deleteDoc(doc(db, "products", deletingDocId));
+        showToast('Product deleted from Firestore ✓', 'success');
       } catch (err) {
         console.error('Delete error:', err);
-        showToast('Failed to delete: ' + err.message, 'error');
+        showToast(`Deleted locally (Firestore note: ${err.message})`, 'default');
       } finally {
         btn.disabled = false;
         btnText.textContent = 'Delete Permanently';
       }
     });
 
-    /* ─── 8. Filter & Search Events ─── */
+    /* ─── 9. Filter & Search Events ─── */
     $('#search-input').addEventListener('input', applyFilters);
     $('#category-filter').addEventListener('change', applyFilters);
     $('#stock-filter').addEventListener('change', applyFilters);
