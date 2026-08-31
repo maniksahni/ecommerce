@@ -2257,6 +2257,13 @@
 
     /* ─── 2. Initialize Baseline Products Immediately ─── */
     function initializeBaselineProducts() {
+      if (allProducts && allProducts.length > 0) return;
+      if (window.adminProductsCache && window.adminProductsCache.length > 0) {
+        allProducts = window.adminProductsCache;
+        applyFilters();
+        updateStats();
+        return;
+      }
       const baseline = getBaselineCatalogue();
       allProducts = baseline.map(item => ({
         id: item.slug || item.id || `shv-${Date.now()}`,
@@ -2365,35 +2372,31 @@
       }
     }
 
-    /* ─── 3. Real-Time Products Loader & Auto-Seed ─── */
+    /* ─── 3. Real-Time Products Loader (Firestore SSOT) ─── */
     function subscribeToFirestoreProducts() {
       if (unsubscribeProducts) {
         unsubscribeProducts();
         unsubscribeProducts = null;
       }
 
-      updateLiveStatus('online', 'Live Firestore Connected');
+      updateLiveStatus('online', 'Connecting to Live Firestore…');
 
       function handleSnapshot(snapshot) {
-        updateLiveStatus('online', 'Live Firestore Connected');
-
-        if (!hasCheckedAutoSeed && !isAutoSeeding) {
-          hasCheckedAutoSeed = true;
-          if (snapshot.size < 114) {
-            autoSeedMissingBaselineProducts(snapshot.docs);
-          }
-        }
+        updateLiveStatus('online', `Live Firestore Connected (${snapshot.size} Items)`);
 
         if (!snapshot.empty) {
           const firestoreProducts = [];
           snapshot.forEach(docSnap => {
+            const data = docSnap.data() || {};
             firestoreProducts.push({
               id: docSnap.id,
-              ...docSnap.data()
+              ...data,
+              price: Number.isFinite(Number(data.price)) ? Number(data.price) : 499,
+              isSoldOut: Boolean(data.isSoldOut)
             });
           });
 
-          // Sort firestore products so newest documents appear at the very top
+          // Sort firestore products: newest / admin products at the top
           firestoreProducts.sort((a, b) => {
             const getTimestamp = (item) => {
               if (item.createdAt?.toMillis) return item.createdAt.toMillis();
@@ -2406,42 +2409,11 @@
             return getTimestamp(b) - getTimestamp(a);
           });
 
-          // Merge: Firestore documents take priority, unpersisted baseline items are appended
-          const merged = [];
-          const seenIds = new Set();
-
-          firestoreProducts.forEach(p => {
-            merged.push(p);
-            seenIds.add(p.id);
-            if (p.slug) seenIds.add(p.slug);
-          });
-
-          const baseline = getBaselineCatalogue();
-          baseline.forEach(item => {
-            const id = item.slug || item.id;
-            if (!seenIds.has(id) && !seenIds.has(item.slug)) {
-              merged.push({
-                id: id || `shv-${Date.now()}`,
-                slug: item.slug || '',
-                title: item.title || 'Untitled Product',
-                category: item.category || 'other',
-                price: item.price ? Number(item.price) : 499,
-                priceStatus: item.priceStatus || 'confirmed',
-                currency: 'INR',
-                isSoldOut: false,
-                imageUrl: (item.images && item.images[0]) || '',
-                images: item.images || [],
-                description: item.description || item.imageAlt || `Curated ${item.title} piece.`,
-                imageAlt: item.imageAlt || item.title,
-                sku: item.sku || '',
-                _source: 'baseline'
-              });
-              seenIds.add(id);
-            }
-          });
-
-          allProducts = merged;
+          // Strict Single Source of Truth: Firestore products ONLY
+          allProducts = firestoreProducts;
+          window.adminProductsCache = firestoreProducts;
         } else {
+          // If Firestore is completely empty, initialize baseline catalogue once
           if (!hasCheckedAutoSeed && !isAutoSeeding) {
             hasCheckedAutoSeed = true;
             autoSeedMissingBaselineProducts([]);
@@ -2461,6 +2433,7 @@
             sku: item.sku || '',
             _source: 'baseline'
           }));
+          window.adminProductsCache = allProducts;
         }
 
         applyFilters();
@@ -2829,7 +2802,7 @@
 
       try {
         // Update local state immediately
-        const target = allProducts.find(p => p.id === docId);
+        const target = allProducts.find(p => p.id === docId || p.slug === docId);
         if (target) {
           target.price = newPrice;
           target.priceStatus = 'confirmed';
@@ -2840,25 +2813,18 @@
         closePriceModal();
 
         // Write to Firestore with setDoc merge
-        const docRef = doc(db, "products", docId);
-        const imagesList = (target?.images && target.images.length) ? target.images : (target?.imageUrl ? [target.imageUrl] : []);
+        const targetDocId = target?.id || docId;
+        const docRef = doc(db, "products", String(targetDocId));
         await setDoc(docRef, {
           price: newPrice,
           priceStatus: 'confirmed',
-          title: target?.title || 'Product',
-          slug: target?.slug || docId,
-          sku: target?.sku || '',
-          category: target?.category || 'other',
-          imageUrl: target?.imageUrl || (imagesList[0] || ''),
-          images: imagesList,
-          isSoldOut: target?.isSoldOut || false,
           updatedAt: serverTimestamp()
         }, { merge: true });
 
-        showToast(`✓ Price updated to ₹${newPrice.toLocaleString('en-IN')} & live in cloud`, 'success');
+        showToast(`✓ Price updated to ₹${newPrice.toLocaleString('en-IN')} & saved to cloud`, 'success');
       } catch (err) {
         console.error('Error updating price in Firestore:', err);
-        showToast(`Price updated locally (Firestore sync note: ${err.message})`, 'default');
+        showToast(`Cloud update failed: ${err.message}`, 'error');
       } finally {
         saveBtn.disabled = false;
         saveText.textContent = 'Save Price';
@@ -2867,31 +2833,24 @@
 
     /* ─── 5. One-Click Stock Toggle ─── */
     async function toggleProductStock(docId, newSoldOutState) {
-      const target = allProducts.find(p => p.id === docId);
+      const target = allProducts.find(p => p.id === docId || p.slug === docId);
       if (target) target.isSoldOut = newSoldOutState;
 
       applyFilters();
       updateStats();
 
       try {
-        const docRef = doc(db, "products", docId);
-        const imagesList = (target?.images && target.images.length) ? target.images : (target?.imageUrl ? [target.imageUrl] : []);
+        const targetDocId = target?.id || docId;
+        const docRef = doc(db, "products", String(targetDocId));
         await setDoc(docRef, {
-          isSoldOut: newSoldOutState,
-          title: target?.title || 'Product',
-          slug: target?.slug || docId,
-          sku: target?.sku || '',
-          category: target?.category || 'other',
-          price: (target?.price != null && target?.price !== '') ? Number(target.price) : 499,
-          imageUrl: target?.imageUrl || (imagesList[0] || ''),
-          images: imagesList,
+          isSoldOut: Boolean(newSoldOutState),
           updatedAt: serverTimestamp()
         }, { merge: true });
 
-        showToast(`✓ "${target?.title || 'Product'}" marked as ${newSoldOutState ? 'SOLD OUT' : 'IN STOCK'} & live in cloud`, 'success');
+        showToast(`✓ "${target?.title || 'Product'}" marked as ${newSoldOutState ? 'SOLD OUT' : 'IN STOCK'} (saved to cloud)`, 'success');
       } catch (err) {
-        console.error('Error toggling stock:', err);
-        showToast(`Updated locally (Firestore sync note: ${err.message})`, 'default');
+        console.error('Error toggling stock in Firestore:', err);
+        showToast(`Cloud update failed: ${err.message}`, 'error');
       }
     }
 
@@ -3306,22 +3265,16 @@
 
             // Firestore write
             try {
-              const imagesList = (item?.images?.length) ? item.images : (item?.imageUrl ? [item.imageUrl] : []);
-              await setDoc(doc(db, 'products', docId), {
-                isSoldOut: newSoldState,
-                title:     item?.title    || 'Product',
-                slug:      item?.slug     || docId,
-                sku:       item?.sku      || '',
-                category:  item?.category || 'other',
-                price:     (item?.price != null && item?.price !== '') ? Number(item.price) : 499,
-                imageUrl:  item?.imageUrl || (imagesList[0] || ''),
-                images:    imagesList,
+              const targetDocId = item?.id || docId;
+              const productRef = doc(db, 'products', String(targetDocId));
+              await setDoc(productRef, {
+                isSoldOut: Boolean(newSoldState),
                 updatedAt: serverTimestamp()
               }, { merge: true });
-              showToast(`✓ "${item?.title || 'Product'}" marked as ${newSoldState ? 'SOLD OUT' : 'IN STOCK'} & live`, 'success');
+              showToast(`✓ "${item?.title || 'Product'}" marked as ${newSoldState ? 'SOLD OUT' : 'IN STOCK'} (saved to cloud)`, 'success');
             } catch (err) {
               console.error('[Admin] toggleStock Firestore error:', err);
-              showToast('Updated locally. Firestore: ' + err.message, 'default');
+              showToast('Cloud update failed: ' + err.message, 'error');
             }
             break;
           }

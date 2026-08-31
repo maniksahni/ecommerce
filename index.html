@@ -391,34 +391,16 @@
           if (!snapshot.empty) {
             const firestoreProducts = [];
             snapshot.forEach(docSnap => {
+              const data = docSnap.data() || {};
               firestoreProducts.push({
                 id: docSnap.id,
-                ...docSnap.data()
+                ...data,
+                price: Number.isFinite(Number(data.price)) ? Number(data.price) : 499,
+                isSoldOut: Boolean(data.isSoldOut)
               });
             });
 
-            // Merge: Firestore documents take priority, un-synced baseline items are preserved
-            const merged = [];
-            const seenIds = new Set();
-
-            firestoreProducts.forEach(p => {
-              merged.push(p);
-              seenIds.add(p.id);
-              if (p.slug) seenIds.add(p.slug);
-            });
-
-            if (window.ShivaraCatalog) {
-              const baseline = window.ShivaraCatalog.getAllProducts() || [];
-              baseline.forEach(item => {
-                const id = item.slug || item.id;
-                if (!seenIds.has(id) && !seenIds.has(item.slug)) {
-                  merged.push({ ...item });
-                  seenIds.add(id);
-                }
-              });
-            }
-
-            liveProductsList = merged;
+            liveProductsList = firestoreProducts;
             document.dispatchEvent(new CustomEvent("shivara:products-synced", {
               detail: { products: liveProductsList }
             }));
