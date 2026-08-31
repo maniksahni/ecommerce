@@ -397,7 +397,7 @@
 
     /* Live Firestore Connection Indicator */
     .live-connection-chip {
-      display: inline-flex;
+      display: none !important;
       align-items: center;
       gap: 8px;
       background: rgba(30, 24, 20, 0.06);
@@ -2116,10 +2116,7 @@
       </div>
 
       <div class="admin-header-row-2">
-        <div id="live-connection-chip" class="live-connection-chip" title="Real-time Firestore Live Connection">
-          <span class="live-dot"></span>
-          <span id="live-connection-text">Live Firestore Connected</span>
-        </div>
+        <div></div>
         <div style="display:flex; align-items:center; gap:8px;">
           <a href="/index.html" class="btn btn-outline btn-sm storefront-link">← Storefront</a>
           <button type="button" class="btn btn-sm logout-btn logout-btn-desktop">Logout</button>
