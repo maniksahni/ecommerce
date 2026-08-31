@@ -13,7 +13,7 @@
         "headers": [
           {
             "key": "X-Shivara-Build",
-            "value": "2014a318247a4e32ae64866274ef573cba5a4f65"
+            "value": "14f18a5c18a9b9b7422705e869b5b6464ebf7e39"
           },
           {
             "key": "X-Shivara-Catalog-Version",
@@ -26,7 +26,7 @@
         ]
       },
       {
-        "source": "**/*.@(html|htm)",
+        "source": "**/*.@(html|htm|js|css)",
         "headers": [
           {
             "key": "Cache-Control",
@@ -35,7 +35,7 @@
         ]
       },
       {
-        "source": "**/*.@(jpg|jpeg|gif|png|webp|svg|ico|woff2|woff|ttf|css|js)",
+        "source": "**/*.@(jpg|jpeg|gif|png|webp|svg|ico|woff2|woff|ttf)",
         "headers": [
           {
             "key": "Cache-Control",

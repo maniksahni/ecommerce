@@ -166,13 +166,13 @@ if (fs.existsSync(firebaseConfigPath)) {
         ]
       },
       {
-        source: "**/*.@(html|htm)",
+        source: "**/*.@(html|htm|js|css)",
         headers: [
           { key: "Cache-Control", value: "max-age=0, no-cache, no-store, must-revalidate" }
         ]
       },
       {
-        source: "**/*.@(jpg|jpeg|gif|png|webp|svg|ico|woff2|woff|ttf|css|js)",
+        source: "**/*.@(jpg|jpeg|gif|png|webp|svg|ico|woff2|woff|ttf)",
         headers: [
           { key: "Cache-Control", value: "max-age=31536000, immutable" }
         ]
