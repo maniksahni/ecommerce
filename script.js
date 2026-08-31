@@ -649,7 +649,7 @@
         <div class="living-card__copy">
           <small>${escapeHtml(categoryMeta[product.category]?.kicker || product.category)}</small>
           <h3><a href="${productUrl(product)}">${escapeHtml(product.title)}</a></h3>
-          <div>${value.confirmed ? `<strong>${formatMoney(value.price)}</strong>` : "<strong>Price on request</strong>"}</div>
+          <div><strong>${formatMoney(value.price || 499)}</strong></div>
           <button type="button" data-quick-view="${escapeHtml(product.id)}">Quick view <span aria-hidden="true">↗</span></button>
         </div>
       </article>`;
@@ -797,7 +797,7 @@
       link.classList.toggle("is-active", link.pathname === location.pathname);
     });
     const categoryFilter = slug === "all" ? `<fieldset><legend>Product type</legend>${[["all", "All types"], ...Object.entries(categoryMeta).filter(([key]) => !["all", "new-arrivals"].includes(key)).map(([key, item]) => [key, item.title])].map(([value, label]) => `<label><input type="radio" name="category-filter" value="${value}" ${state.category === value ? "checked" : ""} />${label}</label>`).join("")}</fieldset>` : "";
-    document.querySelector("#collection-filters").innerHTML = `<fieldset><legend>Price status</legend>${[["all", "All products"], ["confirmed", "Confirmed price"], ["enquiry", "Price on request"]].map(([value, label]) => `<label><input type="radio" name="price-filter" value="${value}" ${state.price === value ? "checked" : ""} />${label}</label>`).join("")}</fieldset>${categoryFilter}<nav><strong>Collections</strong>${Object.entries(categoryMeta).map(([key, item]) => `<a class="${key === slug ? "is-active" : ""}" href="${collectionUrl(key)}">${item.title}<span>${productsForCollection(key).length}</span></a>`).join("")}</nav>`;
+    document.querySelector("#collection-filters").innerHTML = `${categoryFilter}<nav><strong>Collections</strong>${Object.entries(categoryMeta).map(([key, item]) => `<a class="${key === slug ? "is-active" : ""}" href="${collectionUrl(key)}">${item.title}<span>${productsForCollection(key).length}</span></a>`).join("")}</nav>`;
     const grid = document.querySelector("#collection-grid");
     const visible = selected.slice(0, collectionVisible);
     const renderedIds = [...grid.querySelectorAll("[data-product-card]")].map((card) => card.dataset.productCard);

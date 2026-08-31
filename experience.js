@@ -32,7 +32,7 @@
     ["Rings", "rings", "floral-statement-ring", "Small scale, unmistakable presence."],
     ["Evil Eye", "evil-eye", "blue-charm-evil-eye-bracelet", "Protective motifs with graphic personality."],
     ["Anti Tarnish", "anti-tarnish", "tulip-pendant", "An explicitly curated edit for repeat styling."],
-    ["Gifting", "gifting", "cluster-gift-ring", "Gift-ready choices with personal assistance."],
+    ["Gifting", "gifting", "cluster-gift-ring", "Gift-ready choices in signature keepsake velvet packaging."],
     ["New Arrivals", "new-arrivals", "halo-gift-ring", "The newest verified additions to Shivara."]
   ];
   const heroIds = ["boxed-evil-eye-bracelet", "floral-statement-ring", "tulip-pendant"];
