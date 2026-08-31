@@ -2069,7 +2069,7 @@
               <th>Actions</th>
             </tr>
           </thead>
-          <tbody id="products-table-body">
+          <tbody id="products-tbody">
             <tr>
               <td colspan="5" style="text-align:center; padding:36px; color:var(--muted)">
                 Loading catalogue items…
@@ -2077,6 +2077,9 @@
             </tr>
           </tbody>
         </table>
+        <div class="catalog-sentinel" id="catalog-sentinel" style="padding: 16px; text-align: center; color: var(--muted); font-size: 11px;">
+          <span class="sentinel-status" id="sentinel-status">Loading catalogue…</span>
+        </div>
       </div>
 
       <!-- Add / Edit Product Form -->
@@ -2822,144 +2825,6 @@
       }
     });
 
-    /* ═══════════════════════════════════════════════════════════════
-       GLOBAL EVENT DELEGATION ENGINE
-       One permanent listener on document handles ALL actions.
-    ═══════════════════════════════════════════════════════════════ */
-    if (!document._shivaraDelegationAttached) {
-      document._shivaraDelegationAttached = true;
-
-      document.addEventListener('click', async function shivaraActionRouter(e) {
-        const target = e.target.closest('[data-action]');
-        if (!target) return;
-
-        const action = target.getAttribute('data-action');
-        const docId  = target.getAttribute('data-id');
-        const orderId = target.getAttribute('data-order-id');
-
-        if (action === 'view-order-details') {
-          e.preventDefault();
-          if (orderId) window.openOrderDetailsModal(orderId);
-          return;
-        }
-
-        // All product actions require a docId
-        if (['toggle-stock','quick-price-edit','open-edit','delete-product'].includes(action)) {
-          if (!docId) {
-            console.error('[Admin] Action fired with no data-id', target);
-            return;
-          }
-          e.preventDefault();
-          e.stopPropagation();
-        }
-
-        switch (action) {
-
-          // ── SOLD OUT TOGGLE ───────────────────────────────────────
-          case 'toggle-stock': {
-            const currentSold = target.getAttribute('data-sold') === 'true';
-            await window.toggleStockStatus(docId, currentSold);
-            break;
-          }
-
-          // ── QUICK PRICE EDIT ──────────────────────────────────────
-          case 'quick-price-edit': {
-            const currentPrice = target.getAttribute('data-price') || '499';
-            openPriceModal(docId, currentPrice);
-            break;
-          }
-
-          // ── FULL EDIT (populate form) ─────────────────────────────
-          case 'open-edit': {
-            const product = allProducts.find(p => p.id === docId);
-            if (product) startEditProduct(product);
-            else showToast('Product data not found in cache.', 'error');
-            break;
-          }
-
-          // ── DELETE PRODUCT ────────────────────────────────────────
-          case 'delete-product': {
-            const title = target.getAttribute('data-title') || 'this product';
-            openDeleteModal(docId, title);
-            break;
-          }
-
-          default:
-            break;
-        }
-      });
-    }
-
-    /* ─── 7. Delete Product Modal ─── */
-    function openDeleteModal(docId, title) {
-      deletingDocId = docId;
-      $('#delete-modal-msg').textContent = `Are you sure you want to permanently delete "${title}" from Firestore?`;
-      $('#delete-modal').classList.add('is-open');
-    }
-
-    function closeDeleteModal() {
-      $('#delete-modal').classList.remove('is-open');
-      deletingDocId = null;
-    }
-
-    $('#delete-cancel-btn').addEventListener('click', closeDeleteModal);
-
-    $('#delete-confirm-btn').addEventListener('click', async () => {
-      if (!deletingDocId) return;
-      const btn = $('#delete-confirm-btn');
-      const btnText = $('#delete-confirm-text');
-
-      btn.disabled = true;
-      btnText.innerHTML = '<span class="spinner"></span> Deleting…';
-
-      try {
-        const idToDelete = deletingDocId;
-        closeDeleteModal();
-        await window.deleteAdminProduct(idToDelete);
-      } finally {
-        btn.disabled = false;
-        btnText.textContent = 'Delete Permanently';
-      }
-    });
-
-    /* ─── 8. Filter, Search & Category Events ─── */
-    $('#search-input')?.addEventListener('input', () => {
-      clearTimeout(searchDebounceTimer);
-      searchDebounceTimer = setTimeout(() => {
-        applyFilters();
-      }, 120);
-    });
-    $('#stock-filter')?.addEventListener('change', applyFilters);
-
-    // Wire up Category Pills
-    const pillsTrack = $('#category-pills-track');
-    if (pillsTrack) {
-      pillsTrack.addEventListener('click', (e) => {
-        const btn = e.target.closest('.category-pill');
-        if (!btn) return;
-        const cat = btn.getAttribute('data-cat') || 'all';
-
-        // Update active pill styling
-        $$('.category-pill', pillsTrack).forEach(b => b.classList.toggle('is-active', b === btn));
-
-        // Sync dropdown filter
-        const select = $('#category-filter');
-        if (select) select.value = cat;
-
-        applyFilters();
-      });
-    }
-
-    // When dropdown filter changes, sync active category pill
-    $('#category-filter')?.addEventListener('change', (e) => {
-      const selected = e.target.value;
-      if (pillsTrack) {
-        $$('.category-pill', pillsTrack).forEach(b => {
-          b.classList.toggle('is-active', b.getAttribute('data-cat') === selected);
-        });
-      }
-      applyFilters();
-    });
 
 
     /* ─── 2. Initialize Baseline Products Immediately ─── */
@@ -3275,7 +3140,8 @@
       window.adminProductsCache = currentFilteredProducts;
       renderedCount = 0;
 
-      const tbody = $('#products-tbody');
+      const tbody = $('#products-tbody') || $('#products-table-body');
+      if (!tbody) return;
       tbody.innerHTML = '';
 
       if (!currentFilteredProducts.length) {
@@ -3363,7 +3229,8 @@
     }
 
     function renderNextChunk() {
-      const tbody = $('#products-tbody');
+      const tbody = $('#products-tbody') || $('#products-table-body');
+      if (!tbody) return;
       const total = currentFilteredProducts.length;
       if (renderedCount >= total) {
         updateSentinelStatus(renderedCount, total);

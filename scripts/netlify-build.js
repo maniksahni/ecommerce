@@ -28,6 +28,7 @@ const publicFiles = [
   "index.html",
   "product.html",
   "admin.html",
+  "admin-store.js",
   "shop-data.js",
   "catalog-supplement.js",
   "catalog-overrides.js",
