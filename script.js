@@ -1218,20 +1218,23 @@
         };
       });
 
+      const customerInfo = {
+        name,
+        phone,
+        address,
+        pincode,
+        note: note || ""
+      };
+
       const orderDocument = {
         orderId: orderRef,
+        customerInfo,
         customerName: name,
         customerPhone: phone,
         shippingAddress: address,
         pincode: pincode,
         orderNote: note || "",
-        shippingDetails: {
-          customerName: name,
-          customerPhone: phone,
-          shippingAddress: address,
-          pincode: pincode,
-          orderNote: note || ""
-        },
+        shippingDetails: customerInfo,
         items: orderItems,
         itemCount: cart.reduce((sum, i) => sum + i.qty, 0),
         totalAmount: summary.confirmedTotal,
@@ -1240,34 +1243,49 @@
 
       // Save to localStorage for frictionless guest reference
       try {
+        localStorage.setItem("shivara_customer_info", JSON.stringify(customerInfo));
         localStorage.setItem("shivara_recent_order", JSON.stringify({
           orderId: orderRef,
           date: dateStr,
           totalAmount: summary.confirmedTotal,
           items: orderItems,
-          shippingDetails: orderDocument.shippingDetails,
+          customerInfo,
           status: "Pending"
         }));
       } catch {}
 
-      // Persist to Firestore orders collection asynchronously
+      // Execute Atomic writeBatch in Firestore:
+      // Action A: Create Order Document in `orders`
+      // Action B: Mark purchased items `isSoldOut: true` in `products`
       (async () => {
         try {
           const { db } = await import("/src/firebase.js");
           const { doc, writeBatch, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js");
           const batch = writeBatch(db);
+
+          // 1. Order Document
           const orderDocRef = doc(db, "orders", orderRef);
-          
           batch.set(orderDocRef, {
             ...orderDocument,
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
           });
 
+          // 2. Mark each purchased product as Sold Out
+          orderItems.forEach(item => {
+            if (item.productId) {
+              const prodRef = doc(db, "products", String(item.productId));
+              batch.set(prodRef, {
+                isSoldOut: true,
+                updatedAt: serverTimestamp()
+              }, { merge: true });
+            }
+          });
+
           await batch.commit();
-          console.log("[OMS] Order persisted to Firestore:", orderRef);
+          console.log("[OMS] Atomic checkout transaction committed:", orderRef);
         } catch (err) {
-          console.warn("[OMS] Note on Firestore order persistence:", err?.message || err);
+          console.warn("[OMS] Note on Firestore atomic order persistence:", err?.message || err);
         }
       })();
 
@@ -1292,8 +1310,8 @@
         const value = pricing(product);
         const itemPrice = value.confirmed ? formatMoney(value.price) : "Price on request";
         const lineTotal = value.confirmed ? formatMoney(value.price * item.qty) : "To be confirmed";
-        lines.push(`${index + 1}. *${product.title}*`);
-        lines.push(`   SKU: ${product.sku}${variant ? ` | Option: ${variant.label}` : ""}`);
+        lines.push(`${index + 1}. *${product ? product.title : item.id}*`);
+        lines.push(`   SKU: ${product ? product.sku : ""} ${variant ? `| Option: ${variant.label}` : ""}`);
         lines.push(`   Qty: ${item.qty} × ${itemPrice} = *${lineTotal}*`);
       });
 
@@ -1312,8 +1330,14 @@
       const message = lines.join("\n");
       const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
+      // Clear the Cart on successful order placement
+      cart.length = 0;
+      saveState(CART_KEY, cart);
+      updateCounts();
+      renderCartDrawer();
+
       closeLayer();
-      showToast(`✓ Order #${orderRef} confirmed! Opening WhatsApp Concierge…`);
+      showToast(`✓ Order #${orderRef} Confirmed! Opening WhatsApp Concierge…`);
       window.open(whatsappUrl, "_blank");
       return;
     }
