@@ -2234,7 +2234,7 @@
           <div class="quick-actions-card">
             <h3>Atelier Shortcuts</h3>
             <div class="quick-action-list">
-              <button type="button" class="btn btn-gold btn-sm" onclick="document.getElementById('tab-btn-products').click(); location.hash='#product-form-section';">
+              <button type="button" class="btn btn-gold btn-sm" onclick="openAddProductModal()">
                 <span>+</span> Add New Product
               </button>
               <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('tab-btn-orders').click();">
@@ -2319,9 +2319,9 @@
           <p class="section-subtitle">Real-time inventory connected to live Firestore collection</p>
         </div>
         <div>
-          <a href="#product-form-section" class="btn btn-gold btn-sm">
+          <button type="button" class="btn btn-gold btn-sm" id="btn-add-new-product" onclick="openAddProductModal()">
             <span>+</span> Add New Product
-          </a>
+          </button>
         </div>
       </div>
 
@@ -2440,122 +2440,11 @@
         </div>
       </div>
 
-      <!-- Add / Edit Product Form -->
-      <div class="product-form-card" id="product-form-section">
-        <div class="form-header">
-          <div>
-            <h3 class="form-title" id="form-title">+ Add New Product</h3>
-            <p class="form-subtitle" id="form-subtitle">Add a bespoke jewellery piece directly to your live Firestore catalogue</p>
-          </div>
-          <span class="badge" id="form-mode-badge">New Item</span>
-        </div>
-
-        <form id="product-form" autocomplete="off">
-          <input type="hidden" id="form-edit-id" />
-
-          <div class="form-grid">
-
-            <div class="form-group">
-              <label for="form-title-input">Product Title *</label>
-              <input type="text" id="form-title-input" class="form-control" placeholder="e.g. Baroque Pearl Drop Earrings" required />
-            </div>
-
-            <div class="form-group">
-              <label for="form-category">Category *</label>
-              <select id="form-category" class="form-control" required>
-                <option value="">Select a category…</option>
-                <option value="earrings">Earrings</option>
-                <option value="necklaces">Necklaces / Neck Wear</option>
-                <option value="bracelets">Bracelets &amp; Bangles</option>
-                <option value="rings">Rings</option>
-                <option value="evil-eye">Evil Eye</option>
-                <option value="new-arrivals">New Arrivals</option>
-                <option value="pendants">Pendants</option>
-                <option value="sets">Jewellery Sets</option>
-                <option value="watches">Watches</option>
-                <option value="anti-tarnish">Anti Tarnish</option>
-                <option value="gifting">Gifting</option>
-                <option value="other">Other / Custom</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="form-price">Price (₹ INR) *</label>
-              <input type="number" id="form-price" class="form-control" placeholder="499" min="1" step="1" required />
-            </div>
-
-            <div class="form-group">
-              <label for="form-compare-price">Compare-at Price (₹ Optional)</label>
-              <input type="number" id="form-compare-price" class="form-control" placeholder="999 (crossed out on storefront)" min="1" step="1" />
-            </div>
-
-            <div class="form-group">
-              <label for="form-sku">SKU (Stock Keeping Unit)</label>
-              <input type="text" id="form-sku" class="form-control" placeholder="e.g. SHV-EAR-007 (auto-generated if empty)" />
-            </div>
-
-            <div class="form-group">
-              <label for="form-stock">Initial Stock Status</label>
-              <select id="form-stock" class="form-control">
-                <option value="in-stock">In Stock (Available)</option>
-                <option value="sold-out">Sold Out (Out of Stock)</option>
-              </select>
-            </div>
-
-            <!-- Smart Dual Image Ingestion Section -->
-            <div class="form-group full">
-              <label class="img-main-label">Product Image Ingestion *</label>
-              
-              <div class="dual-image-container">
-                <div class="img-preview-box" id="img-preview-box">
-                  <div class="preview-empty" id="preview-empty">
-                    <span>📷</span>
-                    <small>No photo selected</small>
-                  </div>
-                  <img id="form-preview-img" class="form-preview-img" style="display:none;" alt="Product preview" />
-                </div>
-
-                <div class="img-upload-controls">
-                  <div class="file-upload-subgroup">
-                    <label for="form-image-file" class="sub-input-label">Upload Photo from Device (Auto-Compressed)</label>
-                    <input type="file" id="form-image-file" class="form-control" accept="image/*,.heic,.heif,.jpg,.jpeg,.png,.webp" style="background:#fff" />
-                    <div class="form-hint">⚡ Client-side compression (< 80KB) for instant cloud save.</div>
-                  </div>
-                  
-                  <div class="img-divider-line">
-                    <span>— OR ENTER DIRECT IMAGE URL —</span>
-                  </div>
-
-                  <div class="url-upload-subgroup">
-                    <label for="form-image-url" class="sub-input-label">Or Image URL (Instagram / CDN / Web)</label>
-                    <input type="url" id="form-image-url" class="form-control" placeholder="e.g. https://... or assets/instagram-shop/..." />
-                    <div class="form-hint">Paste direct image link from Instagram, CDN, or web asset.</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group full">
-              <label for="form-desc">Description</label>
-              <textarea id="form-desc" class="form-control" placeholder="Describe craftsmanship, dimensions, materials, and styling notes…" maxlength="500"></textarea>
-            </div>
-
-          </div>
-
-          <div class="form-actions">
-            <button type="button" class="btn btn-gold btn-submit-product" id="form-submit-btn">
-              <span id="btn-text">+ Add Product</span>
-            </button>
-            <button type="button" class="btn btn-outline" id="form-reset-btn">Clear Form</button>
-          </div>
-        </form>
-      </div>
-
       <!-- Floating Mobile Quick Action Button -->
-      <a href="#product-form-section" id="mobile-add-fab" class="mobile-fab" title="Add New Product">
+      <button type="button" id="mobile-add-fab" class="mobile-fab" title="Add New Product" onclick="openAddProductModal()">
         <span class="fab-icon">+</span>
         <span class="fab-label">Add Product</span>
-      </a>
+      </button>
 
       </div><!-- /view-products -->
 
@@ -2956,6 +2845,118 @@
       </div><!-- /view-settings -->
 
     </main>
+  <!-- ════════════════════════════════════════
+       2. ADD / EDIT PRODUCT MODAL (HIGH PERFORMANCE)
+  ════════════════════════════════════════ -->
+  <div class="modal-overlay" id="product-modal">
+    <div class="modal-card" style="width:min(720px, 95vw); max-height:90vh; overflow-y:auto; text-align:left; padding:32px clamp(16px, 3vw, 36px);">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:14px;">
+        <div>
+          <h3 class="modal-title" id="form-heading" style="margin:0; font-size:24px;">+ Add New Product</h3>
+          <p id="form-subheading" style="font-size:12px; color:var(--muted); margin:4px 0 0;">Add a bespoke jewellery piece directly to your live Firestore catalogue</p>
+        </div>
+        <button type="button" id="product-modal-close" class="btn btn-outline btn-sm" style="padding:4px 10px; font-size:14px; cursor:pointer;" aria-label="Close modal">✕</button>
+      </div>
+
+      <form id="product-form" autocomplete="off">
+        <input type="hidden" id="form-doc-id" />
+        <input type="hidden" id="form-existing-image" />
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="form-title">Product Title *</label>
+            <input type="text" id="form-title" class="form-control" placeholder="e.g. Baroque Pearl Drop Earrings" required />
+          </div>
+
+          <div class="form-group">
+            <label for="form-category">Category *</label>
+            <select id="form-category" class="form-control" required>
+              <option value="">Select a category…</option>
+              <option value="earrings">Earrings</option>
+              <option value="necklaces">Necklaces / Neck Wear</option>
+              <option value="bracelets">Bracelets &amp; Bangles</option>
+              <option value="rings">Rings</option>
+              <option value="evil-eye">Evil Eye</option>
+              <option value="new-arrivals">New Arrivals</option>
+              <option value="pendants">Pendants</option>
+              <option value="sets">Jewellery Sets</option>
+              <option value="watches">Watches</option>
+              <option value="anti-tarnish">Anti Tarnish</option>
+              <option value="gifting">Gifting</option>
+              <option value="other">Other / Custom</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="form-price">Price (₹ INR) *</label>
+            <input type="number" id="form-price" class="form-control" placeholder="499" min="1" step="1" required />
+          </div>
+
+          <div class="form-group">
+            <label for="form-compare-price">Compare-at Price (₹ Optional)</label>
+            <input type="number" id="form-compare-price" class="form-control" placeholder="999 (crossed out on storefront)" min="1" step="1" />
+          </div>
+
+          <div class="form-group">
+            <label for="form-sku">SKU (Stock Keeping Unit)</label>
+            <input type="text" id="form-sku" class="form-control" placeholder="e.g. SHV-EAR-007 (auto-generated if empty)" />
+          </div>
+
+          <div class="form-group">
+            <label for="form-is-sold-out">Inventory Status</label>
+            <select id="form-is-sold-out" class="form-control">
+              <option value="false">In Stock (Available)</option>
+              <option value="true">Sold Out (Out of Stock)</option>
+            </select>
+          </div>
+
+          <!-- Smart Dual Image Ingestion Section -->
+          <div class="form-group full">
+            <label class="img-main-label">Product Image Ingestion <span id="img-required-star" style="color:var(--rose);">*</span></label>
+            
+            <div class="dual-image-container">
+              <div class="img-preview-box" id="img-preview-box">
+                <div class="preview-empty" id="preview-empty">
+                  <span>📷</span>
+                  <small>No photo selected</small>
+                </div>
+                <img id="img-preview" class="form-preview-img" style="display:none;" alt="Product preview" />
+              </div>
+
+              <div class="img-upload-controls">
+                <div class="file-upload-subgroup">
+                  <label for="form-image-file" class="sub-input-label">Upload Photo from Device (Auto-Compressed)</label>
+                  <input type="file" id="form-image-file" class="form-control" accept="image/*,.heic,.heif,.jpg,.jpeg,.png,.webp" style="background:#fff" />
+                  <div class="form-hint">⚡ Client-side compression (&lt; 80KB) for instant cloud save.</div>
+                </div>
+                
+                <div class="img-divider-line">
+                  <span>— OR ENTER DIRECT IMAGE URL —</span>
+                </div>
+
+                <div class="url-upload-subgroup">
+                  <label for="form-image-url" class="sub-input-label">Or Image URL (Instagram / CDN / Web)</label>
+                  <input type="url" id="form-image-url" class="form-control" placeholder="e.g. https://... or assets/instagram-shop/..." />
+                  <div class="form-hint">Paste direct image link from Instagram, CDN, or web asset.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group full">
+            <label for="form-desc">Description</label>
+            <textarea id="form-desc" class="form-control" placeholder="Describe craftsmanship, dimensions, materials, and styling notes…" maxlength="500"></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions" style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
+          <button type="button" class="btn btn-outline" id="product-modal-cancel">Cancel</button>
+          <button type="button" class="btn btn-gold btn-submit-product" id="form-submit-btn">
+            <span id="btn-text">+ Add Product</span>
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- ════════════════════════════════════════
@@ -4628,7 +4629,22 @@
       }
     }
 
-    /* ─── 6. Add / Edit Product Form ─── */
+    /* ─── 6. Add / Edit Product Modal Controller (Instant 0ms) ─── */
+    window.openAddProductModal = function() {
+      resetFormState();
+      const modal = $('#product-modal');
+      if (modal) {
+        modal.classList.add('is-open');
+        setTimeout(() => $('#form-title')?.focus(), 40);
+      }
+    };
+
+    window.closeProductModal = function() {
+      const modal = $('#product-modal');
+      if (modal) modal.classList.remove('is-open');
+      resetFormState();
+    };
+
     function startEditProduct(product) {
       isEditing = true;
       editingDocId = product.id;
@@ -4639,6 +4655,8 @@
       if ($('#form-title')) $('#form-title').value = product.title || '';
       if ($('#form-category')) $('#form-category').value = (product.category || '').toLowerCase();
       if ($('#form-price')) $('#form-price').value = product.price || '';
+      if ($('#form-compare-price')) $('#form-compare-price').value = product.compareAtPrice || '';
+      if ($('#form-sku')) $('#form-sku').value = product.sku || '';
       if ($('#form-is-sold-out')) $('#form-is-sold-out').value = String(product.isSoldOut === true);
       if ($('#form-desc')) $('#form-desc').value = product.description || '';
 
@@ -4654,32 +4672,34 @@
 
       // Image preview
       const preview = $('#img-preview');
+      const emptyBox = $('#preview-empty');
       if (preview) {
         if (imgUrl) {
           preview.src = imgUrl;
-          preview.classList.add('is-visible');
+          preview.style.display = 'block';
+          if (emptyBox) emptyBox.style.display = 'none';
         } else {
-          preview.classList.remove('is-visible');
+          preview.style.display = 'none';
           preview.src = '';
+          if (emptyBox) emptyBox.style.display = 'flex';
         }
       }
 
       // UI state adjustments
       if ($('#form-heading')) $('#form-heading').textContent = 'Edit Product Details';
-      if ($('#form-subheading')) $('#form-subheading').textContent = `Editing: ${product.title} (Doc ID: ${product.id})`;
+      if ($('#form-subheading')) $('#form-subheading').textContent = `Editing: ${product.title}`;
       const btn = document.getElementById('form-submit-btn') || document.querySelector('.btn-submit-product');
       if (btn) {
-        btn.innerHTML = '<span id="btn-text">Update Product in Firestore</span>';
+        btn.innerHTML = '<span id="btn-text">Update Product</span>';
       }
       if ($('#img-required-star')) $('#img-required-star').style.display = 'none';
 
-      if ($('#edit-banner-title')) $('#edit-banner-title').textContent = `Editing: "${product.title}"`;
-      if ($('#edit-alert-banner')) $('#edit-alert-banner').classList.add('is-active');
-
-      // Scroll smoothly to form
-      const formSec = $('#product-form-section');
-      if (formSec) formSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      if ($('#form-title')) $('#form-title').focus();
+      // Open Modal Instantly
+      const modal = $('#product-modal');
+      if (modal) {
+        modal.classList.add('is-open');
+        setTimeout(() => $('#form-title')?.focus(), 40);
+      }
     }
 
     function resetFormState() {
@@ -4695,19 +4715,25 @@
       if ($('#form-title')) $('#form-title').value = '';
       if ($('#form-category')) $('#form-category').value = '';
       if ($('#form-price')) $('#form-price').value = '';
+      if ($('#form-compare-price')) $('#form-compare-price').value = '';
+      if ($('#form-sku')) $('#form-sku').value = '';
       if ($('#form-desc')) $('#form-desc').value = '';
       if ($('#form-existing-image')) $('#form-existing-image').value = '';
       if ($('#form-image-url')) $('#form-image-url').value = '';
       if ($('#form-image-file')) $('#form-image-file').value = '';
       
       const preview = $('#img-preview');
+      const emptyBox = $('#preview-empty');
       if (preview) {
-        preview.classList.remove('is-visible');
+        preview.style.display = 'none';
         preview.src = '';
       }
+      if (emptyBox) {
+        emptyBox.style.display = 'flex';
+      }
 
-      if ($('#form-heading')) $('#form-heading').textContent = 'Add New Product';
-      if ($('#form-subheading')) $('#form-subheading').textContent = 'Upload an image or paste URL to publish directly to Firestore';
+      if ($('#form-heading')) $('#form-heading').textContent = '+ Add New Product';
+      if ($('#form-subheading')) $('#form-subheading').textContent = 'Add a bespoke jewellery piece directly to your live Firestore catalogue';
       
       const btn = document.getElementById('form-submit-btn') || document.querySelector('.btn-submit-product');
       if (btn) {
@@ -4716,11 +4742,13 @@
       }
       
       if ($('#img-required-star')) $('#img-required-star').style.display = '';
-      if ($('#edit-alert-banner')) $('#edit-alert-banner').classList.remove('is-active');
     }
 
-    if ($('#cancel-edit-btn')) $('#cancel-edit-btn').addEventListener('click', resetFormState);
-    if ($('#form-reset-btn')) $('#form-reset-btn').addEventListener('click', resetFormState);
+    $('#product-modal-close')?.addEventListener('click', closeProductModal);
+    $('#product-modal-cancel')?.addEventListener('click', closeProductModal);
+    $('#product-modal')?.addEventListener('click', (e) => {
+      if (e.target === $('#product-modal')) closeProductModal();
+    });
 
     // Live preview on file selection with fail-safe Base64 compression
     const imageFileInput = $('#form-image-file');
@@ -4905,7 +4933,6 @@
           if (typeof updateStats === 'function') updateStats();
 
           console.log("Firestore Document Updated Successfully:", docId);
-          alert("✓ Product updated successfully in catalogue!");
           if (typeof showToast === 'function') {
             showToast(`✓ "${title}" updated & live in cloud`, 'success');
           }
@@ -4922,19 +4949,16 @@
           if (typeof updateStats === 'function') updateStats();
 
           console.log("Firestore Document Created Successfully:", docId);
-          alert("✓ Product added successfully to catalogue!");
           if (typeof showToast === 'function') {
-            showToast('✓ Product successfully created and published live!', 'success');
+            showToast(`✓ "${title}" created & published live!`, 'success');
           }
         }
 
-        // Reset Form State
-        resetFormState();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Close Modal & Reset Form State
+        closeProductModal();
 
       } catch (err) {
         console.error("Firestore Write Error:", err);
-        alert("Firestore Error: " + err.message);
         if (typeof showToast === 'function') {
           showToast('Firestore Error: ' + err.message, 'error');
         }
@@ -5209,13 +5233,7 @@
     if (mobileFab) {
       mobileFab.addEventListener('click', (e) => {
         e.preventDefault();
-        const formSection = $('#product-form-section');
-        if (formSection) {
-          formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          setTimeout(() => {
-            $('#form-title')?.focus();
-          }, 350);
-        }
+        openAddProductModal();
       });
     }
 
