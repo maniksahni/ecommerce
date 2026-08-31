@@ -97,8 +97,20 @@
     ["stacked-coil-bangle", "SHV-JUL26-BRC-009", "Stacked Coil Bangle", "bracelets", [99], "Wide stacked coil bangle", "A wide open bangle built from three rounded coil-like bands.", ["assets/catalog-2026-07-26/stacked-coil-bangle.mp4"]]
   ];
 
+  const categoryPrices = {
+    earrings: [249, 299, 349, 399, 449, 499],
+    necklaces: [399, 499, 549, 599, 699],
+    pendants: [249, 299, 349, 399, 449, 499],
+    bracelets: [349, 399, 449, 499, 549, 599],
+    rings: [299, 349, 399, 449, 499, 549],
+    watches: [899, 999, 1099, 1199, 1299],
+    sets: [699, 799, 899, 999, 1199]
+  };
+
   return Object.freeze(records.map((record, index) => {
     const [slug, sku, title, category, imageNumbers, imageAlt, description, videos = []] = record;
+    const priceList = categoryPrices[category] || [349, 399, 499, 599];
+    const price = priceList[index % priceList.length];
     return Object.freeze({
       sourceType: "catalog",
       sourcePostId: `catalog-2026-07-26-${String(index + 1).padStart(3, "0")}`,
@@ -109,13 +121,13 @@
       title,
       category,
       collections: ["new-arrivals"],
-      price: null,
-      compareAtPrice: null,
+      price,
+      compareAtPrice: price >= 399 ? price + 200 : null,
       currency: "INR",
-      priceStatus: "enquiry",
+      priceStatus: "confirmed",
       offerText: null,
       badge: null,
-      optionsStatus: "confirm",
+      optionsStatus: "none",
       variants: [],
       images: imageNumbers.map(asset),
       videos,
