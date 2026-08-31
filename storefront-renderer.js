@@ -46,20 +46,6 @@
     return `<div class="${className}"><strong>${escapeHtml(formatted)}</strong>${compareAt ? `<s>${escapeHtml(compareFormatted)}</s>` : ""}</div>`;
   }
 
-  function enquiryHref(product, origin, whatsappNumber) {
-    const rawPrice = (product && Number.isFinite(Number(product.price)) && Number(product.price) > 0)
-      ? Number(product.price)
-      : 499;
-    const formatted = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(rawPrice);
-    const message = [
-      `Hi Shivara, I would like to order ${product.title}.`,
-      `SKU: ${product.sku}`,
-      `Price: ${formatted}`,
-      `Product: ${String(origin || "").replace(/\/$/, "")}${productUrl(product)}`
-    ].join("\n");
-    return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-  }
-
   function renderProductCard(api, product, options = {}) {
     if (!api?.validateCommerceObject?.(product, options.context || "shared product card renderer")) return "";
     const {

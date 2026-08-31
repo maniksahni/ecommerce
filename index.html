@@ -258,19 +258,6 @@
         return `/products/${encodeURIComponent(product.slug || product.id)}`;
       }
 
-      function enquiryHref(product) {
-        const isConfirmed = product.priceStatus === "confirmed" && Number.isFinite(product.price);
-        const priceText = isConfirmed ? `Confirmed price: ${INR.format(product.price)}` : "Price: To be confirmed";
-        const message = [
-          `Hi Shivara, I would like to enquire about ${product.title}.`,
-          `SKU: ${product.sku || ""}`,
-          `Product: ${window.location.origin}${productUrl(product)}`,
-          priceText,
-          "Please confirm availability, options, final payable amount and delivery."
-        ].join("\n");
-        return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-      }
-
       /* ─── Render Storefront Product Card ─── */
       function renderLiveCard(product, index = 0) {
         const id = product.id || product.slug;
