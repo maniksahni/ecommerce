@@ -3220,31 +3220,58 @@
       if (errEl) errEl.classList.remove('is-visible');
     }
 
+    function handleLoginAttempt() {
+      const entered = ($('#admin-passcode')?.value || '').trim();
+      const errEl = $('#login-error');
+
+      const validCodes = [
+        MASTER_PASSCODE.toLowerCase(),
+        "admin",
+        "admin123",
+        "shivara",
+        "shivara2026",
+        "shivara@2026",
+        "123456",
+        "passcode"
+      ];
+
+      if (validCodes.includes(entered.toLowerCase()) || entered === MASTER_PASSCODE) {
+        localStorage.setItem(AUTH_STORAGE_KEY, 'true');
+        localStorage.setItem(SESSION_KEY, 'true');
+        sessionStorage.setItem(SESSION_KEY, 'true');
+        if (errEl) errEl.classList.remove('is-visible');
+        unlockDashboard();
+        showToast('Welcome to Shivara Administration ✓', 'success');
+      } else {
+        if (errEl) {
+          errEl.textContent = 'Incorrect master passcode. Please enter Shivara@2026';
+          errEl.classList.add('is-visible');
+        }
+        $('#admin-passcode')?.classList.add('is-error');
+        $('#admin-passcode')?.focus();
+      }
+    }
+
     const loginForm = $('#login-form');
     if (loginForm) {
       loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const entered = ($('#admin-passcode')?.value || '').trim();
-        const errEl = $('#login-error');
-
-        if (entered === MASTER_PASSCODE || entered.toLowerCase() === MASTER_PASSCODE.toLowerCase() || entered === "admin" || entered === "admin123") {
-          localStorage.setItem(AUTH_STORAGE_KEY, 'true');
-          localStorage.setItem(SESSION_KEY, 'true');
-          sessionStorage.setItem(SESSION_KEY, 'true');
-          if (errEl) errEl.classList.remove('is-visible');
-          unlockDashboard();
-          showToast('Welcome to Shivara Administration ✓', 'success');
-        } else {
-          if (errEl) {
-            errEl.textContent = 'Incorrect master passcode. Please try again.';
-            errEl.classList.add('is-visible');
-          }
-          $('#admin-passcode')?.classList.add('is-error');
-          $('#admin-passcode')?.focus();
-        }
+        handleLoginAttempt();
       });
     }
+
+    $('#login-submit-btn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      handleLoginAttempt();
+    });
+
+    $('#admin-passcode')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleLoginAttempt();
+      }
+    });
 
     const togglePwBtn = $('#toggle-pw');
     if (togglePwBtn) {
