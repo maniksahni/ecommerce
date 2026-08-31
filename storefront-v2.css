@@ -577,19 +577,7 @@ body.commerce-modal-open {
   font-size: 8px;
 }
 
-.commerce-mobile-nav__whatsapp {
-  display: flex;
-  min-height: 50px;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 22px;
-  padding: 0 13px;
-  background: var(--jlt-green);
-  color: #fff;
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
+
 
 .commerce-cart-panel {
   overflow: hidden;
@@ -1199,12 +1187,7 @@ body.commerce-modal-open {
   color: var(--jlt-wine);
 }
 
-.store-button--whatsapp {
-  width: 100%;
-  margin-top: 9px;
-  background: var(--jlt-green);
-  color: #fff;
-}
+
 
 .pdp-accordions {
   margin-top: 25px;

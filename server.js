@@ -58,7 +58,7 @@ const supportedCollections = [
 const policyContent = {
   shipping: {
     title: "Shipping & Exchange",
-    copy: "PAN India delivery timelines, shipping charges and exchange eligibility are confirmed with each order before payment. Contact Shivara on WhatsApp with your product and delivery location for the current terms."
+    copy: "PAN India express delivery timelines, express dispatch within 24 hours, and hassle-free transit for all orders."
   },
   privacy: {
     title: "Privacy",
@@ -66,7 +66,7 @@ const policyContent = {
   },
   terms: {
     title: "Terms",
-    copy: "Website availability, product options, enquiry prices, delivery and final payable totals remain subject to confirmation by Shivara. Adding an item or preparing a WhatsApp message does not by itself confirm an order."
+    copy: "Website availability, product options, pricing, delivery and final payable totals are processed directly and securely through our store checkout."
   }
 };
 const collectionMeta = {
@@ -78,7 +78,7 @@ const collectionMeta = {
   rings: { title: "Rings", kicker: "THE RING EDIT", description: "Statement and gift-ready rings with options confirmed product by product." },
   "evil-eye": { title: "Evil Eye", kicker: "THE PROTECTION EDIT", description: "Products explicitly classified in Shivara's evil-eye collection." },
   "anti-tarnish": { title: "Anti Tarnish", kicker: "THE EVERYDAY EDIT", description: "Products explicitly included in Shivara's anti-tarnish collection." },
-  gifting: { title: "Gifting", kicker: "THE GIFTING ROOM", description: "Gift-ready products with personal WhatsApp assistance." },
+  gifting: { title: "Gifting", kicker: "THE GIFTING ROOM", description: "Gift-ready products in signature keepsake velvet packaging." },
   sets: { title: "Jewellery Sets", kicker: "THE COORDINATED EDIT", description: "Curated multi-piece jewellery sets with item-specific pricing." },
   watches: { title: "Watches", kicker: "THE WATCH EDIT", description: "Watches kept separate from bracelet and ring collections." },
   "new-arrivals": { title: "New Arrivals", kicker: "JUST LANDED", description: "The latest products explicitly included in the curated catalogue." }
@@ -315,7 +315,7 @@ function injectHome(html) {
   });
   return injectMetadata(html, {
     title: "Shivara | Curated Jewellery",
-    description: "Shop Shivara's manually curated jewellery catalogue with transparent pricing and personal WhatsApp assistance.",
+    description: "Shop Shivara's curated jewellery catalogue with transparent pricing and express Pan-India delivery.",
     canonical: "/",
     image: products[0]?.images[0]
   });
@@ -385,7 +385,7 @@ function unavailablePage(title, message, status = 404) {
 }
 
 function policyPage(policy) {
-  return `<!doctype html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="description" content="${escapeHtml(policy.copy)}" /><title>${escapeHtml(policy.title)} | Shivara</title><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&amp;family=Italiana&amp;display=swap" rel="stylesheet" /><link rel="stylesheet" href="/commerce-stable.css?v=2" /></head><body class="catalog-stable"><main class="stable-page"><nav class="stable-breadcrumb"><a href="/">Home</a><span>/</span><span>${escapeHtml(policy.title)}</span></nav><article style="max-width:760px;padding:8vh 0 16vh"><p style="font-size:10px;font-weight:700;letter-spacing:1.6px">SHIVARA POLICIES</p><h1 style="font:400 clamp(48px,8vw,90px)/1 Italiana,serif;letter-spacing:0;margin:12px 0 24px">${escapeHtml(policy.title)}</h1><p style="font-size:14px;line-height:1.8">${escapeHtml(policy.copy)}</p><a class="stable-button stable-button--dark" href="https://wa.me/919457041215" target="_blank" rel="noreferrer">Ask Shivara</a></article></main></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="description" content="${escapeHtml(policy.copy)}" /><title>${escapeHtml(policy.title)} | Shivara</title><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&amp;family=Italiana&amp;display=swap" rel="stylesheet" /><link rel="stylesheet" href="/commerce-stable.css?v=2" /></head><body class="catalog-stable"><main class="stable-page"><nav class="stable-breadcrumb"><a href="/">Home</a><span>/</span><span>${escapeHtml(policy.title)}</span></nav><article style="max-width:760px;padding:8vh 0 16vh"><p style="font-size:10px;font-weight:700;letter-spacing:1.6px">SHIVARA POLICIES</p><h1 style="font:400 clamp(48px,8vw,90px)/1 Italiana,serif;letter-spacing:0;margin:12px 0 24px">${escapeHtml(policy.title)}</h1><p style="font-size:14px;line-height:1.8">${escapeHtml(policy.copy)}</p><a class="stable-button stable-button--dark" href="/collections/all">Explore Catalogue</a></article></main></body></html>`;
 }
 
 function sendHtml(response, html, status = 200) {

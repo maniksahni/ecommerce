@@ -5,8 +5,8 @@ const { duplicates, loadCatalog, root, validateProduct } = require("./catalog-li
 const { source, overrides, catalog } = loadCatalog();
 const sourcePosts = source.products || [];
 const products = catalog.products || [];
-const directProducts = products.filter((product) => product.sourceType === "whatsapp");
-const instagramProducts = products.filter((product) => product.sourceType !== "whatsapp");
+const directProducts = products.filter((product) => product.sourceType === "catalog" || product.sourceType === "direct");
+const instagramProducts = products.filter((product) => product.sourceType === "instagram");
 const sourceById = new Map(sourcePosts.map((post) => [post.id, post]));
 const contentCounts = catalog.socialContent.reduce((counts, item) => {
   counts[item.contentType] = (counts[item.contentType] || 0) + 1;

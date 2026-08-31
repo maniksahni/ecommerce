@@ -3252,7 +3252,7 @@ body {
 [data-motion-tier="high"] .footer-finale.is-motion-active .footer-finale__stage img { animation: footer-settle 1.2s cubic-bezier(.2,.75,.2,1) both; }
 @keyframes footer-settle { from { opacity: 0; transform: translate(-50%,38px) scale(.92); } }
 .store-footer__brand h2 { margin: 18px 0 10px; font-family: "Italiana",serif; font-size: clamp(34px,4vw,56px); font-weight: 400; }
-.footer-finale__whatsapp { display: flex; max-width: 410px; justify-content: space-between; gap: 14px; margin: 25px 0; padding: 16px 0; border-block: 1px solid rgba(255,255,255,.22); font-size: 9px; text-transform: uppercase; }
+
 
 .mobile-dock {
   transition: transform 250ms ease, right 250ms ease, bottom 250ms ease, left 250ms ease, border-radius 250ms ease;

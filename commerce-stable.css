@@ -156,7 +156,6 @@ body.catalog-stable a { color: inherit; }
 .stable-button--light { border-color: #fff; color: #111 !important; background: #fff; }
 .stable-button--line { border-color: rgba(255,255,255,.72); color: #fff !important; background: transparent; }
 .stable-button--dark { color: #fff !important; background: var(--stable-ink); }
-.stable-button--whatsapp { border-color: var(--stable-green); color: #fff !important; background: var(--stable-green); }
 .stable-button--plain { background: transparent; }
 .stable-hero__progress { position: absolute; z-index: 2; right: clamp(18px, 4vw, 58px); bottom: 30px; color: #fff; }
 .stable-hero__progress span { font-size: 11px; }
@@ -861,8 +860,7 @@ body.catalog-stable {
 
 .stable-button--dark,
 .stable-card__add:not(.stable-card__add--enquire),
-.living-card__copy button,
-.stable-button--whatsapp {
+.living-card__copy button {
   border-color: var(--stable-gold-bright);
   color: #fff9ed !important;
   background: linear-gradient(135deg, #2f170e, #714118 58%, #a76d20);
@@ -925,8 +923,7 @@ body.catalog-stable {
 
   .stable-button--dark:hover,
   .stable-card__add:not(.stable-card__add--enquire):hover,
-  .living-card__copy button:hover,
-  .stable-button--whatsapp:hover {
+  .living-card__copy button:hover {
     box-shadow: 0 10px 29px rgba(170, 109, 24, .35), 0 0 0 3px rgba(244, 207, 109, .2), inset 0 1px 0 rgba(255, 237, 177, .4);
     transform: translateY(-1px);
   }
@@ -2076,7 +2073,7 @@ body.catalog-stable {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   LUXURY STOREFRONT & WHATSAPP CONCIERGE CHECKOUT ENHANCEMENTS
+   LUXURY STOREFRONT & DIRECT CHECKOUT ENHANCEMENTS
 ═══════════════════════════════════════════════════════════════ */
 
 /* Wishlist Heart Icon & Pulse Animation */
@@ -2197,7 +2194,7 @@ body.catalog-stable {
   pointer-events: none;
 }
 
-/* Concierge WhatsApp Checkout Modal */
+/* Luxury Direct Checkout Modal */
 .stable-checkout-modal {
   position: fixed;
   inset: 0;

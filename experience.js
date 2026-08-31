@@ -156,9 +156,7 @@
   }
 
   function heroPurchase(id) {
-    const product = byId.get(id);
-    if (api.getPurchaseMode(product) === "direct") store.addProducts([id]);
-    else window.open(whatsappHref(product), "_blank", "noopener,noreferrer");
+    store.addProducts([id]);
   }
 
   function resetHeroTimer() {
@@ -506,21 +504,12 @@
   }
 
   function injectUtilities() {
-    document.body.insertAdjacentHTML("beforeend", `<div class="ask-shivara"><button type="button" data-concierge-toggle aria-expanded="false">Ask Shivara</button><aside id="ask-shivara-panel" aria-hidden="true"><div><strong>Ask Shivara</strong><button type="button" data-concierge-close aria-label="Close assistance">×</button></div>${[
-      ["Help me choose a gift", "I would like help choosing a jewellery gift."],
-      ["Find something under ₹499", "Please help me find confirmed-price pieces under ₹499."],
-      ["Build a jewellery stack", "I would like help building a jewellery stack."],
-      ["Check product availability", "I would like to check product availability."],
-      ["Ask about delivery", "Please share delivery information for my location."],
-      ["Request a custom piece", "I would like to ask about a custom jewellery request."]
-    ].map(([label, message]) => `<a href="https://wa.me/${store.whatsappNumber}?text=${encodeURIComponent(`Hi Shivara, ${message}`)}" target="_blank" rel="noreferrer">${label}<span>→</span></a>`).join("")}</aside></div>
-    <nav class="mobile-commerce-dock" aria-label="Quick navigation"><a href="/" aria-current="page"><span>⌂</span>Home</a><button type="button" data-mobile-search><span>⌕</span>Search</button><a href="/wishlist"><span>♡</span>Wishlist <i data-wishlist-count>0</i></a><button type="button" data-mobile-cart><span>Bag</span>Bag <i data-cart-count>0</i></button></nav>`);
+    document.body.insertAdjacentHTML("beforeend", `<nav class="mobile-commerce-dock" aria-label="Quick navigation"><a href="/" aria-current="page"><span>⌂</span>Home</a><button type="button" data-mobile-search><span>⌕</span>Search</button><a href="/wishlist"><span>♡</span>Wishlist <i data-wishlist-count>0</i></a><button type="button" data-mobile-cart><span>Bag</span>Bag <i data-cart-count>0</i></button></nav>`);
     store.refreshCounts();
   }
 
   function setupMobileControls() {
     const dock = document.querySelector(".mobile-commerce-dock");
-    const concierge = document.querySelector(".ask-shivara");
     const universeViewport = document.querySelector(".universe-gallery__viewport");
     let lastY = window.scrollY;
     let universeTimer = 0;
@@ -533,7 +522,6 @@
       const shouldShow = matchMedia("(max-width: 767px)").matches && beyondHero && !movingDown && !modalOpen;
       dock.classList.toggle("is-visible", shouldShow);
       dock.setAttribute("aria-hidden", String(!shouldShow));
-      concierge.classList.toggle("is-mobile-visible", matchMedia("(max-width: 767px)").matches && beyondHero && !modalOpen);
       lastY = currentY;
     };
 

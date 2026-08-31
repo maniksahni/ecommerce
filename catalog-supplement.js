@@ -100,8 +100,8 @@
   return Object.freeze(records.map((record, index) => {
     const [slug, sku, title, category, imageNumbers, imageAlt, description, videos = []] = record;
     return Object.freeze({
-      sourceType: "whatsapp",
-      sourcePostId: `whatsapp-2026-07-26-${String(index + 1).padStart(3, "0")}`,
+      sourceType: "catalog",
+      sourcePostId: `catalog-2026-07-26-${String(index + 1).padStart(3, "0")}`,
       sourceDate: "2026-07-26",
       sourceIndex: 1000 + index,
       slug,

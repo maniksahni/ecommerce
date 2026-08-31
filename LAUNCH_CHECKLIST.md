@@ -25,13 +25,13 @@
 ## 2. SEO, Open Graph & Social Cards
 
 - [x] **Primary Title Tag**: `The Shivara Group | Curated Luxury Jewellery Atelier`
-- [x] **Meta Description**: Curated luxury statement jewellery, anti-tarnish pieces, and handcrafted edits with transparent pricing and personal WhatsApp assistance.
+- [x] **Meta Description**: Curated luxury statement jewellery, anti-tarnish pieces, and handcrafted edits with transparent pricing and express Pan-India delivery.
 - [x] **Canonical Link**: `https://the-shivara-group-86c9c.web.app/`
 - [x] **Open Graph (OG) Metadata**:
   - `og:type` = `website`
   - `og:site_name` = `The Shivara Group`
   - `og:title` = `The Shivara Group | Curated Luxury Jewellery Atelier`
-  - `og:description` = `Curated luxury statement jewellery with transparent pricing and personal WhatsApp styling assistance.`
+  - `og:description` = `Curated luxury statement jewellery with transparent pricing and express Pan-India delivery.`
   - `og:image` = `https://the-shivara-group-86c9c.web.app/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg`
   - `og:url` = `https://the-shivara-group-86c9c.web.app/`
 - [x] **Twitter Cards**: `summary_large_image` configured with luxury banner preview.
@@ -65,10 +65,10 @@
 
 ---
 
-## 5. WhatsApp Checkout & Resilience
+## 5. Direct Guest Checkout & Order Tracking
 
-- [x] **Official Store Number**: `+91 94570 41215` (`919457041215`).
-- [x] **Safe URL Encoding**: All WhatsApp order payloads encoded with `encodeURIComponent` preserving INR symbols, itemized lists, and notes across iOS, Android, and Web.
+- [x] **Direct Checkout Flow**: Fast guest checkout modal with automatic Firestore atomic order creation.
+- [x] **Order Confirmation & Tracking**: Dynamic `/order-confirmation.html` and 4-step real-time order tracking `/track-order.html`.
 - [x] **Fallback UI**: Graceful image error handlers and baseline catalogue fallback if network disconnects.
 
 ---

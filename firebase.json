@@ -13,7 +13,7 @@
         "headers": [
           {
             "key": "X-Shivara-Build",
-            "value": "8e37f2a68a6787f5d5e3e714cf0abbda3d63bc40"
+            "value": "6edd9f755d4141106d99cea027a1f005233de1bc"
           },
           {
             "key": "X-Shivara-Catalog-Version",
@@ -171,447 +171,447 @@
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-001",
+        "source": "/products/catalog-2026-07-26-001",
         "destination": "/products/rose-stem-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-002",
+        "source": "/products/catalog-2026-07-26-002",
         "destination": "/products/red-apple-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-003",
+        "source": "/products/catalog-2026-07-26-003",
         "destination": "/products/pearl-clover-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-004",
+        "source": "/products/catalog-2026-07-26-004",
         "destination": "/products/crystal-butterfly-drop-necklace",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-005",
+        "source": "/products/catalog-2026-07-26-005",
         "destination": "/products/cherry-drop-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-006",
+        "source": "/products/catalog-2026-07-26-006",
         "destination": "/products/crystal-barrel-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-007",
+        "source": "/products/catalog-2026-07-26-007",
         "destination": "/products/bird-charm-necklace",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-008",
+        "source": "/products/catalog-2026-07-26-008",
         "destination": "/products/sculpted-heart-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-009",
+        "source": "/products/catalog-2026-07-26-009",
         "destination": "/products/holiday-charm-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-010",
+        "source": "/products/catalog-2026-07-26-010",
         "destination": "/products/oval-floral-locket",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-011",
+        "source": "/products/catalog-2026-07-26-011",
         "destination": "/products/green-frame-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-012",
+        "source": "/products/catalog-2026-07-26-012",
         "destination": "/products/strawberry-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-013",
+        "source": "/products/catalog-2026-07-26-013",
         "destination": "/products/filigree-heart-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-014",
+        "source": "/products/catalog-2026-07-26-014",
         "destination": "/products/petite-heart-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-015",
+        "source": "/products/catalog-2026-07-26-015",
         "destination": "/products/pink-wing-heart-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-016",
+        "source": "/products/catalog-2026-07-26-016",
         "destination": "/products/cat-charm-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-017",
+        "source": "/products/catalog-2026-07-26-017",
         "destination": "/products/triple-clover-drop-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-018",
+        "source": "/products/catalog-2026-07-26-018",
         "destination": "/products/sliding-chain-necklace",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-019",
+        "source": "/products/catalog-2026-07-26-019",
         "destination": "/products/green-oval-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-020",
+        "source": "/products/catalog-2026-07-26-020",
         "destination": "/products/twin-cherry-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-021",
+        "source": "/products/catalog-2026-07-26-021",
         "destination": "/products/heart-drip-jewellery-set",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-022",
+        "source": "/products/catalog-2026-07-26-022",
         "destination": "/products/double-strawberry-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-023",
+        "source": "/products/catalog-2026-07-26-023",
         "destination": "/products/mosaic-candy-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-024",
+        "source": "/products/catalog-2026-07-26-024",
         "destination": "/products/evil-eye-locket-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-025",
+        "source": "/products/catalog-2026-07-26-025",
         "destination": "/products/green-cherry-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-026",
+        "source": "/products/catalog-2026-07-26-026",
         "destination": "/products/pink-floral-locket",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-027",
+        "source": "/products/catalog-2026-07-26-027",
         "destination": "/products/golden-eye-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-028",
+        "source": "/products/catalog-2026-07-26-028",
         "destination": "/products/mosaic-star-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-029",
+        "source": "/products/catalog-2026-07-26-029",
         "destination": "/products/crystal-key-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-030",
+        "source": "/products/catalog-2026-07-26-030",
         "destination": "/products/golden-floral-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-031",
+        "source": "/products/catalog-2026-07-26-031",
         "destination": "/products/hand-eye-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-032",
+        "source": "/products/catalog-2026-07-26-032",
         "destination": "/products/five-clover-station-necklace",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-033",
+        "source": "/products/catalog-2026-07-26-033",
         "destination": "/products/pastel-crystal-bracelet-set",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-034",
+        "source": "/products/catalog-2026-07-26-034",
         "destination": "/products/pearl-rose-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-035",
+        "source": "/products/catalog-2026-07-26-035",
         "destination": "/products/oval-swirl-locket",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-036",
+        "source": "/products/catalog-2026-07-26-036",
         "destination": "/products/black-clover-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-037",
+        "source": "/products/catalog-2026-07-26-037",
         "destination": "/products/mosaic-seahorse-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-038",
+        "source": "/products/catalog-2026-07-26-038",
         "destination": "/products/pearl-key-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-039",
+        "source": "/products/catalog-2026-07-26-039",
         "destination": "/products/pink-tulip-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-040",
+        "source": "/products/catalog-2026-07-26-040",
         "destination": "/products/sun-drop-earrings",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-041",
+        "source": "/products/catalog-2026-07-26-041",
         "destination": "/products/warm-mosaic-star-pendant",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-042",
+        "source": "/products/catalog-2026-07-26-042",
         "destination": "/products/twin-flower-stud-earrings",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-043",
+        "source": "/products/catalog-2026-07-26-043",
         "destination": "/products/green-accent-stud-earrings",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-044",
+        "source": "/products/catalog-2026-07-26-044",
         "destination": "/products/sculpted-heart-stud-earrings",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-045",
+        "source": "/products/catalog-2026-07-26-045",
         "destination": "/products/ribbon-stud-earrings",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-046",
+        "source": "/products/catalog-2026-07-26-046",
         "destination": "/products/sunburst-stud-earrings",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-047",
+        "source": "/products/catalog-2026-07-26-047",
         "destination": "/products/five-petal-flower-earrings",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-048",
+        "source": "/products/catalog-2026-07-26-048",
         "destination": "/products/mint-butterfly-earrings",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-049",
+        "source": "/products/catalog-2026-07-26-049",
         "destination": "/products/cherry-stud-earrings",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-050",
+        "source": "/products/catalog-2026-07-26-050",
         "destination": "/products/blue-butterfly-earrings",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-051",
+        "source": "/products/catalog-2026-07-26-051",
         "destination": "/products/jeweled-heart-earrings",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-052",
+        "source": "/products/catalog-2026-07-26-052",
         "destination": "/products/red-orb-hoop-earrings",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-053",
+        "source": "/products/catalog-2026-07-26-053",
         "destination": "/products/butterfly-hoop-earrings",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-054",
+        "source": "/products/catalog-2026-07-26-054",
         "destination": "/products/daisy-drop-earrings",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-055",
+        "source": "/products/catalog-2026-07-26-055",
         "destination": "/products/evil-eye-charm-bracelet",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-056",
+        "source": "/products/catalog-2026-07-26-056",
         "destination": "/products/medallion-chain-bracelet",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-057",
+        "source": "/products/catalog-2026-07-26-057",
         "destination": "/products/blue-flower-earrings",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-058",
+        "source": "/products/catalog-2026-07-26-058",
         "destination": "/products/crystal-line-bangle",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-059",
+        "source": "/products/catalog-2026-07-26-059",
         "destination": "/products/screw-motif-bangle",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-060",
+        "source": "/products/catalog-2026-07-26-060",
         "destination": "/products/green-coil-watch",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-061",
+        "source": "/products/catalog-2026-07-26-061",
         "destination": "/products/crystal-round-watch",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-062",
+        "source": "/products/catalog-2026-07-26-062",
         "destination": "/products/crystal-line-bracelet",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-063",
+        "source": "/products/catalog-2026-07-26-063",
         "destination": "/products/snake-motif-bangle",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-064",
+        "source": "/products/catalog-2026-07-26-064",
         "destination": "/products/oval-coil-watch",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-065",
+        "source": "/products/catalog-2026-07-26-065",
         "destination": "/products/monogram-chain-bangle",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-066",
+        "source": "/products/catalog-2026-07-26-066",
         "destination": "/products/white-floral-statement-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-067",
+        "source": "/products/catalog-2026-07-26-067",
         "destination": "/products/dark-medallion-bracelet",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-068",
+        "source": "/products/catalog-2026-07-26-068",
         "destination": "/products/triple-blue-enamel-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-069",
+        "source": "/products/catalog-2026-07-26-069",
         "destination": "/products/lavender-bloom-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-070",
+        "source": "/products/catalog-2026-07-26-070",
         "destination": "/products/white-leaf-statement-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-071",
+        "source": "/products/catalog-2026-07-26-071",
         "destination": "/products/black-floral-cluster-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-072",
+        "source": "/products/catalog-2026-07-26-072",
         "destination": "/products/butterfly-cluster-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-073",
+        "source": "/products/catalog-2026-07-26-073",
         "destination": "/products/pink-petal-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-074",
+        "source": "/products/catalog-2026-07-26-074",
         "destination": "/products/midnight-swirl-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-075",
+        "source": "/products/catalog-2026-07-26-075",
         "destination": "/products/pearl-petal-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-076",
+        "source": "/products/catalog-2026-07-26-076",
         "destination": "/products/pink-cup-cluster-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-077",
+        "source": "/products/catalog-2026-07-26-077",
         "destination": "/products/blue-pebble-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-078",
+        "source": "/products/catalog-2026-07-26-078",
         "destination": "/products/two-tone-cup-cluster-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-079",
+        "source": "/products/catalog-2026-07-26-079",
         "destination": "/products/pink-bloom-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-080",
+        "source": "/products/catalog-2026-07-26-080",
         "destination": "/products/fuchsia-swirl-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-081",
+        "source": "/products/catalog-2026-07-26-081",
         "destination": "/products/mint-cluster-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-082",
+        "source": "/products/catalog-2026-07-26-082",
         "destination": "/products/pearl-garden-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-083",
+        "source": "/products/catalog-2026-07-26-083",
         "destination": "/products/green-dome-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-084",
+        "source": "/products/catalog-2026-07-26-084",
         "destination": "/products/green-white-floral-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-085",
+        "source": "/products/catalog-2026-07-26-085",
         "destination": "/products/rose-cup-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-086",
+        "source": "/products/catalog-2026-07-26-086",
         "destination": "/products/mint-tile-cluster-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-087",
+        "source": "/products/catalog-2026-07-26-087",
         "destination": "/products/pink-blossom-cluster-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-088",
+        "source": "/products/catalog-2026-07-26-088",
         "destination": "/products/blue-white-pebble-ring",
         "type": 301
       },
       {
-        "source": "/products/whatsapp-2026-07-26-089",
+        "source": "/products/catalog-2026-07-26-089",
         "destination": "/products/stacked-coil-bangle",
         "type": 301
       }

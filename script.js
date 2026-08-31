@@ -22,7 +22,6 @@
     if (p.slug) productMap.set(p.slug, p);
     if (p.sourcePostId) productMap.set(p.sourcePostId, p);
   });
-  const whatsappNumber = "919457041215";
   const storageKeys = {
     cart: "shivara-cart-v3",
     cartNote: "shivara-cart-note-v1",
@@ -190,7 +189,6 @@
       index,
       isWishlisted: wishlist.has(product.id),
       origin: location.origin,
-      whatsappNumber,
       context: "client shared product card renderer"
     });
   }
@@ -840,7 +838,6 @@
         recent: recentProducts,
         isWishlisted: wishlist.has(product.id),
         origin: location.origin,
-        whatsappNumber,
         context: "client shared product page renderer"
       });
     } else if (recentProducts.length && !mount.querySelector("[data-recently-viewed]")) {
@@ -1003,7 +1000,6 @@
     if (quickQty) {
       quickState.quantity = Math.max(1, quickState.quantity + Number(quickQty.dataset.quickQty));
       document.querySelector("#quick-qty").textContent = String(quickState.quantity);
-      updateQuickWhatsapp();
       return;
     }
     const quickAdd = target.closest("[data-quick-add]");
@@ -1064,8 +1060,6 @@
     if (pdpQtyButton) {
       const amount = Math.max(1, pdpQuantity() + Number(pdpQtyButton.dataset.pdpQty));
       document.querySelector("#pdp-qty").textContent = String(amount);
-      const product = productMap.get(decodeURIComponent(location.pathname.split("/").filter(Boolean)[1] || ""));
-      updatePdpWhatsapp(product);
       return;
     }
     const pdpAdd = target.closest("[data-pdp-add]");
@@ -1099,8 +1093,6 @@
     if (event.target.matches("[data-cart-note]")) {
       cartNote = event.target.value.slice(0, 240);
       localStorage.setItem(storageKeys.cartNote, cartNote);
-      const link = document.querySelector("[data-cart-whatsapp]");
-      if (link) link.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(cartMessage())}`;
     }
   });
 
@@ -1108,10 +1100,6 @@
     if (event.target.matches("#collection-sort")) updateCollectionState({ ...collectionState(), sort: event.target.value });
     if (event.target.matches('input[name="price-filter"]')) updateCollectionState({ ...collectionState(), price: event.target.value });
     if (event.target.matches('input[name="category-filter"]')) updateCollectionState({ ...collectionState(), category: event.target.value });
-    if (event.target.matches('input[name="pdp-variant"]')) {
-      const product = productMap.get(decodeURIComponent(location.pathname.split("/").filter(Boolean)[1] || ""));
-      updatePdpWhatsapp(product);
-    }
   });
 
   document.addEventListener("keydown", (event) => {

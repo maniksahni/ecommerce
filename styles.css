@@ -87,7 +87,7 @@ img {
 }
 
 .announcement-bar::before {
-  content: "Premium anti-tarnish jewellery | PAN India delivery | WhatsApp orders";
+  content: "Premium anti-tarnish jewellery | PAN India express delivery | 100% Lifetime Warranty";
 }
 
 .header {
@@ -5017,20 +5017,7 @@ body.cart-open .cart-drawer {
   font-size: 8px;
 }
 
-.commerce-mobile-nav__whatsapp {
-  display: flex;
-  min-height: 58px;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 30px;
-  padding: 0 16px;
-  background: var(--commerce-green);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
+
 
 .wishlist-drawer {
   position: fixed;
@@ -5415,7 +5402,6 @@ body.cart-open .cart-drawer {
   }
 
   .store-search-trigger,
-  .store-header__whatsapp,
   .store-header__actions [data-wishlist-open] {
     display: none;
   }

@@ -12,8 +12,7 @@ The site uses the real profile positioning:
 - Designed to be noticed
 - Statement jewellery for everyday slay
 - Iconic, custom, limited pieces
-- DM to shop, PAN India
-- WhatsApp ordering: +91-9457041215 / 7451995279
+- Direct online storefront with PAN India express delivery
 - Feed sections based on recent public reel covers and captions
 - A custom Three.js jewellery motion section with gold rings and evil-eye beads
 - Scroll reveal, hover depth, and mobile sticky order actions

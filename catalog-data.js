@@ -39,7 +39,7 @@
 
     const products = (overrides?.products || []).map((product) => {
       const sourcePost = sourceMap.get(product.sourcePostId);
-      const isDirectSource = product.sourceType === "whatsapp";
+      const isDirectSource = product.sourceType === "catalog" || product.sourceType === "direct" || !sourceMap.has(product.sourcePostId);
       if (!sourcePost && !isDirectSource) throw new Error(`Missing Instagram source post for ${product.sourcePostId}`);
       return freezeProduct({
         ...product,
