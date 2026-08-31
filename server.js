@@ -5,7 +5,24 @@ const crypto = require("node:crypto");
 const { execFileSync } = require("node:child_process");
 const { loadCatalog } = require("./scripts/catalog-lib");
 const storefrontRenderer = require("./storefront-renderer");
-const { loadAdminStore, saveAdminStore, adminStoreMtime, normalizeAdminProductInput } = require("./admin-store");
+const {
+  loadAdminStore,
+  saveAdminStore,
+  adminStoreMtime,
+  normalizeAdminProductInput,
+  loadAdminOrdersStore,
+  saveAdminOrdersStore,
+  normalizeAdminOrderInput,
+  loadAdminCouponsStore,
+  saveAdminCouponsStore,
+  loadAdminBannersStore,
+  saveAdminBannersStore,
+  loadAdminSettingsStore,
+  saveAdminSettingsStore,
+  loadAdminInventoryStore,
+  saveAdminInventoryStore,
+  computeCustomersFromOrders
+} = require("./admin-store");
 const packageInfo = require("./package.json");
 
 const root = __dirname;
@@ -52,8 +69,8 @@ const buildInfo = Object.freeze({
 });
 const assetVersion = `${packageInfo.version}-${catalog.version}-${gitCommit.slice(0, 8)}`;
 const supportedCollections = [
-  "all", "earrings", "necklaces", "pendants", "bracelets", "rings", "evil-eye",
-  "anti-tarnish", "gifting", "sets", "watches", "new-arrivals"
+  "all", "earrings", "necklaces", "neckwear", "pendants", "bracelets", "rings", "evil-eye",
+  "anti-tarnish", "gifting", "sets", "jewellery-sets", "watches", "new-arrivals"
 ];
 const policyContent = {
   shipping: {
@@ -73,6 +90,7 @@ const collectionMeta = {
   all: { title: "All products", kicker: "THE COMPLETE CATALOGUE", description: "Every Shivara product that has been manually reviewed for catalogue accuracy." },
   earrings: { title: "Earrings", kicker: "THE FINAL TOUCH", description: "Curated Shivara earrings with transparent pricing and availability states." },
   necklaces: { title: "Necklaces", kicker: "THE NECKLINE EDIT", description: "Shivara necklaces and pendants selected from explicitly identified product posts." },
+  neckwear: { title: "Neck Wear", kicker: "THE NECKLINE EDIT", description: "Shivara necklaces and pendants selected for everyday luxury." },
   pendants: { title: "Pendants", kicker: "EVERYDAY NECK WEAR", description: "Curated pendants for everyday styling and gifting." },
   bracelets: { title: "Bracelets", kicker: "THE WRIST EDIT", description: "Bracelets and bangles, each classified and priced individually." },
   rings: { title: "Rings", kicker: "THE RING EDIT", description: "Statement and gift-ready rings with options confirmed product by product." },
@@ -80,6 +98,7 @@ const collectionMeta = {
   "anti-tarnish": { title: "Anti Tarnish", kicker: "THE EVERYDAY EDIT", description: "Products explicitly included in Shivara's anti-tarnish collection." },
   gifting: { title: "Gifting", kicker: "THE GIFTING ROOM", description: "Gift-ready products in signature keepsake velvet packaging." },
   sets: { title: "Jewellery Sets", kicker: "THE COORDINATED EDIT", description: "Curated multi-piece jewellery sets with item-specific pricing." },
+  "jewellery-sets": { title: "Jewellery Sets", kicker: "THE COORDINATED EDIT", description: "Curated multi-piece jewellery sets with item-specific pricing." },
   watches: { title: "Watches", kicker: "THE WATCH EDIT", description: "Watches kept separate from bracelet and ring collections." },
   "new-arrivals": { title: "New Arrivals", kicker: "JUST LANDED", description: "The latest products explicitly included in the curated catalogue." }
 };
@@ -265,6 +284,8 @@ function productUrl(product) {
 }
 
 function collectionProducts(slug) {
+  if (slug === "neckwear") return catalogApi.getCollection("necklaces");
+  if (slug === "jewellery-sets") return catalogApi.getCollection("sets");
   return catalogApi.getCollection(slug);
 }
 
@@ -322,7 +343,7 @@ function injectHome(html) {
 }
 
 function injectCollection(html, slug) {
-  const meta = collectionMeta[slug];
+  const meta = collectionMeta[slug] || collectionMeta.all;
   const selected = collectionProducts(slug);
   const initiallyVisible = selected.slice(0, 24);
   html = html
@@ -420,6 +441,9 @@ const server = http.createServer(async (request, response) => {
   const pathname = decodeURIComponent(requestUrl.pathname).replace(/\/+$/, "") || "/";
   ensureFreshCatalog();
 
+  // ═════════════════════════════════════════════════════
+  // ADMIN AUTHENTICATION & PORTAL
+  // ═════════════════════════════════════════════════════
   if (pathname === "/admin") {
     const html = fs.readFileSync(path.join(root, "admin.html"), "utf8");
     return sendHtml(response, injectAdminBootstrap(html.replace("</head>", '<meta name="robots" content="noindex, nofollow" /></head>')));
@@ -449,6 +473,34 @@ const server = http.createServer(async (request, response) => {
     if (!requireAdmin(request, response)) return;
     return sendJson(response, 200, { ok: true });
   }
+
+  // ═════════════════════════════════════════════════════
+  // ADMIN 9-MODULE REST APIS
+  // ═════════════════════════════════════════════════════
+  // 1. Dashboard API
+  if (pathname === "/admin/api/dashboard" && request.method === "GET") {
+    if (!requireAdmin(request, response)) return;
+    const orders = loadAdminOrdersStore();
+    const inventory = loadAdminInventoryStore();
+    const totalSales = orders.reduce((sum, o) => o.status !== "Cancelled" ? sum + (Number(o.totalAmount) || 0) : sum, 0);
+    const totalOrders = orders.length;
+    const avgOrderValue = totalOrders ? Math.round(totalSales / totalOrders) : 0;
+    const activeProducts = products.length;
+    const pendingOrders = orders.filter(o => o.status === "Pending" || o.status === "Processing").length;
+    const lowStockCount = products.filter(p => (inventory[p.sku] ?? 10) < 5).length;
+    return sendJson(response, 200, {
+      totalSales,
+      totalOrders,
+      avgOrderValue,
+      activeProducts,
+      pendingOrders,
+      lowStockCount,
+      recentOrders: orders.slice(0, 10),
+      totalCustomers: computeCustomersFromOrders(orders).length
+    });
+  }
+
+  // 2. Products API
   if (pathname === "/admin/api/products" && request.method === "GET") {
     if (!requireAdmin(request, response)) return;
     return sendPrecomputedJson(response, adminProductPayload);
@@ -490,6 +542,243 @@ const server = http.createServer(async (request, response) => {
     refreshCatalog();
     return sendJson(response, 200, { ok: true });
   }
+
+  // 3. Categories API
+  if (pathname === "/admin/api/categories" && request.method === "GET") {
+    if (!requireAdmin(request, response)) return;
+    const cats = supportedCollections.map((slug) => ({
+      slug,
+      title: collectionMeta[slug]?.title || slug,
+      kicker: collectionMeta[slug]?.kicker || "",
+      description: collectionMeta[slug]?.description || "",
+      itemCount: collectionProducts(slug).length
+    }));
+    return sendJson(response, 200, cats);
+  }
+
+  // 4. Inventory API
+  if (pathname === "/admin/api/inventory" && request.method === "GET") {
+    if (!requireAdmin(request, response)) return;
+    const inventory = loadAdminInventoryStore();
+    const items = products.map((p) => {
+      const sku = p.sku || `SHV-${p.slug.toUpperCase().slice(0, 10)}`;
+      return {
+        sku,
+        slug: p.slug,
+        title: p.title,
+        category: p.category,
+        price: p.price,
+        images: p.images,
+        stock: inventory[sku] ?? (p.isSoldOut ? 0 : 15),
+        isSoldOut: Boolean(p.isSoldOut)
+      };
+    });
+    return sendJson(response, 200, items);
+  }
+  if (pathname === "/admin/api/inventory" && request.method === "POST") {
+    if (!requireAdmin(request, response)) return;
+    try {
+      const body = await readJsonBody(request);
+      const store = loadAdminInventoryStore();
+      if (typeof body === "object" && body !== null) {
+        Object.assign(store, body);
+        saveAdminInventoryStore(store);
+      }
+      return sendJson(response, 200, { ok: true, inventory: store });
+    } catch {
+      return sendJson(response, 400, { error: "Invalid inventory payload" });
+    }
+  }
+
+  // 5. Orders (OMS) Admin API
+  if (pathname === "/admin/api/orders" && request.method === "GET") {
+    if (!requireAdmin(request, response)) return;
+    return sendJson(response, 200, loadAdminOrdersStore());
+  }
+  if (pathname === "/admin/api/orders" && request.method === "POST") {
+    if (!requireAdmin(request, response)) return;
+    try {
+      const body = await readJsonBody(request);
+      const normalized = normalizeAdminOrderInput(body);
+      if (normalized.error) return sendJson(response, 400, { error: normalized.error });
+      const orders = loadAdminOrdersStore();
+      orders.unshift(normalized.order);
+      saveAdminOrdersStore(orders);
+      return sendJson(response, 201, { ok: true, order: normalized.order });
+    } catch {
+      return sendJson(response, 400, { error: "Invalid order input" });
+    }
+  }
+  if (pathname.startsWith("/admin/api/orders/") && request.method === "PUT") {
+    if (!requireAdmin(request, response)) return;
+    const orderId = pathname.slice("/admin/api/orders/".length);
+    try {
+      const body = await readJsonBody(request);
+      const orders = loadAdminOrdersStore();
+      const idx = orders.findIndex((o) => o.orderId === orderId);
+      if (idx === -1) return sendJson(response, 404, { error: "Order not found" });
+      orders[idx] = { ...orders[idx], ...body, orderId };
+      saveAdminOrdersStore(orders);
+      return sendJson(response, 200, { ok: true, order: orders[idx] });
+    } catch {
+      return sendJson(response, 400, { error: "Unable to update order" });
+    }
+  }
+
+  // 6. Customers Admin API
+  if (pathname === "/admin/api/customers" && request.method === "GET") {
+    if (!requireAdmin(request, response)) return;
+    const orders = loadAdminOrdersStore();
+    return sendJson(response, 200, computeCustomersFromOrders(orders));
+  }
+
+  // 7. Coupons Admin API
+  if (pathname === "/admin/api/coupons" && request.method === "GET") {
+    if (!requireAdmin(request, response)) return;
+    return sendJson(response, 200, loadAdminCouponsStore());
+  }
+  if (pathname === "/admin/api/coupons" && request.method === "POST") {
+    if (!requireAdmin(request, response)) return;
+    try {
+      const body = await readJsonBody(request);
+      if (!body.code) return sendJson(response, 400, { error: "Coupon code is required" });
+      const coupons = loadAdminCouponsStore();
+      const code = String(body.code).trim().toUpperCase();
+      const idx = coupons.findIndex((c) => c.code.toUpperCase() === code);
+      const updatedCoupon = {
+        code,
+        discountType: body.discountType === "flat" ? "flat" : "percent",
+        discountValue: Number(body.discountValue) || 10,
+        minOrderValue: Number(body.minOrderValue) || 0,
+        maxDiscount: Number(body.maxDiscount) || 1000,
+        description: String(body.description || "").trim(),
+        isActive: body.isActive !== false,
+        usageCount: idx >= 0 ? (coupons[idx].usageCount || 0) : 0,
+        expiresAt: body.expiresAt || "2027-12-31T23:59:59Z"
+      };
+      if (idx >= 0) coupons[idx] = updatedCoupon;
+      else coupons.unshift(updatedCoupon);
+      saveAdminCouponsStore(coupons);
+      return sendJson(response, 200, { ok: true, coupon: updatedCoupon });
+    } catch {
+      return sendJson(response, 400, { error: "Invalid coupon payload" });
+    }
+  }
+  if (pathname.startsWith("/admin/api/coupons/") && request.method === "DELETE") {
+    if (!requireAdmin(request, response)) return;
+    const code = decodeURIComponent(pathname.slice("/admin/api/coupons/".length)).toUpperCase();
+    let coupons = loadAdminCouponsStore();
+    coupons = coupons.filter((c) => c.code.toUpperCase() !== code);
+    saveAdminCouponsStore(coupons);
+    return sendJson(response, 200, { ok: true });
+  }
+
+  // 8. Banners Admin API
+  if (pathname === "/admin/api/banners" && request.method === "GET") {
+    if (!requireAdmin(request, response)) return;
+    return sendJson(response, 200, loadAdminBannersStore());
+  }
+  if (pathname === "/admin/api/banners" && request.method === "POST") {
+    if (!requireAdmin(request, response)) return;
+    try {
+      const body = await readJsonBody(request);
+      const updated = saveAdminBannersStore(body);
+      return sendJson(response, 200, { ok: true, banners: updated });
+    } catch {
+      return sendJson(response, 400, { error: "Invalid banners payload" });
+    }
+  }
+
+  // 9. Settings Admin API
+  if (pathname === "/admin/api/settings" && request.method === "GET") {
+    if (!requireAdmin(request, response)) return;
+    return sendJson(response, 200, loadAdminSettingsStore());
+  }
+  if (pathname === "/admin/api/settings" && request.method === "POST") {
+    if (!requireAdmin(request, response)) return;
+    try {
+      const body = await readJsonBody(request);
+      const updated = saveAdminSettingsStore(body);
+      return sendJson(response, 200, { ok: true, settings: updated });
+    } catch {
+      return sendJson(response, 400, { error: "Invalid settings payload" });
+    }
+  }
+
+  // ═════════════════════════════════════════════════════
+  // PUBLIC CLIENT-FACING APIS
+  // ═════════════════════════════════════════════════════
+  // Guest / Customer Order Creation
+  if (pathname === "/api/orders" && request.method === "POST") {
+    try {
+      const body = await readJsonBody(request);
+      const normalized = normalizeAdminOrderInput(body);
+      if (normalized.error) return sendJson(response, 400, { error: normalized.error });
+      const orders = loadAdminOrdersStore();
+      orders.unshift(normalized.order);
+      saveAdminOrdersStore(orders);
+      return sendJson(response, 201, { ok: true, order: normalized.order });
+    } catch {
+      return sendJson(response, 400, { error: "Unable to process order" });
+    }
+  }
+
+  // Customer Order Lookup / Tracking
+  if (pathname.startsWith("/api/orders/") && request.method === "GET") {
+    const id = decodeURIComponent(pathname.slice("/api/orders/".length)).trim();
+    const orders = loadAdminOrdersStore();
+    const order = orders.find((o) => o.orderId.toLowerCase() === id.toLowerCase() || o.customerPhone === id);
+    if (!order) return sendJson(response, 404, { error: "Order not found" });
+    return sendJson(response, 200, { ok: true, order });
+  }
+
+  // Customer Coupon Validation
+  if (pathname === "/api/coupons/validate" && request.method === "GET") {
+    const code = (requestUrl.searchParams.get("code") || "").trim().toUpperCase();
+    const amount = Number(requestUrl.searchParams.get("amount")) || 0;
+    const coupons = loadAdminCouponsStore();
+    const coupon = coupons.find((c) => c.code.toUpperCase() === code && c.isActive !== false);
+    if (!coupon) return sendJson(response, 404, { error: "Invalid or expired coupon code" });
+    if (coupon.minOrderValue && amount < coupon.minOrderValue) {
+      return sendJson(response, 400, { error: `Minimum order value of ₹${coupon.minOrderValue} required for ${coupon.code}` });
+    }
+    let discountAmount = 0;
+    if (coupon.discountType === "percent") {
+      discountAmount = Math.round((amount * coupon.discountValue) / 100);
+      if (coupon.maxDiscount && discountAmount > coupon.maxDiscount) discountAmount = coupon.maxDiscount;
+    } else {
+      discountAmount = Math.min(amount, coupon.discountValue);
+    }
+    return sendJson(response, 200, { ok: true, coupon, discountAmount });
+  }
+
+  // Public Banners & Announcements
+  if (pathname === "/api/banners" && request.method === "GET") {
+    return sendJson(response, 200, { ok: true, banners: loadAdminBannersStore() });
+  }
+
+  // Public Settings
+  if (pathname === "/api/settings" && request.method === "GET") {
+    const s = loadAdminSettingsStore();
+    return sendJson(response, 200, {
+      ok: true,
+      settings: {
+        storeName: s.storeName,
+        tagline: s.tagline,
+        supportPhone: s.supportPhone,
+        supportEmail: s.supportEmail,
+        whatsappNumber: s.whatsappNumber,
+        freeShippingThreshold: s.freeShippingThreshold,
+        expressShippingFee: s.expressShippingFee,
+        currencySymbol: s.currencySymbol,
+        announcementNotice: s.announcementNotice
+      }
+    });
+  }
+
+  // ═════════════════════════════════════════════════════
+  // STATIC / FRONTEND PAGES
+  // ═════════════════════════════════════════════════════
   if (pathname === "/admin-products.json") {
     const page = unavailablePage("Page not found", "The page you requested does not exist.");
     return sendHtml(response, page.html, page.status);
@@ -509,6 +798,26 @@ const server = http.createServer(async (request, response) => {
   }
   if (pathname === "/") {
     return sendHtml(response, injectHome(fs.readFileSync(path.join(root, "index.html"), "utf8")));
+  }
+  if (pathname === "/search") {
+    const template = fs.readFileSync(path.join(root, "collections/all/index.html"), "utf8");
+    return sendHtml(response, injectCollection(template, "all"));
+  }
+  if (pathname === "/track-order" || pathname === "/my-orders" || pathname === "/track-order.html") {
+    const file = fs.readFileSync(path.join(root, "track-order.html"), "utf8");
+    return sendHtml(response, injectMetadata(file, {
+      title: "My Orders & Live Tracking | Shivara",
+      description: "Track your Shivara jewellery delivery in real-time.",
+      canonical: "/track-order.html"
+    }));
+  }
+  if (pathname === "/order-confirmation" || pathname === "/order-confirmation.html") {
+    const file = fs.readFileSync(path.join(root, "order-confirmation.html"), "utf8");
+    return sendHtml(response, injectMetadata(file, {
+      title: "Order Confirmed | Shivara",
+      description: "Thank you for your order with The Shivara Group.",
+      canonical: "/order-confirmation.html"
+    }));
   }
   if (pathname.startsWith("/collections/")) {
     const slug = pathname.split("/")[2] || "";

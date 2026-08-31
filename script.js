@@ -28,13 +28,16 @@
     wishlist: "shivara-wishlist-v3",
     recent: "shivara-recent-v2",
     legacyCart: "shivara-cart-v2",
-    legacyWishlist: "shivara-wishlist-v2"
+    legacyWishlist: "shivara-wishlist-v2",
+    coupon: "shivara-applied-coupon-v1",
+    customer: "shivara-customer-session-v1"
   };
   const allowedBadges = new Set(["New", "Best Seller", "Limited", "Low Stock", "Sale", "Exclusive"]);
   const categoryMeta = {
     all: { title: "All products", kicker: "THE COMPLETE CATALOGUE", description: "Every Shivara product that has been manually reviewed for catalogue accuracy." },
     earrings: { title: "Earrings", kicker: "THE FINAL TOUCH", description: "Curated Shivara earrings with transparent pricing and availability states." },
     necklaces: { title: "Necklaces", kicker: "THE NECKLINE EDIT", description: "Shivara necklaces selected from explicitly identified product posts." },
+    neckwear: { title: "Neck Wear", kicker: "THE NECKLINE EDIT", description: "Shivara necklaces and pendants selected for everyday luxury." },
     pendants: { title: "Pendants", kicker: "EVERYDAY NECK WEAR", description: "Curated pendants for everyday styling and gifting." },
     bracelets: { title: "Bracelets", kicker: "THE WRIST EDIT", description: "Bracelets and bangles, each classified and priced individually." },
     rings: { title: "Rings", kicker: "THE RING EDIT", description: "Statement and gift-ready rings with options confirmed product by product." },
@@ -42,25 +45,27 @@
     "anti-tarnish": { title: "Anti Tarnish", kicker: "THE EVERYDAY EDIT", description: "Products explicitly included in Shivara's anti-tarnish collection." },
     gifting: { title: "Gifting", kicker: "THE GIFTING ROOM", description: "Gift-ready products with signature luxury velvet box packaging." },
     sets: { title: "Jewellery Sets", kicker: "THE COORDINATED EDIT", description: "Curated multi-piece jewellery sets with item-specific pricing." },
+    "jewellery-sets": { title: "Jewellery Sets", kicker: "THE COORDINATED EDIT", description: "Curated multi-piece jewellery sets with item-specific pricing." },
     watches: { title: "Watches", kicker: "THE WATCH EDIT", description: "Watches kept separate from bracelet and ring collections." },
     "new-arrivals": { title: "New Arrivals", kicker: "JUST LANDED", description: "The latest products explicitly included in the curated catalogue." }
   };
   const categoryRail = [
     ["New Arrivals", "new-arrivals", "halo-gift-ring"],
-    ["Anti Tarnish", "anti-tarnish", "boxed-evil-eye-bracelet"],
     ["Earrings", "earrings", "butterfly-earring-edit"],
-    ["Neck Wear", "necklaces", "butterfly-drop-necklace"],
-    ["Bracelets", "bracelets", "geometric-boxed-bracelet"],
     ["Rings", "rings", "floral-statement-ring"],
+    ["Bracelets", "bracelets", "geometric-boxed-bracelet"],
+    ["Neck Wear", "necklaces", "butterfly-drop-necklace"],
     ["Evil Eye", "evil-eye", "blue-charm-evil-eye-bracelet"],
-    ["Gifts", "gifting", "cluster-gift-ring"],
-    ["Watches", "watches", "snake-chain-watch"]
+    ["Watches", "watches", "snake-chain-watch"],
+    ["Jewellery Sets", "sets", "halo-gift-ring"],
+    ["Anti Tarnish", "anti-tarnish", "boxed-evil-eye-bracelet"],
+    ["Gifting", "gifting", "cluster-gift-ring"]
   ];
   const heroIds = ["boxed-evil-eye-bracelet", "floral-statement-ring", "tulip-pendant"];
   const announcements = [
-    "Curated Shivara products only",
     "PAN India express complimentary shipping",
-    "Concierge shopping: +91 94570 41215"
+    "Handcrafted 18K gold-plated anti-tarnish statement edits",
+    "Concierge shopping & WhatsApp styling: +91 94570 41215"
   ];
   const rotationDelays = Object.freeze({
     announcement: 6000,
@@ -81,6 +86,8 @@
   localStorage.removeItem(storageKeys.legacyCart);
   localStorage.removeItem(storageKeys.legacyWishlist);
   let recent = readStorage(storageKeys.recent, []).filter((id) => productMap.has(id)).slice(0, 8);
+  let activeCoupon = readStorage(storageKeys.coupon, null);
+  let customerSession = readStorage(storageKeys.customer, null);
   let activeLayer = null;
   let lastFocus = null;
   let quickState = { product: null, quantity: 1, image: 0 };
@@ -198,12 +205,61 @@
     mount.innerHTML = source.filter((product) => catalogApi.validateCommerceObject(product, "renderGrid")).map(productCard).join("");
   }
 
+  function renderAccountContent() {
+    if (customerSession && customerSession.phone) {
+      return `<div class="stable-account-profile">
+        <div class="account-avatar">👑</div>
+        <h3>Welcome, ${escapeHtml(customerSession.name || "Patron")}</h3>
+        <p class="account-phone">📱 ${escapeHtml(customerSession.phone)}</p>
+        ${customerSession.email ? `<p class="account-email">✉️ ${escapeHtml(customerSession.email)}</p>` : ""}
+        <div class="account-details-box">
+          <small>SAVED DELIVERY ADDRESS</small>
+          <p>${escapeHtml(customerSession.address || "No address saved yet.")} ${customerSession.pincode ? `– PIN: ${escapeHtml(customerSession.pincode)}` : ""}</p>
+        </div>
+        <div class="account-actions-grid">
+          <a href="/track-order.html" class="stable-button stable-button--dark">📦 Track Orders &amp; Receipts</a>
+          <a href="/wishlist" class="stable-button stable-button--line">♡ View Wishlist (<span data-wishlist-count>${wishlist.size}</span>)</a>
+          <a href="https://wa.me/919457041215?text=Hello%20Shivara%20Concierge,%20I%20need%20assistance%20with%20my%20account" target="_blank" rel="noreferrer" class="stable-button stable-button--plain">💬 WhatsApp Concierge</a>
+        </div>
+        <button type="button" data-account-logout class="account-logout-btn">Log Out</button>
+      </div>`;
+    }
+    return `<div class="stable-account-login">
+      <div class="account-login-header">
+        <small>THE SHIVARA CONCIERGE</small>
+        <h3>Patron Sign In</h3>
+        <p>Access your personalized order history, saved addresses, and concierge styling.</p>
+      </div>
+      <form id="customer-login-form" class="account-form">
+        <div class="form-row">
+          <label for="acc-name"><span>Full Name</span><input type="text" id="acc-name" required placeholder="e.g. Radhika Sharma" /></label>
+        </div>
+        <div class="form-row">
+          <label for="acc-phone"><span>Mobile Number <strong class="req">*</strong></span><input type="tel" id="acc-phone" required pattern="[0-9]{10}" maxlength="10" placeholder="10-digit mobile number" /></label>
+        </div>
+        <div class="form-row">
+          <label for="acc-email"><span>Email Address <small>(Optional)</small></span><input type="email" id="acc-email" placeholder="e.g. radhika@example.com" /></label>
+        </div>
+        <button type="submit" class="stable-button stable-button--dark" style="width:100%; margin-top:8px;">Sign In to Shivara</button>
+      </form>
+      <div class="account-perks">
+        <small>PATRON PRIVILEGES</small>
+        <ul>
+          <li>✨ 1-Click Express Checkout</li>
+          <li>📦 Live PAN India GPS Tracking</li>
+          <li>🎁 Early Access to Limited Edition Drops</li>
+        </ul>
+      </div>
+    </div>`;
+  }
+
   function sharedHeader() {
     const megaFeatures = [
       ["lavender-bloom-ring", "RINGS"],
       ["mint-butterfly-earrings", "EARRINGS"],
       ["green-coil-watch", "WATCHES"]
     ].map(([id, label]) => [productMap.get(id), label]).filter(([product]) => product);
+    const accountLabel = customerSession ? (customerSession.name ? customerSession.name.split(" ")[0] : "Account") : "Sign In";
     return `<div class="stable-announcement"><span data-announcement-text>${announcements[0]}</span></div>
       <header class="stable-header">
         <button class="stable-header__menu" type="button" data-menu-open aria-label="Open menu">☰</button>
@@ -212,16 +268,41 @@
           <div class="stable-nav__mega-wrap">
             <button type="button" aria-haspopup="true">Shop</button>
             <div class="stable-nav__mega">
-              <div class="stable-nav__mega-links"><small>SHOP THE CATALOGUE</small><a href="/collections/new-arrivals">New Arrivals</a><a href="/collections/all?price=confirmed">Ready to Order</a><a href="/collections/gifting">Gifting Edit</a><a href="/collections/anti-tarnish">Anti Tarnish</a><a href="/collections/all">View All Products</a></div>
-              <div class="stable-nav__mega-categories"><small>BY CATEGORY</small><a href="/collections/earrings">Earrings</a><a href="/collections/necklaces">Neck Wear</a><a href="/collections/bracelets">Bracelets</a><a href="/collections/rings">Rings</a><a href="/collections/evil-eye">Evil Eye</a><a href="/collections/watches">Watches</a></div>
+              <div class="stable-nav__mega-links">
+                <small>SHOP THE CATALOGUE</small>
+                <a href="/collections/all">View All Products</a>
+                <a href="/collections/new-arrivals">New Arrivals</a>
+                <a href="/collections/all?price=confirmed">Ready to Order</a>
+                <a href="/collections/anti-tarnish">Anti Tarnish</a>
+                <a href="/collections/gifting">Gifting Edit</a>
+              </div>
+              <div class="stable-nav__mega-categories">
+                <small>BY CATEGORY</small>
+                <a href="/collections/earrings">Earrings</a>
+                <a href="/collections/rings">Rings</a>
+                <a href="/collections/bracelets">Bracelets</a>
+                <a href="/collections/neckwear">Neck Wear</a>
+                <a href="/collections/evil-eye">Evil Eye</a>
+                <a href="/collections/watches">Watches</a>
+                <a href="/collections/jewellery-sets">Jewellery Sets</a>
+              </div>
               <div class="stable-nav__mega-features">${megaFeatures.map(([product, label]) => `<a href="${productUrl(product)}"><img src="${escapeHtml(mediaHref(product.images[0]))}" alt="" /><span><small>${label}</small><strong>${escapeHtml(product.title)}</strong></span></a>`).join("")}</div>
             </div>
           </div>
-          <a href="/collections/new-arrivals">New Arrivals</a><a href="/collections/earrings">Earrings</a><a href="/collections/necklaces">Neck Wear</a><a href="/collections/bracelets">Bracelets</a><a href="/collections/rings">Rings</a><a href="/track-order.html" class="stable-track-nav-link" style="color:#c5a059; font-weight:600;">Track Order</a>
+          <a href="/collections/new-arrivals">New Arrivals</a>
+          <a href="/collections/earrings">Earrings</a>
+          <a href="/collections/rings">Rings</a>
+          <a href="/collections/bracelets">Bracelets</a>
+          <a href="/collections/neckwear">Neck Wear</a>
+          <a href="/collections/evil-eye">Evil Eye</a>
+          <a href="/collections/watches">Watches</a>
+          <a href="/collections/jewellery-sets">Sets</a>
+          <a href="/track-order.html" class="stable-track-nav-link" style="color:#c5a059; font-weight:600;">Track Order</a>
         </nav>
         <div class="stable-header__actions">
           <button type="button" data-search-open aria-label="Search">⌕</button>
           <a href="/track-order.html" class="stable-header-track" style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; text-decoration:none; color:inherit; padding:6px 10px; border-radius:4px; border:1px solid rgba(0,0,0,0.1);">Track</a>
+          <button type="button" data-account-open class="stable-header-account" aria-label="Account" style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; padding:6px 10px; border-radius:4px; border:1px solid rgba(0,0,0,0.1); background:transparent; cursor:pointer; color:inherit;">👤 <span data-account-name>${escapeHtml(accountLabel)}</span></button>
           <a class="stable-wish-link" href="/wishlist" aria-label="Wishlist">♡<span data-wishlist-count>0</span></a>
           <button type="button" data-cart-open aria-label="Open bag">Bag <span data-cart-count>0</span></button>
         </div>
@@ -231,6 +312,7 @@
         <button type="button" data-menu-open><span aria-hidden="true">☰</span><small>Shop</small></button>
         <button type="button" data-search-open><span aria-hidden="true">⌕</span><small>Search</small></button>
         <a href="/track-order.html"><span aria-hidden="true">📦</span><small>Track</small></a>
+        <button type="button" data-account-open><span aria-hidden="true">👤</span><small>Account</small></button>
         <a href="/wishlist"><span aria-hidden="true">♡</span><small>Wishlist</small><b data-wishlist-count>0</b></a>
         <button type="button" data-cart-open><span aria-hidden="true">Bag</span><small>Bag</small><b data-cart-count>0</b></button>
       </nav>`;
@@ -240,8 +322,40 @@
     const footerProduct = productMap.get("tulip-pendant");
     return `<footer class="stable-footer phase-footer">
       <section class="phase-footer__finale"><div><p>THE LOOK IS NEVER FINISHED</p><h2>Until the<br />jewellery is.</h2><a class="stable-button stable-button--light" href="/collections/all">Explore Collection</a></div><figure aria-hidden="true"><span></span><img src="${escapeHtml(mediaHref(footerProduct.images[0]))}" alt="" /></figure><strong aria-hidden="true">SHIVARA</strong></section>
-      <div class="phase-footer__links"><div><a class="stable-logo stable-logo--footer" href="/">SHIVARA<small>JEWELLERY ATELIER</small></a><p>A manually curated jewellery catalogue with personal ordering support from Bareilly.</p></div><div><strong>Shop</strong><a href="/collections/all">All Products</a><a href="/collections/new-arrivals">New Arrivals</a><a href="/collections/gifting">Gifting</a><a href="/wishlist">Wishlist</a></div><div><strong>Orders &amp; Help</strong><a href="/track-order.html">Track Your Order</a><a href="tel:+919457041215">Call Concierge</a><a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">Instagram</a><span>PAN India express delivery</span></div><div><strong>Policies</strong><a href="/policies/shipping">Shipping &amp; Exchange</a><a href="/policies/privacy">Privacy</a><a href="/policies/terms">Terms</a></div></div>
-      <small>© ${new Date().getFullYear()} Shivara. Availability and unconfirmed prices are verified before purchase.</small>
+      <div class="phase-footer__links">
+        <div>
+          <a class="stable-logo stable-logo--footer" href="/">SHIVARA<small>JEWELLERY ATELIER</small></a>
+          <p>A curated statement jewellery atelier with PAN India express delivery and personalized concierge styling.</p>
+        </div>
+        <div>
+          <strong>Shop</strong>
+          <a href="/collections/all">All Products</a>
+          <a href="/collections/earrings">Earrings</a>
+          <a href="/collections/rings">Rings</a>
+          <a href="/collections/bracelets">Bracelets</a>
+          <a href="/collections/neckwear">Neck Wear</a>
+          <a href="/collections/evil-eye">Evil Eye</a>
+          <a href="/collections/watches">Watches</a>
+          <a href="/collections/jewellery-sets">Jewellery Sets</a>
+          <a href="/collections/new-arrivals">New Arrivals</a>
+          <a href="/wishlist">Wishlist</a>
+        </div>
+        <div>
+          <strong>Orders &amp; Concierge</strong>
+          <a href="/track-order.html">Track Your Order</a>
+          <a href="tel:+919457041215">Call Concierge: +91 94570 41215</a>
+          <a href="https://wa.me/919457041215" target="_blank" rel="noreferrer">WhatsApp Concierge</a>
+          <a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">Instagram @shivara.luxe</a>
+          <span>PAN India Express Shipping</span>
+        </div>
+        <div>
+          <strong>Policies</strong>
+          <a href="/policies/shipping">Shipping &amp; Exchange</a>
+          <a href="/policies/privacy">Privacy</a>
+          <a href="/policies/terms">Terms of Service</a>
+        </div>
+      </div>
+      <small>© ${new Date().getFullYear()} Shivara Luxe. All jewellery verified for catalogue authenticity.</small>
     </footer>`;
   }
 
@@ -258,9 +372,13 @@
       <aside class="stable-drawer stable-drawer--search" id="search-drawer" role="dialog" aria-modal="true" aria-labelledby="search-title" aria-hidden="true">
         <div class="stable-layer__head"><div><small>DISCOVER THE EDIT</small><h2 id="search-title">Search Shivara</h2></div><button type="button" data-layer-close aria-label="Close search">×</button></div>
         <label class="stable-search-box"><span class="visually-hidden">Search products</span><input id="stable-search" type="search" autocomplete="off" placeholder="Search rings, bracelets, pendants..." /><button type="button" data-search-clear aria-label="Clear search">×</button></label>
-        <div class="stable-search-discovery" id="search-discovery"><div><span>Trending</span><button type="button" data-search-term="Rings">Rings</button><button type="button" data-search-term="Evil Eye">Evil Eye</button><button type="button" data-search-term="Gifting">Gifting</button></div><div><span>Shop by category</span><a href="/collections/earrings">Earrings</a><a href="/collections/necklaces">Neck Wear</a><a href="/collections/bracelets">Bracelets</a></div></div>
+        <div class="stable-search-discovery" id="search-discovery"><div><span>Trending</span><button type="button" data-search-term="Rings">Rings</button><button type="button" data-search-term="Evil Eye">Evil Eye</button><button type="button" data-search-term="Earrings">Earrings</button><button type="button" data-search-term="Watches">Watches</button><button type="button" data-search-term="Gifting">Gifting</button></div><div><span>Shop by category</span><a href="/collections/earrings">Earrings</a><a href="/collections/rings">Rings</a><a href="/collections/bracelets">Bracelets</a><a href="/collections/neckwear">Neck Wear</a><a href="/collections/watches">Watches</a></div></div>
         <p class="stable-search-count" id="search-count" role="status" aria-live="polite"></p>
         <div class="stable-search-results" id="search-results"></div>
+      </aside>
+      <aside class="stable-drawer stable-drawer--account" id="account-drawer" role="dialog" aria-modal="true" aria-labelledby="account-title" aria-hidden="true">
+        <div class="stable-layer__head"><div><small>THE SHIVARA PATRON</small><h2 id="account-title">Account</h2></div><button type="button" data-layer-close aria-label="Close account">×</button></div>
+        <div class="stable-account-container" id="account-container">${renderAccountContent()}</div>
       </aside>
       <aside class="stable-drawer stable-drawer--cart" id="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title" aria-hidden="true">
         <div class="stable-layer__head"><h2 id="cart-title">Your Bag <span data-cart-count>0</span></h2><button type="button" data-layer-close aria-label="Close bag">×</button></div>
@@ -273,24 +391,53 @@
           <div class="checkout-header">
             <small>THE SHIVARA ATELIER</small>
             <h2 id="checkout-modal-title">Express Secure Checkout</h2>
-            <p>Enter your delivery details to confirm your order.</p>
+            <p>Enter your shipping details and select your payment method.</p>
           </div>
           <div class="checkout-order-summary" id="checkout-order-summary"></div>
           <form class="checkout-form" id="checkout-details-form">
             <div class="form-row">
               <label for="cust-name"><span>Full Name <strong class="req">*</strong></span><input type="text" id="cust-name" required placeholder="e.g. Radhika Sharma" /></label>
             </div>
-            <div class="form-row">
+            <div class="form-row form-row--two">
               <label for="cust-phone"><span>Phone Number <strong class="req">*</strong></span><input type="tel" id="cust-phone" required placeholder="e.g. 9876543210" pattern="[0-9]{10}" maxlength="10" /></label>
+              <label for="cust-email"><span>Email Address <small>(Optional)</small></span><input type="email" id="cust-email" placeholder="e.g. radhika@example.com" /></label>
             </div>
             <div class="form-row">
-              <label for="cust-address"><span>Delivery Address <strong class="req">*</strong></span><textarea id="cust-address" required rows="2" placeholder="House/Flat No, Apartment/Street, City, State"></textarea></label>
+              <label for="cust-address"><span>Delivery Address <strong class="req">*</strong></span><textarea id="cust-address" required rows="2" placeholder="House/Flat No, Apartment/Street, Landmark"></textarea></label>
             </div>
-            <div class="form-row">
+            <div class="form-row form-row--three">
               <label for="cust-pincode"><span>PIN Code <strong class="req">*</strong></span><input type="text" id="cust-pincode" required placeholder="e.g. 110001" pattern="[0-9]{6}" maxlength="6" /></label>
+              <label for="cust-city"><span>City</span><input type="text" id="cust-city" placeholder="City" /></label>
+              <label for="cust-state"><span>State</span><input type="text" id="cust-state" placeholder="State" /></label>
             </div>
             <div class="form-row">
-              <label for="cust-note"><span>Gift Message / Order Note <small>(Optional)</small></span><input type="text" id="cust-note" placeholder="Gift card note or delivery instructions" /></label>
+              <label for="cust-note"><span>Gift Message / Order Note <small>(Optional)</small></span><input type="text" id="cust-note" placeholder="Gift card message or delivery instructions" /></label>
+            </div>
+            <div class="payment-methods-box">
+              <small>PAYMENT METHOD</small>
+              <div class="payment-options">
+                <label class="payment-option">
+                  <input type="radio" name="payment-method" value="COD" checked />
+                  <div class="payment-option__content">
+                    <strong>Cash on Delivery (COD)</strong>
+                    <small>Pay at your doorstep upon express delivery</small>
+                  </div>
+                </label>
+                <label class="payment-option">
+                  <input type="radio" name="payment-method" value="UPI" />
+                  <div class="payment-option__content">
+                    <strong>UPI Express (GPay, PhonePe, Paytm, QR)</strong>
+                    <small>Instant zero-fee payment confirmation</small>
+                  </div>
+                </label>
+                <label class="payment-option">
+                  <input type="radio" name="payment-method" value="Card" />
+                  <div class="payment-option__content">
+                    <strong>Debit / Credit Card / NetBanking</strong>
+                    <small>100% Encrypted 256-bit bank checkout</small>
+                  </div>
+                </label>
+              </div>
             </div>
             <div class="checkout-actions">
               <button type="submit" class="stable-button stable-button--dark checkout-submit-btn">
@@ -488,13 +635,85 @@
     }
   });
 
+  function calculateDiscount(subtotal) {
+    if (!activeCoupon) return 0;
+    if (activeCoupon.minOrderValue && subtotal < activeCoupon.minOrderValue) return 0;
+    if (activeCoupon.discountType === "percent") {
+      let discount = Math.round((subtotal * (Number(activeCoupon.discountValue) || 10)) / 100);
+      if (activeCoupon.maxDiscount && discount > activeCoupon.maxDiscount) discount = activeCoupon.maxDiscount;
+      return discount;
+    }
+    return Math.min(subtotal, Number(activeCoupon.discountValue) || 0);
+  }
+
   function cartSummary() {
-    return cart.reduce((summary, item) => {
+    const rawSubtotal = cart.reduce((sum, item) => {
       const product = productMap.get(item.id);
       const value = pricing(product);
-      summary.confirmedTotal += (value.price || 499) * item.qty;
-      return summary;
-    }, { confirmedTotal: 0 });
+      return sum + (value.price || 499) * item.qty;
+    }, 0);
+    const discount = calculateDiscount(rawSubtotal);
+    const finalTotal = Math.max(0, rawSubtotal - discount);
+    return {
+      confirmedTotal: finalTotal,
+      subtotal: rawSubtotal,
+      discount,
+      coupon: activeCoupon
+    };
+  }
+
+  async function applyCouponCode(code) {
+    const clean = String(code || "").trim().toUpperCase();
+    if (!clean) {
+      showToast("Please enter a promo code");
+      return;
+    }
+    const summary = cartSummary();
+    try {
+      const res = await fetch(`/api/coupons/validate?code=${encodeURIComponent(clean)}&amount=${summary.subtotal}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ok && data.coupon) {
+          activeCoupon = data.coupon;
+          saveStorage(storageKeys.coupon, activeCoupon);
+          renderCart();
+          showToast(`Coupon ${clean} applied! You saved ${formatMoney(data.discountAmount || 0)}`);
+          return;
+        }
+      }
+      const errData = await res.json().catch(() => ({}));
+      showToast(errData.error || "Invalid or expired promo code");
+    } catch {
+      const localCoupons = {
+        "WELCOME10": { code: "WELCOME10", discountType: "percent", discountValue: 10, minOrderValue: 499, isActive: true },
+        "LUXE15": { code: "LUXE15", discountType: "percent", discountValue: 15, minOrderValue: 1499, isActive: true },
+        "SHIVARA500": { code: "SHIVARA500", discountType: "flat", discountValue: 500, minOrderValue: 2499, isActive: true }
+      };
+      if (localCoupons[clean]) {
+        activeCoupon = localCoupons[clean];
+        saveStorage(storageKeys.coupon, activeCoupon);
+        renderCart();
+        showToast(`Coupon ${clean} applied!`);
+      } else {
+        showToast("Invalid promo code");
+      }
+    }
+  }
+
+  function removeCoupon() {
+    activeCoupon = null;
+    localStorage.removeItem(storageKeys.coupon);
+    renderCart();
+    showToast("Promo code removed");
+  }
+
+  function updateAccountBadge() {
+    const accountLabel = customerSession ? (customerSession.name ? customerSession.name.split(" ")[0] : "Account") : "Sign In";
+    document.querySelectorAll("[data-account-name]").forEach((el) => {
+      el.textContent = accountLabel;
+    });
+    const container = document.querySelector("#account-container");
+    if (container) container.innerHTML = renderAccountContent();
   }
 
   function renderCart() {
@@ -507,7 +726,7 @@
       updateCounts();
       return;
     }
-      const renderLine = (item) => {
+    const renderLine = (item) => {
       const product = productMap.get(item.id);
       const variant = validVariant(product, item.variantId);
       const value = pricing(product);
@@ -521,7 +740,7 @@
     const summary = cartSummary();
 
     const targetGiftBox = 999;
-    const currentSubtotal = summary.confirmedTotal || 0;
+    const currentSubtotal = summary.subtotal || 0;
     const giftDiff = Math.max(0, targetGiftBox - currentSubtotal);
     const giftPercent = Math.min(100, Math.round((currentSubtotal / targetGiftBox) * 100));
     const giftBarHtml = `<div class="luxury-packaging-bar">
@@ -534,7 +753,33 @@
 
     lines.innerHTML = `${giftBarHtml}<div class="stable-cart-group">${cart.map(renderLine).join("")}</div>`;
     const complement = catalogApi.getRelatedProducts(productMap.get(cart[0].id)).find((product) => !cart.some((item) => item.id === product.id));
-    footer.innerHTML = `${complement ? `<article class="stable-cart-complement"><img src="${escapeHtml(mediaHref(complement.images[0]))}" alt="" /><div><small>COMPLETE THE EDIT</small><strong>${escapeHtml(complement.title)}</strong>${priceMarkup(complement, "stable-search-price")}</div><button type="button" data-quick-view="${complement.id}">View</button></article>` : ""}<label class="stable-cart-note"><span>Order note or gifting request <small>Optional</small></span><textarea data-cart-note maxlength="240" rows="2" placeholder="Gift message, preferred delivery date, or anything Shivara should know">${escapeHtml(cartNote)}</textarea></label><div class="stable-cart-total"><span>Subtotal</span><strong>${formatMoney(summary.confirmedTotal)}</strong></div><div class="stable-cart-service"><span>✓ 100% Anti-Tarnish Lifetime Warranty</span><span>✓ Handcrafted Luxury Finish</span><span>✓ Verified atelier pieces</span></div><button class="stable-button stable-button--dark" type="button" data-open-checkout>Proceed to Checkout</button><button class="stable-button stable-button--plain" type="button" data-layer-close>Continue Shopping</button>`;
+
+    const couponDockHtml = activeCoupon ? `
+      <div class="cart-coupon-applied">
+        <div>
+          <span class="coupon-tag">🏷️ ${escapeHtml(activeCoupon.code)}</span>
+          <small>Saved ${formatMoney(summary.discount)}</small>
+        </div>
+        <button type="button" data-coupon-remove class="coupon-remove-btn">Remove</button>
+      </div>` : `
+      <div class="cart-coupon-box">
+        <input type="text" id="cart-coupon-input" placeholder="Promo code (e.g. WELCOME10)" autocomplete="off" />
+        <button type="button" id="cart-coupon-apply" class="stable-button stable-button--dark">Apply</button>
+      </div>`;
+
+    footer.innerHTML = `
+      ${complement ? `<article class="stable-cart-complement"><img src="${escapeHtml(mediaHref(complement.images[0]))}" alt="" /><div><small>COMPLETE THE EDIT</small><strong>${escapeHtml(complement.title)}</strong>${priceMarkup(complement, "stable-search-price")}</div><button type="button" data-quick-view="${complement.id}">View</button></article>` : ""}
+      <label class="stable-cart-note"><span>Order note or gifting request <small>Optional</small></span><textarea data-cart-note maxlength="240" rows="2" placeholder="Gift message, preferred delivery date, or anything Shivara should know">${escapeHtml(cartNote)}</textarea></label>
+      <div class="cart-coupon-section">${couponDockHtml}</div>
+      <div class="stable-cart-total-breakdown">
+        <div class="cart-breakdown-row"><span>Subtotal</span><span>${formatMoney(summary.subtotal)}</span></div>
+        ${summary.discount > 0 ? `<div class="cart-breakdown-row cart-discount-row"><span>Discount (${escapeHtml(activeCoupon?.code || "Promo")})</span><span style="color:#1f6b3b; font-weight:600;">-${formatMoney(summary.discount)}</span></div>` : ""}
+        <div class="cart-breakdown-row"><span>Express Delivery</span><span style="color:#1f6b3b; font-weight:600;">FREE</span></div>
+        <div class="cart-breakdown-row cart-total-row"><strong>Payable Total</strong><strong style="color:var(--stable-rose,#d8b36a); font-size:18px;">${formatMoney(summary.confirmedTotal)}</strong></div>
+      </div>
+      <div class="stable-cart-service"><span>✓ 100% Anti-Tarnish Lifetime Warranty</span><span>✓ Handcrafted Luxury Finish</span><span>✓ Verified atelier pieces</span></div>
+      <button class="stable-button stable-button--dark" type="button" data-open-checkout>Proceed to Checkout</button>
+      <button class="stable-button stable-button--plain" type="button" data-layer-close>Continue Shopping</button>`;
     updateCounts();
   }
 
@@ -557,17 +802,25 @@
         </div>`;
       }).join("");
 
+      const discountRow = summary.discount > 0 ? `
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:#1f6b3b; margin-bottom:6px;">
+          <span>Coupon Discount (${escapeHtml(activeCoupon.code)}):</span>
+          <strong>-${formatMoney(summary.discount)}</strong>
+        </div>` : "";
+
       summaryEl.innerHTML = `<div style="margin-bottom:10px; border-bottom:1px dashed rgba(180,130,60,0.3); padding-bottom:8px;">${itemsHtml}</div>
-        <div style="display:flex; justify-content:space-between; font-size:14px;">
-          <span>Total Order Value:</span>
-          <strong style="color:var(--stable-rose); font-size:16px;">${formatMoney(summary.confirmedTotal)}</strong>
+        ${discountRow}
+        <div style="display:flex; justify-content:space-between; font-size:14px; font-weight:700;">
+          <span>Payable Total:</span>
+          <strong style="color:var(--stable-rose,#d8b36a); font-size:16px;">${formatMoney(summary.confirmedTotal)}</strong>
         </div>`;
     }
 
     try {
-      const saved = JSON.parse(localStorage.getItem("shivara_customer_info") || "{}");
+      const saved = customerSession || JSON.parse(localStorage.getItem("shivara_customer_info") || "{}");
       if (saved.name && document.querySelector("#cust-name")) document.querySelector("#cust-name").value = saved.name;
       if (saved.phone && document.querySelector("#cust-phone")) document.querySelector("#cust-phone").value = saved.phone;
+      if (saved.email && document.querySelector("#cust-email")) document.querySelector("#cust-email").value = saved.email;
       if (saved.address && document.querySelector("#cust-address")) document.querySelector("#cust-address").value = saved.address;
       if (saved.pincode && document.querySelector("#cust-pincode")) document.querySelector("#cust-pincode").value = saved.pincode;
       if (cartNote && document.querySelector("#cust-note")) document.querySelector("#cust-note").value = cartNote;
@@ -961,11 +1214,34 @@
       renderCart();
       return openLayer("#cart-drawer", target.closest("[data-cart-open]"));
     }
+    if (target.closest("[data-account-open]")) {
+      updateAccountBadge();
+      return openLayer("#account-drawer", target.closest("[data-account-open]"));
+    }
+    if (target.closest("[data-account-logout]")) {
+      customerSession = null;
+      localStorage.removeItem(storageKeys.customer);
+      updateAccountBadge();
+      showToast("Signed out successfully.");
+      return;
+    }
+    if (target.closest("#cart-coupon-apply")) {
+      const input = document.querySelector("#cart-coupon-input");
+      if (input) applyCouponCode(input.value);
+      return;
+    }
+    if (target.closest("[data-coupon-remove]")) {
+      removeCoupon();
+      return;
+    }
     if (target.closest("[data-open-checkout]")) {
       return openCheckoutModal();
     }
     if (target.closest("[data-layer-close]")) return closeLayer();
-    if (target.closest("[data-account]")) return showToast("Customer accounts are coming soon");
+    if (target.closest("[data-account]")) {
+      updateAccountBadge();
+      return openLayer("#account-drawer", target.closest("[data-account]"));
+    }
     if (target.closest("[data-clear-filters]")) return updateCollectionState({ sort: "featured", price: "all", category: "all", query: "" });
     const filterToggle = target.closest("[data-filter-toggle]");
     if (filterToggle) {
@@ -1123,15 +1399,35 @@
   });
 
   document.addEventListener("submit", (event) => {
+    if (event.target && event.target.id === "customer-login-form") {
+      event.preventDefault();
+      const name = (document.querySelector("#acc-name")?.value || "").trim();
+      const phone = (document.querySelector("#acc-phone")?.value || "").trim();
+      const email = (document.querySelector("#acc-email")?.value || "").trim();
+      if (!name || !phone) {
+        showToast("Please enter your name and phone number.");
+        return;
+      }
+      customerSession = { name, phone, email, address: "", pincode: "" };
+      saveStorage(storageKeys.customer, customerSession);
+      updateAccountBadge();
+      showToast(`Welcome to Shivara Luxe, ${name}!`);
+      return;
+    }
+
     if (event.target && event.target.id === "checkout-details-form") {
       event.preventDefault();
       event.stopPropagation();
 
       const name = (document.querySelector("#cust-name")?.value || "").trim();
       const phone = (document.querySelector("#cust-phone")?.value || "").trim();
+      const email = (document.querySelector("#cust-email")?.value || "").trim();
       const address = (document.querySelector("#cust-address")?.value || "").trim();
       const pincode = (document.querySelector("#cust-pincode")?.value || "").trim();
+      const city = (document.querySelector("#cust-city")?.value || "").trim();
+      const state = (document.querySelector("#cust-state")?.value || "").trim();
       const note = (document.querySelector("#cust-note")?.value || "").trim();
+      const paymentMethod = (document.querySelector('input[name="payment-method"]:checked')?.value || "COD").trim();
 
       if (!name || !phone || !address || !pincode) {
         showToast("Please fill in all required delivery details.");
@@ -1139,7 +1435,13 @@
       }
 
       try {
-        localStorage.setItem("shivara_customer_info", JSON.stringify({ name, phone, address, pincode }));
+        const customerInfo = { name, phone, email, address, pincode, city, state, note: note || "" };
+        localStorage.setItem("shivara_customer_info", JSON.stringify(customerInfo));
+        if (!customerSession) {
+          customerSession = customerInfo;
+          saveStorage(storageKeys.customer, customerSession);
+          updateAccountBadge();
+        }
       } catch {}
 
       const summary = cartSummary();
@@ -1165,8 +1467,11 @@
       const customerInfo = {
         name,
         phone,
+        email,
         address,
         pincode,
+        city,
+        state,
         note: note || ""
       };
 
@@ -1175,32 +1480,45 @@
         customerInfo,
         customerName: name,
         customerPhone: phone,
+        customerEmail: email,
         shippingAddress: address,
         pincode: pincode,
+        city: city || "",
+        state: state || "",
         orderNote: note || "",
         shippingDetails: customerInfo,
         items: orderItems,
         itemCount: cart.reduce((sum, i) => sum + i.qty, 0),
         totalAmount: summary.confirmedTotal,
-        status: "Pending"
+        subtotal: summary.subtotal,
+        discountAmount: summary.discount,
+        appliedCoupon: activeCoupon?.code || null,
+        paymentMethod,
+        status: "Pending",
+        createdAt: new Date().toISOString()
       };
 
       // Save to localStorage for frictionless guest reference
       try {
-        localStorage.setItem("shivara_customer_info", JSON.stringify(customerInfo));
         localStorage.setItem("shivara_recent_order", JSON.stringify({
           orderId: orderRef,
           date: dateStr,
           totalAmount: summary.confirmedTotal,
           items: orderItems,
           customerInfo,
+          paymentMethod,
           status: "Pending"
         }));
       } catch {}
 
-      // Execute Atomic writeBatch in Firestore:
-      // Action A: Create Order Document in `orders`
-      // Action B: Mark purchased items `isSoldOut: true` in `products`
+      // Send to local Node.js Server
+      fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderDocument)
+      }).catch(() => {});
+
+      // Execute Atomic writeBatch in Firestore
       (async () => {
         try {
           const { db } = await import("/src/firebase.js");
@@ -1236,6 +1554,8 @@
       // Clear the Cart on successful order placement
       cart.length = 0;
       saveCart();
+      activeCoupon = null;
+      localStorage.removeItem(storageKeys.coupon);
       updateCounts();
       renderCart();
       localStorage.removeItem(storageKeys.cart);

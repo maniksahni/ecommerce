@@ -46,6 +46,7 @@ const collectionMeta = {
   "new-arrivals": ["New Arrivals", "JUST IN", "Discover the newest verified additions to the Shivara edit."],
   earrings: ["Earrings", "FRAME THE FACE", "Explore curated Shivara earrings for everyday and occasion styling."],
   necklaces: ["Neck wear", "LAYER YOUR STORY", "Shop necklaces and neck wear selected for effortless styling."],
+  neckwear: ["Neck wear", "LAYER YOUR STORY", "Shop necklaces and neck wear selected for effortless styling."],
   pendants: ["Pendants", "SMALL DETAILS", "Discover expressive pendants from the curated Shivara catalogue."],
   bracelets: ["Bracelets", "WRIST STORIES", "Browse verified Shivara bracelets and hand accessories."],
   rings: ["Rings", "STATEMENT RINGS", "Explore sculptural and expressive rings from Shivara."],
@@ -53,6 +54,7 @@ const collectionMeta = {
   "anti-tarnish": ["Anti tarnish", "EVERYDAY EDIT", "Browse pieces explicitly confirmed for the anti-tarnish collection."],
   gifting: ["Gifting", "READY TO GIFT", "Find curated Shivara jewellery for thoughtful gifting."],
   sets: ["Jewellery sets", "STYLE TOGETHER", "Browse coordinated jewellery sets from Shivara."],
+  "jewellery-sets": ["Jewellery sets", "STYLE TOGETHER", "Browse coordinated jewellery sets from Shivara."],
   watches: ["Watches", "TIME, STYLED", "Explore verified watches from the Shivara catalogue."],
   other: ["More jewellery", "THE SHIVARA EDIT", "Explore more verified pieces from the Shivara catalogue."]
 };
@@ -99,10 +101,20 @@ for (const directory of ["assets", "vendor", "src"]) {
 const adminPage = fs.readFileSync(path.join(output, "admin.html"), "utf8");
 write("admin/index.html", adminPage);
 
+const trackPage = fs.readFileSync(path.join(output, "track-order.html"), "utf8");
+write("track-order/index.html", trackPage);
+write("my-orders/index.html", trackPage);
+
 const wishlist = stamp(fs.readFileSync(path.join(root, "wishlist/index.html"), "utf8"));
 write("wishlist/index.html", wishlist);
 
 const collectionTemplate = fs.readFileSync(path.join(root, "collections/all/index.html"), "utf8");
+const searchPage = stamp(withSeo(collectionTemplate, {
+  title: "Search Curated Catalogue | Shivara",
+  description: "Search rings, earrings, bracelets, neckwear, watches, and jewellery sets from Shivara.",
+  canonical: "/search"
+})).replace('data-collection="all"', 'data-collection="search"');
+write("search/index.html", searchPage);
 for (const [slug, [title, kicker, description]] of Object.entries(collectionMeta)) {
   const selected = catalogApi.getCollection(slug);
   const page = stamp(withSeo(collectionTemplate, {

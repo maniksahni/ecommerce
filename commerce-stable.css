@@ -2294,3 +2294,369 @@ body.catalog-stable {
   gap: 8px;
   margin-top: 20px;
 }
+
+/* ═════════════════════════════════════════════════════
+   ACCOUNT DRAWER & PATRON STYLING
+═════════════════════════════════════════════════════ */
+.stable-drawer--account {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(440px, 100vw);
+  background: var(--stable-sand);
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.stable-drawer--account.is-open {
+  transform: translateX(0);
+}
+
+.stable-account-container {
+  margin-top: 16px;
+}
+
+.stable-account-profile {
+  text-align: center;
+}
+
+.account-avatar {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #2a1b12, #140b06);
+  border: 2px solid var(--stable-gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin: 0 auto 12px;
+  box-shadow: 0 4px 14px rgba(212, 168, 67, 0.25);
+}
+
+.stable-account-profile h3 {
+  font-family: "Italiana", serif;
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--stable-ink);
+  margin-bottom: 4px;
+}
+
+.account-phone, .account-email {
+  font-size: 13px;
+  color: #68675f;
+  margin-bottom: 2px;
+}
+
+.account-details-box {
+  background: #ffffff;
+  border: 1px solid rgba(180, 130, 60, 0.2);
+  border-radius: 8px;
+  padding: 14px;
+  margin: 18px 0;
+  text-align: left;
+}
+
+.account-details-box small {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--stable-gold);
+  margin-bottom: 6px;
+}
+
+.account-details-box p {
+  font-size: 13px;
+  color: var(--stable-ink);
+  line-height: 1.5;
+}
+
+.account-actions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.account-actions-grid a {
+  text-decoration: none;
+  text-align: center;
+}
+
+.account-logout-btn {
+  background: transparent;
+  border: none;
+  color: var(--stable-red, #a32227);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.account-login-header {
+  margin-bottom: 16px;
+}
+
+.account-login-header small {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  color: var(--stable-gold);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.account-login-header h3 {
+  font-family: "Italiana", serif;
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--stable-ink);
+  margin-bottom: 6px;
+}
+
+.account-login-header p {
+  font-size: 13px;
+  color: #68675f;
+  line-height: 1.4;
+}
+
+.account-form .form-row {
+  margin-bottom: 12px;
+}
+
+.account-form label span {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--stable-ink);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.account-form input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(180, 130, 60, 0.28);
+  background: #ffffff;
+  font-size: 13px;
+  color: var(--stable-ink);
+  outline: none;
+}
+
+.account-perks {
+  margin-top: 24px;
+  background: rgba(212, 168, 67, 0.08);
+  border: 1px dashed rgba(212, 168, 67, 0.35);
+  border-radius: 8px;
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.account-perks small {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--stable-gold);
+  margin-bottom: 8px;
+}
+
+.account-perks ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.account-perks li {
+  font-size: 12px;
+  color: var(--stable-ink);
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+/* ═════════════════════════════════════════════════════
+   COUPONS IN BAG & CHECKOUT
+═════════════════════════════════════════════════════ */
+.cart-coupon-section {
+  margin: 14px 0 10px;
+}
+
+.cart-coupon-box {
+  display: flex;
+  gap: 8px;
+}
+
+.cart-coupon-box input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(180, 130, 60, 0.3);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  outline: none;
+}
+
+.cart-coupon-box input:focus {
+  border-color: var(--stable-gold);
+}
+
+.cart-coupon-box button {
+  padding: 8px 16px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.cart-coupon-applied {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(31, 107, 59, 0.08);
+  border: 1px solid rgba(31, 107, 59, 0.25);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.coupon-tag {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1f6b3b;
+  letter-spacing: 0.5px;
+  display: block;
+}
+
+.cart-coupon-applied small {
+  font-size: 11px;
+  color: #1f6b3b;
+}
+
+.coupon-remove-btn {
+  background: transparent;
+  border: none;
+  font-size: 11px;
+  color: var(--stable-red);
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.stable-cart-total-breakdown {
+  margin: 12px 0 14px;
+  border-top: 1px solid rgba(180, 130, 60, 0.15);
+  padding-top: 10px;
+}
+
+.cart-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #68675f;
+  margin-bottom: 4px;
+}
+
+.cart-discount-row {
+  color: #1f6b3b;
+  font-weight: 600;
+}
+
+.cart-total-row {
+  color: var(--stable-ink);
+  font-size: 15px;
+  font-weight: 700;
+  margin-top: 8px;
+  border-top: 1px dashed rgba(180, 130, 60, 0.25);
+  padding-top: 6px;
+}
+
+/* Form row multi-column */
+.form-row--two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.form-row--three {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 500px) {
+  .form-row--two,
+  .form-row--three {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Payment selection box */
+.payment-methods-box {
+  margin: 16px 0;
+  background: #ffffff;
+  border: 1px solid rgba(180, 130, 60, 0.22);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.payment-methods-box small {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--stable-gold);
+  margin-bottom: 10px;
+}
+
+.payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.payment-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.payment-option:hover {
+  background: rgba(212, 168, 67, 0.04);
+  border-color: var(--stable-gold);
+}
+
+.payment-option input {
+  margin-top: 3px;
+  width: auto;
+}
+
+.payment-option__content strong {
+  display: block;
+  font-size: 13px;
+  color: var(--stable-ink);
+}
+
+.payment-option__content small {
+  display: block;
+  font-size: 11px;
+  color: #68675f;
+  margin-top: 1px;
+  letter-spacing: 0;
+}
+

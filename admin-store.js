@@ -158,15 +158,226 @@ function normalizeAdminOrderInput(body) {
       orderId,
       customerName,
       customerPhone,
+      customerEmail: String(body?.customerEmail || body?.email || "").trim(),
       shippingAddress,
       pincode,
+      city: String(body?.city || "").trim(),
+      state: String(body?.state || "").trim(),
       orderNote: String(body?.orderNote || "").trim(),
       items,
       totalAmount,
+      discountAmount: Number(body?.discountAmount) || 0,
+      appliedCoupon: String(body?.appliedCoupon || "").trim() || null,
+      paymentMethod: String(body?.paymentMethod || "COD").trim(),
+      trackingNumber: String(body?.trackingNumber || "").trim() || null,
+      courierPartner: String(body?.courierPartner || "Delhivery Express").trim(),
       status,
       createdAt: body?.createdAt || new Date().toISOString()
     }
   };
+}
+
+const couponsFile = path.join(dataDirectory, "admin-coupons.json");
+
+const defaultCoupons = [
+  {
+    code: "WELCOME10",
+    discountType: "percent",
+    discountValue: 10,
+    minOrderValue: 499,
+    maxDiscount: 500,
+    description: "10% off on your first luxury jewellery order",
+    isActive: true,
+    usageCount: 18,
+    expiresAt: "2027-12-31T23:59:59Z"
+  },
+  {
+    code: "LUXE15",
+    discountType: "percent",
+    discountValue: 15,
+    minOrderValue: 1499,
+    maxDiscount: 1000,
+    description: "15% off on orders above ₹1,499",
+    isActive: true,
+    usageCount: 7,
+    expiresAt: "2027-12-31T23:59:59Z"
+  },
+  {
+    code: "SHIVARA500",
+    discountType: "flat",
+    discountValue: 500,
+    minOrderValue: 2499,
+    maxDiscount: 500,
+    description: "Flat ₹500 off on festive collection orders above ₹2,499",
+    isActive: true,
+    usageCount: 4,
+    expiresAt: "2027-12-31T23:59:59Z"
+  }
+];
+
+function loadAdminCouponsStore() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(couponsFile, "utf8"));
+    return Array.isArray(raw) ? raw : defaultCoupons;
+  } catch {
+    return defaultCoupons;
+  }
+}
+
+function saveAdminCouponsStore(coupons) {
+  const payload = Array.isArray(coupons) ? coupons : [];
+  fs.mkdirSync(path.dirname(couponsFile), { recursive: true });
+  fs.writeFileSync(couponsFile, `${JSON.stringify(payload, null, 2)}\n`, { mode: 0o600 });
+  return payload;
+}
+
+const bannersFile = path.join(dataDirectory, "admin-banners.json");
+
+const defaultBanners = {
+  announcements: [
+    "PAN India complimentary express shipping on all orders",
+    "Handcrafted 18K gold-plated anti-tarnish statement edits",
+    "Direct luxury concierge support: +91 94570 41215"
+  ],
+  marqueeText: "CURATED LUXERY JEWELLERY • PERSONAL STYLING • GIFT-READY KEEPSAKE BOXES • PAN INDIA EXPRESS DELIVERY • SHIVARA ATELIER •",
+  heroSlides: [
+    {
+      id: "hero-1",
+      title: "Boxed Evil Eye Bracelet",
+      subtitle: "A structured statement bracelet arranged with iconic sapphire blue evil-eye details.",
+      kicker: "THE SHIVARA ATELIER",
+      image: "assets/instagram-shop/post-051-DW3H_GZDD_4.jpg",
+      primaryCtaText: "View Product",
+      primaryCtaLink: "/products/boxed-evil-eye-bracelet",
+      secondaryCtaText: "Shop New Arrivals",
+      secondaryCtaLink: "/collections/new-arrivals",
+      tagText: "RING EDIT",
+      badgeProductTitle: "Lavender Bloom Ring",
+      badgeProductPrice: "₹499",
+      badgeProductImage: "assets/catalog-2026-07-26/item-076.jpg",
+      badgeProductLink: "/products/lavender-bloom-ring"
+    },
+    {
+      id: "hero-2",
+      title: "Floral Statement Ring",
+      subtitle: "Intricate floral craftsmanship cast with radiant gold finish for everyday luxury.",
+      kicker: "ICONIC STATEMENTS",
+      image: "assets/instagram-shop/post-050-DW3GB-dDA3M.jpg",
+      primaryCtaText: "Explore Rings",
+      primaryCtaLink: "/collections/rings",
+      secondaryCtaText: "View Collection",
+      secondaryCtaLink: "/collections/all",
+      tagText: "BEST SELLER",
+      badgeProductTitle: "Tulip Pendant",
+      badgeProductPrice: "₹499",
+      badgeProductImage: "assets/instagram-shop/post-036-DXRflQ2ARK2.jpg",
+      badgeProductLink: "/products/tulip-pendant"
+    }
+  ]
+};
+
+function loadAdminBannersStore() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(bannersFile, "utf8"));
+    return { ...defaultBanners, ...raw };
+  } catch {
+    return defaultBanners;
+  }
+}
+
+function saveAdminBannersStore(banners) {
+  const payload = { ...defaultBanners, ...banners };
+  fs.mkdirSync(path.dirname(bannersFile), { recursive: true });
+  fs.writeFileSync(bannersFile, `${JSON.stringify(payload, null, 2)}\n`, { mode: 0o600 });
+  return payload;
+}
+
+const settingsFile = path.join(dataDirectory, "admin-settings.json");
+
+const defaultSettings = {
+  storeName: "The Shivara Group",
+  tagline: "Curated Luxury Statement Jewellery Atelier",
+  supportPhone: "+91 94570 41215",
+  supportEmail: "concierge@theshivaragroup.com",
+  whatsappNumber: "919457041215",
+  freeShippingThreshold: 999,
+  expressShippingFee: 0,
+  codAvailable: true,
+  codFee: 0,
+  currency: "INR",
+  currencySymbol: "₹",
+  maintenanceMode: false,
+  announcementNotice: "Complimentary luxury keepsake velvet packaging included with all orders."
+};
+
+function loadAdminSettingsStore() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
+    return { ...defaultSettings, ...raw };
+  } catch {
+    return defaultSettings;
+  }
+}
+
+function saveAdminSettingsStore(settings) {
+  const payload = { ...defaultSettings, ...settings };
+  fs.mkdirSync(path.dirname(settingsFile), { recursive: true });
+  fs.writeFileSync(settingsFile, `${JSON.stringify(payload, null, 2)}\n`, { mode: 0o600 });
+  return payload;
+}
+
+const inventoryFile = path.join(dataDirectory, "admin-inventory.json");
+
+function loadAdminInventoryStore() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(inventoryFile, "utf8"));
+    return typeof raw === "object" && raw !== null ? raw : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveAdminInventoryStore(inventory) {
+  const payload = typeof inventory === "object" && inventory !== null ? inventory : {};
+  fs.mkdirSync(path.dirname(inventoryFile), { recursive: true });
+  fs.writeFileSync(inventoryFile, `${JSON.stringify(payload, null, 2)}\n`, { mode: 0o600 });
+  return payload;
+}
+
+function computeCustomersFromOrders(orders = []) {
+  const map = new Map();
+  orders.forEach((ord) => {
+    const phone = String(ord.customerPhone || "").trim();
+    if (!phone) return;
+    const existing = map.get(phone) || {
+      id: `CUST-${phone}`,
+      name: ord.customerName || "Customer",
+      phone: phone,
+      email: ord.customerEmail || "",
+      city: ord.city || (ord.shippingAddress ? ord.shippingAddress.split(",").slice(-2)[0]?.trim() : "") || "PAN India",
+      state: ord.state || "",
+      address: ord.shippingAddress || "",
+      pincode: ord.pincode || "",
+      totalOrders: 0,
+      totalSpent: 0,
+      lastOrderDate: ord.createdAt,
+      orders: []
+    };
+    existing.totalOrders += 1;
+    existing.totalSpent += Number(ord.totalAmount) || 0;
+    if (new Date(ord.createdAt) > new Date(existing.lastOrderDate)) {
+      existing.lastOrderDate = ord.createdAt;
+    }
+    existing.orders.push({
+      orderId: ord.orderId,
+      totalAmount: ord.totalAmount,
+      status: ord.status,
+      createdAt: ord.createdAt,
+      itemCount: Array.isArray(ord.items) ? ord.items.length : 0
+    });
+    map.set(phone, existing);
+  });
+  return Array.from(map.values()).sort((a, b) => new Date(b.lastOrderDate) - new Date(a.lastOrderDate));
 }
 
 module.exports = {
@@ -181,5 +392,18 @@ module.exports = {
   ordersFile,
   loadAdminOrdersStore,
   saveAdminOrdersStore,
-  normalizeAdminOrderInput
+  normalizeAdminOrderInput,
+  couponsFile,
+  loadAdminCouponsStore,
+  saveAdminCouponsStore,
+  bannersFile,
+  loadAdminBannersStore,
+  saveAdminBannersStore,
+  settingsFile,
+  loadAdminSettingsStore,
+  saveAdminSettingsStore,
+  inventoryFile,
+  loadAdminInventoryStore,
+  saveAdminInventoryStore,
+  computeCustomersFromOrders
 };

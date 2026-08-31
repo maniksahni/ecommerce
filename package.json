@@ -13,6 +13,7 @@
     "test:production": "node scripts/production-test.js",
     "test:backend-crud": "node scripts/test-backend-crud.js",
     "test:oms": "node scripts/test-oms-flow.js",
+    "test:architecture": "node scripts/test-full-architecture.js",
     "build": "node scripts/netlify-build.js",
     "build:netlify": "node scripts/netlify-build.js",
     "deploy:firebase": "npm run build && npx --yes firebase-tools deploy --only hosting",
