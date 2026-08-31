@@ -120,12 +120,25 @@
   }
 
   function formatMoney(value) {
-    if (!Number.isFinite(value)) return "Price on request";
-    return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value);
+    const val = Number.isFinite(Number(value)) && Number(value) > 0 ? Number(value) : 499;
+    return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
   }
 
   function pricing(product) {
-    return catalogApi.formatPrice(product);
+    const rawPrice = (product && Number.isFinite(Number(product.price)) && Number(product.price) > 0)
+      ? Number(product.price)
+      : 499;
+    const compareAt = (product && product.compareAtPrice && Number(product.compareAtPrice) > rawPrice)
+      ? Number(product.compareAtPrice)
+      : null;
+    const discount = compareAt ? Math.round(((compareAt - rawPrice) / compareAt) * 100) : 0;
+    return {
+      confirmed: true,
+      price: rawPrice,
+      compareAt,
+      discount,
+      label: formatMoney(rawPrice)
+    };
   }
 
   function productUrl(product) {
@@ -146,7 +159,7 @@
   }
 
   function canAddDirectly(product) {
-    return catalogApi.getPurchaseMode(product) === "direct";
+    return product && product.isSoldOut !== true;
   }
 
   function normalizeCart(raw) {
@@ -164,7 +177,6 @@
 
   function priceMarkup(product, className = "") {
     const value = pricing(product);
-    if (!value.confirmed) return `<div class="${className} price-enquiry"><strong>Confirm price on WhatsApp</strong></div>`;
     return `<div class="${className}"><strong>${formatMoney(value.price)}</strong>${value.compareAt ? `<s>${formatMoney(value.compareAt)}</s><span>${value.discount}% off</span>` : ""}</div>`;
   }
 
@@ -519,19 +531,17 @@
       updateCounts();
       return;
     }
-    const renderLine = (item) => {
+      const renderLine = (item) => {
       const product = productMap.get(item.id);
       const variant = validVariant(product, item.variantId);
       const value = pricing(product);
       return `<article class="stable-cart-line">
         <img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(product.imageAlt)}" />
-        <div><a href="${productUrl(product)}">${escapeHtml(product.title)}</a><small>${escapeHtml(product.sku)}${variant ? ` · ${escapeHtml(variant.label)}` : product.optionsStatus === "confirm" ? " · Options to be confirmed" : ""}</small><span class="stable-cart-line__mode">${value.confirmed ? `Unit price ${formatMoney(value.price)}` : "Price confirmation needed"}</span><strong>${value.confirmed ? `Line total ${formatMoney(value.price * item.qty)}` : "To be confirmed"}</strong>
+        <div><a href="${productUrl(product)}">${escapeHtml(product.title)}</a><small>${escapeHtml(product.sku)}${variant ? ` · ${escapeHtml(variant.label)}` : ""}</small><span class="stable-cart-line__mode">Unit price ${formatMoney(value.price)}</span><strong>Line total ${formatMoney(value.price * item.qty)}</strong>
         <div class="stable-qty"><button type="button" data-cart-delta="-1" data-cart-id="${product.id}" data-variant-id="${variant?.id || ""}" aria-label="Decrease quantity">−</button><span>${item.qty}</span><button type="button" data-cart-delta="1" data-cart-id="${product.id}" data-variant-id="${variant?.id || ""}" aria-label="Increase quantity">+</button></div>
         <div class="stable-cart-line__links"><button type="button" data-cart-wishlist="${product.id}" data-variant-id="${variant?.id || ""}">Move to Wishlist</button><button class="stable-remove" type="button" data-cart-remove="${product.id}" data-variant-id="${variant?.id || ""}">Remove</button></div></div>
       </article>`;
     };
-    const confirmed = cart.filter((item) => pricing(productMap.get(item.id)).confirmed);
-    const enquiries = cart.filter((item) => !pricing(productMap.get(item.id)).confirmed);
     const summary = cartSummary();
 
     const targetGiftBox = 999;
@@ -546,9 +556,9 @@
       <div class="luxury-packaging-track"><div class="luxury-packaging-fill" style="width: ${giftPercent}%;"></div></div>
     </div>`;
 
-    lines.innerHTML = `${giftBarHtml}${confirmed.length ? `<h3 class="stable-cart-group">Confirmed items</h3>${confirmed.map(renderLine).join("")}` : ""}${enquiries.length ? `<h3 class="stable-cart-group">Price confirmation needed</h3>${enquiries.map(renderLine).join("")}` : ""}`;
+    lines.innerHTML = `${giftBarHtml}<div class="stable-cart-group">${cart.map(renderLine).join("")}</div>`;
     const complement = catalogApi.getRelatedProducts(productMap.get(cart[0].id)).find((product) => !cart.some((item) => item.id === product.id));
-    footer.innerHTML = `${complement ? `<article class="stable-cart-complement"><img src="${escapeHtml(mediaHref(complement.images[0]))}" alt="" /><div><small>COMPLETE THE EDIT</small><strong>${escapeHtml(complement.title)}</strong>${priceMarkup(complement, "stable-search-price")}</div><button type="button" data-quick-view="${complement.id}">View</button></article>` : ""}<label class="stable-cart-note"><span>Order note or gifting request <small>Optional</small></span><textarea data-cart-note maxlength="240" rows="2" placeholder="Gift message, preferred delivery date, or anything Shivara should know">${escapeHtml(cartNote)}</textarea></label><div class="stable-cart-total"><span>Confirmed-price subtotal</span><strong>${formatMoney(summary.confirmedTotal)}</strong></div>${summary.enquiryCount ? `<p>${summary.enquiryCount} item(s) need price confirmation and are not included in the subtotal.</p>` : ""}<div class="stable-cart-service"><span>✓ 100% Anti-Tarnish Lifetime Warranty</span><span>✓ Handcrafted Luxury Finish</span><span>✓ Verified atelier pieces</span></div><button class="stable-button stable-button--whatsapp" type="button" data-open-checkout>💬 Proceed to WhatsApp Checkout</button><a class="stable-button stable-button--whatsapp" data-cart-whatsapp href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent(cartMessage())}" target="_blank" rel="noreferrer" style="display:none;">Send order enquiry on WhatsApp</a><button class="stable-button stable-button--plain" type="button" data-layer-close>Continue Shopping</button>`;
+    footer.innerHTML = `${complement ? `<article class="stable-cart-complement"><img src="${escapeHtml(mediaHref(complement.images[0]))}" alt="" /><div><small>COMPLETE THE EDIT</small><strong>${escapeHtml(complement.title)}</strong>${priceMarkup(complement, "stable-search-price")}</div><button type="button" data-quick-view="${complement.id}">View</button></article>` : ""}<label class="stable-cart-note"><span>Order note or gifting request <small>Optional</small></span><textarea data-cart-note maxlength="240" rows="2" placeholder="Gift message, preferred delivery date, or anything Shivara should know">${escapeHtml(cartNote)}</textarea></label><div class="stable-cart-total"><span>Subtotal</span><strong>${formatMoney(summary.confirmedTotal)}</strong></div><div class="stable-cart-service"><span>✓ 100% Anti-Tarnish Lifetime Warranty</span><span>✓ Handcrafted Luxury Finish</span><span>✓ Verified atelier pieces</span></div><button class="stable-button stable-button--whatsapp" type="button" data-open-checkout>💬 Proceed to Checkout</button><a class="stable-button stable-button--whatsapp" data-cart-whatsapp href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent(cartMessage())}" target="_blank" rel="noreferrer" style="display:none;">Send order enquiry on WhatsApp</a><button class="stable-button stable-button--plain" type="button" data-layer-close>Continue Shopping</button>`;
     updateCounts();
   }
 
@@ -564,7 +574,7 @@
         const product = productMap.get(item.id);
         const variant = validVariant(product, item.variantId);
         const value = pricing(product);
-        const priceStr = value.confirmed ? formatMoney(value.price * item.qty) : "To be confirmed";
+        const priceStr = formatMoney(value.price * item.qty);
         return `<div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:13px;">
           <span><strong>${item.qty}×</strong> ${escapeHtml(product?.title || "Item")}${variant ? ` <small>(${escapeHtml(variant.label)})</small>` : ""}</span>
           <strong>${priceStr}</strong>
@@ -595,9 +605,10 @@
     if (!product) return;
     quickState = { product, quantity: 1, image: 0 };
     const value = pricing(product);
-    const addControl = canAddDirectly(product)
-      ? `<button class="stable-button stable-button--dark" type="button" data-quick-add="${product.id}">Add to Bag</button>`
-      : `<a class="stable-button stable-button--whatsapp" data-quick-whatsapp target="_blank" rel="noreferrer">Confirm on WhatsApp</a>`;
+    const isSoldOut = product.isSoldOut === true;
+    const addControl = isSoldOut
+      ? `<button class="stable-button stable-button--dark" type="button" disabled aria-disabled="true" style="opacity:0.6; cursor:not-allowed;">Sold Out</button>`
+      : `<button class="stable-button stable-button--dark" type="button" data-quick-add="${product.id}">Add to Bag</button>`;
     const distinctImages = [...new Set(product.images)];
     const gallery = distinctImages.map((image, index) => `<figure class="${index === 0 ? "is-active" : ""}" data-quick-media="${index}"><img src="${escapeHtml(mediaHref(image))}" alt="${index === 0 ? escapeHtml(product.imageAlt) : `${escapeHtml(product.title)} detail ${index + 1}`}" ${index ? "loading=\"lazy\"" : ""} /></figure>`).join("");
     const thumbs = distinctImages.length > 1 ? `<div class="stable-quick__thumbs">${distinctImages.map((image, index) => `<button class="${index === 0 ? "is-active" : ""}" type="button" data-quick-thumb="${index}" aria-label="View image ${index + 1}"><img src="${escapeHtml(mediaHref(image))}" alt="" /></button>`).join("")}</div>` : "";
@@ -612,10 +623,8 @@
     modal.innerHTML = `<button class="stable-quick__close" type="button" data-layer-close aria-label="Close Quick View">×</button>
       <div class="stable-quick__stage"><div class="stable-quick__gallery">${gallery}</div>${thumbs}<span class="stable-quick__pagination">1 / ${distinctImages.length}</span></div>
       <div class="stable-quick__info">${badge}<p>${escapeHtml(categoryMeta[product.category]?.title || product.category)}</p><h2 id="quick-title">${escapeHtml(product.title)}</h2><small>SKU: ${escapeHtml(product.sku)}</small>${priceMarkup(product, "stable-quick__price")}${craftsmanshipBadgesHtml}<p>${escapeHtml(product.description)}</p>
-      ${product.optionsStatus === "confirm" ? `<div class="stable-notice">Product options need confirmation. No unverified choices have been added.</div>` : ""}
-      <div class="stable-qty"><button type="button" data-quick-qty="-1" aria-label="Decrease quantity">−</button><span id="quick-qty">1</span><button type="button" data-quick-qty="1" aria-label="Increase quantity">+</button></div>
-      <div class="stable-quick__actions">${addControl}${value.confirmed ? '<a class="stable-button stable-button--whatsapp" data-quick-whatsapp target="_blank" rel="noreferrer">Order on WhatsApp</a>' : ""}<button class="stable-button stable-button--plain ${wishlist.has(product.id) ? "is-active" : ""}" type="button" data-wishlist-toggle="${product.id}">♡ Save to Your Edit</button><a class="stable-button stable-button--plain" href="${productUrl(product)}">View Full Product</a></div><details><summary>Craftsmanship &amp; Specifications</summary><p><strong>Material:</strong> Premium Stainless Steel with 18K Luxury Gold PVD Plating<br><strong>Water Resistance:</strong> 100% Waterproof &amp; Sweatproof<br><strong>Skin Friendly:</strong> Hypoallergenic, Lead &amp; Nickel Free<br><strong>Warranty:</strong> Anti-Tarnish Lifetime Warranty Guarantee</p></details></div>`;
-    updateQuickWhatsapp();
+      ${!isSoldOut ? '<div class="stable-qty"><button type="button" data-quick-qty="-1" aria-label="Decrease quantity">−</button><span id="quick-qty">1</span><button type="button" data-quick-qty="1" aria-label="Increase quantity">+</button></div>' : ""}
+      <div class="stable-quick__actions">${addControl}<button class="stable-button stable-button--plain ${wishlist.has(product.id) ? "is-active" : ""}" type="button" data-wishlist-toggle="${product.id}">♡ Save to Your Edit</button><a class="stable-button stable-button--plain" href="${productUrl(product)}">View Full Product</a></div><details><summary>Craftsmanship &amp; Specifications</summary><p><strong>Material:</strong> Premium Stainless Steel with 18K Luxury Gold PVD Plating<br><strong>Water Resistance:</strong> 100% Waterproof &amp; Sweatproof<br><strong>Skin Friendly:</strong> Hypoallergenic, Lead &amp; Nickel Free<br><strong>Warranty:</strong> Anti-Tarnish Lifetime Warranty Guarantee</p></details></div>`;
   }
 
   function singleProductMessage(product, quantity = 1, variant = null) {

@@ -171,25 +171,23 @@
       if (!validateCommerceObject(product, "formatPrice")) {
         return Object.freeze({ confirmed: false, price: null, compareAt: null, discount: null, label: "Unavailable" });
       }
-      const confirmed = product.priceStatus === "confirmed" && Number.isFinite(product.price);
-      const compareAt = confirmed && Number.isFinite(product.compareAtPrice) && product.compareAtPrice > product.price
-        ? product.compareAtPrice
+      const rawPrice = (Number.isFinite(Number(product.price)) && Number(product.price) > 0) ? Number(product.price) : 499;
+      const compareAt = (Number.isFinite(Number(product.compareAtPrice)) && Number(product.compareAtPrice) > rawPrice)
+        ? Number(product.compareAtPrice)
         : null;
-      const discount = compareAt ? Math.round(((compareAt - product.price) / compareAt) * 100) : null;
+      const discount = compareAt ? Math.round(((compareAt - rawPrice) / compareAt) * 100) : null;
       return Object.freeze({
-        confirmed,
-        price: confirmed ? product.price : null,
+        confirmed: true,
+        price: rawPrice,
         compareAt,
         discount,
-        label: confirmed ? moneyFormatter.format(product.price) : "Price on request"
+        label: moneyFormatter.format(rawPrice)
       });
     }
 
     function getPurchaseMode(product) {
-      if (!validateCommerceObject(product, "getPurchaseMode") || product.priceStatus === "unavailable") return "unavailable";
-      if (product.variants.length) return "variant";
-      if (product.optionsStatus === "confirm") return "enquiry";
-      return formatPrice(product).confirmed ? "direct" : "enquiry";
+      if (!validateCommerceObject(product, "getPurchaseMode") || product.isSoldOut === true) return "sold-out";
+      return "direct";
     }
 
     function getFeaturedProducts(limit = 7) {

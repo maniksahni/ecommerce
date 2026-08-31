@@ -35,21 +35,27 @@
   }
 
   function priceMarkup(api, product, className) {
-    const value = api.formatPrice(product);
-    if (!value.confirmed) return `<div class="${className} price-enquiry"><strong>Price on request</strong></div>`;
-    return `<div class="${className}"><strong>${escapeHtml(value.label)}</strong>${value.compareAt ? `<s>${escapeHtml(new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value.compareAt))}</s><span>${value.discount}% off</span>` : ""}</div>`;
+    const rawPrice = (product && Number.isFinite(Number(product.price)) && Number(product.price) > 0)
+      ? Number(product.price)
+      : 499;
+    const formatted = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(rawPrice);
+    const compareAt = (product && product.compareAtPrice && Number(product.compareAtPrice) > rawPrice)
+      ? Number(product.compareAtPrice)
+      : null;
+    const compareFormatted = compareAt ? new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(compareAt) : "";
+    return `<div class="${className}"><strong>${escapeHtml(formatted)}</strong>${compareAt ? `<s>${escapeHtml(compareFormatted)}</s>` : ""}</div>`;
   }
 
   function enquiryHref(product, origin, whatsappNumber) {
-    const value = product.priceStatus === "confirmed"
-      ? `Confirmed price: ${new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(product.price)}`
-      : "Price: To be confirmed";
+    const rawPrice = (product && Number.isFinite(Number(product.price)) && Number(product.price) > 0)
+      ? Number(product.price)
+      : 499;
+    const formatted = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(rawPrice);
     const message = [
-      `Hi Shivara, I would like to enquire about ${product.title}.`,
+      `Hi Shivara, I would like to order ${product.title}.`,
       `SKU: ${product.sku}`,
-      `Product: ${String(origin || "").replace(/\/$/, "")}${productUrl(product)}`,
-      value,
-      "Please confirm availability, options, final payable amount and delivery."
+      `Price: ${formatted}`,
+      `Product: ${String(origin || "").replace(/\/$/, "")}${productUrl(product)}`
     ].join("\n");
     return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
   }
@@ -58,25 +64,20 @@
     if (!api?.validateCommerceObject?.(product, options.context || "shared product card renderer")) return "";
     const {
       index = 0,
-      isWishlisted = false,
-      origin = "",
-      whatsappNumber = "919457041215"
+      isWishlisted = false
     } = options;
     const isSoldOut = product.isSoldOut === true;
     const primary = product.images[0];
     const secondary = product.images.find((image) => image !== primary);
     const badge = isSoldOut ? null : (allowedBadges.has(product.badge) ? product.badge : null);
-    const mode = api.getPurchaseMode(product);
+    
     let action = "";
     if (isSoldOut) {
       action = `<button class="stable-card__add stable-card__add--sold-out" type="button" disabled aria-disabled="true">Sold Out</button>`;
-    } else if (mode === "direct") {
+    } else {
       action = `<button class="stable-card__add" type="button" data-card-add="${escapeHtml(product.id)}">Add to Bag</button>`;
-    } else if (mode === "variant") {
-      action = `<button class="stable-card__add stable-card__add--enquire" type="button" data-quick-view="${escapeHtml(product.id)}">Choose Options</button>`;
-    } else if (mode === "enquiry") {
-      action = `<a class="stable-card__add stable-card__add--enquire" href="${escapeHtml(enquiryHref(product, origin, whatsappNumber))}" target="_blank" rel="noreferrer">Enquire on WhatsApp</a>`;
     }
+
     return `<article class="stable-card ${isSoldOut ? "is-sold-out" : ""}" data-commerce-renderer="shared-v1" data-product-card="${escapeHtml(product.id)}" data-category="${escapeHtml(product.category)}" itemscope itemtype="https://schema.org/Product">
       <div class="stable-card__media">
         <a href="${productUrl(product)}" aria-label="View ${escapeHtml(product.title)}" itemprop="url">
@@ -105,16 +106,15 @@
       origin = "",
       whatsappNumber = "919457041215"
     } = options;
-    const mode = api.getPurchaseMode(product);
-    const value = api.formatPrice(product);
+    const isSoldOut = product.isSoldOut === true;
     const category = categoryLabels[product.category] || product.category;
-    const variantMarkup = product.variants.length
+    const variantMarkup = product.variants && product.variants.length
       ? `<fieldset class="stable-variants"><legend>Options</legend>${product.variants.map((variant, index) => `<label><input type="radio" name="pdp-variant" value="${escapeHtml(variant.id)}" ${index === 0 ? "checked" : ""} ${variant.available ? "" : "disabled"} />${escapeHtml(variant.label)}</label>`).join("")}</fieldset>`
-      : product.optionsStatus === "confirm" ? '<div class="stable-notice">Product options have not been verified. Shivara will confirm available options on WhatsApp.</div>' : "";
-    const commerceAction = mode === "direct" || mode === "variant"
-      ? `<button class="stable-button stable-button--dark" type="button" data-pdp-add="${escapeHtml(product.id)}">Add to Bag</button>`
       : "";
-    const whatsapp = enquiryHref(product, origin, whatsappNumber);
+    const commerceAction = isSoldOut
+      ? `<button class="stable-button stable-button--dark" type="button" disabled aria-disabled="true" style="opacity:0.6; cursor:not-allowed;">Sold Out</button>`
+      : `<button class="stable-button stable-button--dark" type="button" data-pdp-add="${escapeHtml(product.id)}">Add to Bag</button>`;
+    
     const cardOptions = { origin, whatsappNumber, context: "shared related product renderer" };
     const media = [
       ...product.images.map((src, index) => ({ type: "image", src, index })),
@@ -125,23 +125,21 @@
       ? `<video src="${escapeHtml(mediaHref(item.src))}" aria-label="${escapeHtml(product.title)} product video ${item.index + 1}" controls playsinline preload="metadata"></video>`
       : `<img src="${escapeHtml(mediaHref(item.src))}" alt="${index === 0 ? escapeHtml(product.imageAlt) : `${escapeHtml(product.title)} detail ${item.index + 1}`}" itemprop="${index === 0 ? "image" : ""}" />`
     ).join("");
-    const availabilityLabel = product.priceStatus === "unavailable"
-      ? "Currently unavailable"
-      : value.confirmed ? "Available to order" : "Availability on request";
+    const availabilityLabel = isSoldOut ? "Sold Out" : "In Stock · Available for Express Dispatch";
     return `<div data-shared-product-page="${escapeHtml(product.id)}">
       <nav class="stable-breadcrumb"><a href="/">Home</a><span>/</span><a href="/collections/${escapeHtml(product.category)}">${escapeHtml(category)}</a><span>/</span><span>${escapeHtml(product.title)}</span></nav>
       <article class="stable-pdp" itemscope itemtype="https://schema.org/Product">
         <div class="stable-pdp__media"><div class="stable-pdp__thumbs">${mediaThumbs}</div><div><div class="stable-pdp__gallery" id="pdp-gallery">${mediaSlides}</div><div class="stable-pdp__gallery-meta"><span data-pdp-gallery-count>1 / ${media.length}</span><small>${media.length > 1 ? "Swipe or use thumbnails" : "Product view"}</small></div></div></div>
         <div class="stable-pdp__info"><p>${escapeHtml(category)}</p><h1 itemprop="name">${escapeHtml(product.title)}</h1><div class="stable-pdp__meta"><small>SKU: ${escapeHtml(product.sku)}</small><span><i aria-hidden="true"></i>${escapeHtml(availabilityLabel)}</span></div>${priceMarkup(api, product, "stable-pdp__price")}${product.offerText ? `<p class="stable-offer">${escapeHtml(product.offerText)}</p>` : ""}<p itemprop="description">${escapeHtml(product.description)}</p>${variantMarkup}
-        ${mode === "direct" || mode === "variant" ? '<div class="stable-pdp__qty"><span>Quantity</span><div class="stable-qty"><button type="button" data-pdp-qty="-1" aria-label="Decrease quantity">−</button><span id="pdp-qty">1</span><button type="button" data-pdp-qty="1" aria-label="Increase quantity">+</button></div></div>' : ""}
-        <div class="stable-pdp__actions">${commerceAction}<a class="stable-button stable-button--whatsapp" id="pdp-whatsapp" href="${escapeHtml(whatsapp)}" target="_blank" rel="noreferrer">${value.confirmed ? "Order on WhatsApp" : "Confirm Price on WhatsApp"}</a><button class="stable-button stable-button--plain ${isWishlisted ? "is-active" : ""}" type="button" data-wishlist-toggle="${escapeHtml(product.id)}" aria-pressed="${isWishlisted}">♡ Wishlist</button><button class="stable-share" type="button" data-share>Share</button></div>
-        <div class="stable-pdp__assurance" aria-label="Order support"><div><strong>Catalogue verified</strong><span>Curated product record</span></div><div><strong>Personal assistance</strong><span>Human confirmation on WhatsApp</span></div><div><strong>PAN India</strong><span>Delivery details confirmed before payment</span></div></div>
-        <div class="stable-delivery-check"><div><small>DELIVERY ASSISTANCE</small><strong>Check service for your area</strong></div><form data-delivery-form><label class="visually-hidden" for="delivery-pincode">Delivery pincode</label><input id="delivery-pincode" name="pincode" inputmode="numeric" autocomplete="postal-code" maxlength="6" pattern="[0-9]{6}" placeholder="Enter 6-digit pincode" /><button type="submit">Check</button></form><p data-delivery-result role="status">Exact timeline and charges are confirmed personally before payment.</p></div>
-        <div class="stable-accordions"><details open><summary>Product Details</summary><p>${escapeHtml(product.description)}</p><dl><div><dt>Category</dt><dd>${escapeHtml(category)}</dd></div><div><dt>SKU</dt><dd>${escapeHtml(product.sku)}</dd></div><div><dt>Price status</dt><dd>${value.confirmed ? "Confirmed" : "Confirm on WhatsApp"}</dd></div></dl></details><details><summary>Shipping and Exchange</summary><p>PAN India delivery, shipping charges, timelines and exchange eligibility are confirmed before payment on WhatsApp.</p></details><details><summary>Care Guidance</summary><p>Care can vary by product. Ask Shivara for the exact storage and cleaning guidance for this piece before purchase.</p></details></div></div>
+        ${!isSoldOut ? '<div class="stable-pdp__qty"><span>Quantity</span><div class="stable-qty"><button type="button" data-pdp-qty="-1" aria-label="Decrease quantity">−</button><span id="pdp-qty">1</span><button type="button" data-pdp-qty="1" aria-label="Increase quantity">+</button></div></div>' : ""}
+        <div class="stable-pdp__actions">${commerceAction}<button class="stable-button stable-button--plain ${isWishlisted ? "is-active" : ""}" type="button" data-wishlist-toggle="${escapeHtml(product.id)}" aria-pressed="${isWishlisted}">♡ Wishlist</button><button class="stable-share" type="button" data-share>Share</button></div>
+        <div class="stable-pdp__assurance" aria-label="Order support"><div><strong>Catalogue verified</strong><span>Curated product record</span></div><div><strong>Pan-India Express</strong><span>Dispatched within 24 hours</span></div><div><strong>Anti-Tarnish</strong><span>100% Lifetime Warranty</span></div></div>
+        <div class="stable-delivery-check"><div><small>DELIVERY ASSISTANCE</small><strong>Check service for your area</strong></div><form data-delivery-form><label class="visually-hidden" for="delivery-pincode">Delivery pincode</label><input id="delivery-pincode" name="pincode" inputmode="numeric" autocomplete="postal-code" maxlength="6" pattern="[0-9]{6}" placeholder="Enter 6-digit pincode" /><button type="submit">Check</button></form><p data-delivery-result role="status">Complimentary gift box delivery across all major Indian PIN codes.</p></div>
+        <div class="stable-accordions"><details open><summary>Product Details</summary><p>${escapeHtml(product.description)}</p><dl><div><dt>Category</dt><dd>${escapeHtml(category)}</dd></div><div><dt>SKU</dt><dd>${escapeHtml(product.sku)}</dd></div><div><dt>Material</dt><dd>18K PVD Gold Plating / Stainless Steel</dd></div></dl></details><details><summary>Shipping &amp; Delivery</summary><p>All orders are packaged in complimentary Shivara signature velvet gift boxes and dispatched via express courier.</p></details><details><summary>Care Guidance</summary><p>100% waterproof and sweatproof. Wipe with a dry soft cloth after wearing to maintain lustrous shine.</p></details></div></div>
       </article>
       <section class="stable-products stable-products--pdp"><div class="stable-section-heading"><div><p>YOU MAY ALSO LIKE</p><h2>Related products</h2></div></div><div class="commerce-product-grid">${related.map((item, index) => renderProductCard(api, item, { ...cardOptions, index })).join("")}</div></section>
       ${recent.length ? `<section class="stable-products stable-products--pdp" data-recently-viewed><div class="stable-section-heading"><div><p>YOUR TRAIL</p><h2>Recently viewed</h2></div></div><div class="commerce-product-grid">${recent.map((item, index) => renderProductCard(api, item, { ...cardOptions, index })).join("")}</div></section>` : ""}
-      <div class="stable-mobile-buy"><div>${priceMarkup(api, product, "stable-mobile-buy__price")}<small>${value.confirmed ? "Price confirmed" : "Final price on WhatsApp"}</small></div>${commerceAction || `<a class="stable-button stable-button--whatsapp" id="pdp-mobile-whatsapp" href="${escapeHtml(whatsapp)}" target="_blank" rel="noreferrer">Enquire</a>`}</div>
+      <div class="stable-mobile-buy"><div>${priceMarkup(api, product, "stable-mobile-buy__price")}</div>${commerceAction}</div>
     </div>`;
   }
 

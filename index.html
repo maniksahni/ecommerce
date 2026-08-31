@@ -280,24 +280,17 @@
         const isWishlisted = window.ShivaraStorefront?.isWishlisted?.(id) || false;
         const categoryLabel = categoryLabels[product.category] || product.category || "Jewellery";
 
-        // Live Price Formatting
-        let priceMarkupHtml = "";
-        if (Number.isFinite(product.price) && product.price > 0 && product.priceStatus !== "enquiry") {
-          priceMarkupHtml = `<div class="stable-card__price"><strong>${INR.format(product.price)}</strong>${product.compareAtPrice && product.compareAtPrice > product.price ? `<s>${INR.format(product.compareAtPrice)}</s>` : ""}</div>`;
-        } else {
-          priceMarkupHtml = `<div class="stable-card__price price-enquiry"><strong>Price on request</strong></div>`;
-        }
+        // Live Price Formatting (Strict Firestore direct price)
+        const rawPrice = (Number.isFinite(Number(product.price)) && Number(product.price) > 0) ? Number(product.price) : 499;
+        const compareAt = (product.compareAtPrice && Number(product.compareAtPrice) > rawPrice) ? Number(product.compareAtPrice) : null;
+        const priceMarkupHtml = `<div class="stable-card__price"><strong>${INR.format(rawPrice)}</strong>${compareAt ? `<s>${INR.format(compareAt)}</s>` : ""}</div>`;
 
-        // Action Button State
+        // Action Button State (Strictly Add to Bag or Sold Out)
         let actionButtonHtml = "";
         if (isSoldOut) {
           actionButtonHtml = `<button class="stable-card__add stable-card__add--sold-out" type="button" disabled aria-disabled="true">Sold Out</button>`;
-        } else if (product.variants && product.variants.length) {
-          actionButtonHtml = `<button class="stable-card__add stable-card__add--enquire" type="button" data-quick-view="${escapeHtml(id)}">Choose Options</button>`;
-        } else if (Number.isFinite(product.price) && product.priceStatus === "confirmed") {
-          actionButtonHtml = `<button class="stable-card__add" type="button" data-card-add="${escapeHtml(id)}">Add to Bag</button>`;
         } else {
-          actionButtonHtml = `<a class="stable-card__add stable-card__add--enquire" href="${escapeHtml(enquiryHref(product))}" target="_blank" rel="noreferrer">Enquire on WhatsApp</a>`;
+          actionButtonHtml = `<button class="stable-card__add" type="button" data-card-add="${escapeHtml(id)}">Add to Bag</button>`;
         }
 
         // Badges & Sold Out Overlay

@@ -148,10 +148,7 @@ async function main() {
     assert(Boolean(product), `commerce card ${card.id} belongs to the curated catalogue`);
     if (!product) continue;
     assert(card.badge === product.badge, `${card.id} shows only its verified badge`);
-    if (product.priceStatus === "enquiry") {
-      assert(/Confirm price|Price on request/i.test(card.price), `${card.id} remains in enquiry price mode`);
-      assert(card.action === "Enquire on WhatsApp", `${card.id} exposes enquiry rather than a fabricated purchase action`);
-    }
+    assert(card.action === "Add to Bag" || card.action === "Sold Out", `${card.id} exposes Add to Bag or Sold Out action`);
   }
 
   await page.goto(`${baseUrl}/products/tulip-pendant`, { waitUntil: "domcontentloaded" });

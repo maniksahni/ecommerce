@@ -132,6 +132,7 @@ async function main() {
 
   await page.locator(".stable-header [data-search-open]").click();
   await page.locator("#stable-search").fill("Tulip");
+  await page.locator("#search-results").getByText("Tulip Pendant", { exact: true }).waitFor();
   assert((await page.locator("#search-results").getByText("Tulip Pendant", { exact: true }).count()) === 1, "search returns a real catalogue product");
   await page.keyboard.press("Escape");
 

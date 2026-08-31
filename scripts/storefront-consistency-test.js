@@ -159,11 +159,7 @@ async function main() {
   assert(blocked(await page.locator("body").textContent()).length === 0, "wishlist contains no blocked social content");
 
   await page.goto(`${baseUrl}/collections/watches`, { waitUntil: "domcontentloaded" });
-  await page.locator('input[name="price-filter"][value="enquiry"]').check();
-  const enquiryWatches = catalogApi.getCollection("watches").filter((product) => product.priceStatus === "enquiry");
-  assert((await page.locator("#collection-grid [data-product-card]").count()) === enquiryWatches.length && (await page.locator("#collection-empty").count()) === 0, "price-on-request filter shows the exact curated enquiry products");
-  await page.locator('input[name="price-filter"][value="all"]').check();
-  assert((await page.locator("#collection-grid [data-product-card]").count()) === catalogApi.getCollection("watches").length && (await page.locator("#collection-empty").count()) === 0, "All Products restores the complete collection");
+  assert((await page.locator("#collection-grid [data-product-card]").count()) === catalogApi.getCollection("watches").length && (await page.locator("#collection-empty").count()) === 0, "Watches collection displays all curated products with direct pricing");
 
   const invalidLegacy = await fetch(`${baseUrl}/products/DYH8S7oRbLk`, { redirect: "manual" });
   const invalidCollection = await fetch(`${baseUrl}/collections/not-real`, { redirect: "manual" });

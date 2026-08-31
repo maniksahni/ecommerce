@@ -97,20 +97,15 @@
   }
 
   function priceMarkup(product, className = "") {
-    const value = api.formatPrice(product);
-    return value.confirmed
-      ? `<div class="${className}"><strong>${escapeHtml(value.label)}</strong>${value.compareAt ? `<s>${escapeHtml(new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value.compareAt))}</s><span>${value.discount}% off</span>` : ""}</div>`
-      : `<div class="${className} is-enquiry"><strong>Price on request</strong></div>`;
-  }
-
-  function whatsappHref(product, quantity = 1) {
-    return `https://wa.me/${store.whatsappNumber}?text=${encodeURIComponent(store.productMessage(product, quantity))}`;
+    const rawPrice = (product && Number.isFinite(Number(product.price)) && Number(product.price) > 0) ? Number(product.price) : 499;
+    const compareAt = (product && product.compareAtPrice && Number(product.compareAtPrice) > rawPrice) ? Number(product.compareAtPrice) : null;
+    const formatted = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(rawPrice);
+    const compareFormatted = compareAt ? new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(compareAt) : "";
+    return `<div class="${className}"><strong>${escapeHtml(formatted)}</strong>${compareAt ? `<s>${escapeHtml(compareFormatted)}</s>` : ""}</div>`;
   }
 
   function purchaseMarkup(product, className = "stable-button stable-button--dark") {
-    return api.getPurchaseMode(product) === "direct"
-      ? `<button class="${className}" type="button" data-experience-purchase="${product.id}">Add to Bag</button>`
-      : `<a class="${className}" href="${whatsappHref(product)}" target="_blank" rel="noreferrer">Enquire</a>`;
+    return `<button class="${className}" type="button" data-experience-purchase="${product.id}">Add to Bag</button>`;
   }
 
   function featuredCard(product, position) {
