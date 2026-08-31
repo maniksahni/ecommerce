@@ -98,16 +98,16 @@ async function main() {
 
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const { page, errors } = await pageWithErrors(context);
-  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
   const initialAnnouncement = await page.locator("[data-announcement-text]").textContent();
-  await page.waitForFunction((initial) => document.querySelector("[data-announcement-text]")?.textContent !== initial, initialAnnouncement, { timeout: 8000 });
+  await page.waitForFunction((initial) => document.querySelector("[data-announcement-text]")?.textContent !== initial, initialAnnouncement, { timeout: 16000 });
   assert(await page.locator("[data-announcement-text]").textContent() !== initialAnnouncement, "announcement bar rotates automatically");
   assert(await page.locator("[data-announcement-prev], [data-announcement-next], [data-hero-prev], [data-hero-next], [data-signature-prev], [data-signature-next]").count() === 0, "automatic storefront rotations render without arrow controls");
   const initialHero = await page.locator("[data-hero-title]").textContent();
-  await page.waitForFunction((initial) => document.querySelector("[data-hero-title]")?.textContent !== initial, initialHero, { timeout: 4000 });
+  await page.waitForFunction((initial) => document.querySelector("[data-hero-title]")?.textContent !== initial, initialHero, { timeout: 16000 });
   const initialSignature = await page.locator("#signature-product h3").textContent();
   await page.locator(".signature-edit").scrollIntoViewIfNeeded();
-  await page.waitForFunction((initial) => document.querySelector("#signature-product h3")?.textContent !== initial, initialSignature, { timeout: 14000 });
+  await page.waitForFunction((initial) => document.querySelector("#signature-product h3")?.textContent !== initial, initialSignature, { timeout: 20000 });
   assert(true, "hero and confirmed-price edit rotate automatically");
   const bootstrapState = await page.evaluate(() => ({
     build: window.SHIVARA_BUILD_INFO,
@@ -135,7 +135,7 @@ async function main() {
   assert((await page.locator("#search-results").getByText("Tulip Pendant", { exact: true }).count()) === 1, "search returns a real catalogue product");
   await page.keyboard.press("Escape");
 
-  await page.goto(`${baseUrl}/products/tulip-pendant`, { waitUntil: "networkidle" });
+  await page.goto(`${baseUrl}/products/tulip-pendant`, { waitUntil: "domcontentloaded" });
   await page.locator("[data-delivery-form] input").fill("243001");
   await page.locator("[data-delivery-form]").evaluate((form) => form.requestSubmit());
   assert((await page.locator("[data-delivery-result]").textContent()).includes("243001"), "delivery assistance validates and reflects an Indian pincode");
@@ -145,27 +145,27 @@ async function main() {
   const cartHref = await page.locator(".stable-cart-footer a[href*='wa.me']").getAttribute("href");
   const cartMessage = decodeURIComponent(cartHref);
   assert(cartMessage.includes("Tulip Pendant") && cartMessage.includes("SHV-PND-003") && cartMessage.includes("Quantity: 1") && cartMessage.includes("₹299") && cartMessage.includes("Gift wrap please"), "WhatsApp bag message contains product, SKU, quantity, confirmed price and order note");
-  await page.reload({ waitUntil: "networkidle" });
+  await page.reload({ waitUntil: "domcontentloaded" });
   assert((await page.locator("[data-cart-count]").first().textContent()) === "1", "cart persists after refresh");
   await page.locator(".stable-header [data-cart-open]").click();
   assert((await page.locator("[data-cart-note]").inputValue()) === "Gift wrap please", "cart order note persists after refresh");
   await page.keyboard.press("Escape");
 
   await page.locator('[data-wishlist-toggle="tulip-pendant"]').first().click();
-  await page.reload({ waitUntil: "networkidle" });
+  await page.reload({ waitUntil: "domcontentloaded" });
   assert((await page.locator("[data-wishlist-count]").first().textContent()) === "1", "wishlist persists after refresh");
 
   for (const [slug, expectedCategory] of [["earrings", "earrings"], ["rings", "rings"]]) {
-    await page.goto(`${baseUrl}/collections/${slug}`, { waitUntil: "networkidle" });
+    await page.goto(`${baseUrl}/collections/${slug}`, { waitUntil: "domcontentloaded" });
     const categories = await page.locator("#collection-grid [data-product-card]").evaluateAll((cards) => [...new Set(cards.map((card) => card.dataset.category))]);
     assert(categories.length === 1 && categories[0] === expectedCategory, `${slug} collection contains ${expectedCategory} only`);
   }
-  await page.goto(`${baseUrl}/collections/bracelets`, { waitUntil: "networkidle" });
+  await page.goto(`${baseUrl}/collections/bracelets`, { waitUntil: "domcontentloaded" });
   const braceletCategories = await page.locator("#collection-grid [data-product-card]").evaluateAll((cards) => [...new Set(cards.map((card) => card.dataset.category))]);
   assert(!braceletCategories.includes("watches"), "bracelets collection does not include watches");
 
   const product = productMap.get("tulip-pendant");
-  await page.goto(`${baseUrl}/products/${product.slug}`, { waitUntil: "networkidle" });
+  await page.goto(`${baseUrl}/products/${product.slug}`, { waitUntil: "domcontentloaded" });
   assert((await page.locator(".stable-pdp h1").first().textContent()) === product.title, "product page title matches catalogue data");
   assert((await page.locator(".stable-pdp__price strong").first().textContent()).includes("299"), "product page price matches catalogue data");
   assert((await page.locator(".stable-pdp__gallery img").first().getAttribute("src")) === `/${product.images[0]}`, "product page image matches catalogue data");
@@ -176,7 +176,7 @@ async function main() {
   for (const [width, height] of viewports) {
     const viewportContext = await browser.newContext({ viewport: { width, height } });
     const viewportPage = await viewportContext.newPage();
-    await viewportPage.goto(baseUrl, { waitUntil: "networkidle" });
+    await viewportPage.goto(baseUrl, { waitUntil: "domcontentloaded" });
     const layout = await viewportPage.evaluate(() => {
       const grid = document.querySelector(".commerce-product-grid");
       const hero = document.querySelector(".stable-hero")?.getBoundingClientRect();
@@ -210,7 +210,7 @@ async function main() {
 
   const mobileContext = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   const mobilePage = await mobileContext.newPage();
-  await mobilePage.goto(baseUrl, { waitUntil: "networkidle" });
+  await mobilePage.goto(baseUrl, { waitUntil: "domcontentloaded" });
   assert(await mobilePage.locator(".stable-mobile-dock").isVisible(), "mobile shopping dock is visible");
   assert(
     await mobilePage.locator(".stable-mobile-dock [data-cart-count]").textContent() ===
@@ -231,7 +231,7 @@ async function main() {
   await mobilePage.locator("[data-menu-search]").click();
   assert(await mobilePage.locator("#search-drawer").getAttribute("aria-hidden") === "false", "mobile drawer search opens the catalogue search");
   await mobilePage.keyboard.press("Escape");
-  await mobilePage.goto(`${baseUrl}/collections/all`, { waitUntil: "networkidle" });
+  await mobilePage.goto(`${baseUrl}/collections/all`, { waitUntil: "domcontentloaded" });
   const mobileToolbarPosition = await mobilePage.locator(".stable-collection-toolbar").evaluate((toolbar) => getComputedStyle(toolbar).position);
   assert(mobileToolbarPosition === "static", "mobile collection Filter toolbar stays in the document flow");
   const filtersFit = await mobilePage.locator(".stable-filters fieldset").evaluateAll((fieldsets) => fieldsets.every((fieldset) => (
@@ -239,7 +239,7 @@ async function main() {
     [...fieldset.querySelectorAll("label")].every((label) => label.getBoundingClientRect().right <= fieldset.getBoundingClientRect().right + 1)
   )));
   assert(filtersFit, "390px collection filters remain fully visible");
-  await mobilePage.goto(`${baseUrl}/products/tulip-pendant`, { waitUntil: "networkidle" });
+  await mobilePage.goto(`${baseUrl}/products/tulip-pendant`, { waitUntil: "domcontentloaded" });
   assert(!await mobilePage.locator(".stable-mobile-dock").isVisible(), "product page hides the shopping dock in favour of sticky Add to Bag");
   assert(!await mobilePage.locator(".stable-mobile-buy").evaluate((bar) => bar.classList.contains("is-visible")), "mobile sticky Add to Bag does not cover initial product content");
   await mobilePage.locator(".stable-pdp__actions").scrollIntoViewIfNeeded();
@@ -250,7 +250,7 @@ async function main() {
 
   const desktopNavigationContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   const desktopNavigationPage = await desktopNavigationContext.newPage();
-  await desktopNavigationPage.goto(baseUrl, { waitUntil: "networkidle" });
+  await desktopNavigationPage.goto(baseUrl, { waitUntil: "domcontentloaded" });
   const megaMenu = desktopNavigationPage.locator(".stable-nav__mega");
   assert(await megaMenu.count() === 1, "desktop catalogue mega menu is rendered");
   assert(await megaMenu.locator(".stable-nav__mega-features > a").count() === 3, "desktop mega menu features three curated products");

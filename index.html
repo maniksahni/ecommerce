@@ -3,14 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>The Shivara Group | Curated Luxury Jewellery Atelier</title>
+    <meta name="description" content="Discover The Shivara Group atelier. Curated luxury statement jewellery, anti-tarnish pieces, and handcrafted edits with transparent pricing and personal WhatsApp assistance." />
+    <link rel="canonical" href="https://the-shivara-group-86c9c.web.app/" />
+    
+    <!-- Open Graph & Social Cards -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="The Shivara Group" />
+    <meta property="og:title" content="The Shivara Group | Curated Luxury Jewellery Atelier" />
+    <meta property="og:description" content="Curated luxury statement jewellery with transparent pricing and personal WhatsApp styling assistance." />
+    <meta property="og:url" content="https://the-shivara-group-86c9c.web.app/" />
+    <meta property="og:image" content="https://the-shivara-group-86c9c.web.app/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" />
+    <meta property="og:image:alt" content="The Shivara Group Luxury Statement Jewellery" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="The Shivara Group | Curated Luxury Jewellery Atelier" />
+    <meta name="twitter:description" content="Curated luxury statement jewellery with transparent pricing and personal WhatsApp styling assistance." />
+    <meta name="twitter:image" content="https://the-shivara-group-86c9c.web.app/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" />
+    
+    <!-- Icons & Typography -->
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231a1512'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Georgia,serif' font-size='38' fill='%23d8b36a'%3ES%3C/text%3E%3C/svg%3E" />
-    <meta name="description" content="Shop Shivara's curated jewellery edit with transparent pricing and personal WhatsApp assistance." />
-    <title>Shivara | Curated Jewellery</title>
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231a1512'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Georgia,serif' font-size='38' fill='%23d8b36a'%3ES%3C/text%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Italiana&amp;display=swap" rel="stylesheet" />
     <link rel="preload" as="image" href="/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" />
-    <link rel="stylesheet" href="/commerce-stable.css?v=5" />
+    <link rel="stylesheet" href="/commerce-stable.css?v=6" />
   </head>
   <body data-page="home" class="catalog-stable">
     <a class="visually-hidden skip-to-content" href="#main">Skip to content</a>
@@ -71,9 +90,71 @@
         <a href="/collections/rings"><span>STATEMENT STYLE</span><strong>Ring collection</strong><small>Bold pieces, clearly classified</small></a>
       </nav>
 
-      <section class="stable-products home-products" aria-labelledby="new-title">
-        <div class="stable-section-heading"><div><p>JUST ADDED</p><h2 id="new-title">New arrivals</h2></div><a href="/collections/new-arrivals">View all</a></div>
-        <div class="commerce-product-grid" data-product-section="new-arrivals"></div>
+      <!-- ══════════════════════════════════════════════
+           REAL-TIME DYNAMIC STOREFRONT PRODUCTS GRID
+      ══════════════════════════════════════════════ -->
+      <section class="stable-products home-products" id="live-storefront-section" aria-labelledby="live-products-title" style="padding-top: 10px;">
+        <div class="stable-section-heading" style="margin-bottom: 12px;">
+          <div>
+            <p>LIVE CATALOGUE SYNC</p>
+            <h2 id="live-products-title">The Shivara Edit</h2>
+          </div>
+          <div class="storefront-live-status">
+            <span class="storefront-live-dot"></span>
+            <span>Real-time Live Sync</span>
+          </div>
+        </div>
+
+        <!-- Interactive Category Filter Chips -->
+        <div class="storefront-filter-chips" id="storefront-category-filters" role="tablist" aria-label="Filter products by category">
+          <button type="button" class="filter-chip is-active" data-cat="all" role="tab" aria-selected="true">
+            <span>All Pieces</span>
+            <span class="chip-count" id="count-all">…</span>
+          </button>
+          <button type="button" class="filter-chip" data-cat="earrings" role="tab" aria-selected="false">
+            <span>Earrings</span>
+            <span class="chip-count" id="count-earrings">…</span>
+          </button>
+          <button type="button" class="filter-chip" data-cat="necklaces" role="tab" aria-selected="false">
+            <span>Neck Wear</span>
+            <span class="chip-count" id="count-necklaces">…</span>
+          </button>
+          <button type="button" class="filter-chip" data-cat="bracelets" role="tab" aria-selected="false">
+            <span>Bracelets</span>
+            <span class="chip-count" id="count-bracelets">…</span>
+          </button>
+          <button type="button" class="filter-chip" data-cat="rings" role="tab" aria-selected="false">
+            <span>Rings</span>
+            <span class="chip-count" id="count-rings">…</span>
+          </button>
+          <button type="button" class="filter-chip" data-cat="evil-eye" role="tab" aria-selected="false">
+            <span>Evil Eye</span>
+            <span class="chip-count" id="count-evil-eye">…</span>
+          </button>
+          <button type="button" class="filter-chip" data-cat="new-arrivals" role="tab" aria-selected="false">
+            <span>New Arrivals</span>
+            <span class="chip-count" id="count-new-arrivals">…</span>
+          </button>
+          <button type="button" class="filter-chip" data-cat="gifting" role="tab" aria-selected="false">
+            <span>Gifting</span>
+            <span class="chip-count" id="count-gifting">…</span>
+          </button>
+          <button type="button" class="filter-chip" data-cat="anti-tarnish" role="tab" aria-selected="false">
+            <span>Anti Tarnish</span>
+            <span class="chip-count" id="count-anti-tarnish">…</span>
+          </button>
+          <button type="button" class="filter-chip" data-cat="watches" role="tab" aria-selected="false">
+            <span>Watches</span>
+            <span class="chip-count" id="count-watches">…</span>
+          </button>
+          <button type="button" class="filter-chip" data-cat="sets" role="tab" aria-selected="false">
+            <span>Jewellery Sets</span>
+            <span class="chip-count" id="count-sets">…</span>
+          </button>
+        </div>
+
+        <!-- Real-Time Main Product Grid -->
+        <div class="commerce-product-grid" id="products-grid"></div>
       </section>
 
       <section class="signature-edit" aria-labelledby="signature-title">
@@ -81,29 +162,313 @@
         <div class="signature-edit__product" id="signature-product"></div>
       </section>
 
+      <section class="stable-products home-products" aria-labelledby="new-title">
+        <div class="stable-section-heading"><div><p>JUST ADDED</p><h2 id="new-title">New arrivals</h2></div><a href="/collections/new-arrivals">View all</a></div>
+        <div class="commerce-product-grid" data-product-section="new-arrivals"></div>
+      </section>
+
       <section class="stable-products home-products" aria-labelledby="ring-title">
         <div class="stable-section-heading"><div><p>STATEMENT DETAILS</p><h2 id="ring-title">Rings</h2></div><a href="/collections/rings">View all</a></div>
         <div class="commerce-product-grid" data-product-section="rings"></div>
       </section>
 
-      <section class="stable-products home-products" aria-labelledby="catalogue-title">
-        <div class="stable-section-heading"><div><p>CURATED FOR YOU</p><h2 id="catalogue-title">More from Shivara</h2></div><a href="/collections/all">Explore full catalogue</a></div>
-        <div class="commerce-product-grid" data-product-section="all"></div>
-      </section>
-
       <section class="stable-reassurance" aria-label="Shopping with Shivara">
-        <div><strong>Curated catalogue</strong><span>Only explicitly identified products enter the shop.</span></div>
-        <div><strong>Transparent pricing</strong><span>Unconfirmed prices stay clearly marked as enquiries.</span></div>
-        <div><strong>Personal assistance</strong><span>Availability and delivery are confirmed on WhatsApp.</span></div>
-        <div><strong>Gift-ready support</strong><span>Ask Shivara for help choosing the right piece.</span></div>
+        <div class="reassurance-card"><div class="reassurance-card__icon" aria-hidden="true">🛡️</div><strong>100% Anti-Tarnish</strong><span>Premium PVD gold coating engineered for everyday brilliance and longevity.</span></div>
+        <div class="reassurance-card"><div class="reassurance-card__icon" aria-hidden="true">✨</div><strong>Handcrafted Artistry</strong><span>Individually inspected and curated for flawless studio finish.</span></div>
+        <div class="reassurance-card"><div class="reassurance-card__icon" aria-hidden="true">🎁</div><strong>Signature Velvet Box</strong><span>Every order arrives beautifully packaged in our keepsake gift box.</span></div>
+        <div class="reassurance-card"><div class="reassurance-card__icon" aria-hidden="true">💬</div><strong>Personal WhatsApp Care</strong><span>Direct 1-on-1 styling concierge and express Pan-India delivery.</span></div>
       </section>
     </main>
     <div id="shared-footer"></div>
+
+    <!-- Core Storefront Scripts -->
     <script src="/shop-data.js?v=source-1"></script>
     <script src="/catalog-supplement.js?v=3"></script>
     <script src="/catalog-overrides.js?v=3"></script>
     <script src="/catalog-data.js?v=3"></script>
     <script src="/storefront-renderer.js?v=3"></script>
     <script src="/script.js?v=stable-5"></script>
+
+    <!-- ══════════════════════════════════════════════
+         REAL-TIME FIRESTORE ON-SNAPSHOT LISTENER
+    ══════════════════════════════════════════════ -->
+    <script type="module">
+      import { db } from "/src/firebase.js";
+      import {
+        collection,
+        onSnapshot,
+        query,
+        orderBy
+      } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+      const INR = new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0
+      });
+
+      let currentCategory = "all";
+      let liveProductsList = [];
+      const whatsappNumber = "919457041215";
+
+      const categoryLabels = {
+        earrings: "Earrings",
+        necklaces: "Neck Wear",
+        pendants: "Pendants",
+        bracelets: "Bracelets",
+        rings: "Rings",
+        "evil-eye": "Evil Eye",
+        "anti-tarnish": "Anti Tarnish",
+        gifting: "Gifting",
+        sets: "Jewellery Sets",
+        watches: "Watches",
+        "new-arrivals": "New Arrivals"
+      };
+
+      function escapeHtml(s) {
+        return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+        })[c]);
+      }
+
+      function mediaHref(src) {
+        let value = String(src || "").trim().replace(/^[\[\("']+|[\]\)"']+$/g, "");
+        if (!value) return "";
+        if (/^(https?:)?\/\//i.test(value) || value.startsWith("data:")) return value;
+        return `/${value.replace(/^\/+/, "")}`;
+      }
+
+      function productUrl(product) {
+        return `/products/${encodeURIComponent(product.slug || product.id)}`;
+      }
+
+      function enquiryHref(product) {
+        const isConfirmed = product.priceStatus === "confirmed" && Number.isFinite(product.price);
+        const priceText = isConfirmed ? `Confirmed price: ${INR.format(product.price)}` : "Price: To be confirmed";
+        const message = [
+          `Hi Shivara, I would like to enquire about ${product.title}.`,
+          `SKU: ${product.sku || ""}`,
+          `Product: ${window.location.origin}${productUrl(product)}`,
+          priceText,
+          "Please confirm availability, options, final payable amount and delivery."
+        ].join("\n");
+        return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+      }
+
+      /* ─── Render Storefront Product Card ─── */
+      function renderLiveCard(product, index = 0) {
+        const id = product.id || product.slug;
+        const isSoldOut = product.isSoldOut === true;
+        const primary = (product.images && product.images[0]) || product.imageUrl || "";
+        const secondary = (product.images && product.images[1]) || null;
+        const isWishlisted = window.ShivaraStorefront?.isWishlisted?.(id) || false;
+        const categoryLabel = categoryLabels[product.category] || product.category || "Jewellery";
+
+        // Live Price Formatting
+        let priceMarkupHtml = "";
+        if (Number.isFinite(product.price) && product.price > 0 && product.priceStatus !== "enquiry") {
+          priceMarkupHtml = `<div class="stable-card__price"><strong>${INR.format(product.price)}</strong>${product.compareAtPrice && product.compareAtPrice > product.price ? `<s>${INR.format(product.compareAtPrice)}</s>` : ""}</div>`;
+        } else {
+          priceMarkupHtml = `<div class="stable-card__price price-enquiry"><strong>Price on request</strong></div>`;
+        }
+
+        // Action Button State
+        let actionButtonHtml = "";
+        if (isSoldOut) {
+          actionButtonHtml = `<button class="stable-card__add stable-card__add--sold-out" type="button" disabled aria-disabled="true">Sold Out</button>`;
+        } else if (product.variants && product.variants.length) {
+          actionButtonHtml = `<button class="stable-card__add stable-card__add--enquire" type="button" data-quick-view="${escapeHtml(id)}">Choose Options</button>`;
+        } else if (Number.isFinite(product.price) && product.priceStatus === "confirmed") {
+          actionButtonHtml = `<button class="stable-card__add" type="button" data-card-add="${escapeHtml(id)}">Add to Bag</button>`;
+        } else {
+          actionButtonHtml = `<a class="stable-card__add stable-card__add--enquire" href="${escapeHtml(enquiryHref(product))}" target="_blank" rel="noreferrer">Enquire on WhatsApp</a>`;
+        }
+
+        // Badges & Sold Out Overlay
+        const badgeHtml = isSoldOut
+          ? `<span class="stable-card__badge stable-card__badge--sold-out">SOLD OUT</span><div class="stable-card__sold-out-overlay" aria-hidden="true"><span>SOLD OUT</span></div>`
+          : (product.badge ? `<span class="stable-card__badge">${escapeHtml(product.badge)}</span>` : "");
+
+        const primaryImg = primary
+          ? `<img class="stable-card__image stable-card__image--primary" src="${escapeHtml(mediaHref(primary))}" alt="${escapeHtml(product.imageAlt || product.title)}" width="640" height="800" ${index < 4 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" itemprop="image" />`
+          : `<div class="stable-card__image stable-card__image--placeholder" aria-hidden="true">💍</div>`;
+        const secondaryImg = (secondary && secondary !== primary)
+          ? `<img class="stable-card__image stable-card__image--secondary" src="${escapeHtml(mediaHref(secondary))}" alt="" width="640" height="800" loading="lazy" decoding="async" />`
+          : "";
+
+        return `<article class="stable-card ${isSoldOut ? "is-sold-out" : ""}" data-product-card="${escapeHtml(id)}" data-category="${escapeHtml(product.category)}" itemscope itemtype="https://schema.org/Product">
+          <div class="stable-card__media">
+            <a href="${productUrl(product)}" aria-label="View ${escapeHtml(product.title)}" itemprop="url">
+              ${primaryImg}
+              ${secondaryImg}
+            </a>
+            ${badgeHtml}
+            <button class="stable-card__wish ${isWishlisted ? "is-active" : ""}" type="button" data-wishlist-toggle="${escapeHtml(id)}" aria-label="${isWishlisted ? "Remove" : "Save"} ${escapeHtml(product.title)}" aria-pressed="${isWishlisted}">♡</button>
+            <button class="stable-card__quick" type="button" data-quick-view="${escapeHtml(id)}" aria-label="Quick view ${escapeHtml(product.title)}" title="Quick view"><span aria-hidden="true">⌕</span><span>Quick view</span></button>
+          </div>
+          <div class="stable-card__body">
+            <small class="stable-card__category">${escapeHtml(categoryLabel)}</small>
+            <a class="stable-card__title" href="${productUrl(product)}" itemprop="name">${escapeHtml(product.title)}</a>
+            ${priceMarkupHtml}
+            ${actionButtonHtml}
+          </div>
+        </article>`;
+      }
+
+      /* ─── Category Filter Helpers ─── */
+      function matchesCategory(product, cat) {
+        if (cat === "all") return true;
+        const pCat = (product.category || "").toLowerCase();
+        const pCols = Array.isArray(product.collections) ? product.collections.map(c => String(c).toLowerCase()) : [];
+
+        if (cat === "necklaces") {
+          return pCat === "necklaces" || pCat === "pendants" || pCols.includes("necklaces") || pCols.includes("pendants");
+        }
+        if (cat === "new-arrivals") {
+          return pCols.includes("new-arrivals") || product._source === "admin" || (product.badge && product.badge.toLowerCase() === "new");
+        }
+        return pCat === cat.toLowerCase() || pCols.includes(cat.toLowerCase());
+      }
+
+      function updateCategoryCounts() {
+        const categories = ["all", "earrings", "necklaces", "bracelets", "rings", "evil-eye", "new-arrivals", "gifting", "anti-tarnish", "watches", "sets"];
+        categories.forEach(cat => {
+          const el = document.getElementById(`count-${cat}`);
+          if (el) {
+            const count = liveProductsList.filter(p => matchesCategory(p, cat)).length;
+            el.textContent = count;
+          }
+        });
+      }
+
+      /* ─── Re-render Storefront DOM in Real Time ─── */
+      function renderStorefrontGrid() {
+        const grid = document.getElementById("products-grid");
+        if (!grid) return;
+
+        const filtered = liveProductsList.filter(p => matchesCategory(p, currentCategory));
+
+        if (!filtered.length) {
+          grid.innerHTML = `<div class="stable-empty" style="grid-column: 1 / -1; padding: 48px 16px; text-align: center;">
+            <h3>No products found in this category</h3>
+            <p>Explore other curated jewellery categories.</p>
+          </div>`;
+          return;
+        }
+
+        grid.innerHTML = filtered.map((product, index) => renderLiveCard(product, index)).join("");
+
+        // Also update sub-sections on home page
+        const newArrivalsGrid = document.querySelector('[data-product-section="new-arrivals"]');
+        if (newArrivalsGrid) {
+          const newItems = liveProductsList.filter(p => matchesCategory(p, "new-arrivals")).slice(0, 12);
+          if (newItems.length) newArrivalsGrid.innerHTML = newItems.map((p, i) => renderLiveCard(p, i)).join("");
+        }
+
+        const ringsGrid = document.querySelector('[data-product-section="rings"]');
+        if (ringsGrid) {
+          const ringItems = liveProductsList.filter(p => matchesCategory(p, "rings")).slice(0, 8);
+          if (ringItems.length) ringsGrid.innerHTML = ringItems.map((p, i) => renderLiveCard(p, i)).join("");
+        }
+
+        // Sync with window & other storefront components
+        document.dispatchEvent(new CustomEvent("shivara:products-synced", {
+          detail: { products: liveProductsList }
+        }));
+      }
+
+      /* ─── Initialize Baseline Products & Real-time Snapshot ─── */
+      function initStorefrontSync() {
+        // 1. Initial Baseline Load from window catalog if present
+        if (window.ShivaraCatalog && typeof window.ShivaraCatalog.getAllProducts === "function") {
+          liveProductsList = window.ShivaraCatalog.getAllProducts().map(p => ({ ...p }));
+          updateCategoryCounts();
+          renderStorefrontGrid();
+        }
+
+        // 2. Setup Real-Time Firestore onSnapshot Listener
+        function handleSnapshot(snapshot) {
+          if (!snapshot.empty) {
+            const firestoreProducts = [];
+            snapshot.forEach(docSnap => {
+              firestoreProducts.push({
+                id: docSnap.id,
+                ...docSnap.data()
+              });
+            });
+
+            // Merge: Firestore documents take priority, un-synced baseline items are preserved
+            const merged = [];
+            const seenIds = new Set();
+
+            firestoreProducts.forEach(p => {
+              merged.push(p);
+              seenIds.add(p.id);
+              if (p.slug) seenIds.add(p.slug);
+            });
+
+            if (window.ShivaraCatalog) {
+              const baseline = window.ShivaraCatalog.getAllProducts() || [];
+              baseline.forEach(item => {
+                const id = item.slug || item.id;
+                if (!seenIds.has(id) && !seenIds.has(item.slug)) {
+                  merged.push({ ...item });
+                  seenIds.add(id);
+                }
+              });
+            }
+
+            liveProductsList = merged;
+            document.dispatchEvent(new CustomEvent("shivara:products-synced", {
+              detail: { products: liveProductsList }
+            }));
+          }
+
+          updateCategoryCounts();
+          renderStorefrontGrid();
+        }
+
+        try {
+          const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+          onSnapshot(q, handleSnapshot, (err) => {
+            console.warn("Real-time ordered snapshot note, listening to base products collection:", err.message);
+            onSnapshot(collection(db, "products"), handleSnapshot, (fallbackErr) => {
+              console.warn("Firestore live stream note (baseline catalogue active):", fallbackErr?.message || fallbackErr);
+            });
+          });
+        } catch (err) {
+          onSnapshot(collection(db, "products"), handleSnapshot, (err) => {
+            console.warn("Firestore collection snapshot note:", err?.message || err);
+          });
+        }
+      }
+
+      // Filter chips click handling
+      const filterContainer = document.getElementById("storefront-category-filters");
+      if (filterContainer) {
+        filterContainer.addEventListener("click", (e) => {
+          const btn = e.target.closest(".filter-chip");
+          if (!btn) return;
+          const cat = btn.getAttribute("data-cat");
+          if (!cat) return;
+
+          currentCategory = cat;
+          filterContainer.querySelectorAll(".filter-chip").forEach(b => {
+            const isActive = b === btn;
+            b.classList.toggle("is-active", isActive);
+            b.setAttribute("aria-selected", String(isActive));
+          });
+
+          renderStorefrontGrid();
+        });
+      }
+
+      // Start Real-Time Sync on Page Load
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initStorefrontSync);
+      } else {
+        initStorefrontSync();
+      }
+    </script>
   </body>
 </html>

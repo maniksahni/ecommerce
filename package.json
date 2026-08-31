@@ -11,6 +11,7 @@
     "test:experience": "node scripts/experience-test.js",
     "test:storefront": "node scripts/storefront-consistency-test.js",
     "test:production": "node scripts/production-test.js",
+    "test:backend-crud": "node scripts/test-backend-crud.js",
     "build": "node scripts/netlify-build.js",
     "build:netlify": "node scripts/netlify-build.js",
     "deploy:firebase": "npm run build && npx --yes firebase-tools deploy --only hosting",

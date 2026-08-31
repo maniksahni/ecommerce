@@ -1,12 +1,11 @@
-# Shivara.luxe
+# The Shivara Group | Curated Luxury Jewellery
 
-A responsive website matched to the public Instagram profile [@shivara.luxe](https://www.instagram.com/shivara.luxe).
+A responsive, high-performance e-commerce platform and atelier matched to [@shivara.luxe](https://www.instagram.com/shivara.luxe).
 
-Production storefront: https://shivaraluxe.netlify.app
+Production storefront: https://the-shivara-group-86c9c.web.app
+Executive Admin: https://the-shivara-group-86c9c.web.app/admin
 
-Netlify runs `npm run build:netlify` and publishes `dist`. The build creates
-static product and collection routes from the curated catalogue, adds deployment
-metadata, and preserves real 404 responses for invalid catalogue URLs.
+The build compiles static product and collection routes from the curated catalogue, applies real-time Firestore synchronization, and ensures 100% responsive cross-viewport stability.
 
 The site uses the real profile positioning:
 

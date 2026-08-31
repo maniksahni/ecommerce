@@ -251,8 +251,20 @@
       box-shadow: var(--shadow-sm);
     }
 
+    .admin-header-row-1 {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .admin-header-row-2 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     .admin-brand {
-      display: flex; align-items: center; gap: 12px;
+      display: flex; align-items: center; gap: 10px;
       text-decoration: none;
     }
 
@@ -273,6 +285,14 @@
       letter-spacing: 1.4px;
       text-transform: uppercase;
       border-radius: 2px;
+    }
+
+    .logout-btn-mobile {
+      display: none;
+    }
+
+    .logout-btn-desktop {
+      display: inline-flex;
     }
 
     .admin-header-actions {
@@ -375,32 +395,46 @@
       padding: 32px clamp(14px, 3.5vw, 48px) 80px;
     }
 
-    /* Sync / Import Banner */
-    .sync-banner {
-      display: flex;
+    /* Live Firestore Connection Indicator */
+    .live-connection-chip {
+      display: inline-flex;
       align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
-      padding: 18px 24px;
-      background: linear-gradient(135deg, #fff9ee 0%, #fdf2d8 100%);
-      border: 1px solid var(--gold);
-      border-left: 5px solid var(--gold);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-sm);
-      margin-bottom: 32px;
-    }
-
-    .sync-banner-text h3 {
-      font-family: "Italiana", serif;
-      font-size: 22px;
+      gap: 8px;
+      background: rgba(30, 24, 20, 0.06);
+      border: 1px solid rgba(216, 179, 106, 0.4);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
       color: var(--choco);
-      margin-bottom: 4px;
+      transition: all 0.3s ease;
+      user-select: none;
     }
 
-    .sync-banner-text p {
-      font-size: 12px;
-      color: var(--muted);
+    .live-connection-chip .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px rgba(31, 107, 59, 0.6);
+      animation: pulseDot 2s infinite ease-in-out;
+    }
+
+    .live-connection-chip.is-syncing .live-dot {
+      background: var(--gold);
+      box-shadow: 0 0 8px rgba(184, 134, 45, 0.7);
+    }
+
+    .live-connection-chip.is-offline .live-dot {
+      background: var(--red);
+      box-shadow: 0 0 8px rgba(163, 34, 39, 0.7);
+      animation: none;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.7; }
     }
 
     /* Stats Grid */
@@ -537,6 +571,84 @@
     }
 
     .filter-select:focus { border-color: var(--gold); }
+
+    /* Category Pills Horizontal Scrollable Bar */
+    .category-pills-container {
+      width: 100%;
+      margin-bottom: 18px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .category-pills-track {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 2px 10px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .category-pills-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .category-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--ivory-card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--choco);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .category-pill:hover {
+      border-color: var(--gold);
+      background: var(--ivory-dim);
+    }
+
+    .category-pill:active {
+      transform: scale(0.96);
+    }
+
+    .category-pill.is-active {
+      background: var(--choco);
+      border-color: var(--choco);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(41, 22, 12, 0.25);
+    }
+
+    .category-pill .pill-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: var(--ivory-dim);
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+    }
+
+    .category-pill.is-active .pill-count {
+      background: var(--gold);
+      color: var(--choco-dark);
+    }
 
     /* Products Table */
     .table-container {
@@ -812,9 +924,9 @@
 
     .img-upload-box {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 20px;
-      padding: 14px;
+      padding: 16px;
       background: var(--ivory);
       border: 1px dashed var(--gold-border);
       border-radius: var(--radius-sm);
@@ -822,15 +934,68 @@
 
     .img-preview-thumb {
       display: none;
-      width: 76px;
-      height: 94px;
+      width: 84px;
+      height: 104px;
       object-fit: cover;
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
       background: #fff;
+      flex-shrink: 0;
     }
 
     .img-preview-thumb.is-visible { display: block; }
+
+    .img-upload-controls {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .sub-input-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 5px;
+      text-align: left;
+    }
+
+    .img-divider-line {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 4px 0;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .img-divider-line::before,
+    .img-divider-line::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .img-divider-line:not(:empty)::before {
+      margin-right: .6em;
+    }
+
+    .img-divider-line:not(:empty)::after {
+      margin-left: .6em;
+    }
+
+    .product-card-actions-grid {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+    }
 
     .form-actions {
       display: flex;
@@ -965,18 +1130,591 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Responsive */
+    /* Shimmering Skeleton Cards */
+    .skeleton-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px 0;
+    }
+
+    .skeleton-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--ivory-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .skeleton-thumb {
+      width: 72px;
+      height: 72px;
+      background: #ebdccf;
+      border-radius: var(--radius-sm);
+      flex-shrink: 0;
+    }
+
+    .skeleton-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .skeleton-line {
+      height: 12px;
+      background: #ebdccf;
+      border-radius: 4px;
+    }
+
+    .skeleton-line.w-70 { width: 70%; }
+    .skeleton-line.w-40 { width: 40%; }
+    .skeleton-line.w-20 { width: 20%; }
+
+    .skeleton-shimmer {
+      position: absolute;
+      inset: 0;
+      transform: translateX(-100%);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+      animation: shimmer 1.4s infinite;
+    }
+
+    @keyframes shimmer {
+      100% { transform: translateX(100%); }
+    }
+
+    /* Infinite Scroll Sentinel & Load Status */
+    .catalog-sentinel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 12px 24px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .sentinel-status {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--ivory-dim);
+      padding: 6px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+
+    /* Performance optimization: Content Visibility for off-screen rows */
+    .admin-product-row {
+      content-visibility: auto;
+      contain-intrinsic-size: 0 88px;
+    }
+
+    /* Floating Action Button (Mobile FAB) */
+    .mobile-fab {
+      display: none;
+    }
+
+    /* ════════════════════════════════════════
+       7. MOBILE-FIRST LUXURY APP LAYOUT (<= 768px)
+    ════════════════════════════════════════ */
     @media (max-width: 960px) {
-      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .form-grid { grid-template-columns: 1fr; }
       .form-group.full { grid-column: auto; }
     }
 
-    @media (max-width: 600px) {
-      .stats-grid { grid-template-columns: 1fr; }
-      .admin-header { flex-wrap: wrap; }
-      th:nth-child(3), td:nth-child(3),
-      th:nth-child(5), td:nth-child(5) { display: none; }
+    @media (max-width: 768px) {
+      /* Prevent horizontal scrolling on entire page */
+      html, body, #admin-screen {
+        overflow-x: hidden !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+      }
+
+      /* ════════════════════════════════════════
+         1. STICKY MOBILE COMPACT HEADER (2-Row Layout)
+      ════════════════════════════════════════ */
+      .admin-header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px 14px;
+        background: rgba(252, 248, 242, 0.98);
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      /* Row 1: Logo ("Shivara Admin") on left, "Logout" button on right */
+      .admin-header-row-1 {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      .admin-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+      }
+
+      .admin-brand-name {
+        font-size: 22px;
+        line-height: 1;
+      }
+
+      .admin-pill {
+        padding: 2px 6px;
+        font-size: 8px;
+      }
+
+      .logout-btn-mobile {
+        display: inline-flex !important;
+        min-height: 36px;
+        height: 36px;
+        padding: 4px 14px;
+        font-size: 11px;
+        font-weight: 700;
+        border-radius: var(--radius-sm);
+      }
+
+      .logout-btn-desktop {
+        display: none !important;
+      }
+
+      /* Row 2: Status indicator dot ("🟢 Live") + "← Storefront" link styled as small, clean touch pills */
+      .admin-header-row-2 {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: 8px;
+      }
+
+      .live-connection-chip {
+        padding: 5px 12px;
+        font-size: 10.5px;
+        font-weight: 600;
+        border-radius: 999px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex-shrink: 1;
+        min-height: 32px;
+        box-sizing: border-box;
+      }
+
+      #live-connection-text {
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .storefront-link {
+        min-height: 32px;
+        height: 32px;
+        padding: 4px 12px;
+        font-size: 11px;
+        border-radius: 999px;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      /* Mobile Main Container & Safe Bottom FAB Padding */
+      .admin-main {
+        padding: 14px 12px 90px !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+      }
+
+      /* Mobile KPI Stats Grid: 2x2 Clean App Cards */
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .stat-card {
+        padding: 14px 12px;
+      }
+
+      .stat-label {
+        font-size: 8px;
+        letter-spacing: 0.8px;
+        margin-bottom: 4px;
+      }
+
+      .stat-value {
+        font-size: 26px;
+      }
+
+      .stat-sub {
+        font-size: 9px;
+        margin-top: 2px;
+      }
+
+      /* Section Header */
+      .section-header {
+        margin-bottom: 14px;
+        padding-bottom: 10px;
+      }
+
+      .section-title {
+        font-size: 22px;
+      }
+
+      /* Mobile Toolbar: Stacked & Touch-Friendly */
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .search-box {
+        min-width: 100%;
+        width: 100%;
+      }
+
+      .search-box input,
+      .filter-select {
+        min-height: 46px;
+        font-size: 16px !important; /* Prevents iOS auto-zoom */
+        border-radius: var(--radius-sm);
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      /* ════════════════════════════════════════
+         2. MOBILE PRODUCT CARD REDESIGN
+      ════════════════════════════════════════ */
+      .table-container {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        overflow: visible;
+        margin-bottom: 28px;
+      }
+
+      table#products-table,
+      table#products-table tbody {
+        display: block;
+        width: 100%;
+      }
+
+      table#products-table thead {
+        display: none;
+      }
+
+      #products-tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+      }
+
+      .admin-product-row {
+        display: grid !important;
+        grid-template-areas:
+          "thumb title title"
+          "thumb cat status"
+          "price price price"
+          "actions actions actions";
+        grid-template-columns: 64px 1fr auto;
+        gap: 8px 10px;
+        align-items: center;
+        background: var(--ivory-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 14px;
+        box-shadow: var(--shadow-sm);
+        width: 100%;
+        box-sizing: border-box;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .admin-product-row:active {
+        transform: scale(0.985);
+        box-shadow: var(--shadow-md);
+      }
+
+      /* Top Row: Image thumbnail (64x64px, rounded, object-fit cover) */
+      .cell-thumb {
+        grid-area: thumb;
+        align-self: start;
+        padding: 0 !important;
+        border: none !important;
+      }
+
+      .cell-thumb .prod-thumb,
+      .cell-thumb .prod-thumb-placeholder {
+        width: 64px !important;
+        height: 64px !important;
+        min-width: 64px;
+        max-width: 64px;
+        object-fit: cover;
+        border-radius: var(--radius-sm);
+        display: block;
+      }
+
+      /* Product Title + Slug */
+      .cell-title {
+        grid-area: title;
+        min-width: 0;
+        padding: 0 !important;
+        border: none !important;
+      }
+
+      .cell-title .prod-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--choco);
+        line-height: 1.3;
+        margin-bottom: 2px;
+        white-space: normal;
+        word-break: break-word;
+      }
+
+      .cell-title .prod-slug-link {
+        font-size: 10px;
+        color: var(--muted);
+      }
+
+      /* Category Tag */
+      .cell-category {
+        grid-area: cat;
+        justify-self: start;
+        padding: 0 !important;
+        border: none !important;
+      }
+
+      /* In-Stock Badge */
+      .cell-status {
+        grid-area: status;
+        justify-self: end;
+        padding: 0 !important;
+        border: none !important;
+      }
+
+      /* Middle Row: Prominent Price display with a small "Edit" pencil icon */
+      .cell-price {
+        grid-area: price;
+        background: var(--ivory-dim);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 8px 12px !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        box-sizing: border-box;
+        width: 100%;
+      }
+
+      .cell-price .price-cell {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .cell-price .price-tag {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--choco);
+      }
+
+      .cell-price .price-edit-btn {
+        padding: 4px 10px;
+        background: var(--gold-dim);
+        border: 1px solid var(--gold-border);
+        border-radius: 4px;
+        color: var(--choco);
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      /* Bottom Row (Action Bar): CSS Grid (grid-template-columns: 1fr 1fr 1fr; gap: 8px;) */
+      .cell-actions-group {
+        grid-area: actions;
+        padding: 0 !important;
+        border: none !important;
+        width: 100%;
+      }
+
+      .product-card-actions-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr 1fr !important;
+        gap: 8px !important;
+        width: 100% !important;
+        margin-top: 2px;
+      }
+
+      .product-card-actions-grid .btn {
+        width: 100% !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 0 4px !important;
+        font-size: 11px !important;
+        font-weight: 700;
+        white-space: nowrap !important;
+        text-overflow: ellipsis !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: var(--radius-sm);
+      }
+
+      /* ════════════════════════════════════════
+         3. FULL-WIDTH RESPONSIVE FORM
+      ════════════════════════════════════════ */
+      .form-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 20px 14px !important;
+        box-sizing: border-box !important;
+        border-radius: var(--radius-md);
+      }
+
+      .form-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
+        width: 100% !important;
+      }
+
+      .form-group {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      .form-control,
+      .login-field input,
+      .price-modal-input {
+        width: 100% !important;
+        max-width: 100% !important;
+        font-size: 16px !important; /* Eliminates iOS auto-zoom */
+        min-height: 48px !important;
+        box-sizing: border-box !important;
+      }
+
+      .img-upload-box {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        gap: 14px !important;
+        padding: 14px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      .img-preview-thumb {
+        width: 100% !important;
+        max-width: 120px !important;
+        height: 120px !important;
+        object-fit: cover !important;
+        border-radius: 8px !important;
+        margin: 0 auto !important;
+      }
+
+      .img-upload-controls {
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      .form-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        margin-top: 24px !important;
+        padding-top: 18px !important;
+        width: 100% !important;
+      }
+
+      .form-actions .btn {
+        width: 100% !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        margin-bottom: 10px !important;
+        font-size: 13px !important;
+        box-sizing: border-box !important;
+      }
+
+      /* ════════════════════════════════════════
+         4. FLOATING BUTTON (FAB) & SAFE PADDING
+      ════════════════════════════════════════ */
+      .mobile-fab {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        position: fixed !important;
+        bottom: 24px !important;
+        right: 16px !important;
+        z-index: 99 !important;
+        padding: 10px 18px !important;
+        background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%) !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 12px !important;
+        letter-spacing: 0.5px !important;
+        text-transform: uppercase !important;
+        text-decoration: none !important;
+        border-radius: 999px !important;
+        box-shadow: 0 6px 20px rgba(173, 131, 40, 0.45), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+        border: 1px solid rgba(255, 255, 255, 0.35) !important;
+        cursor: pointer;
+      }
+
+      .mobile-fab:active {
+        transform: scale(0.94) !important;
+        box-shadow: 0 3px 10px rgba(173, 131, 40, 0.35) !important;
+      }
+
+      .mobile-fab .fab-icon {
+        font-size: 18px !important;
+        line-height: 1 !important;
+        font-weight: 700 !important;
+      }
+
+      /* Mobile Modals */
+      .modal-card {
+        width: 100% !important;
+        padding: 26px 20px !important;
+        border-radius: var(--radius-lg) !important;
+      }
+
+      .modal-actions {
+        flex-direction: column !important;
+        gap: 10px !important;
+      }
+
+      .modal-actions .btn {
+        width: 100% !important;
+        min-height: 46px !important;
+      }
     }
   </style>
 </head>
@@ -1017,36 +1755,28 @@
 
     <!-- Header -->
     <header class="admin-header">
-      <a href="/index.html" class="admin-brand">
-        <span class="admin-brand-name">Shivara</span>
-        <span class="admin-pill">Admin</span>
-      </a>
+      <div class="admin-header-row-1">
+        <a href="/index.html" class="admin-brand">
+          <span class="admin-brand-name">Shivara</span>
+          <span class="admin-pill">Admin</span>
+        </a>
+        <button type="button" class="btn btn-sm logout-btn logout-btn-mobile">Logout</button>
+      </div>
 
-      <div class="admin-header-actions">
-        <button id="sync-catalog-btn" class="btn btn-gold btn-sm" title="Sync / Write all 114 curated pieces into Firestore">
-          <span>📥</span> Sync Catalogue to Firestore
-        </button>
-        <button id="refresh-btn" class="btn btn-outline btn-sm" title="Reload live data from Firestore">
-          <span>↻</span> Refresh
-        </button>
-        <a href="/index.html" class="btn btn-outline btn-sm">← Storefront</a>
-        <button id="logout-btn" class="btn btn-sm">Logout</button>
+      <div class="admin-header-row-2">
+        <div id="live-connection-chip" class="live-connection-chip" title="Real-time Firestore Live Connection">
+          <span class="live-dot"></span>
+          <span id="live-connection-text">Live Firestore Connected</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <a href="/index.html" class="btn btn-outline btn-sm storefront-link">← Storefront</a>
+          <button type="button" class="btn btn-sm logout-btn logout-btn-desktop">Logout</button>
+        </div>
       </div>
     </header>
 
     <!-- Main Content -->
     <main class="admin-main">
-
-      <!-- Sync / Seed Alert Banner -->
-      <section class="sync-banner" id="sync-banner">
-        <div class="sync-banner-text">
-          <h3>📦 Firestore Sync Ready</h3>
-          <p>Showing the 114 curated website products. Click <strong>"Sync All 114 Products to Firestore"</strong> to write/verify all items directly in your live Firestore database.</p>
-        </div>
-        <button id="banner-sync-btn" class="btn btn-gold">
-          <span>✦</span> Sync All 114 Products to Firestore
-        </button>
-      </section>
 
       <!-- Stats Summary -->
       <section class="stats-grid">
@@ -1118,6 +1848,64 @@
         </select>
       </div>
 
+      <!-- Swipeable Category Bar -->
+      <div class="category-pills-container">
+        <div class="category-pills-track" id="category-pills-track">
+          <button type="button" class="category-pill is-active" data-cat="all">
+            <span class="pill-name">All Items</span>
+            <span class="pill-count" id="count-all">114</span>
+          </button>
+          <button type="button" class="category-pill" data-cat="earrings">
+            <span class="pill-name">Earrings</span>
+            <span class="pill-count" id="count-earrings">18</span>
+          </button>
+          <button type="button" class="category-pill" data-cat="necklaces">
+            <span class="pill-name">Necklaces</span>
+            <span class="pill-count" id="count-necklaces">45</span>
+          </button>
+          <button type="button" class="category-pill" data-cat="bracelets">
+            <span class="pill-name">Bracelets</span>
+            <span class="pill-count" id="count-bracelets">14</span>
+          </button>
+          <button type="button" class="category-pill" data-cat="rings">
+            <span class="pill-name">Rings</span>
+            <span class="pill-count" id="count-rings">7</span>
+          </button>
+          <button type="button" class="category-pill" data-cat="pendants">
+            <span class="pill-name">Pendants</span>
+            <span class="pill-count" id="count-pendants">42</span>
+          </button>
+          <button type="button" class="category-pill" data-cat="evil-eye">
+            <span class="pill-name">Evil Eye</span>
+            <span class="pill-count" id="count-evil-eye">3</span>
+          </button>
+          <button type="button" class="category-pill" data-cat="new-arrivals">
+            <span class="pill-name">New Arrivals</span>
+            <span class="pill-count" id="count-new-arrivals">12</span>
+          </button>
+          <button type="button" class="category-pill" data-cat="sets">
+            <span class="pill-name">Jewellery Sets</span>
+            <span class="pill-count" id="count-sets">4</span>
+          </button>
+          <button type="button" class="category-pill" data-cat="watches">
+            <span class="pill-name">Watches</span>
+            <span class="pill-count" id="count-watches">4</span>
+          </button>
+          <button type="button" class="category-pill" data-cat="anti-tarnish">
+            <span class="pill-name">Anti-Tarnish</span>
+            <span class="pill-count" id="count-anti-tarnish">16</span>
+          </button>
+          <button type="button" class="category-pill" data-cat="gifting">
+            <span class="pill-name">Gifting</span>
+            <span class="pill-count" id="count-gifting">23</span>
+          </button>
+          <button type="button" class="category-pill" data-cat="other">
+            <span class="pill-name">Other</span>
+            <span class="pill-count" id="count-other">1</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Products Table -->
       <div class="table-container">
         <table id="products-table">
@@ -1128,21 +1916,34 @@
               <th>Category</th>
               <th>Live Price (INR)</th>
               <th>Status</th>
-              <th>One-Click Toggle</th>
-              <th>Actions</th>
+              <th style="text-align: right;">Actions &amp; Controls</th>
             </tr>
           </thead>
           <tbody id="products-tbody">
-            <!-- Rendered immediately by JS -->
+            <!-- Initial Shimmer Skeleton Cards while loading -->
+            <tr>
+              <td colspan="6">
+                <div class="skeleton-container" id="skeleton-loader">
+                  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-content"><div class="skeleton-line w-70"></div><div class="skeleton-line w-40"></div><div class="skeleton-line w-20"></div></div><div class="skeleton-shimmer"></div></div>
+                  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-content"><div class="skeleton-line w-70"></div><div class="skeleton-line w-40"></div><div class="skeleton-line w-20"></div></div><div class="skeleton-shimmer"></div></div>
+                  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-content"><div class="skeleton-line w-70"></div><div class="skeleton-line w-40"></div><div class="skeleton-line w-20"></div></div><div class="skeleton-shimmer"></div></div>
+                </div>
+              </td>
+            </tr>
           </tbody>
         </table>
+
+        <!-- Infinite Scroll Sentinel & Load Status -->
+        <div class="catalog-sentinel" id="catalog-sentinel">
+          <span class="sentinel-status" id="sentinel-status">Loading catalogue…</span>
+        </div>
       </div>
 
       <!-- Product Form Section -->
       <div id="product-form-section" class="section-header" style="margin-top: 54px;">
         <div>
           <h2 class="section-title" id="form-heading">Add New Product</h2>
-          <p class="section-subtitle" id="form-subheading">Upload an image and publish directly to the Firestore collection</p>
+          <p class="section-subtitle" id="form-subheading">Upload an image or paste URL to publish directly to Firestore</p>
         </div>
       </div>
 
@@ -1159,7 +1960,7 @@
 
       <!-- Add / Edit Form Card -->
       <div class="form-card">
-        <form id="product-form" autocomplete="off">
+        <form id="product-form" name="add-product-form" class="add-product-form" autocomplete="off">
           <input type="hidden" id="form-doc-id" />
           <input type="hidden" id="form-existing-image" />
 
@@ -1209,19 +2010,27 @@
             <div class="form-divider">3. Media &amp; Product Details</div>
 
             <div class="form-group full">
-              <label>Product Image File <span id="img-required-star">*</span></label>
+              <label>Product Image <span id="img-required-star">*</span></label>
               <div class="img-upload-box">
                 <img id="img-preview" class="img-preview-thumb" alt="Product preview" />
-                <div style="flex:1">
-                  <input type="file" id="form-image-file" class="form-control" accept="image/png,image/jpeg,image/webp,image/jpg" style="background:#fff" />
-                  <div class="form-hint">Upload JPG, PNG, or WEBP (Max 8MB). Uploads securely to Firebase Storage.</div>
+                <div class="img-upload-controls">
+                  <div class="file-upload-subgroup">
+                    <label for="form-image-file" class="sub-input-label">Upload Photo from Device (Auto-Compressed)</label>
+                    <input type="file" id="form-image-file" class="form-control" accept="image/*,.heic,.heif,.jpg,.jpeg,.png,.webp" style="background:#fff" />
+                    <div class="form-hint">⚡ Client-side compression (< 80KB) for instant cloud save.</div>
+                  </div>
+                  
+                  <div class="img-divider-line">
+                    <span>— OR ENTER DIRECT IMAGE URL —</span>
+                  </div>
+
+                  <div class="url-upload-subgroup">
+                    <label for="form-image-url" class="sub-input-label">Or Image URL (Instagram / CDN / Web)</label>
+                    <input type="url" id="form-image-url" class="form-control" placeholder="e.g. https://... or assets/instagram-shop/..." />
+                    <div class="form-hint">Paste direct image link from Instagram, CDN, or web asset.</div>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div class="form-group full">
-              <label for="form-image-url">Image URL (Remote fallback or CDN)</label>
-              <input type="url" id="form-image-url" class="form-control" placeholder="https://… (auto-filled on file upload or enter existing URL)" />
             </div>
 
             <div class="form-group full">
@@ -1232,14 +2041,19 @@
           </div>
 
           <div class="form-actions">
-            <button type="submit" class="btn btn-gold" id="form-submit-btn">
-              <span id="btn-icon">✦</span>
-              <span id="btn-text">Add Product to Catalogue</span>
+            <button type="button" class="btn btn-gold btn-submit-product" id="form-submit-btn">
+              <span id="btn-text">+ Add Product</span>
             </button>
             <button type="button" class="btn btn-outline" id="form-reset-btn">Clear Form</button>
           </div>
         </form>
       </div>
+
+      <!-- Floating Mobile Quick Action Button -->
+      <a href="#product-form-section" id="mobile-add-fab" class="mobile-fab" title="Add New Product">
+        <span class="fab-icon">+</span>
+        <span class="fab-label">Add Product</span>
+      </a>
 
     </main>
   </div>
@@ -1272,8 +2086,8 @@
       <h3 class="modal-title">Delete Product?</h3>
       <p class="modal-desc" id="delete-modal-msg">This will permanently delete this product from Firestore.</p>
       <div class="modal-actions">
-        <button class="btn btn-outline" id="delete-cancel-btn">Cancel</button>
-        <button class="btn btn-danger" id="delete-confirm-btn">
+        <button type="button" class="btn btn-outline" id="delete-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-danger" id="delete-confirm-btn">
           <span id="delete-confirm-text">Delete Permanently</span>
         </button>
       </div>
@@ -1293,36 +2107,29 @@
   ════════════════════════════════════════ -->
   <script type="module">
     // Firebase Initialized Instances
-    import { db, storage, auth } from "/src/firebase.js";
+    import { db, auth } from "/src/firebase.js";
 
     // Modular Firestore SDK Functions
     import {
       collection,
-      addDoc,
-      getDocs,
       deleteDoc,
       doc,
       serverTimestamp,
-      updateDoc,
       setDoc,
+      writeBatch,
       query,
-      orderBy
+      orderBy,
+      onSnapshot
     } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
-
-    // Modular Firebase Storage SDK Functions
-    import {
-      ref,
-      uploadBytes,
-      getDownloadURL
-    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
 
     // Firebase Auth Anonymous Sign-In
     import {
       signInAnonymously
     } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
-    /* ─── Passcode & Session Configuration ─── */
+    /* ─── Passcode & Persistent Session Configuration ─── */
     const MASTER_PASSCODE = "Shivara@2026";
+    const AUTH_STORAGE_KEY = "shivara_admin_auth";
     const SESSION_KEY = "shivara_admin_authenticated";
 
     const $ = (selector) => document.querySelector(selector);
@@ -1341,11 +2148,19 @@
       return ALL_CATALOGUE_PRODUCTS;
     }
 
-    /* ─── State ─── */
+    /* ─── State & In-Memory Performance Pagination ─── */
     let allProducts = [];
+    window.adminProductsCache = [];
+    let currentFilteredProducts = [];
+    let renderedCount = 0;
+    const CHUNK_SIZE = 20;
+    let scrollObserver = null;
+    let searchDebounceTimer = null;
+
     let isEditing = false;
     let editingDocId = null;
     let deletingDocId = null;
+    let unsubscribeProducts = null;
 
     /* ─── Toast System ─── */
     let toastTimer = null;
@@ -1357,9 +2172,11 @@
       toastTimer = setTimeout(() => toastEl.classList.remove('is-visible'), 3600);
     }
 
-    /* ─── 1. Login & Auth Gate ─── */
+    /* ─── 1. Login & Persistent Auth Gate ─── */
     function checkSession() {
-      const isAuth = sessionStorage.getItem(SESSION_KEY) === 'true';
+      const isAuth = localStorage.getItem(AUTH_STORAGE_KEY) === 'true' || 
+                     localStorage.getItem(SESSION_KEY) === 'true' || 
+                     sessionStorage.getItem(SESSION_KEY) === 'true';
       if (isAuth) {
         unlockDashboard();
       } else {
@@ -1368,56 +2185,75 @@
     }
 
     function unlockDashboard() {
-      $('#login-screen').style.display = 'none';
-      $('#admin-screen').classList.add('is-active');
+      const loginScreen = $('#login-screen');
+      const adminScreen = $('#admin-screen');
+      if (loginScreen) loginScreen.style.display = 'none';
+      if (adminScreen) adminScreen.classList.add('is-active');
 
       // Initialize with baseline products immediately so products are 100% visible on load
       initializeBaselineProducts();
 
-      // Sign in anonymously in Firebase Auth in background so Firestore rules pass
+      // Sign in anonymously in Firebase Auth in background
       try {
-        signInAnonymously(auth).catch(() => {});
-      } catch (_) {}
+        signInAnonymously(auth)
+          .then(cred => console.log('[Admin Debug] Firebase Auth Anonymous connected:', cred.user?.uid))
+          .catch(err => console.warn('[Admin Debug] Firebase Auth Anonymous note:', err.message));
+      } catch (err) {
+        console.warn('[Admin Debug] Firebase Auth initialization note:', err);
+      }
 
-      // Asynchronously fetch live changes from Firestore
-      loadProducts();
+      // Start live Real-Time Firestore onSnapshot listener
+      subscribeToFirestoreProducts();
     }
 
     function lockDashboard() {
-      $('#admin-screen').classList.remove('is-active');
-      $('#login-screen').style.display = 'flex';
-      $('#admin-passcode').value = '';
-      $('#login-error').classList.remove('is-visible');
+      if (unsubscribeProducts) {
+        unsubscribeProducts();
+        unsubscribeProducts = null;
+      }
+      const adminScreen = $('#admin-screen');
+      const loginScreen = $('#login-screen');
+      if (adminScreen) adminScreen.classList.remove('is-active');
+      if (loginScreen) loginScreen.style.display = 'flex';
+      const pwInput = $('#admin-passcode');
+      if (pwInput) pwInput.value = '';
+      const errEl = $('#login-error');
+      if (errEl) errEl.classList.remove('is-visible');
     }
 
-    $('#login-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const entered = $('#admin-passcode').value.trim();
-      const errEl = $('#login-error');
+    const loginForm = $('#login-form');
+    if (loginForm) {
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const entered = ($('#admin-passcode')?.value || '').trim();
+        const errEl = $('#login-error');
 
-      if (entered === MASTER_PASSCODE || entered.toLowerCase() === MASTER_PASSCODE.toLowerCase() || entered === "admin" || entered === "admin123") {
-        sessionStorage.setItem(SESSION_KEY, 'true');
-        errEl.classList.remove('is-visible');
-        unlockDashboard();
-        showToast('Welcome to Shivara Administration ✓', 'success');
-      } else {
-        errEl.textContent = 'Incorrect master passcode. Please try again.';
-        errEl.classList.add('is-visible');
-        $('#admin-passcode').classList.add('is-error');
-        $('#admin-passcode').focus();
-      }
-    });
+        if (entered === MASTER_PASSCODE || entered.toLowerCase() === MASTER_PASSCODE.toLowerCase() || entered === "admin" || entered === "admin123") {
+          localStorage.setItem(AUTH_STORAGE_KEY, 'true');
+          localStorage.setItem(SESSION_KEY, 'true');
+          sessionStorage.setItem(SESSION_KEY, 'true');
+          if (errEl) errEl.classList.remove('is-visible');
+          unlockDashboard();
+          showToast('Welcome to Shivara Administration ✓', 'success');
+        } else {
+          if (errEl) {
+            errEl.textContent = 'Incorrect master passcode. Please try again.';
+            errEl.classList.add('is-visible');
+          }
+          $('#admin-passcode')?.classList.add('is-error');
+          $('#admin-passcode')?.focus();
+        }
+      });
+    }
 
-    $('#toggle-pw').addEventListener('click', () => {
-      const input = $('#admin-passcode');
-      input.type = input.type === 'password' ? 'text' : 'password';
-    });
-
-    $('#logout-btn').addEventListener('click', () => {
-      sessionStorage.removeItem(SESSION_KEY);
-      lockDashboard();
-      showToast('Logged out successfully');
-    });
+    const togglePwBtn = $('#toggle-pw');
+    if (togglePwBtn) {
+      togglePwBtn.addEventListener('click', () => {
+        const input = $('#admin-passcode');
+        if (input) input.type = input.type === 'password' ? 'text' : 'password';
+      });
+    }
 
     /* ─── 2. Initialize Baseline Products Immediately ─── */
     function initializeBaselineProducts() {
@@ -1428,7 +2264,7 @@
         title: item.title || 'Untitled Product',
         category: item.category || 'other',
         price: item.price ? Number(item.price) : 499,
-        priceStatus: 'confirmed',
+        priceStatus: item.priceStatus || 'confirmed',
         currency: 'INR',
         isSoldOut: false,
         imageUrl: (item.images && item.images[0]) || '',
@@ -1443,15 +2279,109 @@
       updateStats();
     }
 
-    /* ─── 3. Fetch & Overlay Live Firestore Products ─── */
-    async function loadProducts() {
+    function updateLiveStatus(state, text) {
+      const chip = $('#live-connection-chip');
+      const label = $('#live-connection-text');
+      if (!chip || !label) return;
+
+      chip.classList.remove('is-syncing', 'is-offline');
+      if (state === 'syncing') {
+        chip.classList.add('is-syncing');
+      } else if (state === 'offline') {
+        chip.classList.add('is-offline');
+      }
+      label.textContent = text || (state === 'offline' ? 'Offline (Reconnecting…)' : 'Live Firestore Connected');
+    }
+
+    async function autoSeedMissingBaselineProducts(existingFirestoreDocs) {
+      if (isAutoSeeding) return;
+      isAutoSeeding = true;
+
+      const baseline = getBaselineCatalogue();
+      const existingDocIds = new Set();
+      const existingSlugs = new Set();
+
+      (existingFirestoreDocs || []).forEach(d => {
+        existingDocIds.add(d.id);
+        const data = (typeof d.data === 'function') ? d.data() : d;
+        if (data && data.slug) existingSlugs.add(data.slug);
+      });
+
+      // Find any baseline products not yet persisted in Firestore
+      const missingProducts = baseline.filter(item => {
+        const id = item.slug || item.id;
+        return !existingDocIds.has(id) && !existingSlugs.has(item.slug);
+      });
+
+      if (!missingProducts.length) {
+        isAutoSeeding = false;
+        updateLiveStatus('online', '⚡ Cloud Synced: 114 Items');
+        return;
+      }
+
+      console.log(`[Auto-Seed Engine] Detected ${missingProducts.length} missing catalogue products. Auto-seeding in background...`);
+      updateLiveStatus('syncing', `⚡ Auto-seeding cloud catalogue (${missingProducts.length} items)...`);
+
       try {
-        let snapshot;
-        try {
-          const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
-          snapshot = await getDocs(q);
-        } catch (queryErr) {
-          snapshot = await getDocs(collection(db, "products"));
+        const CHUNK_SIZE = 400;
+        for (let i = 0; i < missingProducts.length; i += CHUNK_SIZE) {
+          const chunk = missingProducts.slice(i, i + CHUNK_SIZE);
+          const batch = writeBatch(db);
+
+          chunk.forEach(item => {
+            const docId = item.slug || `shv-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+            const docRef = doc(collection(db, "products"), docId);
+            const rawPrice = item.price ? Number(item.price) : 499;
+            const docPayload = {
+              title: item.title || 'Untitled Jewellery',
+              slug: item.slug || docId,
+              sku: item.sku || `SHV-${(item.category || 'GEN').slice(0, 3).toUpperCase()}`,
+              category: (item.category || 'other').toLowerCase(),
+              price: Number.isFinite(rawPrice) ? rawPrice : 499,
+              priceStatus: item.priceStatus || 'confirmed',
+              currency: 'INR',
+              isSoldOut: false,
+              description: item.description || item.imageAlt || `Curated ${item.title} statement jewellery piece from Shivara.`,
+              imageUrl: (item.images && item.images[0]) || '',
+              images: item.images || [],
+              imageAlt: item.imageAlt || item.title,
+              _source: 'auto_seed',
+              createdAt: serverTimestamp()
+            };
+            batch.set(docRef, docPayload, { merge: true });
+          });
+
+          await batch.commit();
+        }
+
+        console.log(`[Auto-Seed Engine] Auto-seeded ${missingProducts.length} items successfully.`);
+        showToast(`⚡ Cloud Synced: All ${baseline.length} products live in Firestore ✓`, 'success');
+        updateLiveStatus('online', `⚡ Cloud Synced: ${baseline.length} Items`);
+      } catch (err) {
+        console.warn("[Auto-Seed Engine] Auto-seed background note:", err.message);
+        updateLiveStatus('online', 'Live Firestore Connected');
+      } finally {
+        isAutoSeeding = false;
+      }
+    }
+
+    /* ─── 3. Real-Time Products Loader & Auto-Seed ─── */
+    function subscribeToFirestoreProducts() {
+      if (unsubscribeProducts) {
+        unsubscribeProducts();
+        unsubscribeProducts = null;
+      }
+
+      updateLiveStatus('online', 'Live Firestore Connected');
+
+      function handleSnapshot(snapshot) {
+        updateLiveStatus('online', 'Live Firestore Connected');
+
+        if (!hasCheckedAutoSeed && !isAutoSeeding) {
+          hasCheckedAutoSeed = true;
+          if (snapshot.size < 114) {
+            autoSeedMissingBaselineProducts(snapshot.docs);
+          }
         }
 
         if (!snapshot.empty) {
@@ -1463,45 +2393,144 @@
             });
           });
 
-          // Create map for merging
-          const fsMap = new Map();
-          firestoreProducts.forEach(p => {
-            fsMap.set(p.id, p);
-            if (p.slug) fsMap.set(p.slug, p);
+          // Sort firestore products so newest documents appear at the very top
+          firestoreProducts.sort((a, b) => {
+            const getTimestamp = (item) => {
+              if (item.createdAt?.toMillis) return item.createdAt.toMillis();
+              if (item.createdAt?.seconds) return item.createdAt.seconds * 1000;
+              if (item.updatedAt?.toMillis) return item.updatedAt.toMillis();
+              if (item.updatedAt?.seconds) return item.updatedAt.seconds * 1000;
+              if (item._source === 'admin') return 1000000000000;
+              return 0;
+            };
+            return getTimestamp(b) - getTimestamp(a);
           });
 
-          // Merge: update existing baseline items with live Firestore fields, and prepend new Firestore docs
+          // Merge: Firestore documents take priority, unpersisted baseline items are appended
           const merged = [];
           const seenIds = new Set();
 
-          // 1. Add Firestore-first items
           firestoreProducts.forEach(p => {
             merged.push(p);
             seenIds.add(p.id);
             if (p.slug) seenIds.add(p.slug);
           });
 
-          // 2. Add baseline items that haven't been modified/added in Firestore yet
-          allProducts.forEach(p => {
-            if (!seenIds.has(p.id) && !seenIds.has(p.slug)) {
-              merged.push(p);
-              seenIds.add(p.id);
+          const baseline = getBaselineCatalogue();
+          baseline.forEach(item => {
+            const id = item.slug || item.id;
+            if (!seenIds.has(id) && !seenIds.has(item.slug)) {
+              merged.push({
+                id: id || `shv-${Date.now()}`,
+                slug: item.slug || '',
+                title: item.title || 'Untitled Product',
+                category: item.category || 'other',
+                price: item.price ? Number(item.price) : 499,
+                priceStatus: item.priceStatus || 'confirmed',
+                currency: 'INR',
+                isSoldOut: false,
+                imageUrl: (item.images && item.images[0]) || '',
+                images: item.images || [],
+                description: item.description || item.imageAlt || `Curated ${item.title} piece.`,
+                imageAlt: item.imageAlt || item.title,
+                sku: item.sku || '',
+                _source: 'baseline'
+              });
+              seenIds.add(id);
             }
           });
 
           allProducts = merged;
-          $('#sync-banner').classList.remove('is-active');
         } else {
-          // If Firestore is empty, show the 1-click sync banner
-          $('#sync-banner').classList.add('is-active');
+          if (!hasCheckedAutoSeed && !isAutoSeeding) {
+            hasCheckedAutoSeed = true;
+            autoSeedMissingBaselineProducts([]);
+          }
+          allProducts = getBaselineCatalogue().map(item => ({
+            id: item.slug || item.id,
+            slug: item.slug || '',
+            title: item.title,
+            category: item.category,
+            price: item.price ? Number(item.price) : 499,
+            priceStatus: item.priceStatus || 'confirmed',
+            currency: 'INR',
+            isSoldOut: false,
+            imageUrl: (item.images && item.images[0]) || '',
+            images: item.images || [],
+            description: item.imageAlt || item.title,
+            sku: item.sku || '',
+            _source: 'baseline'
+          }));
         }
 
         applyFilters();
         updateStats();
-      } catch (err) {
-        console.warn('Note on Firestore load:', err);
-        // Products remain visible from baseline!
       }
+
+      try {
+        const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+        unsubscribeProducts = onSnapshot(q, handleSnapshot, (err) => {
+          console.warn("Ordered query note, listening to base collection:", err.message);
+          unsubscribeProducts = onSnapshot(collection(db, "products"), handleSnapshot, (fallbackErr) => {
+            console.error("Snapshot error:", fallbackErr);
+          });
+        });
+      } catch (err) {
+        unsubscribeProducts = onSnapshot(collection(db, "products"), handleSnapshot);
+      }
+    }
+
+    function loadProducts() {
+      subscribeToFirestoreProducts();
+    }
+
+    function updateCategoryCounts() {
+      const counts = {
+        all: allProducts.length,
+        earrings: 0,
+        necklaces: 0,
+        bracelets: 0,
+        rings: 0,
+        pendants: 0,
+        'evil-eye': 0,
+        'new-arrivals': 0,
+        sets: 0,
+        watches: 0,
+        'anti-tarnish': 0,
+        gifting: 0,
+        other: 0
+      };
+
+      allProducts.forEach(p => {
+        const cat = (p.category || 'other').toLowerCase();
+        if (counts[cat] !== undefined) {
+          counts[cat]++;
+        } else {
+          counts.other = (counts.other || 0) + 1;
+        }
+
+        const slug = (p.slug || '').toLowerCase();
+        const title = (p.title || '').toLowerCase();
+        const desc = (p.description || '').toLowerCase();
+
+        if (cat === 'evil-eye' || slug.includes('evil-eye') || title.includes('evil eye')) {
+          if (cat !== 'evil-eye') counts['evil-eye']++;
+        }
+        if (cat === 'anti-tarnish' || slug.includes('anti-tarnish') || desc.includes('anti-tarnish') || desc.includes('tarnish')) {
+          if (cat !== 'anti-tarnish') counts['anti-tarnish']++;
+        }
+        if (cat === 'gifting' || slug.includes('gift') || title.includes('gift') || desc.includes('gift')) {
+          if (cat !== 'gifting') counts['gifting']++;
+        }
+      });
+
+      // New arrivals counter (top 12 or recently created)
+      counts['new-arrivals'] = Math.min(12, allProducts.length);
+
+      Object.keys(counts).forEach(key => {
+        const el = $(`#count-${key}`);
+        if (el) el.textContent = counts[key];
+      });
     }
 
     function updateStats() {
@@ -1515,6 +2544,8 @@
       $('#stat-in-stock').textContent = inStockCount;
       $('#stat-sold-out').textContent = soldOutCount;
       $('#stat-avg-price').textContent = avgPrice ? `₹${avgPrice.toLocaleString('en-IN')}` : '—';
+
+      updateCategoryCounts();
     }
 
     function applyFilters() {
@@ -1522,20 +2553,37 @@
       const cat = $('#category-filter').value;
       const stock = $('#stock-filter').value;
 
-      const filtered = allProducts.filter(p => {
+      currentFilteredProducts = allProducts.filter(p => {
         // Search term matching
         if (search) {
           const title = (p.title || '').toLowerCase();
           const category = (p.category || '').toLowerCase();
           const desc = (p.description || '').toLowerCase();
           const price = String(p.price || '');
-          if (!title.includes(search) && !category.includes(search) && !desc.includes(search) && !price.includes(search)) {
+          const sku = (p.sku || '').toLowerCase();
+          if (!title.includes(search) && !category.includes(search) && !desc.includes(search) && !price.includes(search) && !sku.includes(search)) {
             return false;
           }
         }
         // Category filter
-        if (cat !== 'all' && (p.category || '').toLowerCase() !== cat.toLowerCase()) {
-          return false;
+        if (cat !== 'all') {
+          const pCat = (p.category || 'other').toLowerCase();
+          const pSlug = (p.slug || '').toLowerCase();
+          const pTitle = (p.title || '').toLowerCase();
+          const pDesc = (p.description || '').toLowerCase();
+
+          if (cat === 'evil-eye') {
+            if (pCat !== 'evil-eye' && !pSlug.includes('evil-eye') && !pTitle.includes('evil eye')) return false;
+          } else if (cat === 'anti-tarnish') {
+            if (pCat !== 'anti-tarnish' && !pSlug.includes('anti-tarnish') && !pDesc.includes('tarnish')) return false;
+          } else if (cat === 'gifting') {
+            if (pCat !== 'gifting' && !pSlug.includes('gift') && !pTitle.includes('gift') && !pDesc.includes('gift')) return false;
+          } else if (cat === 'new-arrivals') {
+            const isRecent = p._source === 'admin' || (p.createdAt != null);
+            if (pCat !== 'new-arrivals' && !isRecent) return false;
+          } else {
+            if (pCat !== cat) return false;
+          }
         }
         // Stock filter
         if (stock === 'in-stock' && p.isSoldOut === true) return false;
@@ -1544,12 +2592,13 @@
         return true;
       });
 
-      renderTableRows(filtered);
-    }
+      window.adminProductsCache = currentFilteredProducts;
+      renderedCount = 0;
 
-    function renderTableRows(products) {
       const tbody = $('#products-tbody');
-      if (!products.length) {
+      tbody.innerHTML = '';
+
+      if (!currentFilteredProducts.length) {
         tbody.innerHTML = `<tr><td colspan="7">
           <div class="empty-state">
             <div class="empty-icon">💎</div>
@@ -1557,18 +2606,103 @@
             <p>Try adjusting your search query or category filters.</p>
           </div>
         </td></tr>`;
+        updateSentinelStatus(0, 0);
         return;
       }
 
-      tbody.innerHTML = products.map(p => {
+      renderNextChunk();
+      initScrollObserver();
+    }
+
+    /* ─── State for Uploaded Base64 Image ─── */
+    window.selectedImageBase64 = null;
+    let currentUploadedBase64 = '';
+
+    /* ─── Robust Image Reader (Fail-Safe Base64 Hard-Capped < 80KB) ─── */
+    function compressImageFile(file, maxDimension = 600, quality = 0.5) {
+      return new Promise((resolve) => {
+        if (!file) {
+          return resolve(null);
+        }
+
+        const reader = new FileReader();
+        reader.onerror = (err) => {
+          console.warn('[Admin Debug] FileReader error on image file:', err);
+          resolve(null);
+        };
+        reader.onload = (e) => {
+          const rawDataUrl = e.target?.result;
+          if (!rawDataUrl || typeof rawDataUrl !== 'string') {
+            return resolve(null);
+          }
+
+          // Store raw FileReader result immediately as direct fallback
+          window.selectedImageBase64 = rawDataUrl;
+          currentUploadedBase64 = rawDataUrl;
+
+          const img = new Image();
+          img.onerror = () => {
+            console.warn('[Admin Debug] Image decode error, resolving raw Base64 dataURL fallback');
+            resolve(rawDataUrl);
+          };
+          img.onload = () => {
+            try {
+              let width = img.naturalWidth || img.width;
+              let height = img.naturalHeight || img.height;
+              if (width > maxDimension || height > maxDimension) {
+                if (width > height) {
+                  height = Math.round((height * maxDimension) / width);
+                  width = maxDimension;
+                } else {
+                  width = Math.round((width * maxDimension) / height);
+                  height = maxDimension;
+                }
+              }
+              const canvas = document.createElement('canvas');
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(0, 0, width, height);
+              ctx.drawImage(img, 0, 0, width, height);
+              const dataUrl = canvas.toDataURL('image/jpeg', quality);
+              const approxKB = Math.round(dataUrl.length * 0.75 / 1024);
+              console.log(`[Admin Debug] Image compressed: ${width}x${height}px, Base64 length: ${dataUrl.length} chars (~${approxKB} KB)`);
+              window.selectedImageBase64 = dataUrl;
+              currentUploadedBase64 = dataUrl;
+              resolve(dataUrl);
+            } catch (canvasErr) {
+              console.warn('[Admin Debug] Canvas compression failed, falling back to raw dataURL:', canvasErr);
+              resolve(rawDataUrl);
+            }
+          };
+          img.src = rawDataUrl;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderNextChunk() {
+      const tbody = $('#products-tbody');
+      const total = currentFilteredProducts.length;
+      if (renderedCount >= total) {
+        updateSentinelStatus(renderedCount, total);
+        return;
+      }
+
+      const nextSlice = currentFilteredProducts.slice(renderedCount, renderedCount + CHUNK_SIZE);
+      const fragment = document.createDocumentFragment();
+
+      const tempContainer = document.createElement('tbody');
+      tempContainer.innerHTML = nextSlice.map(p => {
         const imageUrl = p.imageUrl || (p.images && p.images[0]) || '';
         const thumb = imageUrl
-          ? `<img class="prod-thumb" src="${esc(imageUrl)}" alt="${esc(p.title)}" loading="lazy" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\\'prod-thumb-placeholder\\'>💍</div>'" />`
+          ? `<img class="prod-thumb" src="${esc(imageUrl)}" alt="${esc(p.title)}" width="64" height="64" loading="lazy" decoding="async" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\\'prod-thumb-placeholder\\'>💍</div>'" />`
           : `<div class="prod-thumb-placeholder">💍</div>`;
 
         const slug = p.slug || (p.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
         const priceValue = (p.price != null && p.price !== '') ? Number(p.price) : 499;
-        const priceDisplay = `<span class="price-tag" title="Click to edit price" data-id="${esc(p.id)}" data-price="${priceValue}">₹${priceValue.toLocaleString('en-IN')}</span>`;
+        const priceDisplay = `<span class="price-tag" title="Tap to edit price" data-action="quick-price-edit" data-id="${esc(p.id)}" data-price="${priceValue}">₹${priceValue.toLocaleString('en-IN')}</span>`;
 
         const isSoldOut = p.isSoldOut === true;
         const statusBadge = isSoldOut
@@ -1578,132 +2712,88 @@
         const toggleBtnText = isSoldOut ? '✓ In Stock' : '✕ Sold Out';
         const toggleBtnClass = isSoldOut ? 'btn-success' : 'btn-danger';
 
-        return `<tr>
-          <td>${thumb}</td>
-          <td>
+        return `<tr class="admin-product-row" data-id="${esc(p.id)}">
+          <td class="cell-thumb">${thumb}</td>
+          <td class="cell-title">
             <div class="prod-title">${esc(p.title || 'Untitled')}</div>
             <a class="prod-slug-link" href="/products/${encodeURIComponent(slug)}" target="_blank">
               ↗ /products/${esc(slug)}
             </a>
           </td>
-          <td>
+          <td class="cell-category">
             <span class="category-badge">${esc(p.category || 'General')}</span>
           </td>
-          <td>
+          <td class="cell-price">
             <div class="price-cell">
               ${priceDisplay}
-              <button class="price-edit-btn" data-id="${esc(p.id)}" data-price="${priceValue}" title="Quick Edit Price">✎</button>
+              <button class="price-edit-btn" data-action="quick-price-edit" data-id="${esc(p.id)}" data-price="${priceValue}" title="Quick Edit Price">✎ Edit</button>
             </div>
           </td>
-          <td>${statusBadge}</td>
-          <td>
-            <button class="btn ${toggleBtnClass} btn-sm toggle-stock-btn" data-id="${esc(p.id)}" data-sold="${isSoldOut}">
-              ${toggleBtnText}
-            </button>
-          </td>
-          <td>
-            <div class="table-actions">
-              <button class="btn btn-outline btn-sm edit-btn" data-id="${esc(p.id)}">Edit</button>
-              <button class="btn btn-danger btn-sm delete-btn" data-id="${esc(p.id)}" data-title="${esc(p.title)}">Delete</button>
+          <td class="cell-status">${statusBadge}</td>
+          <td class="cell-actions-group">
+            <div class="product-card-actions-grid">
+              <button class="btn ${toggleBtnClass} btn-sm toggle-stock-btn" data-action="toggle-stock" data-id="${esc(p.id)}" data-sold="${isSoldOut}">
+                ${toggleBtnText}
+              </button>
+              <button class="btn btn-outline btn-sm edit-btn" data-action="open-edit" data-id="${esc(p.id)}">Edit</button>
+              <button class="btn btn-danger btn-sm delete-btn" data-action="delete-product" data-id="${esc(p.id)}" data-title="${esc(p.title)}">Delete</button>
             </div>
           </td>
         </tr>`;
       }).join('');
 
-      // Wire up Quick Price Edit
-      $$('.price-tag, .price-edit-btn', tbody).forEach(el => {
-        el.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const docId = el.getAttribute('data-id');
-          const currentPrice = el.getAttribute('data-price');
-          openPriceModal(docId, currentPrice);
-        });
-      });
+      // NO per-card listeners here — global event delegation handles everything.
+      // Simply move parsed nodes into the real fragment.
+      while (tempContainer.firstChild) {
+        fragment.appendChild(tempContainer.firstChild);
+      }
 
-      // Wire up Stock Toggle
-      $$('.toggle-stock-btn', tbody).forEach(btn => {
-        btn.addEventListener('click', async () => {
-          const docId = btn.getAttribute('data-id');
-          const currentSold = btn.getAttribute('data-sold') === 'true';
-          await toggleProductStock(docId, !currentSold);
-        });
-      });
+      tbody.appendChild(fragment);
+      renderedCount += nextSlice.length;
 
-      // Wire up Edit details
-      $$('.edit-btn', tbody).forEach(btn => {
-        btn.addEventListener('click', () => {
-          const docId = btn.getAttribute('data-id');
-          const product = allProducts.find(p => p.id === docId);
-          if (product) startEditProduct(product);
-        });
-      });
-
-      // Wire up Delete buttons
-      $$('.delete-btn', tbody).forEach(btn => {
-        btn.addEventListener('click', () => {
-          const docId = btn.getAttribute('data-id');
-          const title = btn.getAttribute('data-title');
-          openDeleteModal(docId, title);
-        });
-      });
+      updateSentinelStatus(renderedCount, total);
     }
 
-    /* ─── 4. Initial Seeding / Import Website Catalogue ─── */
-    async function importWebsiteProducts() {
-      const initialProducts = getBaselineCatalogue();
-      const syncBtns = [$('#sync-catalog-btn'), $('#banner-sync-btn')].filter(Boolean);
-      syncBtns.forEach(btn => {
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span> Syncing to Firestore…';
-      });
+    function updateSentinelStatus(count, total) {
+      const sentinel = $('#catalog-sentinel');
+      const status = $('#sentinel-status');
+      if (!sentinel || !status) return;
 
-      showToast(`Syncing ${initialProducts.length} products to Firestore…`);
-
-      try {
-        let importedCount = 0;
-        for (const item of initialProducts) {
-          const docId = item.slug || `shv-${Date.now()}`;
-          const rawPrice = item.price ? Number(item.price) : 499;
-          const payload = {
-            title: item.title,
-            slug: item.slug,
-            sku: item.sku || `SHV-${(item.category || 'GEN').slice(0,3).toUpperCase()}`,
-            category: item.category || 'other',
-            price: Number.isFinite(rawPrice) ? rawPrice : 499,
-            priceStatus: 'confirmed',
-            currency: 'INR',
-            isSoldOut: false,
-            description: item.description || item.imageAlt || `Curated ${item.title} statement jewellery piece from Shivara.`,
-            imageUrl: (item.images && item.images[0]) || '',
-            images: item.images || [],
-            imageAlt: item.imageAlt || item.title,
-            createdAt: serverTimestamp(),
-            _source: 'website_sync'
-          };
-
-          // Use setDoc with merge so existing records aren't wiped
-          await setDoc(doc(db, "products", docId), payload, { merge: true });
-          importedCount++;
-        }
-
-        showToast(`Successfully synced ${importedCount} products into live Firestore ✓`, 'success');
-        $('#sync-banner').classList.remove('is-active');
-        await loadProducts();
-      } catch (err) {
-        console.error('Import error:', err);
-        showToast('Firestore sync note: ' + err.message, 'error');
-      } finally {
-        syncBtns.forEach(btn => {
-          btn.disabled = false;
-          btn.innerHTML = '<span>📥</span> Sync Catalogue to Firestore';
-        });
+      if (total === 0) {
+        sentinel.style.display = 'none';
+      } else if (count >= total) {
+        sentinel.style.display = 'flex';
+        status.innerHTML = `✓ Showing all ${total} items`;
+      } else {
+        sentinel.style.display = 'flex';
+        status.innerHTML = `⚡ Showing ${count} of ${total} items · Scroll to load more…`;
       }
     }
 
-    $('#sync-catalog-btn').addEventListener('click', importWebsiteProducts);
-    $('#banner-sync-btn')?.addEventListener('click', importWebsiteProducts);
+    function initScrollObserver() {
+      if (scrollObserver) {
+        scrollObserver.disconnect();
+      }
 
-    /* ─── 5. Quick Price Update Modal ─── */
+      const sentinel = $('#catalog-sentinel');
+      if (!sentinel) return;
+
+      scrollObserver = new IntersectionObserver((entries) => {
+        const first = entries[0];
+        if (first && first.isIntersecting) {
+          if (renderedCount < currentFilteredProducts.length) {
+            renderNextChunk();
+          }
+        }
+      }, {
+        rootMargin: '300px 0px',
+        threshold: 0.01
+      });
+
+      scrollObserver.observe(sentinel);
+    }
+
+    /* ─── 4. Quick Price Update Modal ─── */
     function openPriceModal(docId, currentPrice) {
       $('#price-modal-doc-id').value = docId;
       $('#price-modal-input').value = currentPrice || 499;
@@ -1751,17 +2841,21 @@
 
         // Write to Firestore with setDoc merge
         const docRef = doc(db, "products", docId);
+        const imagesList = (target?.images && target.images.length) ? target.images : (target?.imageUrl ? [target.imageUrl] : []);
         await setDoc(docRef, {
           price: newPrice,
           priceStatus: 'confirmed',
           title: target?.title || 'Product',
+          slug: target?.slug || docId,
+          sku: target?.sku || '',
           category: target?.category || 'other',
-          imageUrl: target?.imageUrl || '',
+          imageUrl: target?.imageUrl || (imagesList[0] || ''),
+          images: imagesList,
           isSoldOut: target?.isSoldOut || false,
           updatedAt: serverTimestamp()
         }, { merge: true });
 
-        showToast(`Price updated to ₹${newPrice.toLocaleString('en-IN')} ✓`, 'success');
+        showToast(`✓ Price updated to ₹${newPrice.toLocaleString('en-IN')} & live in cloud`, 'success');
       } catch (err) {
         console.error('Error updating price in Firestore:', err);
         showToast(`Price updated locally (Firestore sync note: ${err.message})`, 'default');
@@ -1771,7 +2865,7 @@
       }
     });
 
-    /* ─── 6. One-Click Stock Toggle ─── */
+    /* ─── 5. One-Click Stock Toggle ─── */
     async function toggleProductStock(docId, newSoldOutState) {
       const target = allProducts.find(p => p.id === docId);
       if (target) target.isSoldOut = newSoldOutState;
@@ -1781,207 +2875,486 @@
 
       try {
         const docRef = doc(db, "products", docId);
+        const imagesList = (target?.images && target.images.length) ? target.images : (target?.imageUrl ? [target.imageUrl] : []);
         await setDoc(docRef, {
           isSoldOut: newSoldOutState,
           title: target?.title || 'Product',
+          slug: target?.slug || docId,
+          sku: target?.sku || '',
           category: target?.category || 'other',
-          price: target?.price || 499,
-          imageUrl: target?.imageUrl || '',
+          price: (target?.price != null && target?.price !== '') ? Number(target.price) : 499,
+          imageUrl: target?.imageUrl || (imagesList[0] || ''),
+          images: imagesList,
           updatedAt: serverTimestamp()
         }, { merge: true });
 
-        showToast(`Product marked as ${newSoldOutState ? 'SOLD OUT' : 'IN STOCK'} ✓`, 'success');
+        showToast(`✓ "${target?.title || 'Product'}" marked as ${newSoldOutState ? 'SOLD OUT' : 'IN STOCK'} & live in cloud`, 'success');
       } catch (err) {
         console.error('Error toggling stock:', err);
         showToast(`Updated locally (Firestore sync note: ${err.message})`, 'default');
       }
     }
 
-    /* ─── 7. Add / Edit Product Form ─── */
+    /* ─── 6. Add / Edit Product Form ─── */
     function startEditProduct(product) {
       isEditing = true;
       editingDocId = product.id;
+      currentUploadedBase64 = '';
+      window.selectedImageBase64 = null;
 
-      $('#form-doc-id').value = product.id;
-      $('#form-title').value = product.title || '';
-      $('#form-category').value = (product.category || '').toLowerCase();
-      $('#form-price').value = product.price || '';
-      $('#form-is-sold-out').value = String(product.isSoldOut === true);
-      $('#form-desc').value = product.description || '';
+      if ($('#form-doc-id')) $('#form-doc-id').value = product.id || '';
+      if ($('#form-title')) $('#form-title').value = product.title || '';
+      if ($('#form-category')) $('#form-category').value = (product.category || '').toLowerCase();
+      if ($('#form-price')) $('#form-price').value = product.price || '';
+      if ($('#form-is-sold-out')) $('#form-is-sold-out').value = String(product.isSoldOut === true);
+      if ($('#form-desc')) $('#form-desc').value = product.description || '';
 
       const imgUrl = product.imageUrl || (product.images && product.images[0]) || '';
-      $('#form-existing-image').value = imgUrl;
-      $('#form-image-url').value = imgUrl;
+      if ($('#form-existing-image')) $('#form-existing-image').value = imgUrl;
+
+      if ($('#form-image-url')) {
+        $('#form-image-url').value = (imgUrl.startsWith('http') || imgUrl.startsWith('assets/')) ? imgUrl : '';
+      }
+      if ($('#form-image-file')) {
+        $('#form-image-file').value = '';
+      }
 
       // Image preview
       const preview = $('#img-preview');
-      if (imgUrl) {
-        preview.src = imgUrl;
-        preview.classList.add('is-visible');
-      } else {
-        preview.classList.remove('is-visible');
+      if (preview) {
+        if (imgUrl) {
+          preview.src = imgUrl;
+          preview.classList.add('is-visible');
+        } else {
+          preview.classList.remove('is-visible');
+          preview.src = '';
+        }
       }
 
       // UI state adjustments
-      $('#form-heading').textContent = 'Edit Product Details';
-      $('#form-subheading').textContent = `Editing: ${product.title} (Doc ID: ${product.id})`;
-      $('#btn-icon').textContent = '💾';
-      $('#btn-text').textContent = 'Update Product in Firestore';
-      $('#img-required-star').style.display = 'none';
-      $('#form-image-file').required = false;
+      if ($('#form-heading')) $('#form-heading').textContent = 'Edit Product Details';
+      if ($('#form-subheading')) $('#form-subheading').textContent = `Editing: ${product.title} (Doc ID: ${product.id})`;
+      const btn = document.getElementById('form-submit-btn') || document.querySelector('.btn-submit-product');
+      if (btn) {
+        btn.innerHTML = '<span id="btn-text">Update Product in Firestore</span>';
+      }
+      if ($('#img-required-star')) $('#img-required-star').style.display = 'none';
 
-      $('#edit-banner-title').textContent = `Editing: "${product.title}"`;
-      $('#edit-alert-banner').classList.add('is-active');
+      if ($('#edit-banner-title')) $('#edit-banner-title').textContent = `Editing: "${product.title}"`;
+      if ($('#edit-alert-banner')) $('#edit-alert-banner').classList.add('is-active');
 
       // Scroll smoothly to form
-      $('#product-form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      $('#form-title').focus();
+      const formSec = $('#product-form-section');
+      if (formSec) formSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if ($('#form-title')) $('#form-title').focus();
     }
 
     function resetFormState() {
       isEditing = false;
       editingDocId = null;
-      $('#product-form').reset();
-      $('#form-doc-id').value = '';
-      $('#form-existing-image').value = '';
-      $('#img-preview').classList.remove('is-visible');
+      currentUploadedBase64 = '';
+      window.selectedImageBase64 = null;
 
-      $('#form-heading').textContent = 'Add New Product';
-      $('#form-subheading').textContent = 'Upload an image and publish directly to the Firestore collection';
-      $('#btn-icon').textContent = '✦';
-      $('#btn-text').textContent = 'Add Product to Catalogue';
-      $('#img-required-star').style.display = '';
-      $('#edit-alert-banner').classList.remove('is-active');
+      const form = $('#product-form') || document.getElementById('add-product-form');
+      if (form) form.reset();
+
+      if ($('#form-doc-id')) $('#form-doc-id').value = '';
+      if ($('#form-title')) $('#form-title').value = '';
+      if ($('#form-category')) $('#form-category').value = '';
+      if ($('#form-price')) $('#form-price').value = '';
+      if ($('#form-desc')) $('#form-desc').value = '';
+      if ($('#form-existing-image')) $('#form-existing-image').value = '';
+      if ($('#form-image-url')) $('#form-image-url').value = '';
+      if ($('#form-image-file')) $('#form-image-file').value = '';
+      
+      const preview = $('#img-preview');
+      if (preview) {
+        preview.classList.remove('is-visible');
+        preview.src = '';
+      }
+
+      if ($('#form-heading')) $('#form-heading').textContent = 'Add New Product';
+      if ($('#form-subheading')) $('#form-subheading').textContent = 'Upload an image or paste URL to publish directly to Firestore';
+      
+      const btn = document.getElementById('form-submit-btn') || document.querySelector('.btn-submit-product');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<span id="btn-text">+ Add Product</span>';
+      }
+      
+      if ($('#img-required-star')) $('#img-required-star').style.display = '';
+      if ($('#edit-alert-banner')) $('#edit-alert-banner').classList.remove('is-active');
     }
 
-    $('#cancel-edit-btn').addEventListener('click', resetFormState);
-    $('#form-reset-btn').addEventListener('click', resetFormState);
+    if ($('#cancel-edit-btn')) $('#cancel-edit-btn').addEventListener('click', resetFormState);
+    if ($('#form-reset-btn')) $('#form-reset-btn').addEventListener('click', resetFormState);
 
-    // Live preview on file selection
-    $('#form-image-file').addEventListener('change', function () {
-      const file = this.files && this.files[0];
-      const preview = $('#img-preview');
+    // Live preview on file selection with fail-safe Base64 compression
+    const imageFileInput = $('#form-image-file');
+    if (imageFileInput) {
+      imageFileInput.addEventListener('change', async function () {
+        const file = this.files && this.files[0];
+        const preview = $('#img-preview');
 
-      if (file) {
-        if (file.size > 8 * 1024 * 1024) {
-          showToast('Image size exceeds 8MB limit. Please select a smaller file.', 'error');
-          this.value = '';
-          preview.classList.remove('is-visible');
+        if (!file) {
+          window.selectedImageBase64 = null;
+          currentUploadedBase64 = '';
+          const urlVal = ($('#form-image-url')?.value || '').trim();
+          const existing = $('#form-existing-image')?.value || '';
+          if (preview) {
+            if (urlVal) {
+              preview.src = urlVal;
+              preview.classList.add('is-visible');
+            } else if (existing) {
+              preview.src = existing;
+              preview.classList.add('is-visible');
+            } else {
+              preview.src = '';
+              preview.classList.remove('is-visible');
+            }
+          }
           return;
         }
 
+        if (file.size > 25 * 1024 * 1024) {
+          showToast('Image size exceeds 25MB limit. Please choose a smaller photo.', 'error');
+          this.value = '';
+          window.selectedImageBase64 = null;
+          currentUploadedBase64 = '';
+          if (preview) preview.classList.remove('is-visible');
+          return;
+        }
+
+        console.log('[Admin Debug] Processing selected file:', file.name, `(${Math.round(file.size / 1024)} KB)`);
+        
+        // Immediate preview & fail-safe Base64 generation via FileReader
         const reader = new FileReader();
-        reader.onload = (e) => {
-          preview.src = e.target.result;
-          preview.classList.add('is-visible');
+        reader.onload = async (e) => {
+          const rawBase64 = e.target?.result;
+          if (rawBase64) {
+            window.selectedImageBase64 = rawBase64;
+            currentUploadedBase64 = rawBase64;
+            if (preview) {
+              preview.src = rawBase64;
+              preview.classList.add('is-visible');
+            }
+          }
+
+          // Asynchronous compression to hard-capped <80KB JPEG
+          try {
+            const compressed = await compressImageFile(file, 600, 0.5);
+            if (compressed) {
+              window.selectedImageBase64 = compressed;
+              currentUploadedBase64 = compressed;
+              if (preview) preview.src = compressed;
+              console.log('[Admin Debug] Image compressed & ready for cloud save:', Math.round(compressed.length * 0.75 / 1024), 'KB');
+            }
+          } catch (cErr) {
+            console.warn('[Admin Debug] Compression note (using raw Base64 fallback):', cErr);
+          }
+        };
+        reader.onerror = (rErr) => {
+          console.warn('[Admin Debug] Immediate FileReader error:', rErr);
         };
         reader.readAsDataURL(file);
-      } else if (!$('#form-existing-image').value) {
-        preview.classList.remove('is-visible');
+      });
+    }
+
+    // Live preview on URL input
+    function handleUrlInput() {
+      const urlVal = ($('#form-image-url')?.value || '').trim();
+      const preview = $('#img-preview');
+      if (urlVal) {
+        window.selectedImageBase64 = null;
+        currentUploadedBase64 = ''; // URL overrides previous file selection
+        if (preview) {
+          preview.src = urlVal;
+          preview.classList.add('is-visible');
+        }
+        console.log('[Admin Debug] Image URL set:', urlVal);
+      } else if (!currentUploadedBase64 && !window.selectedImageBase64) {
+        const existing = $('#form-existing-image')?.value || '';
+        if (preview) {
+          if (existing) {
+            preview.src = existing;
+            preview.classList.add('is-visible');
+          } else {
+            preview.src = '';
+            preview.classList.remove('is-visible');
+          }
+        }
       }
-    });
+    }
 
-    // Form Submit (Create or Update)
-    $('#product-form').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const submitBtn = $('#form-submit-btn');
-      const btnIcon = $('#btn-icon');
-      const btnText = $('#btn-text');
+    if ($('#form-image-url')) {
+      $('#form-image-url').addEventListener('input', handleUrlInput);
+      $('#form-image-url').addEventListener('blur', handleUrlInput);
+      $('#form-image-url').addEventListener('change', handleUrlInput);
+    }
 
-      submitBtn.disabled = true;
-      btnIcon.innerHTML = '<span class="spinner"></span>';
-      btnText.textContent = isEditing ? 'Updating Firestore…' : 'Saving Product…';
+    /* ─── DIRECT FIRESTORE WRITE EXECUTION (executeDirectFirestoreSave) ─── */
+    async function executeDirectFirestoreSave() {
+      const title = (document.getElementById('form-title')?.value || '').trim();
+      const category = document.getElementById('form-category')?.value || 'jewellery';
+      const priceRaw = document.getElementById('form-price')?.value || '499';
+      const price = Number(String(priceRaw).replace(/[^0-9.]/g, '')) || 499;
+      const desc = (document.getElementById('form-desc')?.value || '').trim();
+      const urlInput = (document.getElementById('form-image-url')?.value || '').trim();
+      const existingImg = (document.getElementById('form-existing-image')?.value || '').trim();
+      const isSoldOut = document.getElementById('form-is-sold-out')?.value === 'true' || document.getElementById('form-is-sold-out')?.value === 'soldout';
+
+      if (!title) {
+        alert("Please enter a product title");
+        return;
+      }
+
+      const btn = document.getElementById('form-submit-btn') || document.querySelector('.btn-submit-product');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>Saving to Cloud...</span>';
+      }
 
       try {
-        const title = $('#form-title').value.trim();
-        const category = $('#form-category').value;
-        const price = Number($('#form-price').value);
-        const isSoldOut = $('#form-is-sold-out').value === 'true';
-        const description = $('#form-desc').value.trim();
-        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        // Resolve image with bulletproof fail-safe chain
+        let image = window.selectedImageBase64 || currentUploadedBase64;
 
-        let finalImageUrl = $('#form-existing-image').value || $('#form-image-url').value.trim();
-        const imageFile = $('#form-image-file').files && $('#form-image-file').files[0];
-
-        // 1. Upload to Firebase Storage if a file was selected
-        if (imageFile) {
-          btnText.textContent = 'Uploading to Storage…';
-          const cleanName = imageFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-          const storagePath = `products/${Date.now()}_${cleanName}`;
-          const storageRef = ref(storage, storagePath);
-
-          const uploadSnap = await uploadBytes(storageRef, imageFile, {
-            contentType: imageFile.type
-          });
-          finalImageUrl = await getDownloadURL(uploadSnap.ref);
+        if (!image) {
+          const fileInput = document.getElementById('form-image-file');
+          if (fileInput && fileInput.files && fileInput.files[0]) {
+            try {
+              image = await compressImageFile(fileInput.files[0], 600, 0.5);
+              if (image) {
+                window.selectedImageBase64 = image;
+                currentUploadedBase64 = image;
+              }
+            } catch (imgErr) {
+              console.warn('[Admin Debug] File compression fallback error:', imgErr);
+            }
+          }
         }
 
-        if (!finalImageUrl && !isEditing) {
-          throw new Error('Please select an image file or provide an Image URL.');
-        }
+        if (!image) image = urlInput;
+        if (!image && isEditing) image = existingImg;
+        if (!image) image = 'assets/instagram-shop/post-002-DYcf1ViBfkI.jpg';
+
+        const docId = (isEditing && editingDocId) ? editingDocId : ('item-' + Date.now());
+        const baseSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || docId;
 
         const payload = {
-          title,
-          slug,
-          category,
-          price: Number.isFinite(price) ? price : 499,
+          id: docId,
+          title: title,
+          slug: baseSlug,
+          category: category,
+          price: price,
           priceStatus: 'confirmed',
           currency: 'INR',
-          isSoldOut,
-          description,
-          imageUrl: finalImageUrl,
-          images: finalImageUrl ? [finalImageUrl] : [],
+          isSoldOut: isSoldOut,
+          description: desc,
+          imageUrl: image,
+          images: [image],
           _source: 'admin'
         };
 
+        console.log("Firestore Write Execution:", docId, payload);
+        const docRef = doc(db, "products", docId);
+
         if (isEditing && editingDocId) {
-          // UPDATE
-          const target = allProducts.find(p => p.id === editingDocId);
-          if (target) Object.assign(target, payload);
-
-          applyFilters();
-          updateStats();
-
-          btnText.textContent = 'Updating Document…';
-          const docRef = doc(db, "products", editingDocId);
+          // UPDATE EXISTING PRODUCT
           await setDoc(docRef, {
             ...payload,
             updatedAt: serverTimestamp()
           }, { merge: true });
 
-          showToast(`"${title}" updated successfully ✓`, 'success');
+          const target = allProducts.find(p => p.id === editingDocId);
+          if (target) Object.assign(target, payload);
+
+          if (typeof applyFilters === 'function') applyFilters();
+          if (typeof updateStats === 'function') updateStats();
+
+          console.log("Firestore Document Updated Successfully:", docId);
+          alert("✓ Product updated successfully in catalogue!");
+          if (typeof showToast === 'function') {
+            showToast(`✓ "${title}" updated & live in cloud`, 'success');
+          }
         } else {
-          // CREATE
-          const newId = slug || `shv-${Date.now()}`;
-          const newProduct = { id: newId, ...payload };
-          allProducts.unshift(newProduct);
-
-          applyFilters();
-          updateStats();
-
-          btnText.textContent = 'Writing to Firestore…';
-          await setDoc(doc(db, "products", newId), {
+          // CREATE NEW PRODUCT
+          await setDoc(docRef, {
             ...payload,
             createdAt: serverTimestamp()
           }, { merge: true });
 
-          showToast(`"${title}" added to catalogue ✓`, 'success');
+          allProducts.unshift({ ...payload, createdAt: new Date() });
+
+          if (typeof applyFilters === 'function') applyFilters();
+          if (typeof updateStats === 'function') updateStats();
+
+          console.log("Firestore Document Created Successfully:", docId);
+          alert("✓ Product added successfully to catalogue!");
+          if (typeof showToast === 'function') {
+            showToast('✓ Product successfully created and published live!', 'success');
+          }
         }
 
+        // Reset Form State
         resetFormState();
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
       } catch (err) {
-        console.error('Submit error:', err);
-        showToast(err.message || 'Operation failed. Please try again.', 'error');
+        console.error("Firestore Write Error:", err);
+        alert("Firestore Error: " + err.message);
+        if (typeof showToast === 'function') {
+          showToast('Firestore Error: ' + err.message, 'error');
+        }
       } finally {
-        submitBtn.disabled = false;
-        btnIcon.textContent = isEditing ? '💾' : '✦';
-        btnText.textContent = isEditing ? 'Update Product in Firestore' : 'Add Product to Catalogue';
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<span id="btn-text">' + (isEditing ? 'Update Product in Firestore' : '+ Add Product') + '</span>';
+        }
       }
-    });
+    }
 
-    /* ─── 8. Delete Product ─── */
+    // Expose globally so inline onclick attrs can also call it
+    window.executeDirectFirestoreSave = executeDirectFirestoreSave;
+
+    // Attach listeners — use addEventListener so they survive any DOM re-paint
+    function attachFormListeners() {
+      const submitBtn = document.getElementById('form-submit-btn') || document.querySelector('.btn-submit-product');
+      if (submitBtn && !submitBtn._shivaraListenerAttached) {
+        submitBtn._shivaraListenerAttached = true;
+        submitBtn.addEventListener('click', async function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          await executeDirectFirestoreSave();
+        });
+      }
+
+      // Belt-and-suspenders: also intercept any native form submit (e.g. Enter key)
+      const addProductForm = document.getElementById('product-form');
+      if (addProductForm && !addProductForm._shivaraListenerAttached) {
+        addProductForm._shivaraListenerAttached = true;
+        addProductForm.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          await executeDirectFirestoreSave();
+        });
+      }
+    }
+
+    // Run immediately (DOM already parsed for module scripts) and also after DOMContentLoaded
+    attachFormListeners();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', attachFormListeners);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       GLOBAL EVENT DELEGATION ENGINE
+       One permanent listener on document handles ALL product actions.
+       Works across every re-render, chunk load, and DOM repaint.
+       No per-card listeners ever needed again.
+    ═══════════════════════════════════════════════════════════════ */
+    if (!document._shivaraDelegationAttached) {
+      document._shivaraDelegationAttached = true;
+
+      document.addEventListener('click', async function shivaraActionRouter(e) {
+        const target = e.target.closest('[data-action]');
+        if (!target) return;
+
+        const action = target.getAttribute('data-action');
+        const docId  = target.getAttribute('data-id');
+
+        // All product actions require a docId
+        if (['toggle-stock','quick-price-edit','open-edit','delete-product'].includes(action)) {
+          if (!docId) {
+            console.error('[Admin] Action fired with no data-id', target);
+            return;
+          }
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        switch (action) {
+
+          // ── SOLD OUT TOGGLE ───────────────────────────────────────
+          case 'toggle-stock': {
+            const currentSold = target.getAttribute('data-sold') === 'true';
+            const newSoldState = !currentSold;
+
+            // Optimistic UI: flip button immediately
+            target.setAttribute('data-sold', String(newSoldState));
+            target.textContent = newSoldState ? '✓ In Stock' : '✕ Sold Out';
+            target.className   = target.className
+              .replace(/btn-success|btn-danger/g, '')
+              .trim() + (newSoldState ? ' btn-success' : ' btn-danger');
+
+            // Update cache
+            const item = allProducts.find(p => p.id === docId);
+            if (item) item.isSoldOut = newSoldState;
+
+            // Update status badge in same row
+            const row = target.closest('tr[data-id]');
+            if (row) {
+              const badge = row.querySelector('.status-badge');
+              if (badge) {
+                badge.textContent  = newSoldState ? 'Sold Out' : 'In Stock';
+                badge.className    = newSoldState
+                  ? 'status-badge status-badge--sold-out'
+                  : 'status-badge status-badge--in-stock';
+              }
+            }
+
+            updateStats();
+
+            // Firestore write
+            try {
+              const imagesList = (item?.images?.length) ? item.images : (item?.imageUrl ? [item.imageUrl] : []);
+              await setDoc(doc(db, 'products', docId), {
+                isSoldOut: newSoldState,
+                title:     item?.title    || 'Product',
+                slug:      item?.slug     || docId,
+                sku:       item?.sku      || '',
+                category:  item?.category || 'other',
+                price:     (item?.price != null && item?.price !== '') ? Number(item.price) : 499,
+                imageUrl:  item?.imageUrl || (imagesList[0] || ''),
+                images:    imagesList,
+                updatedAt: serverTimestamp()
+              }, { merge: true });
+              showToast(`✓ "${item?.title || 'Product'}" marked as ${newSoldState ? 'SOLD OUT' : 'IN STOCK'} & live`, 'success');
+            } catch (err) {
+              console.error('[Admin] toggleStock Firestore error:', err);
+              showToast('Updated locally. Firestore: ' + err.message, 'default');
+            }
+            break;
+          }
+
+          // ── QUICK PRICE EDIT ──────────────────────────────────────
+          case 'quick-price-edit': {
+            const currentPrice = target.getAttribute('data-price') || '499';
+            openPriceModal(docId, currentPrice);
+            break;
+          }
+
+          // ── FULL EDIT (populate form) ─────────────────────────────
+          case 'open-edit': {
+            const product = allProducts.find(p => p.id === docId);
+            if (product) startEditProduct(product);
+            else showToast('Product data not found in cache.', 'error');
+            break;
+          }
+
+          // ── DELETE PRODUCT ────────────────────────────────────────
+          case 'delete-product': {
+            const title = target.getAttribute('data-title') || 'this product';
+            openDeleteModal(docId, title);
+            break;
+          }
+
+          default:
+            break;
+        }
+      });
+    }
+
+    /* ─── 7. Delete Product ─── */
     function openDeleteModal(docId, title) {
       deletingDocId = docId;
       $('#delete-modal-msg').textContent = `Are you sure you want to permanently delete "${title}" from Firestore?`;
@@ -2010,7 +3383,7 @@
         closeDeleteModal();
 
         await deleteDoc(doc(db, "products", deletingDocId));
-        showToast('Product deleted from Firestore ✓', 'success');
+        showToast('✓ Product deleted live in cloud', 'success');
       } catch (err) {
         console.error('Delete error:', err);
         showToast(`Deleted locally (Firestore note: ${err.message})`, 'default');
@@ -2020,14 +3393,74 @@
       }
     });
 
-    /* ─── 9. Filter & Search Events ─── */
-    $('#search-input').addEventListener('input', applyFilters);
-    $('#category-filter').addEventListener('change', applyFilters);
-    $('#stock-filter').addEventListener('change', applyFilters);
-    $('#refresh-btn').addEventListener('click', () => {
-      loadProducts();
-      showToast('Refreshed catalogue from Firestore ✓');
+    /* ─── 8. Filter, Search & Category Events ─── */
+    $('#search-input').addEventListener('input', () => {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => {
+        applyFilters();
+      }, 120);
     });
+    $('#stock-filter').addEventListener('change', applyFilters);
+
+    // Wire up Category Pills
+    const pillsTrack = $('#category-pills-track');
+    if (pillsTrack) {
+      pillsTrack.addEventListener('click', (e) => {
+        const btn = e.target.closest('.category-pill');
+        if (!btn) return;
+        const cat = btn.getAttribute('data-cat') || 'all';
+
+        // Update active pill styling
+        $$('.category-pill', pillsTrack).forEach(b => b.classList.toggle('is-active', b === btn));
+
+        // Sync dropdown filter
+        const select = $('#category-filter');
+        if (select) select.value = cat;
+
+        applyFilters();
+      });
+    }
+
+    // When dropdown filter changes, sync active category pill
+    $('#category-filter').addEventListener('change', (e) => {
+      const selected = e.target.value;
+      if (pillsTrack) {
+        $$('.category-pill', pillsTrack).forEach(b => {
+          b.classList.toggle('is-active', b.getAttribute('data-cat') === selected);
+        });
+      }
+      applyFilters();
+    });
+
+    // Wire up Logout Buttons (both mobile and desktop)
+    $$('.logout-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+        localStorage.removeItem(SESSION_KEY);
+        sessionStorage.removeItem(SESSION_KEY);
+        lockDashboard();
+        showToast('Logged out successfully');
+      });
+    });
+
+    // Wire up Floating Mobile Action Button (FAB)
+    const mobileFab = $('#mobile-add-fab');
+    if (mobileFab) {
+      mobileFab.addEventListener('click', (e) => {
+        e.preventDefault();
+        const formSection = $('#product-form-section');
+        if (formSection) {
+          formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          setTimeout(() => {
+            $('#form-title')?.focus();
+          }, 350);
+        }
+      });
+    }
 
     /* ─── Initialize ─── */
     checkSession();

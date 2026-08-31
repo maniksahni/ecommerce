@@ -24,7 +24,8 @@
   }
 
   function mediaHref(src) {
-    const value = String(src || "");
+    let value = String(src || "").trim().replace(/^[\[\("']+|[\]\)"']+$/g, "");
+    if (!value) return "";
     if (/^(https?:)?\/\//i.test(value) || value.startsWith("data:")) return value;
     return `/${value.replace(/^\/+/, "")}`;
   }
@@ -61,25 +62,28 @@
       origin = "",
       whatsappNumber = "919457041215"
     } = options;
+    const isSoldOut = product.isSoldOut === true;
     const primary = product.images[0];
     const secondary = product.images.find((image) => image !== primary);
-    const badge = allowedBadges.has(product.badge) ? product.badge : null;
+    const badge = isSoldOut ? null : (allowedBadges.has(product.badge) ? product.badge : null);
     const mode = api.getPurchaseMode(product);
     let action = "";
-    if (mode === "direct") {
+    if (isSoldOut) {
+      action = `<button class="stable-card__add stable-card__add--sold-out" type="button" disabled aria-disabled="true">Sold Out</button>`;
+    } else if (mode === "direct") {
       action = `<button class="stable-card__add" type="button" data-card-add="${escapeHtml(product.id)}">Add to Bag</button>`;
     } else if (mode === "variant") {
       action = `<button class="stable-card__add stable-card__add--enquire" type="button" data-quick-view="${escapeHtml(product.id)}">Choose Options</button>`;
     } else if (mode === "enquiry") {
       action = `<a class="stable-card__add stable-card__add--enquire" href="${escapeHtml(enquiryHref(product, origin, whatsappNumber))}" target="_blank" rel="noreferrer">Enquire on WhatsApp</a>`;
     }
-    return `<article class="stable-card" data-commerce-renderer="shared-v1" data-product-card="${escapeHtml(product.id)}" data-category="${escapeHtml(product.category)}" itemscope itemtype="https://schema.org/Product">
+    return `<article class="stable-card ${isSoldOut ? "is-sold-out" : ""}" data-commerce-renderer="shared-v1" data-product-card="${escapeHtml(product.id)}" data-category="${escapeHtml(product.category)}" itemscope itemtype="https://schema.org/Product">
       <div class="stable-card__media">
         <a href="${productUrl(product)}" aria-label="View ${escapeHtml(product.title)}" itemprop="url">
           <img class="stable-card__image stable-card__image--primary" src="${escapeHtml(mediaHref(primary))}" alt="${escapeHtml(product.imageAlt)}" width="640" height="800" ${index < 5 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" itemprop="image" />
           ${secondary ? `<img class="stable-card__image stable-card__image--secondary" src="${escapeHtml(mediaHref(secondary))}" alt="" width="640" height="800" loading="lazy" decoding="async" />` : ""}
         </a>
-        ${badge ? `<span class="stable-card__badge">${escapeHtml(badge)}</span>` : ""}
+        ${isSoldOut ? `<span class="stable-card__badge stable-card__badge--sold-out">SOLD OUT</span><div class="stable-card__sold-out-overlay" aria-hidden="true"><span>SOLD OUT</span></div>` : (badge ? `<span class="stable-card__badge">${escapeHtml(badge)}</span>` : "")}
         <button class="stable-card__wish ${isWishlisted ? "is-active" : ""}" type="button" data-wishlist-toggle="${escapeHtml(product.id)}" aria-label="${isWishlisted ? "Remove" : "Save"} ${escapeHtml(product.title)}" aria-pressed="${isWishlisted}">♡</button>
         <button class="stable-card__quick" type="button" data-quick-view="${escapeHtml(product.id)}" aria-label="Quick view ${escapeHtml(product.title)}" title="Quick view"><span aria-hidden="true">⌕</span><span>Quick view</span></button>
       </div>

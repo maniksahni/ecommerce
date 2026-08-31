@@ -6,7 +6,7 @@ const { chromium } = require("playwright");
 const { loadCatalog } = require("./catalog-lib");
 
 const root = path.resolve(__dirname, "..");
-const baseUrl = (process.env.PRODUCTION_URL || "https://shivaraluxe.netlify.app").replace(/\/$/, "");
+const baseUrl = (process.env.PRODUCTION_URL || "https://the-shivara-group-86c9c.web.app").replace(/\/$/, "");
 const expectedCommit = process.env.EXPECTED_COMMIT || execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
 const chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const blockedTitles = [
@@ -109,7 +109,7 @@ async function main() {
       failedAssets.push(`${assetResponse.status()} ${assetResponse.url()}`);
     }
   });
-  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
   assert(await page.locator(".stable-hero [data-hero-title]").count() === 1, "production stable storefront bootstrap completes");
 
   const liveState = await page.evaluate(() => ({
@@ -154,7 +154,7 @@ async function main() {
     }
   }
 
-  await page.goto(`${baseUrl}/products/tulip-pendant`, { waitUntil: "networkidle" });
+  await page.goto(`${baseUrl}/products/tulip-pendant`, { waitUntil: "domcontentloaded" });
   const tulipPrice = (await page.locator(".stable-pdp__price").first().textContent())?.replace(/\s+/g, " ").trim() || "";
   assert(tulipPrice.includes("₹299"), "confirmed Tulip Pendant price is exactly ₹299");
   assert(failedAssets.length === 0, `no failed JavaScript or CSS requests${failedAssets.length ? `: ${failedAssets.join(" | ")}` : ""}`);

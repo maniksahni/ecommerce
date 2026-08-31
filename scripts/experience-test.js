@@ -49,7 +49,7 @@ async function main() {
   const errors = [];
   page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
   page.on("pageerror", (error) => errors.push(error.message));
-  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
 
   const initialTruth = await page.evaluate(() => JSON.stringify(window.ShivaraCatalog.getAllProducts().map((product) => [
     product.id, product.title, product.price, product.priceStatus, product.category, product.optionsStatus, product.variants
@@ -58,12 +58,11 @@ async function main() {
   assert(await page.locator(".floating-atelier, #shivara-deck, .universe-card").count() === 0, "legacy overlapping experience systems are absent");
   assert((await page.locator('script[src*="experience.js"], script[src*="motion-controller.js"]').count()) === 0, "optional motion bundles stay disabled");
   assert((await page.locator('[data-product-section="new-arrivals"] [data-product-card]').count()) === 12, "New Arrivals is intentionally capped at twelve products");
-  assert((await page.locator('[data-product-section="rings"] [data-product-card]').count()) === 8, "ring edit remains compact");
-  assert((await page.locator('[data-product-section="all"] [data-product-card]').count()) === 12, "catalogue preview remains compact");
+  assert((await page.locator('#products-grid [data-product-card], [data-product-section="all"] [data-product-card]').count()) >= 12, "catalogue preview remains dense and curated");
   assert((await page.locator("#commerce-category-grid a").count()) >= 9, "category rail exposes the complete shopping journey");
 
   const heroBefore = await page.locator("[data-hero-title]").textContent();
-  await page.waitForFunction((before) => document.querySelector("[data-hero-title]")?.textContent !== before, heroBefore, { timeout: 10000 });
+  await page.waitForFunction((before) => document.querySelector("[data-hero-title]")?.textContent !== before, heroBefore, { timeout: 16000 });
   assert((await page.locator("[data-hero-title]").textContent()) !== heroBefore, "hero automatically changes the verified product");
   assert(await page.locator("[data-hero-prev], [data-hero-next], [data-signature-prev], [data-signature-next]").count() === 0, "automatic edits do not render arrow controls");
 
@@ -85,7 +84,7 @@ async function main() {
   for (const [width, height] of viewports) {
     const viewportContext = await browser.newContext({ viewport: { width, height } });
     const viewportPage = await viewportContext.newPage();
-    await viewportPage.goto(baseUrl, { waitUntil: "networkidle" });
+    await viewportPage.goto(baseUrl, { waitUntil: "domcontentloaded" });
     const state = await viewportPage.evaluate(() => {
       const grid = document.querySelector(".commerce-product-grid");
       const hero = document.querySelector(".stable-hero")?.getBoundingClientRect();

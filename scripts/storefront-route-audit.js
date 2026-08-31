@@ -8,7 +8,7 @@ const output = path.join(root, "storefront-route-audit.json");
 const chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const baseUrls = {
   local: (process.env.LOCAL_URL || "http://127.0.0.1:3000").replace(/\/$/, ""),
-  production: (process.env.PRODUCTION_URL || "https://shivara.up.railway.app").replace(/\/$/, "")
+  production: (process.env.PRODUCTION_URL || "https://the-shivara-group-86c9c.web.app").replace(/\/$/, "")
 };
 const routes = [
   "/", "/collections/all", "/collections/new-arrivals", "/collections/rings",
@@ -42,7 +42,7 @@ async function inspectRoute(browser, baseUrl, route) {
       missingAssets.push(`${response.status()} ${response.url()}`);
     }
   });
-  const response = await page.goto(`${baseUrl}${route}`, { waitUntil: "networkidle" });
+  const response = await page.goto(`${baseUrl}${route}`, { waitUntil: "domcontentloaded" });
   const result = await page.evaluate(({ blockedPhrases, curatedIds, curatedBadges }) => {
     const cards = [...document.querySelectorAll("[data-product-card]")];
     const cardIds = cards.map((card) => card.dataset.productCard);
@@ -98,7 +98,32 @@ async function inspectRoute(browser, baseUrl, route) {
   return result;
 }
 
+const { spawn } = require("node:child_process");
+
 async function main() {
+  let server = null;
+  let localUrl = baseUrls.local;
+  try {
+    const res = await fetch(`${localUrl}/`).catch(() => null);
+    if (!res) {
+      server = spawn(process.execPath, [path.join(root, "server.js")], {
+        env: { ...process.env, PORT: "3218" },
+        stdio: ["ignore", "pipe", "pipe"]
+      });
+      localUrl = "http://127.0.0.1:3218";
+      for (let i = 0; i < 40; i++) {
+        const check = await fetch(`${localUrl}/`).catch(() => null);
+        if (check?.ok) break;
+        await new Promise((r) => setTimeout(r, 100));
+      }
+    }
+  } catch {}
+
+  const envs = {
+    local: localUrl,
+    production: baseUrls.production
+  };
+
   let previous = null;
   try {
     previous = JSON.parse(fs.readFileSync(output, "utf8"));
@@ -118,13 +143,23 @@ async function main() {
     } : null),
     environments: {}
   };
-  for (const [environment, baseUrl] of Object.entries(baseUrls)) {
-    report.environments[environment] = { baseUrl, routes: {} };
-    for (const route of routes) {
-      report.environments[environment].routes[route] = await inspectRoute(browser, baseUrl, route);
+  try {
+    for (const [environment, baseUrl] of Object.entries(envs)) {
+      report.environments[environment] = { baseUrl, routes: {} };
+      for (const route of routes) {
+        try {
+          report.environments[environment].routes[route] = await inspectRoute(browser, baseUrl, route);
+        } catch (routeErr) {
+          report.environments[environment].routes[route] = { error: routeErr.message };
+        }
+      }
+    }
+  } finally {
+    await browser.close();
+    if (server) {
+      server.kill("SIGTERM");
     }
   }
-  await browser.close();
   fs.writeFileSync(output, `${JSON.stringify(report, null, 2)}\n`);
   console.log(`Storefront route audit written to ${output}`);
 }

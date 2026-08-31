@@ -70,7 +70,7 @@ function withSeo(html, { title, description, canonical }) {
   return html
     .replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(title)}</title>`)
     .replace(/<meta name="description" content="[^"]*" \/>/, `<meta name="description" content="${escapeHtml(description)}" />`)
-    .replace("</head>", `<link rel="canonical" href="${escapeHtml(`https://shivaraluxe.netlify.app${canonical}`)}" /></head>`);
+    .replace("</head>", `<link rel="canonical" href="${escapeHtml(`https://the-shivara-group-86c9c.web.app${canonical}`)}" /></head>`);
 }
 
 function write(relative, content) {
@@ -140,5 +140,45 @@ const routeRules = [
   "/wishlist /wishlist/index.html 200!"
 ];
 write("_redirects", `${routeRules.join("\n")}\n`);
+
+const firebaseConfigPath = path.join(root, "firebase.json");
+if (fs.existsSync(firebaseConfigPath)) {
+  try {
+    const firebaseConfig = JSON.parse(fs.readFileSync(firebaseConfigPath, "utf8"));
+    firebaseConfig.hosting = firebaseConfig.hosting || {};
+    firebaseConfig.hosting.redirects = catalogApi.getAllProducts()
+      .filter((product) => product.sourcePostId && product.sourcePostId !== product.slug)
+      .map((product) => ({
+        source: `/products/${product.sourcePostId}`,
+        destination: `/products/${product.slug}`,
+        type: 301
+      }));
+    firebaseConfig.hosting.headers = [
+      {
+        source: "**",
+        headers: [
+          { key: "X-Shivara-Build", value: buildInfo.commit },
+          { key: "X-Shivara-Catalog-Version", value: buildInfo.catalogVersion },
+          { key: "X-Shivara-App-Version", value: buildInfo.appVersion }
+        ]
+      },
+      {
+        source: "**/*.@(html|htm)",
+        headers: [
+          { key: "Cache-Control", value: "max-age=0, no-cache, no-store, must-revalidate" }
+        ]
+      },
+      {
+        source: "**/*.@(jpg|jpeg|gif|png|webp|svg|ico|woff2|woff|ttf|css|js)",
+        headers: [
+          { key: "Cache-Control", value: "max-age=31536000, immutable" }
+        ]
+      }
+    ];
+    fs.writeFileSync(firebaseConfigPath, JSON.stringify(firebaseConfig, null, 2) + "\n");
+  } catch (err) {
+    console.warn("Could not sync firebase.json configuration:", err);
+  }
+}
 
 console.log(`Netlify storefront built: ${catalogApi.getAllProducts().length} products, ${Object.keys(collectionMeta).length} collections, commit ${buildInfo.commit.slice(0, 8)}.`);

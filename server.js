@@ -100,7 +100,8 @@ function escapeHtml(value) {
 }
 
 function absoluteMediaUrl(image) {
-  const value = String(image || "");
+  let value = String(image || "").trim().replace(/^[\[\("']+|[\]\)"']+$/g, "");
+  if (!value) return "";
   if (/^https?:\/\//i.test(value)) return value;
   if (value.startsWith("//")) return `https:${value}`;
   return `${siteUrl}/${value.replace(/^\/+/, "")}`;

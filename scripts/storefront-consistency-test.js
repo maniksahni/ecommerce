@@ -70,7 +70,7 @@ async function main() {
     page.on("response", (response) => {
       if (response.status() >= 400 && /\.(?:js|css|jpe?g|png|webp)(?:\?|$)/i.test(response.url())) missing.push(response.url());
     });
-    const response = await page.goto(`${baseUrl}/collections/${slug}`, { waitUntil: "networkidle" });
+    const response = await page.goto(`${baseUrl}/collections/${slug}`, { waitUntil: "domcontentloaded" });
     const state = await page.evaluate(() => ({
       title: document.querySelector("[data-collection-title]")?.textContent.trim(),
       description: document.querySelector("[data-collection-description]")?.textContent.trim(),
@@ -122,7 +122,7 @@ async function main() {
     localStorage.setItem("shivara-wishlist-v2", JSON.stringify(["tulip-pendant", "DYH8S7oRbLk"]));
   });
   const page = await stateContext.newPage();
-  await page.goto(`${baseUrl}/collections/all`, { waitUntil: "networkidle" });
+  await page.goto(`${baseUrl}/collections/all`, { waitUntil: "domcontentloaded" });
   const migration = await page.evaluate(() => ({
     cart: JSON.parse(localStorage.getItem("shivara-cart-v3")),
     wishlist: JSON.parse(localStorage.getItem("shivara-wishlist-v3")),
@@ -149,16 +149,16 @@ async function main() {
   assert((await page.locator(".stable-quick__price").textContent()).includes("299"), "Quick View price matches the curated card object");
   assert(blocked(await page.locator("#quick-view").textContent()).length === 0, "Quick View contains no blocked social content");
   await page.keyboard.press("Escape");
-  await page.goto(`${baseUrl}/products/${tulip.slug}`, { waitUntil: "networkidle" });
+  await page.goto(`${baseUrl}/products/${tulip.slug}`, { waitUntil: "domcontentloaded" });
   assert((await page.locator(".stable-pdp h1").textContent()) === cardState.title, "product page title matches card title");
   assert((await page.locator(".stable-pdp__gallery img").first().getAttribute("src")) === cardState.image, "product page image matches card image");
   assert((await page.locator(".stable-pdp__price").textContent()).includes("299") && cardState.price.includes("299"), "card and product page prices match");
   assert(blocked(await page.locator("#product-page").textContent()).length === 0, "product page contains no blocked social content");
-  await page.goto(`${baseUrl}/wishlist`, { waitUntil: "networkidle" });
+  await page.goto(`${baseUrl}/wishlist`, { waitUntil: "domcontentloaded" });
   assert((await page.locator('[data-product-card="tulip-pendant"]').count()) === 1, "wishlist uses the same curated product");
   assert(blocked(await page.locator("body").textContent()).length === 0, "wishlist contains no blocked social content");
 
-  await page.goto(`${baseUrl}/collections/watches`, { waitUntil: "networkidle" });
+  await page.goto(`${baseUrl}/collections/watches`, { waitUntil: "domcontentloaded" });
   await page.locator('input[name="price-filter"][value="enquiry"]').check();
   const enquiryWatches = catalogApi.getCollection("watches").filter((product) => product.priceStatus === "enquiry");
   assert((await page.locator("#collection-grid [data-product-card]").count()) === enquiryWatches.length && (await page.locator("#collection-empty").count()) === 0, "price-on-request filter shows the exact curated enquiry products");
@@ -173,7 +173,7 @@ async function main() {
 
   const homeContext = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const home = await homeContext.newPage();
-  await home.goto(baseUrl, { waitUntil: "networkidle" });
+  await home.goto(baseUrl, { waitUntil: "domcontentloaded" });
   const allLinks = await home.locator('a[href="/collections/all"]').count();
   assert(allLinks >= 2, "homepage View All journeys use the curated /collections/all route");
   assert(blocked(await home.locator("body").textContent()).length === 0, "homepage commerce contains no blocked social content");

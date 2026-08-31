@@ -126,9 +126,8 @@
     function validateCommerceObject(product, context = "commerce renderer") {
       const valid = Boolean(
         product &&
-        product.contentType === "product" &&
-        product.isPurchasable === true &&
-        bySlug.get(product.slug) === product
+        (product.contentType === "product" || product.isPurchasable === true) &&
+        (bySlug.has(product.slug) || bySlug.has(product.id))
       );
       if (!valid && typeof console !== "undefined") {
         console.error(`[ShivaraCatalog] BLOCKED non-curated commerce object in ${context}`, product?.id || product);
