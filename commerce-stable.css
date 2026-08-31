@@ -2288,6 +2288,37 @@ body.catalog-stable {
   border-color: var(--stable-gold);
   box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.15);
 }
+.pincode-status-msg {
+  font-size: 11.5px;
+  line-height: 1.45;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin: -6px 0 14px;
+  transition: all 0.2s ease;
+}
+.pincode-status--loading {
+  background: rgba(184, 134, 45, 0.08);
+  color: #7b581e;
+  border: 1px solid rgba(184, 134, 45, 0.25);
+}
+.pincode-status--success {
+  background: rgba(34, 197, 94, 0.08);
+  color: #15803d;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+.pincode-status--success .pincode-timeline-badge {
+  font-weight: 700;
+  color: #166534;
+  background: rgba(34, 197, 94, 0.15);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.pincode-status--error {
+  background: rgba(239, 68, 68, 0.08);
+  color: #b91c1c;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  font-weight: 500;
+}
 .checkout-actions {
   display: flex;
   flex-direction: column;

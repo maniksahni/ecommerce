@@ -406,10 +406,11 @@
               <label for="cust-address"><span>Delivery Address <strong class="req">*</strong></span><textarea id="cust-address" required rows="2" placeholder="House/Flat No, Apartment/Street, Landmark"></textarea></label>
             </div>
             <div class="form-row form-row--three">
-              <label for="cust-pincode"><span>PIN Code <strong class="req">*</strong></span><input type="text" id="cust-pincode" required placeholder="e.g. 110001" pattern="[0-9]{6}" maxlength="6" /></label>
+              <label for="cust-pincode"><span>PIN Code <strong class="req">*</strong></span><input type="text" id="cust-pincode" required placeholder="e.g. 110001" pattern="[0-9]{6}" maxlength="6" inputmode="numeric" autocomplete="postal-code" /></label>
               <label for="cust-city"><span>City</span><input type="text" id="cust-city" placeholder="City" /></label>
               <label for="cust-state"><span>State</span><input type="text" id="cust-state" placeholder="State" /></label>
             </div>
+            <div id="pincode-status-msg" class="pincode-status-msg" style="display:none;" role="status"></div>
             <div class="form-row">
               <label for="cust-note"><span>Gift Message / Order Note <small>(Optional)</small></span><input type="text" id="cust-note" placeholder="Gift card message or delivery instructions" /></label>
             </div>
@@ -822,7 +823,14 @@
       if (saved.phone && document.querySelector("#cust-phone")) document.querySelector("#cust-phone").value = saved.phone;
       if (saved.email && document.querySelector("#cust-email")) document.querySelector("#cust-email").value = saved.email;
       if (saved.address && document.querySelector("#cust-address")) document.querySelector("#cust-address").value = saved.address;
-      if (saved.pincode && document.querySelector("#cust-pincode")) document.querySelector("#cust-pincode").value = saved.pincode;
+      if (saved.city && document.querySelector("#cust-city")) document.querySelector("#cust-city").value = saved.city;
+      if (saved.state && document.querySelector("#cust-state")) document.querySelector("#cust-state").value = saved.state;
+      if (saved.pincode && document.querySelector("#cust-pincode")) {
+        document.querySelector("#cust-pincode").value = saved.pincode;
+        if (String(saved.pincode).trim().length === 6) {
+          handlePincodeAutofill(saved.pincode);
+        }
+      }
       if (cartNote && document.querySelector("#cust-note")) document.querySelector("#cust-note").value = cartNote;
     } catch {}
 
@@ -1579,6 +1587,96 @@
     }
     input.removeAttribute("aria-invalid");
     if (result) result.innerHTML = `Shivara serves PAN India. Express complimentary delivery active for <strong>${escapeHtml(pincode)}</strong>.`;
+  });
+
+  /* ─── Indian Pincode Auto-Fill & Delivery Timeline Estimation ─── */
+  let pincodeLookupAbort = null;
+
+  async function handlePincodeAutofill(pinValue) {
+    const cityInput = document.querySelector("#cust-city");
+    const stateInput = document.querySelector("#cust-state");
+    const statusMsg = document.querySelector("#pincode-status-msg");
+
+    const cleanPin = String(pinValue || "").replace(/\D/g, "");
+
+    if (cleanPin.length !== 6) {
+      if (statusMsg) {
+        statusMsg.style.display = "none";
+        statusMsg.textContent = "";
+        statusMsg.className = "pincode-status-msg";
+      }
+      return;
+    }
+
+    if (pincodeLookupAbort) {
+      try { pincodeLookupAbort.abort(); } catch {}
+    }
+    pincodeLookupAbort = new AbortController();
+
+    if (statusMsg) {
+      statusMsg.style.display = "block";
+      statusMsg.className = "pincode-status-msg pincode-status--loading";
+      statusMsg.innerHTML = `<span style="display:inline-flex; align-items:center; gap:6px;">⚡ Verifying PIN code &amp; fetching delivery timeline…</span>`;
+    }
+
+    try {
+      const response = await fetch(`https://api.postalpincode.in/pincode/${cleanPin}`, {
+        signal: pincodeLookupAbort.signal
+      });
+      if (!response.ok) throw new Error("Network error");
+      const data = await response.json();
+
+      if (Array.isArray(data) && data[0]?.Status === "Success" && Array.isArray(data[0]?.PostOffice) && data[0].PostOffice.length > 0) {
+        const po = data[0].PostOffice[0];
+        const district = po.District || po.Name || "";
+        const state = po.State || "";
+
+        if (cityInput) cityInput.value = district;
+        if (stateInput) stateInput.value = state;
+
+        // Delivery Timeline Logic:
+        // - Uttar Pradesh: "Estimated Delivery: 1-2 Days"
+        // - Delhi, Maharashtra, Karnataka: "Estimated Delivery: 3-4 Days"
+        // - All other states: "Estimated Delivery: 5-7 Days"
+        let timeline = "Estimated Delivery: 5-7 Days";
+        const stateLower = (state || "").trim().toLowerCase();
+        if (stateLower === "uttar pradesh") {
+          timeline = "Estimated Delivery: 1-2 Days";
+        } else if (["delhi", "maharashtra", "karnataka"].includes(stateLower)) {
+          timeline = "Estimated Delivery: 3-4 Days";
+        }
+
+        if (statusMsg) {
+          statusMsg.style.display = "block";
+          statusMsg.className = "pincode-status-msg pincode-status--success";
+          statusMsg.innerHTML = `📍 <strong>${escapeHtml(district ? district + ", " : "")}${escapeHtml(state)}</strong> · <span class="pincode-timeline-badge">${timeline}</span>`;
+        }
+      } else {
+        // Invalid PIN / No records found
+        if (cityInput) cityInput.value = "";
+        if (stateInput) stateInput.value = "";
+        if (statusMsg) {
+          statusMsg.style.display = "block";
+          statusMsg.className = "pincode-status-msg pincode-status--error";
+          statusMsg.textContent = "Invalid PIN";
+        }
+      }
+    } catch (err) {
+      if (err.name === "AbortError") return;
+      if (cityInput) cityInput.value = "";
+      if (stateInput) stateInput.value = "";
+      if (statusMsg) {
+        statusMsg.style.display = "block";
+        statusMsg.className = "pincode-status-msg pincode-status--error";
+        statusMsg.textContent = "Invalid PIN";
+      }
+    }
+  }
+
+  document.addEventListener("input", (e) => {
+    if (e.target && e.target.id === "cust-pincode") {
+      handlePincodeAutofill(e.target.value);
+    }
   });
 
   window.addEventListener("popstate", () => {
