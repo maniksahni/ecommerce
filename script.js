@@ -435,7 +435,7 @@
     showToast(wishlist.has(id) ? "Saved to Your Shivara Edit." : "Removed from Your Edit.");
   }
 
-  function addToCart(id, variantId = null, quantity = 1, allowEnquiryOptions = false) {
+  function addToCart(id, variantId = null, quantity = 1) {
     const product = productMap.get(id) || products.find((p) => p.id === id || p.slug === id || p.sourcePostId === id);
     if (!product || product.priceStatus === "unavailable") return false;
     if (product.isSoldOut === true) {
@@ -498,30 +498,6 @@
       else summary.enquiryCount += item.qty;
       return summary;
     }, { confirmedTotal: 0, enquiryCount: 0 });
-  }
-
-  function cartMessage() {
-    const summary = cartSummary();
-    const lines = ["Hi Shivara, I would like to enquire about these items:", ""];
-    cart.forEach((item, index) => {
-      const product = productMap.get(item.id);
-      const variant = validVariant(product, item.variantId);
-      const value = pricing(product);
-      lines.push(`${index + 1}. ${product.title}`);
-      lines.push(`SKU: ${product.sku}`);
-      lines.push(`Product: ${location.origin}${productUrl(product)}`);
-      if (variant) lines.push(`Option: ${variant.label}`);
-      else if (product.optionsStatus === "confirm") lines.push("Options: To be confirmed");
-      lines.push(`Quantity: ${item.qty}`);
-      lines.push(value.confirmed ? `Price: ${formatMoney(value.price)} each` : "Price: To be confirmed");
-      if (value.confirmed) lines.push(`Line total: ${formatMoney(value.price * item.qty)}`);
-      lines.push("");
-    });
-    if (summary.confirmedTotal) lines.push(`Confirmed-price subtotal: ${formatMoney(summary.confirmedTotal)}`);
-    if (summary.enquiryCount) lines.push(`${summary.enquiryCount} item(s) require price confirmation.`);
-    if (cartNote.trim()) lines.push(`Order note: ${cartNote.trim()}`);
-    lines.push("Please confirm availability, final payable total, delivery and payment details.");
-    return lines.join("\n");
   }
 
   function renderCart() {
@@ -628,27 +604,6 @@
       <div class="stable-quick__info">${badge}<p>${escapeHtml(categoryMeta[product.category]?.title || product.category)}</p><h2 id="quick-title">${escapeHtml(product.title)}</h2><small>SKU: ${escapeHtml(product.sku)}</small>${priceMarkup(product, "stable-quick__price")}${craftsmanshipBadgesHtml}<p>${escapeHtml(product.description)}</p>
       ${!isSoldOut ? '<div class="stable-qty"><button type="button" data-quick-qty="-1" aria-label="Decrease quantity">−</button><span id="quick-qty">1</span><button type="button" data-quick-qty="1" aria-label="Increase quantity">+</button></div>' : ""}
       <div class="stable-quick__actions">${addControl}<button class="stable-button stable-button--plain ${wishlist.has(product.id) ? "is-active" : ""}" type="button" data-wishlist-toggle="${product.id}">♡ Save to Your Edit</button><a class="stable-button stable-button--plain" href="${productUrl(product)}">View Full Product</a></div><details><summary>Craftsmanship &amp; Specifications</summary><p><strong>Material:</strong> Premium Stainless Steel with 18K Luxury Gold PVD Plating<br><strong>Water Resistance:</strong> 100% Waterproof &amp; Sweatproof<br><strong>Skin Friendly:</strong> Hypoallergenic, Lead &amp; Nickel Free<br><strong>Warranty:</strong> Anti-Tarnish Lifetime Warranty Guarantee</p></details></div>`;
-  }
-
-  function singleProductMessage(product, quantity = 1, variant = null) {
-    const value = pricing(product);
-    const lines = [`Hi Shivara, I would like to enquire about ${product.title}.`, `SKU: ${product.sku}`, `Product: ${location.origin}${productUrl(product)}`];
-    if (variant) lines.push(`Option: ${variant.label}`);
-    lines.push(`Quantity: ${quantity}`);
-    if (value.confirmed) {
-      lines.push(`Price: ${formatMoney(value.price)} each`);
-      lines.push(`Line total: ${formatMoney(value.price * quantity)}`);
-    } else {
-      lines.push("Price: To be confirmed");
-    }
-    lines.push("Please confirm availability, options, final payable amount and delivery.");
-    return lines.join("\n");
-  }
-
-  function updateQuickWhatsapp() {
-    const link = document.querySelector("[data-quick-whatsapp]");
-    if (!link || !quickState.product) return;
-    link.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(singleProductMessage(quickState.product, quickState.quantity))}`;
   }
 
   function openQuick(id, trigger) {
@@ -892,7 +847,6 @@
       const mobileBuy = mount.querySelector(".stable-mobile-buy");
       mobileBuy?.insertAdjacentHTML("beforebegin", `<section class="stable-products stable-products--pdp" data-recently-viewed><div class="stable-section-heading"><div><p>YOUR TRAIL</p><h2>Recently viewed</h2></div></div><div class="commerce-product-grid">${recentProducts.map(productCard).join("")}</div></section>`);
     }
-    updatePdpWhatsapp(product);
     setupMobileBuyBar();
     setupPdpGallery();
     if (sessionStorage.getItem("shivara-transition-product") === product.id) {
@@ -956,14 +910,6 @@
   function selectedPdpVariant(product) {
     const id = document.querySelector('input[name="pdp-variant"]:checked')?.value;
     return validVariant(product, id);
-  }
-
-  function updatePdpWhatsapp(product) {
-    const href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(singleProductMessage(product, pdpQuantity(), selectedPdpVariant(product)))}`;
-    const link = document.querySelector("#pdp-whatsapp");
-    const mobileLink = document.querySelector("#pdp-mobile-whatsapp");
-    if (link) link.href = href;
-    if (mobileLink) mobileLink.href = href;
   }
 
   function renderWishlist() {
@@ -1381,9 +1327,7 @@
       return wishlist.has(id);
     },
     refreshCounts: updateCounts,
-    showToast,
-    productMessage: singleProductMessage,
-    whatsappNumber
+    showToast
   });
 
   window.bootstrapStorefront = bootstrapStorefront;

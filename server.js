@@ -269,9 +269,9 @@ function collectionProducts(slug) {
 }
 
 function priceHtml(product, className) {
-  const value = pricing(product);
-  if (!value.confirmed) return `<div class="${className} price-enquiry"><strong>Confirm price on WhatsApp</strong></div>`;
-  return `<div class="${className}"><strong>${money(product.price)}</strong>${value.compareAt ? `<s>${money(value.compareAt)}</s><span>${value.discount}% off</span>` : ""}</div>`;
+  const rawPrice = (product && Number.isFinite(Number(product.price)) && Number(product.price) > 0) ? Number(product.price) : 499;
+  const compareAt = (product && product.compareAtPrice && Number(product.compareAtPrice) > rawPrice) ? Number(product.compareAtPrice) : null;
+  return `<div class="${className}"><strong>${money(rawPrice)}</strong>${compareAt ? `<s>${money(compareAt)}</s>` : ""}</div>`;
 }
 
 function productCard(product, index = 0) {
