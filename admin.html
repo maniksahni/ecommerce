@@ -1716,6 +1716,140 @@
         min-height: 46px !important;
       }
     }
+
+    /* ─── OMS & Tab Switcher Styles ─── */
+    .admin-nav-tabs {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 28px 0;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0;
+    }
+
+    .admin-tab-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      background: transparent;
+      border: 0;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+    }
+
+    .admin-tab-button:hover {
+      color: var(--choco);
+    }
+
+    .admin-tab-button.is-active {
+      color: var(--choco);
+      border-bottom-color: var(--gold-dark);
+    }
+
+    .admin-tab-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: var(--gold-dim);
+      color: var(--gold-dark);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .admin-tab-button.is-active .admin-tab-badge {
+      background: var(--choco);
+      color: #fff;
+    }
+
+    .tab-view {
+      display: none;
+    }
+
+    .tab-view.is-active {
+      display: block;
+    }
+
+    /* Status Dropdown Badges */
+    .status-select {
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      outline: none;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: #fff;
+      transition: all 0.2s ease;
+    }
+
+    .status-select--pending { background: #fff8e1; color: #b78103; border-color: #ffe082; }
+    .status-select--processing { background: #e3f2fd; color: #1565c0; border-color: #90caf9; }
+    .status-select--shipped { background: #f3e5f5; color: #7b1fa2; border-color: #ce93d8; }
+    .status-select--delivered { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+    .status-select--cancelled { background: #ffebee; color: #c62828; border-color: #ef9a9a; }
+
+    /* Order Details Modal Grid */
+    .order-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    @media (max-width: 640px) {
+      .order-detail-grid { grid-template-columns: 1fr; }
+    }
+
+    .order-info-card {
+      background: var(--ivory-dim);
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    .order-info-card h4 {
+      margin: 0 0 8px 0;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--gold-dark);
+    }
+
+    .order-info-card p {
+      margin: 4px 0;
+      font-size: 12px;
+      color: var(--choco);
+      line-height: 1.45;
+    }
+
+    .order-items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 20px;
+      text-align: left;
+    }
+
+    .order-items-table th, .order-items-table td {
+      padding: 10px 12px;
+      font-size: 12px;
+      border-bottom: 1px solid var(--border);
+    }
   </style>
 </head>
 <body>
@@ -1777,6 +1911,21 @@
 
     <!-- Main Content -->
     <main class="admin-main">
+
+      <!-- Navigation Tabs: Products vs Orders -->
+      <nav class="admin-nav-tabs" role="tablist">
+        <button type="button" class="admin-tab-button is-active" id="tab-btn-products" role="tab" aria-selected="true" data-tab="products">
+          <span>💍 Products Catalogue</span>
+          <span class="admin-tab-badge" id="tab-badge-products">114</span>
+        </button>
+        <button type="button" class="admin-tab-button" id="tab-btn-orders" role="tab" aria-selected="false" data-tab="orders">
+          <span>📦 Orders &amp; Concierge (OMS)</span>
+          <span class="admin-tab-badge" id="tab-badge-orders">0</span>
+        </button>
+      </nav>
+
+      <!-- VIEW 1: PRODUCTS CATALOGUE -->
+      <div id="view-products" class="tab-view is-active">
 
       <!-- Stats Summary -->
       <section class="stats-grid">
@@ -1869,7 +2018,7 @@
           </button>
           <button type="button" class="category-pill" data-cat="rings">
             <span class="pill-name">Rings</span>
-            <span class="pill-count" id="count-rings">7</span>
+            <span class="pill-count" id="count-rings">23</span>
           </button>
           <button type="button" class="category-pill" data-cat="pendants">
             <span class="pill-name">Pendants</span>
@@ -1884,99 +2033,76 @@
             <span class="pill-count" id="count-new-arrivals">12</span>
           </button>
           <button type="button" class="category-pill" data-cat="sets">
-            <span class="pill-name">Jewellery Sets</span>
-            <span class="pill-count" id="count-sets">4</span>
+            <span class="pill-name">Sets</span>
+            <span class="pill-count" id="count-sets">3</span>
           </button>
           <button type="button" class="category-pill" data-cat="watches">
             <span class="pill-name">Watches</span>
             <span class="pill-count" id="count-watches">4</span>
           </button>
           <button type="button" class="category-pill" data-cat="anti-tarnish">
-            <span class="pill-name">Anti-Tarnish</span>
+            <span class="pill-name">Anti Tarnish</span>
             <span class="pill-count" id="count-anti-tarnish">16</span>
           </button>
           <button type="button" class="category-pill" data-cat="gifting">
             <span class="pill-name">Gifting</span>
             <span class="pill-count" id="count-gifting">23</span>
           </button>
-          <button type="button" class="category-pill" data-cat="other">
-            <span class="pill-name">Other</span>
-            <span class="pill-count" id="count-other">1</span>
-          </button>
         </div>
+      </div>
+
+      <!-- Live Firestore Status Bar -->
+      <div id="live-action-bar" class="live-action-bar">
+        <span class="live-action-icon">⚡</span>
+        <span id="live-action-text">Connected to live Firestore: changes sync instantly to cloud &amp; storefront</span>
       </div>
 
       <!-- Products Table -->
       <div class="table-container">
-        <table id="products-table">
+        <table>
           <thead>
             <tr>
-              <th>Image</th>
-              <th>Product Title &amp; Slug</th>
+              <th>Item</th>
               <th>Category</th>
-              <th>Live Price (INR)</th>
-              <th>Status</th>
-              <th style="text-align: right;">Actions &amp; Controls</th>
+              <th>Live Price (₹)</th>
+              <th>Inventory Status</th>
+              <th>Actions</th>
             </tr>
           </thead>
-          <tbody id="products-tbody">
-            <!-- Initial Shimmer Skeleton Cards while loading -->
+          <tbody id="products-table-body">
             <tr>
-              <td colspan="6">
-                <div class="skeleton-container" id="skeleton-loader">
-                  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-content"><div class="skeleton-line w-70"></div><div class="skeleton-line w-40"></div><div class="skeleton-line w-20"></div></div><div class="skeleton-shimmer"></div></div>
-                  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-content"><div class="skeleton-line w-70"></div><div class="skeleton-line w-40"></div><div class="skeleton-line w-20"></div></div><div class="skeleton-shimmer"></div></div>
-                  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-content"><div class="skeleton-line w-70"></div><div class="skeleton-line w-40"></div><div class="skeleton-line w-20"></div></div><div class="skeleton-shimmer"></div></div>
-                </div>
+              <td colspan="5" style="text-align:center; padding:36px; color:var(--muted)">
+                Loading catalogue items…
               </td>
             </tr>
           </tbody>
         </table>
-
-        <!-- Infinite Scroll Sentinel & Load Status -->
-        <div class="catalog-sentinel" id="catalog-sentinel">
-          <span class="sentinel-status" id="sentinel-status">Loading catalogue…</span>
-        </div>
       </div>
 
-      <!-- Product Form Section -->
-      <div id="product-form-section" class="section-header" style="margin-top: 54px;">
-        <div>
-          <h2 class="section-title" id="form-heading">Add New Product</h2>
-          <p class="section-subtitle" id="form-subheading">Upload an image or paste URL to publish directly to Firestore</p>
+      <!-- Add / Edit Product Form -->
+      <div class="product-form-card" id="product-form-section">
+        <div class="form-header">
+          <div>
+            <h3 class="form-title" id="form-title">+ Add New Product</h3>
+            <p class="form-subtitle" id="form-subtitle">Add a bespoke jewellery piece directly to your live Firestore catalogue</p>
+          </div>
+          <span class="badge" id="form-mode-badge">New Item</span>
         </div>
-      </div>
 
-      <!-- Edit Mode Banner -->
-      <div class="edit-alert-banner" id="edit-alert-banner">
-        <div>
-          <strong id="edit-banner-title">Editing Product</strong>
-          <p>Modify the fields below and click "Update Product in Firestore" to save changes.</p>
-        </div>
-        <button type="button" class="btn btn-outline btn-sm" id="cancel-edit-btn">
-          ✕ Cancel Edit Mode
-        </button>
-      </div>
-
-      <!-- Add / Edit Form Card -->
-      <div class="form-card">
-        <form id="product-form" name="add-product-form" class="add-product-form" autocomplete="off">
-          <input type="hidden" id="form-doc-id" />
-          <input type="hidden" id="form-existing-image" />
+        <form id="product-form" autocomplete="off">
+          <input type="hidden" id="form-edit-id" />
 
           <div class="form-grid">
 
-            <div class="form-divider">1. Product Identity</div>
-
             <div class="form-group">
-              <label for="form-title">Product Title <span>*</span></label>
-              <input type="text" id="form-title" class="form-control" placeholder="e.g. Classic Gold Hoop Earrings" required maxlength="80" />
+              <label for="form-title-input">Product Title *</label>
+              <input type="text" id="form-title-input" class="form-control" placeholder="e.g. Baroque Pearl Drop Earrings" required />
             </div>
 
             <div class="form-group">
-              <label for="form-category">Category <span>*</span></label>
+              <label for="form-category">Category *</label>
               <select id="form-category" class="form-control" required>
-                <option value="">Select Category…</option>
+                <option value="">Select a category…</option>
                 <option value="earrings">Earrings</option>
                 <option value="necklaces">Necklaces / Neck Wear</option>
                 <option value="bracelets">Bracelets &amp; Bangles</option>
@@ -1988,31 +2114,46 @@
                 <option value="watches">Watches</option>
                 <option value="anti-tarnish">Anti Tarnish</option>
                 <option value="gifting">Gifting</option>
-                <option value="other">Other Jewellery</option>
+                <option value="other">Other / Custom</option>
               </select>
             </div>
 
-            <div class="form-divider">2. Pricing &amp; Inventory</div>
-
             <div class="form-group">
-              <label for="form-price">Price (INR ₹) <span>*</span></label>
-              <input type="number" id="form-price" class="form-control" placeholder="e.g. 499" min="1" step="1" required />
+              <label for="form-price">Price (₹ INR) *</label>
+              <input type="number" id="form-price" class="form-control" placeholder="499" min="1" step="1" required />
             </div>
 
             <div class="form-group">
-              <label for="form-is-sold-out">Initial Stock Status</label>
-              <select id="form-is-sold-out" class="form-control">
-                <option value="false">In Stock (Available for Purchase)</option>
-                <option value="true">Sold Out (Mark as Unavailable)</option>
+              <label for="form-compare-price">Compare-at Price (₹ Optional)</label>
+              <input type="number" id="form-compare-price" class="form-control" placeholder="999 (crossed out on storefront)" min="1" step="1" />
+            </div>
+
+            <div class="form-group">
+              <label for="form-sku">SKU (Stock Keeping Unit)</label>
+              <input type="text" id="form-sku" class="form-control" placeholder="e.g. SHV-EAR-007 (auto-generated if empty)" />
+            </div>
+
+            <div class="form-group">
+              <label for="form-stock">Initial Stock Status</label>
+              <select id="form-stock" class="form-control">
+                <option value="in-stock">In Stock (Available)</option>
+                <option value="sold-out">Sold Out (Out of Stock)</option>
               </select>
             </div>
 
-            <div class="form-divider">3. Media &amp; Product Details</div>
-
+            <!-- Smart Dual Image Ingestion Section -->
             <div class="form-group full">
-              <label>Product Image <span id="img-required-star">*</span></label>
-              <div class="img-upload-box">
-                <img id="img-preview" class="img-preview-thumb" alt="Product preview" />
+              <label class="img-main-label">Product Image Ingestion *</label>
+              
+              <div class="dual-image-container">
+                <div class="img-preview-box" id="img-preview-box">
+                  <div class="preview-empty" id="preview-empty">
+                    <span>📷</span>
+                    <small>No photo selected</small>
+                  </div>
+                  <img id="form-preview-img" class="form-preview-img" style="display:none;" alt="Product preview" />
+                </div>
+
                 <div class="img-upload-controls">
                   <div class="file-upload-subgroup">
                     <label for="form-image-file" class="sub-input-label">Upload Photo from Device (Auto-Compressed)</label>
@@ -2055,6 +2196,88 @@
         <span class="fab-label">Add Product</span>
       </a>
 
+      </div><!-- /view-products -->
+
+      <!-- VIEW 2: ORDER MANAGEMENT SYSTEM (OMS) -->
+      <div id="view-orders" class="tab-view">
+        <!-- Orders Stats Summary -->
+        <section class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Orders</div>
+            <div class="stat-value" id="stat-orders-total">0</div>
+            <div class="stat-sub">lifetime guest orders</div>
+          </div>
+
+          <div class="stat-card stat-card--sold-out">
+            <div class="stat-label">Pending Orders</div>
+            <div class="stat-value" id="stat-orders-pending" style="color:var(--gold-dark)">0</div>
+            <div class="stat-sub">awaiting concierge confirmation</div>
+          </div>
+
+          <div class="stat-card stat-card--in-stock">
+            <div class="stat-label">Delivered Orders</div>
+            <div class="stat-value" id="stat-orders-delivered" style="color:var(--green)">0</div>
+            <div class="stat-sub">fulfilled &amp; delivered</div>
+          </div>
+
+          <div class="stat-card stat-card--revenue">
+            <div class="stat-label">Gross Order Value</div>
+            <div class="stat-value" id="stat-orders-revenue">₹0</div>
+            <div class="stat-sub">from recorded orders</div>
+          </div>
+        </section>
+
+        <!-- Orders Section Header -->
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Guest Orders &amp; WhatsApp Concierge</h2>
+            <p class="section-subtitle">Real-time order feed streamed directly from Firestore orders collection</p>
+          </div>
+        </div>
+
+        <!-- Orders Search & Status Toolbar -->
+        <div class="toolbar">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="orders-search-input" placeholder="Search by Order ID, customer name, phone, PIN, or item…" />
+          </div>
+
+          <select id="orders-status-filter" class="filter-select">
+            <option value="all">All Order Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Processing">Processing</option>
+            <option value="Shipped">Shipped</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <!-- Orders Table Container -->
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Date &amp; Time</th>
+                <th>Customer Name</th>
+                <th>Contact</th>
+                <th>Items &amp; SKU</th>
+                <th>Total (INR)</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="orders-table-body">
+              <tr>
+                <td colspan="8" style="text-align:center; padding:36px; color:var(--muted)">
+                  Connecting to live orders collection…
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div><!-- /view-orders -->
+
     </main>
   </div>
 
@@ -2095,7 +2318,31 @@
   </div>
 
   <!-- ════════════════════════════════════════
-       5. TOAST NOTIFICATION CONTAINER
+       5. ORDER DETAILS MODAL (OMS)
+  ════════════════════════════════════════ -->
+  <div class="modal-overlay" id="order-details-modal">
+    <div class="modal-card" style="max-width: 680px; text-align: left;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:12px;">
+        <div>
+          <h3 class="modal-title" id="order-modal-title" style="margin:0;">Order Details</h3>
+          <p class="modal-desc" id="order-modal-date" style="margin:2px 0 0; font-size:11px; color:var(--muted);"></p>
+        </div>
+        <button type="button" class="btn btn-outline btn-sm" id="order-modal-close-btn">✕ Close</button>
+      </div>
+
+      <div id="order-modal-body"></div>
+
+      <div class="modal-actions" style="margin-top:16px; border-top:1px solid var(--border); padding-top:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <a id="order-modal-whatsapp-btn" href="#" target="_blank" rel="noreferrer" class="btn btn-gold btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+          💬 Chat with Customer on WhatsApp
+        </a>
+        <button type="button" class="btn btn-outline btn-sm" id="order-modal-close-bottom-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       6. TOAST NOTIFICATION CONTAINER
   ════════════════════════════════════════ -->
   <div class="toast" id="toast"></div>
 
@@ -2162,6 +2409,13 @@
     let deletingDocId = null;
     let unsubscribeProducts = null;
 
+    /* ─── OMS Orders State ─── */
+    let allOrders = [];
+    let unsubscribeOrders = null;
+    let currentOrdersStatusFilter = 'all';
+    let currentOrdersSearchQuery = '';
+    let ordersSearchDebounceTimer = null;
+
     /* ─── Toast System ─── */
     let toastTimer = null;
     function showToast(message, type = 'default') {
@@ -2202,14 +2456,19 @@
         console.warn('[Admin Debug] Firebase Auth initialization note:', err);
       }
 
-      // Start live Real-Time Firestore onSnapshot listener
+      // Start live Real-Time Firestore onSnapshot listeners
       subscribeToFirestoreProducts();
+      subscribeToFirestoreOrders();
     }
 
     function lockDashboard() {
       if (unsubscribeProducts) {
         unsubscribeProducts();
         unsubscribeProducts = null;
+      }
+      if (unsubscribeOrders) {
+        unsubscribeOrders();
+        unsubscribeOrders = null;
       }
       const adminScreen = $('#admin-screen');
       const loginScreen = $('#login-screen');
@@ -2254,6 +2513,454 @@
         if (input) input.type = input.type === 'password' ? 'text' : 'password';
       });
     }
+
+    /* ─── Navigation Tabs Switcher ─── */
+    function switchTab(tabName) {
+      const btnProducts = $('#tab-btn-products');
+      const btnOrders = $('#tab-btn-orders');
+      const viewProducts = $('#view-products');
+      const viewOrders = $('#view-orders');
+
+      if (tabName === 'orders') {
+        btnProducts?.classList.remove('is-active');
+        btnProducts?.setAttribute('aria-selected', 'false');
+        btnOrders?.classList.add('is-active');
+        btnOrders?.setAttribute('aria-selected', 'true');
+
+        viewProducts?.classList.remove('is-active');
+        viewOrders?.classList.add('is-active');
+        renderOrdersTable();
+      } else {
+        btnOrders?.classList.remove('is-active');
+        btnOrders?.setAttribute('aria-selected', 'false');
+        btnProducts?.classList.add('is-active');
+        btnProducts?.setAttribute('aria-selected', 'true');
+
+        viewOrders?.classList.remove('is-active');
+        viewProducts?.classList.add('is-active');
+        applyFilters();
+      }
+    }
+
+    $('#tab-btn-products')?.addEventListener('click', () => switchTab('products'));
+    $('#tab-btn-orders')?.addEventListener('click', () => switchTab('orders'));
+
+    /* ─── Real-Time Orders Stream & OMS Engine ─── */
+    function updateOrderStats() {
+      const total = allOrders.length;
+      const pending = allOrders.filter(o => o.status === 'Pending' || o.status === 'Processing').length;
+      const delivered = allOrders.filter(o => o.status === 'Delivered').length;
+      const grossRevenue = allOrders.reduce((sum, o) => {
+        if (o.status !== 'Cancelled') {
+          return sum + (Number(o.totalAmount) || 0);
+        }
+        return sum;
+      }, 0);
+
+      const totalEl = $('#stat-orders-total');
+      const pendingEl = $('#stat-orders-pending');
+      const deliveredEl = $('#stat-orders-delivered');
+      const revenueEl = $('#stat-orders-revenue');
+      const badgeOrders = $('#tab-badge-orders');
+
+      if (totalEl) totalEl.textContent = total;
+      if (pendingEl) pendingEl.textContent = pending;
+      if (deliveredEl) deliveredEl.textContent = delivered;
+      if (revenueEl) revenueEl.textContent = `₹${grossRevenue.toLocaleString('en-IN')}`;
+      if (badgeOrders) badgeOrders.textContent = total;
+    }
+
+    function renderOrdersTable() {
+      const tbody = $('#orders-table-body');
+      if (!tbody) return;
+
+      let filtered = [...allOrders];
+
+      if (currentOrdersStatusFilter !== 'all') {
+        filtered = filtered.filter(o => o.status === currentOrdersStatusFilter);
+      }
+
+      if (currentOrdersSearchQuery.trim()) {
+        const q = currentOrdersSearchQuery.toLowerCase().trim();
+        filtered = filtered.filter(o => {
+          const id = (o.orderId || '').toLowerCase();
+          const name = (o.customerName || '').toLowerCase();
+          const phone = (o.customerPhone || '').toLowerCase();
+          const pin = (o.pincode || '').toLowerCase();
+          const itemsStr = (Array.isArray(o.items) ? o.items.map(i => i.title).join(' ') : '').toLowerCase();
+          return id.includes(q) || name.includes(q) || phone.includes(q) || pin.includes(q) || itemsStr.includes(q);
+        });
+      }
+
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:48px 16px; color:var(--muted)">
+          <div style="font-size:32px; margin-bottom:8px;">📦</div>
+          <strong>No orders found</strong>
+          <p style="font-size:12px; margin:4px 0 0;">Orders placed on the storefront will appear here live in real-time.</p>
+        </td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(order => {
+        const dateStr = order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : (order.createdAt || 'Recent');
+        const status = order.status || 'Pending';
+        const statusClass = `status-select status-select--${status.toLowerCase()}`;
+        const phone = order.customerPhone || '';
+        const rawPhone = phone.replace(/[^0-9]/g, '').slice(-10);
+        const waLink = rawPhone ? `https://wa.me/91${rawPhone}?text=${encodeURIComponent(`Hi ${order.customerName || 'Customer'}, regarding your Shivara order #${order.orderId || order.id}:`)}` : '#';
+        const itemCount = Array.isArray(order.items) ? order.items.reduce((s, i) => s + (i.quantity || 1), 0) : 1;
+        const firstItem = Array.isArray(order.items) && order.items[0] ? order.items[0].title : 'Jewellery Item';
+        const itemSummary = itemCount > 1 ? `${esc(firstItem)} <small style="color:var(--muted)">(+${itemCount - 1} more)</small>` : esc(firstItem);
+        const totalFormatted = `₹${(Number(order.totalAmount) || 0).toLocaleString('en-IN')}`;
+
+        return `<tr data-order-id="${esc(order.orderId || order.id)}">
+          <td><strong style="color:var(--choco); font-family:monospace; font-size:13px;">#${esc(order.orderId || order.id)}</strong></td>
+          <td style="white-space:nowrap; color:var(--muted); font-size:11px;">${esc(dateStr)}</td>
+          <td>
+            <strong>${esc(order.customerName || 'Guest Customer')}</strong>
+            ${order.pincode ? `<div style="font-size:10px; color:var(--muted);">PIN: ${esc(order.pincode)}</div>` : ''}
+          </td>
+          <td>
+            <a href="${waLink}" target="_blank" rel="noreferrer" class="btn btn-sm btn-outline" style="padding:4px 8px; font-size:11px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+              💬 ${esc(phone || 'WhatsApp')}
+            </a>
+          </td>
+          <td>${itemSummary}</td>
+          <td><strong style="color:var(--rose);">${totalFormatted}</strong></td>
+          <td>
+            <select class="${statusClass}" data-action="change-order-status" data-order-id="${esc(order.orderId || order.id)}">
+              <option value="Pending" ${status === 'Pending' ? 'selected' : ''}>Pending</option>
+              <option value="Processing" ${status === 'Processing' ? 'selected' : ''}>Processing</option>
+              <option value="Shipped" ${status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+              <option value="Delivered" ${status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+              <option value="Cancelled" ${status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+            </select>
+          </td>
+          <td>
+            <button type="button" class="btn btn-sm btn-outline" data-action="view-order-details" data-order-id="${esc(order.orderId || order.id)}">
+              View
+            </button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    function subscribeToFirestoreOrders() {
+      if (unsubscribeOrders) {
+        unsubscribeOrders();
+        unsubscribeOrders = null;
+      }
+
+      try {
+        const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+        unsubscribeOrders = onSnapshot(q, (snapshot) => {
+          const ordersList = [];
+          snapshot.forEach(docSnap => {
+            ordersList.push({
+              id: docSnap.id,
+              ...docSnap.data()
+            });
+          });
+          allOrders = ordersList;
+          updateOrderStats();
+          renderOrdersTable();
+        }, (err) => {
+          console.warn("Orders query fallback note:", err.message);
+          onSnapshot(collection(db, "orders"), (fallbackSnap) => {
+            const fallbackList = [];
+            fallbackSnap.forEach(d => fallbackList.push({ id: d.id, ...d.data() }));
+            allOrders = fallbackList;
+            updateOrderStats();
+            renderOrdersTable();
+          });
+        });
+      } catch (err) {
+        console.warn("Subscribe orders error:", err);
+      }
+    }
+
+    window.updateOrderStatus = async function(orderId, newStatus) {
+      try {
+        const orderRef = doc(db, "orders", String(orderId));
+        await setDoc(orderRef, {
+          status: newStatus,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        const order = allOrders.find(o => o.orderId === orderId || o.id === orderId);
+        if (order) order.status = newStatus;
+        updateOrderStats();
+        renderOrdersTable();
+        showToast(`✓ Order #${orderId} status updated to ${newStatus}`, 'success');
+        return true;
+      } catch (err) {
+        console.error("Order status update failed:", err);
+        showToast("Status update failed: " + err.message, "error");
+        return false;
+      }
+    };
+
+    window.openOrderDetailsModal = function(orderId) {
+      const order = allOrders.find(o => o.orderId === orderId || o.id === orderId);
+      if (!order) {
+        showToast("Order details not found", "error");
+        return;
+      }
+
+      const modalTitle = $('#order-modal-title');
+      const modalDate = $('#order-modal-date');
+      const modalBody = $('#order-modal-body');
+      const waBtn = $('#order-modal-whatsapp-btn');
+      const modal = $('#order-details-modal');
+
+      if (modalTitle) modalTitle.textContent = `Order #${order.orderId || order.id}`;
+      const dateStr = order.createdAt?.toDate ? order.createdAt.toDate().toLocaleString('en-IN') : (order.createdAt || 'Recent');
+      if (modalDate) modalDate.textContent = `Placed on ${dateStr} · Status: ${order.status || 'Pending'}`;
+
+      const phone = order.customerPhone || '';
+      const rawPhone = phone.replace(/[^0-9]/g, '').slice(-10);
+      if (waBtn) {
+        waBtn.href = rawPhone ? `https://wa.me/91${rawPhone}?text=${encodeURIComponent(`Hi ${order.customerName || 'Customer'}, regarding your Shivara order #${order.orderId || order.id}:`)}` : '#';
+      }
+
+      const items = Array.isArray(order.items) ? order.items : [];
+      const itemsHtml = items.map((item) => {
+        const img = item.imageUrl ? `<img src="${esc(item.imageUrl)}" style="width:44px; height:44px; object-fit:cover; border-radius:4px;" alt="" />` : `<div style="width:44px; height:44px; background:var(--ivory-dim); border-radius:4px; display:flex; align-items:center; justify-content:center;">💍</div>`;
+        return `<tr>
+          <td style="width:50px;">${img}</td>
+          <td><strong>${esc(item.title || 'Product')}</strong>${item.sku ? `<br><small style="color:var(--muted)">SKU: ${esc(item.sku)}</small>` : ''}${item.variantLabel ? ` · ${esc(item.variantLabel)}` : ''}</td>
+          <td>₹${Number(item.price || 0).toLocaleString('en-IN')}</td>
+          <td>${item.quantity || 1}</td>
+          <td style="text-align:right;"><strong>₹${((Number(item.price) || 0) * (item.quantity || 1)).toLocaleString('en-IN')}</strong></td>
+        </tr>`;
+      }).join('');
+
+      if (modalBody) {
+        modalBody.innerHTML = `
+          <div class="order-detail-grid">
+            <div class="order-info-card">
+              <h4>Customer Information</h4>
+              <p><strong>Name:</strong> ${esc(order.customerName || 'Guest')}</p>
+              <p><strong>WhatsApp:</strong> ${esc(order.customerPhone || 'N/A')}</p>
+              ${order.orderNote ? `<p><strong>Order Note:</strong> <em>"${esc(order.orderNote)}"</em></p>` : ''}
+            </div>
+            <div class="order-info-card">
+              <h4>Delivery Address</h4>
+              <p>${esc(order.shippingAddress || (order.shippingDetails && order.shippingDetails.shippingAddress) || 'Address not provided')}</p>
+              <p><strong>PIN Code:</strong> ${esc(order.pincode || (order.shippingDetails && order.shippingDetails.pincode) || 'N/A')}</p>
+            </div>
+          </div>
+
+          <h4 style="margin:16px 0 6px; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--gold-dark);">Ordered Items</h4>
+          <table class="order-items-table">
+            <thead>
+              <tr style="background:var(--ivory-dim); color:var(--choco);">
+                <th>Item</th>
+                <th>Description</th>
+                <th>Unit Price</th>
+                <th>Qty</th>
+                <th style="text-align:right;">Line Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+          </table>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--ivory-dim); padding:12px 16px; border-radius:6px; border:1px solid var(--border); flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <label style="font-size:11px; font-weight:700; text-transform:uppercase;">Status:</label>
+              <select class="status-select status-select--${(order.status || 'Pending').toLowerCase()}" data-action="change-order-status" data-order-id="${esc(order.orderId || order.id)}">
+                <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
+                <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                <option value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+              </select>
+            </div>
+            <div style="font-size:15px;">
+              <span>Grand Total: </span>
+              <strong style="color:var(--rose); font-size:18px;">₹${(Number(order.totalAmount) || 0).toLocaleString('en-IN')}</strong>
+            </div>
+          </div>
+        `;
+      }
+
+      modal?.classList.add('is-open');
+    };
+
+    function closeOrderDetailsModal() {
+      $('#order-details-modal')?.classList.remove('is-open');
+    }
+
+    $('#order-modal-close-btn')?.addEventListener('click', closeOrderDetailsModal);
+    $('#order-modal-close-bottom-btn')?.addEventListener('click', closeOrderDetailsModal);
+
+    // Orders Filter Toolbar Listeners
+    $('#orders-search-input')?.addEventListener('input', (e) => {
+      clearTimeout(ordersSearchDebounceTimer);
+      ordersSearchDebounceTimer = setTimeout(() => {
+        currentOrdersSearchQuery = e.target.value;
+        renderOrdersTable();
+      }, 120);
+    });
+
+    $('#orders-status-filter')?.addEventListener('change', (e) => {
+      currentOrdersStatusFilter = e.target.value;
+      renderOrdersTable();
+    });
+
+    // Delegated Change Listener for Order Status dropdowns
+    document.addEventListener('change', async (e) => {
+      if (e.target && e.target.getAttribute('data-action') === 'change-order-status') {
+        const orderId = e.target.getAttribute('data-order-id');
+        const newStatus = e.target.value;
+        if (orderId && newStatus) {
+          e.target.className = `status-select status-select--${newStatus.toLowerCase()}`;
+          await window.updateOrderStatus(orderId, newStatus);
+        }
+      }
+    });
+
+    /* ═══════════════════════════════════════════════════════════════
+       GLOBAL EVENT DELEGATION ENGINE
+       One permanent listener on document handles ALL actions.
+    ═══════════════════════════════════════════════════════════════ */
+    if (!document._shivaraDelegationAttached) {
+      document._shivaraDelegationAttached = true;
+
+      document.addEventListener('click', async function shivaraActionRouter(e) {
+        const target = e.target.closest('[data-action]');
+        if (!target) return;
+
+        const action = target.getAttribute('data-action');
+        const docId  = target.getAttribute('data-id');
+        const orderId = target.getAttribute('data-order-id');
+
+        if (action === 'view-order-details') {
+          e.preventDefault();
+          if (orderId) window.openOrderDetailsModal(orderId);
+          return;
+        }
+
+        // All product actions require a docId
+        if (['toggle-stock','quick-price-edit','open-edit','delete-product'].includes(action)) {
+          if (!docId) {
+            console.error('[Admin] Action fired with no data-id', target);
+            return;
+          }
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        switch (action) {
+
+          // ── SOLD OUT TOGGLE ───────────────────────────────────────
+          case 'toggle-stock': {
+            const currentSold = target.getAttribute('data-sold') === 'true';
+            await window.toggleStockStatus(docId, currentSold);
+            break;
+          }
+
+          // ── QUICK PRICE EDIT ──────────────────────────────────────
+          case 'quick-price-edit': {
+            const currentPrice = target.getAttribute('data-price') || '499';
+            openPriceModal(docId, currentPrice);
+            break;
+          }
+
+          // ── FULL EDIT (populate form) ─────────────────────────────
+          case 'open-edit': {
+            const product = allProducts.find(p => p.id === docId);
+            if (product) startEditProduct(product);
+            else showToast('Product data not found in cache.', 'error');
+            break;
+          }
+
+          // ── DELETE PRODUCT ────────────────────────────────────────
+          case 'delete-product': {
+            const title = target.getAttribute('data-title') || 'this product';
+            openDeleteModal(docId, title);
+            break;
+          }
+
+          default:
+            break;
+        }
+      });
+    }
+
+    /* ─── 7. Delete Product Modal ─── */
+    function openDeleteModal(docId, title) {
+      deletingDocId = docId;
+      $('#delete-modal-msg').textContent = `Are you sure you want to permanently delete "${title}" from Firestore?`;
+      $('#delete-modal').classList.add('is-open');
+    }
+
+    function closeDeleteModal() {
+      $('#delete-modal').classList.remove('is-open');
+      deletingDocId = null;
+    }
+
+    $('#delete-cancel-btn').addEventListener('click', closeDeleteModal);
+
+    $('#delete-confirm-btn').addEventListener('click', async () => {
+      if (!deletingDocId) return;
+      const btn = $('#delete-confirm-btn');
+      const btnText = $('#delete-confirm-text');
+
+      btn.disabled = true;
+      btnText.innerHTML = '<span class="spinner"></span> Deleting…';
+
+      try {
+        const idToDelete = deletingDocId;
+        closeDeleteModal();
+        await window.deleteAdminProduct(idToDelete);
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = 'Delete Permanently';
+      }
+    });
+
+    /* ─── 8. Filter, Search & Category Events ─── */
+    $('#search-input')?.addEventListener('input', () => {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => {
+        applyFilters();
+      }, 120);
+    });
+    $('#stock-filter')?.addEventListener('change', applyFilters);
+
+    // Wire up Category Pills
+    const pillsTrack = $('#category-pills-track');
+    if (pillsTrack) {
+      pillsTrack.addEventListener('click', (e) => {
+        const btn = e.target.closest('.category-pill');
+        if (!btn) return;
+        const cat = btn.getAttribute('data-cat') || 'all';
+
+        // Update active pill styling
+        $$('.category-pill', pillsTrack).forEach(b => b.classList.toggle('is-active', b === btn));
+
+        // Sync dropdown filter
+        const select = $('#category-filter');
+        if (select) select.value = cat;
+
+        applyFilters();
+      });
+    }
+
+    // When dropdown filter changes, sync active category pill
+    $('#category-filter')?.addEventListener('change', (e) => {
+      const selected = e.target.value;
+      if (pillsTrack) {
+        $$('.category-pill', pillsTrack).forEach(b => {
+          b.classList.toggle('is-active', b.getAttribute('data-cat') === selected);
+        });
+      }
+      applyFilters();
+    });
+
 
     /* ─── 2. Initialize Baseline Products Immediately ─── */
     function initializeBaselineProducts() {

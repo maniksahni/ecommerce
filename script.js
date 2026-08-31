@@ -1199,8 +1199,77 @@
       } catch {}
 
       const summary = cartSummary();
-      const orderRef = "SHV-" + Date.now().toString(36).toUpperCase().slice(-5);
+      const orderRef = "SHV-" + Math.floor(10000 + Math.random() * 90000);
       const dateStr = new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+
+      const orderItems = cart.map(item => {
+        const product = productMap.get(item.id);
+        const variant = validVariant(product, item.variantId);
+        const value = pricing(product);
+        return {
+          productId: product?.id || item.id,
+          slug: product?.slug || item.id,
+          sku: product?.sku || "",
+          title: product?.title || "Jewellery Item",
+          price: value.confirmed ? value.price : 499,
+          quantity: item.qty,
+          imageUrl: (product?.images && product.images[0]) || "",
+          variantLabel: variant?.label || null
+        };
+      });
+
+      const orderDocument = {
+        orderId: orderRef,
+        customerName: name,
+        customerPhone: phone,
+        shippingAddress: address,
+        pincode: pincode,
+        orderNote: note || "",
+        shippingDetails: {
+          customerName: name,
+          customerPhone: phone,
+          shippingAddress: address,
+          pincode: pincode,
+          orderNote: note || ""
+        },
+        items: orderItems,
+        itemCount: cart.reduce((sum, i) => sum + i.qty, 0),
+        totalAmount: summary.confirmedTotal,
+        status: "Pending"
+      };
+
+      // Save to localStorage for frictionless guest reference
+      try {
+        localStorage.setItem("shivara_recent_order", JSON.stringify({
+          orderId: orderRef,
+          date: dateStr,
+          totalAmount: summary.confirmedTotal,
+          items: orderItems,
+          shippingDetails: orderDocument.shippingDetails,
+          status: "Pending"
+        }));
+      } catch {}
+
+      // Persist to Firestore orders collection asynchronously
+      (async () => {
+        try {
+          const { db } = await import("/src/firebase.js");
+          const { doc, writeBatch, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js");
+          const batch = writeBatch(db);
+          const orderDocRef = doc(db, "orders", orderRef);
+          
+          batch.set(orderDocRef, {
+            ...orderDocument,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
+
+          await batch.commit();
+          console.log("[OMS] Order persisted to Firestore:", orderRef);
+        } catch (err) {
+          console.warn("[OMS] Note on Firestore order persistence:", err?.message || err);
+        }
+      })();
 
       const lines = [
         "✨ *NEW ORDER ENQUIRY — THE SHIVARA GROUP* ✨",
@@ -1244,7 +1313,7 @@
       const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
       closeLayer();
-      showToast("✓ Order invoice ready! Opening WhatsApp Concierge…");
+      showToast(`✓ Order #${orderRef} confirmed! Opening WhatsApp Concierge…`);
       window.open(whatsappUrl, "_blank");
       return;
     }

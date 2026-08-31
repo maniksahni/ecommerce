@@ -120,6 +120,55 @@ function normalizeAdminProductInput(body, { existingSlugs = new Set() } = {}) {
   };
 }
 
+const ordersFile = path.join(dataDirectory, "admin-orders.json");
+
+function loadAdminOrdersStore() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(ordersFile, "utf8"));
+    return Array.isArray(raw) ? raw : (raw.orders || []);
+  } catch {
+    return [];
+  }
+}
+
+function saveAdminOrdersStore(orders) {
+  const payload = Array.isArray(orders) ? orders : [];
+  fs.mkdirSync(path.dirname(ordersFile), { recursive: true });
+  fs.writeFileSync(ordersFile, `${JSON.stringify(payload, null, 2)}\n`, { mode: 0o600 });
+  return payload;
+}
+
+function normalizeAdminOrderInput(body) {
+  const orderId = String(body?.orderId || `SHV-${Math.floor(10000 + Math.random() * 90000)}`).trim();
+  const customerName = String(body?.customerName || body?.name || "").trim();
+  const customerPhone = String(body?.customerPhone || body?.phone || "").trim();
+  const shippingAddress = String(body?.shippingAddress || body?.address || "").trim();
+  const pincode = String(body?.pincode || "").trim();
+  const items = Array.isArray(body?.items) ? body.items : [];
+  const totalAmount = Number(body?.totalAmount) || 0;
+  const status = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"].includes(body?.status) ? body.status : "Pending";
+
+  if (!customerName) return { error: "Customer name is required" };
+  if (!customerPhone) return { error: "Customer phone is required" };
+  if (!shippingAddress) return { error: "Shipping address is required" };
+  if (!items.length) return { error: "Order must contain at least one item" };
+
+  return {
+    order: {
+      orderId,
+      customerName,
+      customerPhone,
+      shippingAddress,
+      pincode,
+      orderNote: String(body?.orderNote || "").trim(),
+      items,
+      totalAmount,
+      status,
+      createdAt: body?.createdAt || new Date().toISOString()
+    }
+  };
+}
+
 module.exports = {
   adminStoreMtime,
   allowedCategories,
@@ -128,5 +177,9 @@ module.exports = {
   loadAdminStore,
   normalizeAdminProductInput,
   saveAdminStore,
-  slugify
+  slugify,
+  ordersFile,
+  loadAdminOrdersStore,
+  saveAdminOrdersStore,
+  normalizeAdminOrderInput
 };
