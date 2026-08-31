@@ -89,8 +89,7 @@
       related = [],
       recent = [],
       isWishlisted = false,
-      origin = "",
-      whatsappNumber = "919457041215"
+      origin = ""
     } = options;
     const isSoldOut = product.isSoldOut === true;
     const category = categoryLabels[product.category] || product.category;
@@ -101,7 +100,7 @@
       ? `<button class="stable-button stable-button--dark" type="button" disabled aria-disabled="true" style="opacity:0.6; cursor:not-allowed;">Sold Out</button>`
       : `<button class="stable-button stable-button--dark" type="button" data-pdp-add="${escapeHtml(product.id)}">Add to Bag</button>`;
     
-    const cardOptions = { origin, whatsappNumber, context: "shared related product renderer" };
+    const cardOptions = { origin, context: "shared related product renderer" };
     const media = [
       ...product.images.map((src, index) => ({ type: "image", src, index })),
       ...(product.videos || []).map((src, index) => ({ type: "video", src, index }))

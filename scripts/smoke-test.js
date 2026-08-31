@@ -143,9 +143,8 @@ async function main() {
   await page.locator('[data-pdp-add="tulip-pendant"]').first().click();
   assert((await page.locator("#cart-lines").getByText("Tulip Pendant", { exact: true }).count()) === 1, "Add to Bag adds the correct product");
   await page.locator("[data-cart-note]").fill("Gift wrap please");
-  const cartHref = await page.locator(".stable-cart-footer a[href*='wa.me']").getAttribute("href");
-  const cartMessage = decodeURIComponent(cartHref);
-  assert(cartMessage.includes("Tulip Pendant") && cartMessage.includes("SHV-PND-003") && cartMessage.includes("Quantity: 1") && cartMessage.includes("₹299") && cartMessage.includes("Gift wrap please"), "WhatsApp bag message contains product, SKU, quantity, confirmed price and order note");
+  const checkoutBtn = await page.locator(".stable-cart-footer button[data-open-checkout]").textContent();
+  assert(checkoutBtn.includes("Proceed to Checkout"), "Proceed to Checkout button is visible and active in cart");
   await page.reload({ waitUntil: "domcontentloaded" });
   assert((await page.locator("[data-cart-count]").first().textContent()) === "1", "cart persists after refresh");
   await page.locator(".stable-header [data-cart-open]").click();

@@ -8,7 +8,7 @@
     : (src) => `/${String(src || "").replace(/^\/+/, "")}`;
   if (!catalogApi || !cardRenderer) {
     console.error("[Shivara] Curated catalogue failed to load. Commerce has been disabled.");
-    document.querySelector("#main")?.insertAdjacentHTML("afterbegin", '<div class="stable-shop-unavailable" role="alert"><strong>The Shivara shop is temporarily unavailable.</strong><span>Please contact us on WhatsApp for assistance.</span></div>');
+    document.querySelector("#main")?.insertAdjacentHTML("afterbegin", '<div class="stable-shop-unavailable" role="alert"><strong>The Shivara shop is temporarily unavailable.</strong><span>Please contact support for assistance.</span></div>');
     document.querySelectorAll("[data-card-add], [data-pdp-add], [data-quick-add]").forEach((control) => {
       control.disabled = true;
     });
@@ -41,7 +41,7 @@
     rings: { title: "Rings", kicker: "THE RING EDIT", description: "Statement and gift-ready rings with options confirmed product by product." },
     "evil-eye": { title: "Evil Eye", kicker: "THE PROTECTION EDIT", description: "Products explicitly classified in Shivara's evil-eye collection." },
     "anti-tarnish": { title: "Anti Tarnish", kicker: "THE EVERYDAY EDIT", description: "Products explicitly included in Shivara's anti-tarnish collection." },
-    gifting: { title: "Gifting", kicker: "THE GIFTING ROOM", description: "Gift-ready products with personal WhatsApp assistance." },
+    gifting: { title: "Gifting", kicker: "THE GIFTING ROOM", description: "Gift-ready products with signature luxury velvet box packaging." },
     sets: { title: "Jewellery Sets", kicker: "THE COORDINATED EDIT", description: "Curated multi-piece jewellery sets with item-specific pricing." },
     watches: { title: "Watches", kicker: "THE WATCH EDIT", description: "Watches kept separate from bracelet and ring collections." },
     "new-arrivals": { title: "New Arrivals", kicker: "JUST LANDED", description: "The latest products explicitly included in the curated catalogue." }
@@ -60,8 +60,8 @@
   const heroIds = ["boxed-evil-eye-bracelet", "floral-statement-ring", "tulip-pendant"];
   const announcements = [
     "Curated Shivara products only",
-    "PAN India delivery confirmed on WhatsApp",
-    "Personal shopping: +91 94570 41215"
+    "PAN India express complimentary shipping",
+    "Concierge shopping: +91 94570 41215"
   ];
   const rotationDelays = Object.freeze({
     announcement: 6000,
@@ -254,7 +254,7 @@
         <div class="stable-menu-utility"><button type="button" data-menu-search>Search products <span>⌕</span></button><a href="/wishlist">Your wishlist <span data-wishlist-count>0</span></a></div>
         <nav><small>SHOP BY CATEGORY</small>${categoryRail.map(([label, slug]) => `<a href="${collectionUrl(slug)}">${label}<span>${productsForCollection(slug).length}</span></a>`).join("")}<a href="/collections/all"><strong>All Products</strong><span>${products.length}</span></a></nav>
         <a class="stable-menu-feature" href="${productUrl(menuFeature)}"><img src="${escapeHtml(mediaHref(menuFeature.images[0]))}" alt="${escapeHtml(menuFeature.imageAlt)}" /><span><small>THE SHIVARA EDIT</small><strong>${escapeHtml(menuFeature.title)}</strong><em>View product</em></span></a>
-        <div class="stable-menu-help"><p>Need help choosing?</p><a href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hi Shivara, I would like help choosing a jewellery piece.")}" target="_blank" rel="noreferrer">Chat with Shivara on WhatsApp</a></div>
+        <div class="stable-menu-help"><p>Need concierge assistance?</p><a href="tel:+919457041215">Call Concierge: +91 94570 41215</a></div>
       </aside>
       <aside class="stable-drawer stable-drawer--search" id="search-drawer" role="dialog" aria-modal="true" aria-labelledby="search-title" aria-hidden="true">
         <div class="stable-layer__head"><div><small>DISCOVER THE EDIT</small><h2 id="search-title">Search Shivara</h2></div><button type="button" data-layer-close aria-label="Close search">×</button></div>
@@ -272,9 +272,9 @@
         <div class="luxury-checkout-card">
           <button class="stable-quick__close" type="button" data-layer-close aria-label="Close Checkout">×</button>
           <div class="checkout-header">
-            <small>THE SHIVARA CONCIERGE</small>
-            <h2 id="checkout-modal-title">Express WhatsApp Checkout</h2>
-            <p>Your order will be instantly prepared for express dispatch with our signature gift packaging.</p>
+            <small>THE SHIVARA ATELIER</small>
+            <h2 id="checkout-modal-title">Express Secure Checkout</h2>
+            <p>Enter your delivery details to confirm your order.</p>
           </div>
           <div class="checkout-order-summary" id="checkout-order-summary"></div>
           <form class="checkout-form" id="checkout-details-form">
@@ -282,7 +282,7 @@
               <label for="cust-name"><span>Full Name <strong class="req">*</strong></span><input type="text" id="cust-name" required placeholder="e.g. Radhika Sharma" /></label>
             </div>
             <div class="form-row">
-              <label for="cust-phone"><span>WhatsApp Number <strong class="req">*</strong></span><input type="tel" id="cust-phone" required placeholder="e.g. 9876543210" pattern="[0-9]{10}" maxlength="10" /></label>
+              <label for="cust-phone"><span>Phone Number <strong class="req">*</strong></span><input type="tel" id="cust-phone" required placeholder="e.g. 9876543210" pattern="[0-9]{10}" maxlength="10" /></label>
             </div>
             <div class="form-row">
               <label for="cust-address"><span>Delivery Address <strong class="req">*</strong></span><textarea id="cust-address" required rows="2" placeholder="House/Flat No, Apartment/Street, City, State"></textarea></label>
@@ -294,8 +294,8 @@
               <label for="cust-note"><span>Gift Message / Order Note <small>(Optional)</small></span><input type="text" id="cust-note" placeholder="Gift card note or delivery instructions" /></label>
             </div>
             <div class="checkout-actions">
-              <button type="submit" class="stable-button stable-button--whatsapp checkout-submit-btn">
-                <span>💬 Place Order via WhatsApp Concierge</span>
+              <button type="submit" class="stable-button stable-button--dark checkout-submit-btn">
+                <span>Confirm Order</span>
               </button>
               <button type="button" class="stable-button stable-button--plain" data-layer-close>Return to Bag</button>
             </div>
@@ -560,7 +560,7 @@
 
     lines.innerHTML = `${giftBarHtml}<div class="stable-cart-group">${cart.map(renderLine).join("")}</div>`;
     const complement = catalogApi.getRelatedProducts(productMap.get(cart[0].id)).find((product) => !cart.some((item) => item.id === product.id));
-    footer.innerHTML = `${complement ? `<article class="stable-cart-complement"><img src="${escapeHtml(mediaHref(complement.images[0]))}" alt="" /><div><small>COMPLETE THE EDIT</small><strong>${escapeHtml(complement.title)}</strong>${priceMarkup(complement, "stable-search-price")}</div><button type="button" data-quick-view="${complement.id}">View</button></article>` : ""}<label class="stable-cart-note"><span>Order note or gifting request <small>Optional</small></span><textarea data-cart-note maxlength="240" rows="2" placeholder="Gift message, preferred delivery date, or anything Shivara should know">${escapeHtml(cartNote)}</textarea></label><div class="stable-cart-total"><span>Subtotal</span><strong>${formatMoney(summary.confirmedTotal)}</strong></div><div class="stable-cart-service"><span>✓ 100% Anti-Tarnish Lifetime Warranty</span><span>✓ Handcrafted Luxury Finish</span><span>✓ Verified atelier pieces</span></div><button class="stable-button stable-button--whatsapp" type="button" data-open-checkout>💬 Proceed to Checkout</button><a class="stable-button stable-button--whatsapp" data-cart-whatsapp href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent(cartMessage())}" target="_blank" rel="noreferrer" style="display:none;">Send order enquiry on WhatsApp</a><button class="stable-button stable-button--plain" type="button" data-layer-close>Continue Shopping</button>`;
+    footer.innerHTML = `${complement ? `<article class="stable-cart-complement"><img src="${escapeHtml(mediaHref(complement.images[0]))}" alt="" /><div><small>COMPLETE THE EDIT</small><strong>${escapeHtml(complement.title)}</strong>${priceMarkup(complement, "stable-search-price")}</div><button type="button" data-quick-view="${complement.id}">View</button></article>` : ""}<label class="stable-cart-note"><span>Order note or gifting request <small>Optional</small></span><textarea data-cart-note maxlength="240" rows="2" placeholder="Gift message, preferred delivery date, or anything Shivara should know">${escapeHtml(cartNote)}</textarea></label><div class="stable-cart-total"><span>Subtotal</span><strong>${formatMoney(summary.confirmedTotal)}</strong></div><div class="stable-cart-service"><span>✓ 100% Anti-Tarnish Lifetime Warranty</span><span>✓ Handcrafted Luxury Finish</span><span>✓ Verified atelier pieces</span></div><button class="stable-button stable-button--dark" type="button" data-open-checkout>Proceed to Checkout</button><button class="stable-button stable-button--plain" type="button" data-layer-close>Continue Shopping</button>`;
     updateCounts();
   }
 
@@ -1300,56 +1300,14 @@
         }
       })();
 
-      const lines = [
-        "✨ *NEW ORDER ENQUIRY — THE SHIVARA GROUP* ✨",
-        `*Order Ref:* #${orderRef}`,
-        `*Date:* ${dateStr}`,
-        "───────────────────────────",
-        "👤 *CUSTOMER DETAILS*",
-        `*Name:* ${name}`,
-        `*WhatsApp:* +91 ${phone}`,
-        `*Delivery Address:* ${address}`,
-        `*PIN Code:* ${pincode}`,
-        note ? `*Special Request:* ${note}` : "",
-        "───────────────────────────",
-        "🛍️ *ORDER ITEMS*"
-      ].filter(Boolean);
-
-      cart.forEach((item, index) => {
-        const product = productMap.get(item.id);
-        const variant = validVariant(product, item.variantId);
-        const value = pricing(product);
-        const itemPrice = value.confirmed ? formatMoney(value.price) : "Price on request";
-        const lineTotal = value.confirmed ? formatMoney(value.price * item.qty) : "To be confirmed";
-        lines.push(`${index + 1}. *${product ? product.title : item.id}*`);
-        lines.push(`   SKU: ${product ? product.sku : ""} ${variant ? `| Option: ${variant.label}` : ""}`);
-        lines.push(`   Qty: ${item.qty} × ${itemPrice} = *${lineTotal}*`);
-      });
-
-      lines.push("───────────────────────────");
-      if (summary.confirmedTotal > 0) {
-        lines.push(`💰 *TOTAL PAYABLE:* *${formatMoney(summary.confirmedTotal)}*`);
-      }
-      if (summary.enquiryCount > 0) {
-        lines.push(`ℹ️ _${summary.enquiryCount} item(s) require atelier price confirmation._`);
-      }
-      lines.push("🎁 *Complimentary Signature Velvet Box Included*");
-      lines.push("🛡️ *100% Anti-Tarnish Lifetime Warranty*");
-      lines.push("───────────────────────────");
-      lines.push("Please confirm stock availability and send payment UPI/QR code to confirm dispatch.");
-
-      const message = lines.join("\n");
-      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-
       // Clear the Cart on successful order placement
       cart.length = 0;
-      saveState(CART_KEY, cart);
+      saveCart();
       updateCounts();
-      renderCartDrawer();
+      renderCart();
 
       closeLayer();
-      showToast(`✓ Order #${orderRef} Confirmed! Opening WhatsApp Concierge…`);
-      window.open(whatsappUrl, "_blank");
+      showToast(`✓ Order Confirmed! Your Order ID is: #${orderRef}`);
       return;
     }
 
@@ -1366,7 +1324,7 @@
       return;
     }
     input.removeAttribute("aria-invalid");
-    if (result) result.innerHTML = `Shivara serves PAN India. Delivery timeline and charges for <strong>${escapeHtml(pincode)}</strong> will be confirmed on WhatsApp before payment.`;
+    if (result) result.innerHTML = `Shivara serves PAN India. Express complimentary delivery active for <strong>${escapeHtml(pincode)}</strong>.`;
   });
 
   window.addEventListener("popstate", () => {
