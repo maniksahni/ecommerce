@@ -174,12 +174,7 @@ if (fs.existsSync(firebaseConfigPath)) {
         headers: [
           { key: "X-Shivara-Build", value: buildInfo.commit },
           { key: "X-Shivara-Catalog-Version", value: buildInfo.catalogVersion },
-          { key: "X-Shivara-App-Version", value: buildInfo.appVersion }
-        ]
-      },
-      {
-        source: "**/*.@(html|htm|js|css)",
-        headers: [
+          { key: "X-Shivara-App-Version", value: buildInfo.appVersion },
           { key: "Cache-Control", value: "max-age=0, no-cache, no-store, must-revalidate" }
         ]
       },

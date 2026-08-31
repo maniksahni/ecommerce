@@ -13,7 +13,7 @@
         "headers": [
           {
             "key": "X-Shivara-Build",
-            "value": "5c807a960bc8b51ac6f68692eb7d87729ee835ba"
+            "value": "e09319239692f3a247c40818d335f3ce7a8beb42"
           },
           {
             "key": "X-Shivara-Catalog-Version",
@@ -22,12 +22,7 @@
           {
             "key": "X-Shivara-App-Version",
             "value": "1.2.0"
-          }
-        ]
-      },
-      {
-        "source": "**/*.@(html|htm|js|css)",
-        "headers": [
+          },
           {
             "key": "Cache-Control",
             "value": "max-age=0, no-cache, no-store, must-revalidate"
