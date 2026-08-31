@@ -83,7 +83,7 @@
       price: Number.isFinite(entry.price) ? entry.price : null,
       compareAtPrice: Number.isFinite(entry.compareAtPrice) ? entry.compareAtPrice : null,
       currency: entry.currency || "INR",
-      priceStatus: entry.priceStatus || (Number.isFinite(entry.price) ? "confirmed" : "enquiry"),
+      priceStatus: entry.priceStatus || "confirmed",
       offerText: entry.offerText || null,
       badge: entry.badge || "New",
       optionsStatus: entry.optionsStatus || "none",

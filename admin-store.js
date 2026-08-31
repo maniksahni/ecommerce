@@ -67,9 +67,9 @@ function normalizeAdminProductInput(body, { existingSlugs = new Set() } = {}) {
   const slug = slugify(body?.slug || title);
   const category = String(body?.category || "").trim();
   const imageUrl = String(body?.imageUrl || (Array.isArray(body?.images) ? body.images[0] : "") || "").trim();
-  const priceStatus = body?.priceStatus === "confirmed" ? "confirmed" : "enquiry";
-  const price = priceStatus === "confirmed" ? Number(body?.price) : null;
-  const compareAtPrice = priceStatus === "confirmed" && body?.compareAtPrice ? Number(body.compareAtPrice) : null;
+  const priceStatus = "confirmed";
+  const price = Number.isFinite(Number(body?.price)) && Number(body?.price) > 0 ? Number(body.price) : 499;
+  const compareAtPrice = body?.compareAtPrice && Number(body.compareAtPrice) > price ? Number(body.compareAtPrice) : null;
   const collections = [...new Set((Array.isArray(body?.collections) ? body.collections : [])
     .map(String)
     .filter((value) => allowedCollections.has(value)))];

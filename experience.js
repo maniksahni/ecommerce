@@ -142,7 +142,7 @@
       hero.querySelector("[data-hero-price]").innerHTML = priceMarkup(product, "floating-atelier__price");
       hero.querySelector("[data-hero-product-link]").href = `/products/${product.slug}`;
       const purchase = hero.querySelector("[data-hero-purchase]");
-      purchase.textContent = api.getPurchaseMode(product) === "direct" ? "Add to Bag" : "Enquire";
+      purchase.textContent = "Add to Bag";
       purchase.dataset.heroPurchase = product.id;
       hero.querySelector("[data-hero-wishlist]").dataset.experienceWishlist = product.id;
       hero.querySelector("[data-hero-count]").textContent = `${pad(state.hero + 1)} / ${pad(heroIds.length)}`;
@@ -234,9 +234,8 @@
     const selected = stackProducts.filter((product) => state.stack.has(product.id));
     document.querySelector("#stack-preview").innerHTML = selected.length ? selected.map((product, index) => `<figure style="--stack-index:${index}"><img src="${image(product)}" alt="${escapeHtml(product.imageAlt)}" /><button type="button" data-stack-toggle="${product.id}" aria-label="Remove ${escapeHtml(product.title)}">×</button></figure>`).join("") : `<div class="stacking-studio__empty">Choose pieces from the tray</div>`;
     document.querySelector("#stack-tray").innerHTML = stackProducts.map((product) => `<button class="${state.stack.has(product.id) ? "is-selected" : ""}" type="button" data-stack-toggle="${product.id}" aria-pressed="${state.stack.has(product.id)}"><img src="${image(product)}" alt="" /><span>${escapeHtml(product.title)}</span><small>${escapeHtml(api.formatPrice(product).label)}</small></button>`).join("");
-    const confirmedSubtotal = selected.reduce((sum, product) => sum + (api.formatPrice(product).price || 0), 0);
-    const enquiries = selected.filter((product) => !api.formatPrice(product).confirmed || api.getPurchaseMode(product) === "enquiry");
-    document.querySelector("#stack-summary").innerHTML = `<div><span>${selected.length} selected</span><strong>Confirmed subtotal: ${new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(confirmedSubtotal)}</strong></div>${enquiries.length ? `<p>${enquiries.length} piece${enquiries.length > 1 ? "s" : ""} require price or option confirmation and are not added to the subtotal.</p>` : ""}<span class="visually-hidden">${escapeHtml(message)}</span>`;
+    const confirmedSubtotal = selected.reduce((sum, product) => sum + (api.formatPrice(product).price || 499), 0);
+    document.querySelector("#stack-summary").innerHTML = `<div><span>${selected.length} selected</span><strong>Subtotal: ${new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(confirmedSubtotal)}</strong></div><span class="visually-hidden">${escapeHtml(message)}</span>`;
     document.querySelector("[data-stack-add]").disabled = !selected.length;
     document.querySelector("[data-stack-save]").disabled = !selected.length;
   }
@@ -325,7 +324,7 @@
       state.stack.forEach((id) => store.toggleWishlist(id));
       return store.showToast("Saved to Your Shivara Edit.");
     }
-    if (target.closest("[data-stack-add]")) return store.addProducts([...state.stack], { openBag: true, allowEnquiry: true });
+    if (target.closest("[data-stack-add]")) return store.addProducts([...state.stack], { openBag: true });
     if (target.closest("[data-ring-prev], [data-ring-next]")) return renderRings(state.ring + (target.closest("[data-ring-prev]") ? -1 : 1));
     const ring = target.closest("[data-ring-index]");
     if (ring) return renderRings(Number(ring.dataset.ringIndex));
@@ -333,7 +332,7 @@
     if (lookTab) return renderLook(Number(lookTab.dataset.lookIndex), 0);
     const lookProduct = target.closest("[data-look-product]");
     if (lookProduct) return renderLook(state.look, Number(lookProduct.dataset.lookProduct));
-    if (target.closest("[data-look-add]")) return store.addProducts(looks[state.look].ids, { openBag: true, allowEnquiry: true });
+    if (target.closest("[data-look-add]")) return store.addProducts(looks[state.look].ids, { openBag: true });
     if (target.closest("[data-watch-prev], [data-watch-next]")) return renderWatch(state.watch + (target.closest("[data-watch-prev]") ? -1 : 1));
     const watch = target.closest("[data-watch-index]");
     if (watch) return renderWatch(Number(watch.dataset.watchIndex));

@@ -244,7 +244,7 @@ function adminProductSummary(product) {
     sku: String(product.sku || ""),
     category: String(product.category || "other"),
     price: Number.isFinite(product.price) ? product.price : null,
-    priceStatus: product.priceStatus === "confirmed" ? "confirmed" : "enquiry",
+    priceStatus: "confirmed",
     images: primaryImage ? [String(primaryImage)] : [],
     imageAlt: String(product.imageAlt || product.title || "Product image"),
     sourceType: productSource(product),

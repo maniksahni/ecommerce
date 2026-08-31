@@ -124,7 +124,6 @@
 .floating-atelier__price strong { font-size: 15px; }
 .floating-atelier__price s { color: #777; font-size: 10px; }
 .floating-atelier__price span { color: var(--phase-red); font-size: 9px; }
-.floating-atelier__price.is-enquiry strong { color: var(--phase-green); font-size: 12px; }
 .floating-atelier__actions { display: grid; grid-template-columns: 1fr 1fr 38px; gap: 7px; margin-top: 18px; }
 .floating-atelier__actions .stable-button { min-height: 39px; padding: 8px; font-size: 9px; }
 .floating-atelier__wish { width: 38px; border: 1px solid var(--phase-ink); background: transparent; cursor: pointer; }
@@ -203,7 +202,6 @@
 .featured-product-card__data h3 { margin: 14px 0; font: 400 clamp(38px, 4.5vw, 65px)/.95 "Italiana", serif; letter-spacing: 0; }
 .featured-product-card__data > p:last-child { max-width: 330px; font-size: 11px; line-height: 1.6; }
 .featured-product-card__price { display: flex; gap: 9px; align-items: baseline; }
-.featured-product-card__price.is-enquiry strong { color: #cfe3d9; }
 .featured-product-card__badge { position: absolute; z-index: 2; top: 18px; left: 18px; padding: 7px 9px; color: #fff; background: var(--phase-red); font-size: 8px; font-weight: 700; text-transform: uppercase; }
 .featured-product-card__wish { position: absolute; z-index: 3; top: 18px; right: 18px; width: 38px; height: 38px; border: 1px solid rgba(255,255,255,.6); border-radius: 50%; color: #fff; background: transparent; font-size: 19px; cursor: pointer; }
 .featured-product-card__actions { position: absolute; z-index: 3; right: 22px; bottom: 22px; display: flex; gap: 8px; align-items: center; transform: translateY(8px); opacity: .78; transition: transform var(--motion-fast), opacity var(--motion-fast); }
@@ -403,7 +401,6 @@ html[data-visual-tier="lite"] .product-story__sticky { position: relative; min-h
   .floating-atelier__card { position: relative; z-index: 7; right: auto; top: auto; bottom: auto; width: 100%; padding: 0; color: #fff; background: transparent; box-shadow: none; transform: none; }
   .floating-atelier__card > div:first-child, .floating-atelier__card h2, .floating-atelier__card > p { display: none; }
   .floating-atelier__price { margin-bottom: 9px; }
-  .floating-atelier__price.is-enquiry strong { color: #d9eee4; }
   .floating-atelier__actions { grid-template-columns: 1fr 1fr 40px; margin-top: 0; }
   .floating-atelier__actions .stable-button { min-height: 42px; }
   .floating-atelier__wish { border-color: #fff; color: #fff; }

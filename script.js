@@ -492,10 +492,9 @@
     return cart.reduce((summary, item) => {
       const product = productMap.get(item.id);
       const value = pricing(product);
-      if (value.confirmed) summary.confirmedTotal += value.price * item.qty;
-      else summary.enquiryCount += item.qty;
+      summary.confirmedTotal += (value.price || 499) * item.qty;
       return summary;
-    }, { confirmedTotal: 0, enquiryCount: 0 });
+    }, { confirmedTotal: 0 });
   }
 
   function renderCart() {
@@ -764,7 +763,6 @@
     const state = collectionState();
     let selected = productsForCollection(slug);
     if (state.price === "confirmed") selected = selected.filter((product) => pricing(product).confirmed);
-    if (state.price === "enquiry") selected = selected.filter((product) => !pricing(product).confirmed);
     if (slug === "all" && state.category !== "all" && categoryMeta[state.category]) {
       selected = selected.filter((product) => product.category === state.category || (product.collections || []).includes(state.category));
     }
@@ -1293,9 +1291,9 @@
   }
 
   window.ShivaraStorefront = Object.freeze({
-    addProducts(ids, { openBag = true, allowEnquiry = false } = {}) {
+    addProducts(ids, { openBag = true } = {}) {
       const uniqueIds = [...new Set(Array.isArray(ids) ? ids : [])];
-      const added = uniqueIds.filter((id) => addToCart(id, null, 1, allowEnquiry));
+      const added = uniqueIds.filter((id) => addToCart(id, null, 1));
       if (added.length && openBag) openLayer("#cart-drawer");
       return added;
     },
