@@ -3172,8 +3172,84 @@
       }
     }
 
-    // Expose globally so inline onclick attrs can also call it
+    // Expose global helper methods for direct and script-driven actions
     window.executeDirectFirestoreSave = executeDirectFirestoreSave;
+
+    window.toggleStockStatus = async function(productId, currentStatus) {
+      try {
+        const item = allProducts.find(p => p.id === productId || p.slug === productId);
+        const targetDocId = item?.id || productId;
+        const newSoldState = typeof currentStatus === 'boolean' ? !currentStatus : !item?.isSoldOut;
+        
+        // Optimistic UI update
+        if (item) item.isSoldOut = newSoldState;
+        updateStats();
+        applyFilters();
+
+        const productRef = doc(db, "products", String(targetDocId));
+        await setDoc(productRef, {
+          isSoldOut: Boolean(newSoldState),
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        showToast(`✓ "${item?.title || 'Product'}" marked as ${newSoldState ? 'SOLD OUT' : 'IN STOCK'} (saved to cloud)`, 'success');
+        return true;
+      } catch (err) {
+        console.error("Failed to update stock in Firestore:", err);
+        showToast("Stock update failed: " + err.message, "error");
+        return false;
+      }
+    };
+
+    window.updateProductPrice = async function(productId, newPrice) {
+      try {
+        const item = allProducts.find(p => p.id === productId || p.slug === productId);
+        const targetDocId = item?.id || productId;
+        const priceVal = Number(newPrice);
+
+        if (item) {
+          item.price = priceVal;
+          item.priceStatus = 'confirmed';
+        }
+        applyFilters();
+        updateStats();
+
+        const productRef = doc(db, "products", String(targetDocId));
+        await setDoc(productRef, {
+          price: priceVal,
+          priceStatus: 'confirmed',
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        showToast(`✓ Price updated to ₹${priceVal.toLocaleString('en-IN')} & saved to cloud`, 'success');
+        return true;
+      } catch (err) {
+        console.error("Failed to update price in Firestore:", err);
+        showToast("Price update failed: " + err.message, "error");
+        return false;
+      }
+    };
+
+    window.deleteAdminProduct = async function(productId) {
+      try {
+        const item = allProducts.find(p => p.id === productId || p.slug === productId);
+        const targetDocId = item?.id || productId;
+
+        allProducts = allProducts.filter(p => p.id !== targetDocId && p.slug !== targetDocId && p.id !== productId);
+        window.adminProductsCache = allProducts;
+        applyFilters();
+        updateStats();
+
+        const productRef = doc(db, "products", String(targetDocId));
+        await deleteDoc(productRef);
+        showToast('✓ Product deleted live in cloud', 'success');
+        return true;
+      } catch (err) {
+        console.error('Delete error in Firestore:', err);
+        showToast('Delete failed: ' + err.message, 'error');
+        return false;
+      }
+    };
 
     // Attach listeners — use addEventListener so they survive any DOM re-paint
     function attachFormListeners() {
@@ -3236,46 +3312,7 @@
           // ── SOLD OUT TOGGLE ───────────────────────────────────────
           case 'toggle-stock': {
             const currentSold = target.getAttribute('data-sold') === 'true';
-            const newSoldState = !currentSold;
-
-            // Optimistic UI: flip button immediately
-            target.setAttribute('data-sold', String(newSoldState));
-            target.textContent = newSoldState ? '✓ In Stock' : '✕ Sold Out';
-            target.className   = target.className
-              .replace(/btn-success|btn-danger/g, '')
-              .trim() + (newSoldState ? ' btn-success' : ' btn-danger');
-
-            // Update cache
-            const item = allProducts.find(p => p.id === docId);
-            if (item) item.isSoldOut = newSoldState;
-
-            // Update status badge in same row
-            const row = target.closest('tr[data-id]');
-            if (row) {
-              const badge = row.querySelector('.status-badge');
-              if (badge) {
-                badge.textContent  = newSoldState ? 'Sold Out' : 'In Stock';
-                badge.className    = newSoldState
-                  ? 'status-badge status-badge--sold-out'
-                  : 'status-badge status-badge--in-stock';
-              }
-            }
-
-            updateStats();
-
-            // Firestore write
-            try {
-              const targetDocId = item?.id || docId;
-              const productRef = doc(db, 'products', String(targetDocId));
-              await setDoc(productRef, {
-                isSoldOut: Boolean(newSoldState),
-                updatedAt: serverTimestamp()
-              }, { merge: true });
-              showToast(`✓ "${item?.title || 'Product'}" marked as ${newSoldState ? 'SOLD OUT' : 'IN STOCK'} (saved to cloud)`, 'success');
-            } catch (err) {
-              console.error('[Admin] toggleStock Firestore error:', err);
-              showToast('Cloud update failed: ' + err.message, 'error');
-            }
+            await window.toggleStockStatus(docId, currentSold);
             break;
           }
 
@@ -3307,7 +3344,7 @@
       });
     }
 
-    /* ─── 7. Delete Product ─── */
+    /* ─── 7. Delete Product Modal ─── */
     function openDeleteModal(docId, title) {
       deletingDocId = docId;
       $('#delete-modal-msg').textContent = `Are you sure you want to permanently delete "${title}" from Firestore?`;
@@ -3330,16 +3367,9 @@
       btnText.innerHTML = '<span class="spinner"></span> Deleting…';
 
       try {
-        allProducts = allProducts.filter(p => p.id !== deletingDocId && p.slug !== deletingDocId);
-        applyFilters();
-        updateStats();
+        const idToDelete = deletingDocId;
         closeDeleteModal();
-
-        await deleteDoc(doc(db, "products", deletingDocId));
-        showToast('✓ Product deleted live in cloud', 'success');
-      } catch (err) {
-        console.error('Delete error:', err);
-        showToast(`Deleted locally (Firestore note: ${err.message})`, 'default');
+        await window.deleteAdminProduct(idToDelete);
       } finally {
         btn.disabled = false;
         btnText.textContent = 'Delete Permanently';
