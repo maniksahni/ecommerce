@@ -219,11 +219,11 @@
               <div class="stable-nav__mega-features">${megaFeatures.map(([product, label]) => `<a href="${productUrl(product)}"><img src="${escapeHtml(mediaHref(product.images[0]))}" alt="" /><span><small>${label}</small><strong>${escapeHtml(product.title)}</strong></span></a>`).join("")}</div>
             </div>
           </div>
-          <a href="/collections/new-arrivals">New Arrivals</a><a href="/collections/earrings">Earrings</a><a href="/collections/necklaces">Neck Wear</a><a href="/collections/bracelets">Bracelets</a><a href="/collections/rings">Rings</a><a href="/collections/evil-eye">Evil Eye</a>
+          <a href="/collections/new-arrivals">New Arrivals</a><a href="/collections/earrings">Earrings</a><a href="/collections/necklaces">Neck Wear</a><a href="/collections/bracelets">Bracelets</a><a href="/collections/rings">Rings</a><a href="/track-order.html" class="stable-track-nav-link" style="color:#c5a059; font-weight:600;">Track Order</a>
         </nav>
         <div class="stable-header__actions">
           <button type="button" data-search-open aria-label="Search">⌕</button>
-          <button class="stable-account" type="button" data-account aria-label="Account">Account</button>
+          <a href="/track-order.html" class="stable-header-track" style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; text-decoration:none; color:inherit; padding:6px 10px; border-radius:4px; border:1px solid rgba(0,0,0,0.1);">Track</a>
           <a class="stable-wish-link" href="/wishlist" aria-label="Wishlist">♡<span data-wishlist-count>0</span></a>
           <button type="button" data-cart-open aria-label="Open bag">Bag <span data-cart-count>0</span></button>
         </div>
@@ -232,6 +232,7 @@
         <a href="/"><span aria-hidden="true">⌂</span><small>Home</small></a>
         <button type="button" data-menu-open><span aria-hidden="true">☰</span><small>Shop</small></button>
         <button type="button" data-search-open><span aria-hidden="true">⌕</span><small>Search</small></button>
+        <a href="/track-order.html"><span aria-hidden="true">📦</span><small>Track</small></a>
         <a href="/wishlist"><span aria-hidden="true">♡</span><small>Wishlist</small><b data-wishlist-count>0</b></a>
         <button type="button" data-cart-open><span aria-hidden="true">Bag</span><small>Bag</small><b data-cart-count>0</b></button>
       </nav>`;
@@ -240,8 +241,8 @@
   function sharedFooter() {
     const footerProduct = productMap.get("tulip-pendant");
     return `<footer class="stable-footer phase-footer">
-      <section class="phase-footer__finale"><div><p>THE LOOK IS NEVER FINISHED</p><h2>Until the<br />jewellery is.</h2><a class="stable-button stable-button--light" href="https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hi Shivara, I would like help styling a jewellery look.")}" target="_blank" rel="noreferrer">Style with Shivara</a></div><figure aria-hidden="true"><span></span><img src="${escapeHtml(mediaHref(footerProduct.images[0]))}" alt="" /></figure><strong aria-hidden="true">SHIVARA</strong></section>
-      <div class="phase-footer__links"><div><a class="stable-logo stable-logo--footer" href="/">SHIVARA<small>JEWELLERY ATELIER</small></a><p>A manually curated jewellery catalogue with personal ordering support from Bareilly.</p></div><div><strong>Shop</strong><a href="/collections/all">All Products</a><a href="/collections/new-arrivals">New Arrivals</a><a href="/collections/gifting">Gifting</a><a href="/wishlist">Wishlist</a></div><div><strong>Help</strong><a href="https://wa.me/${whatsappNumber}" target="_blank" rel="noreferrer">WhatsApp Shivara</a><a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">Instagram</a><span>PAN India delivery</span></div><div><strong>Policies</strong><a href="/policies/shipping">Shipping &amp; Exchange</a><a href="/policies/privacy">Privacy</a><a href="/policies/terms">Terms</a></div></div>
+      <section class="phase-footer__finale"><div><p>THE LOOK IS NEVER FINISHED</p><h2>Until the<br />jewellery is.</h2><a class="stable-button stable-button--light" href="/collections/all">Explore Collection</a></div><figure aria-hidden="true"><span></span><img src="${escapeHtml(mediaHref(footerProduct.images[0]))}" alt="" /></figure><strong aria-hidden="true">SHIVARA</strong></section>
+      <div class="phase-footer__links"><div><a class="stable-logo stable-logo--footer" href="/">SHIVARA<small>JEWELLERY ATELIER</small></a><p>A manually curated jewellery catalogue with personal ordering support from Bareilly.</p></div><div><strong>Shop</strong><a href="/collections/all">All Products</a><a href="/collections/new-arrivals">New Arrivals</a><a href="/collections/gifting">Gifting</a><a href="/wishlist">Wishlist</a></div><div><strong>Orders &amp; Help</strong><a href="/track-order.html">Track Your Order</a><a href="tel:+919457041215">Call Concierge</a><a href="https://www.instagram.com/shivara.luxe" target="_blank" rel="noreferrer">Instagram</a><span>PAN India express delivery</span></div><div><strong>Policies</strong><a href="/policies/shipping">Shipping &amp; Exchange</a><a href="/policies/privacy">Privacy</a><a href="/policies/terms">Terms</a></div></div>
       <small>© ${new Date().getFullYear()} Shivara. Availability and unconfirmed prices are verified before purchase.</small>
     </footer>`;
   }
@@ -252,7 +253,7 @@
       <aside class="stable-drawer stable-drawer--menu" id="menu-drawer" role="dialog" aria-modal="true" aria-labelledby="menu-title" aria-hidden="true">
         <div class="stable-layer__head"><div><small>JEWELLERY ATELIER</small><h2 id="menu-title">Shop Shivara</h2></div><button type="button" data-layer-close aria-label="Close menu">×</button></div>
         <div class="stable-menu-utility"><button type="button" data-menu-search>Search products <span>⌕</span></button><a href="/wishlist">Your wishlist <span data-wishlist-count>0</span></a></div>
-        <nav><small>SHOP BY CATEGORY</small>${categoryRail.map(([label, slug]) => `<a href="${collectionUrl(slug)}">${label}<span>${productsForCollection(slug).length}</span></a>`).join("")}<a href="/collections/all"><strong>All Products</strong><span>${products.length}</span></a></nav>
+        <nav><small>SHOP BY CATEGORY</small>${categoryRail.map(([label, slug]) => `<a href="${collectionUrl(slug)}">${label}<span>${productsForCollection(slug).length}</span></a>`).join("")}<a href="/collections/all"><strong>All Products</strong><span>${products.length}</span></a><a href="/track-order.html" style="color:#c5a059; font-weight:600;"><strong>Track Order</strong><span>Live Status</span></a></nav>
         <a class="stable-menu-feature" href="${productUrl(menuFeature)}"><img src="${escapeHtml(mediaHref(menuFeature.images[0]))}" alt="${escapeHtml(menuFeature.imageAlt)}" /><span><small>THE SHIVARA EDIT</small><strong>${escapeHtml(menuFeature.title)}</strong><em>View product</em></span></a>
         <div class="stable-menu-help"><p>Need concierge assistance?</p><a href="tel:+919457041215">Call Concierge: +91 94570 41215</a></div>
       </aside>
@@ -1305,9 +1306,10 @@
       saveCart();
       updateCounts();
       renderCart();
+      localStorage.removeItem(storageKeys.cart);
 
       closeLayer();
-      showToast(`✓ Order Confirmed! Your Order ID is: #${orderRef}`);
+      window.location.href = `/order-confirmation.html?id=${encodeURIComponent(orderRef)}`;
       return;
     }
 

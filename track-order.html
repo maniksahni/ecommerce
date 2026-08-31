@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Track Your Order | The Shivara Group</title>
+    <meta name="description" content="Track your Shivara jewellery order in real-time. Enter your Order ID to view shipping and delivery status." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231a1512'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Georgia,serif' font-size='38' fill='%23d8b36a'%3ES%3C/text%3E%3C/svg%3E" />
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231a1512'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Georgia,serif' font-size='38' fill='%23d8b36a'%3ES%3C/text%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Italiana&amp;display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/commerce-stable.css?v=6" />
+    <style>
+      .track-hero {
+        background: radial-gradient(circle at 50% 20%, #2a221a 0%, #15110d 100%);
+        color: #f7f2ea;
+        padding: 56px 20px 48px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .track-hero::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #c5a059, transparent);
+      }
+      .track-title {
+        font-family: "Italiana", Georgia, serif;
+        font-size: clamp(28px, 4vw, 42px);
+        letter-spacing: 0.04em;
+        margin: 0 0 10px;
+        color: #f7f2ea;
+      }
+      .track-subtitle {
+        font-size: 15px;
+        color: #d1c7bc;
+        max-width: 500px;
+        margin: 0 auto;
+        line-height: 1.6;
+      }
+      .track-container {
+        max-width: 860px;
+        margin: -24px auto 60px;
+        padding: 0 20px;
+        position: relative;
+        z-index: 2;
+      }
+      .track-search-card {
+        background: #fff;
+        border: 1px solid #e8e2d8;
+        border-radius: 12px;
+        padding: 28px;
+        box-shadow: 0 10px 30px rgba(26, 21, 18, 0.06);
+        margin-bottom: 24px;
+      }
+      .track-form {
+        display: flex;
+        gap: 12px;
+      }
+      @media (max-width: 600px) {
+        .track-form {
+          flex-direction: column;
+        }
+      }
+      .track-input {
+        flex: 1;
+        padding: 14px 18px;
+        border: 1.5px solid #d8cfc4;
+        border-radius: 8px;
+        font-size: 16px;
+        font-family: "DM Sans", sans-serif;
+        background: #faf8f5;
+        color: #1a1512;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        text-transform: uppercase;
+      }
+      .track-input:focus {
+        outline: none;
+        border-color: #c5a059;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.15);
+      }
+      .track-submit-btn {
+        padding: 14px 28px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .track-result-card {
+        background: #fff;
+        border: 1px solid #e8e2d8;
+        border-radius: 12px;
+        padding: 32px;
+        box-shadow: 0 10px 30px rgba(26, 21, 18, 0.06);
+      }
+      .track-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f0ebe1;
+        padding-bottom: 18px;
+        margin-bottom: 24px;
+      }
+      .track-head h3 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+      }
+      .timeline-stepper {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        position: relative;
+        margin: 40px 0 32px;
+      }
+      .timeline-track-bar {
+        position: absolute;
+        top: 20px;
+        left: 12%;
+        right: 12%;
+        height: 4px;
+        background: #e8e2d8;
+        z-index: 1;
+      }
+      .timeline-track-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #c5a059, #10b981);
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .step-node {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+      }
+      .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #faf8f5;
+        border: 2px solid #d8cfc4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 12px;
+        font-size: 16px;
+        color: #8c827a;
+        transition: all 0.3s;
+      }
+      .step-node.completed .step-circle {
+        background: #10b981;
+        border-color: #10b981;
+        color: #fff;
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+      }
+      .step-node.current .step-circle {
+        background: #c5a059;
+        border-color: #c5a059;
+        color: #fff;
+        box-shadow: 0 0 20px rgba(197, 160, 89, 0.5);
+        transform: scale(1.1);
+      }
+      .step-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #8c827a;
+        margin-bottom: 4px;
+      }
+      .step-node.completed .step-label,
+      .step-node.current .step-label {
+        color: #1a1512;
+      }
+      .step-desc {
+        font-size: 11px;
+        color: #a89f95;
+      }
+      @media (max-width: 600px) {
+        .timeline-stepper {
+          grid-template-columns: 1fr;
+          gap: 20px;
+          margin: 20px 0;
+        }
+        .timeline-track-bar {
+          display: none;
+        }
+        .step-node {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          text-align: left;
+        }
+        .step-circle {
+          margin: 0;
+          flex-shrink: 0;
+        }
+      }
+      .track-details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        background: #faf8f5;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 24px;
+      }
+      @media (max-width: 640px) {
+        .track-details-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .detail-card-inner h4 {
+        margin: 0 0 8px;
+        font-size: 14px;
+        color: #8c827a;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .detail-card-inner p {
+        margin: 0 0 4px;
+        font-size: 14px;
+        color: #1a1512;
+        line-height: 1.5;
+      }
+      .order-status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .order-status-pill.status-shipped { background: #dbeafe; color: #1e40af; }
+      .order-status-pill.status-delivered { background: #d1fae5; color: #065f46; }
+      .order-status-pill.status-cancelled { background: #fee2e2; color: #991b1b; }
+      .spinner {
+        width: 32px;
+        height: 32px;
+        border: 3px solid #e8e2d8;
+        border-top-color: #c5a059;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 20px auto;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+  </head>
+  <body data-page="track-order" class="catalog-stable">
+    <a class="visually-hidden skip-to-content" href="#main">Skip to content</a>
+    <div id="shared-header"></div>
+
+    <main id="main">
+      <section class="track-hero">
+        <h1 class="track-title">Track Your Order</h1>
+        <p class="track-subtitle">
+          Enter your unique Shivara Order Reference below to view real-time atelier fulfillment and delivery progress.
+        </p>
+      </section>
+
+      <div class="track-container">
+        <div class="track-search-card">
+          <form class="track-form" id="track-form">
+            <input type="text" id="track-order-id" class="track-input" placeholder="e.g. SHV-10293" required autocomplete="off" />
+            <button type="submit" class="stable-button stable-button--dark track-submit-btn">Track Order</button>
+          </form>
+        </div>
+
+        <div id="track-result-mount"></div>
+      </div>
+    </main>
+
+    <div id="shared-footer"></div>
+
+    <!-- Core Storefront Scripts -->
+    <script src="/shop-data.js?v=source-1"></script>
+    <script src="/catalog-supplement.js?v=3"></script>
+    <script src="/catalog-overrides.js?v=3"></script>
+    <script src="/catalog-data.js?v=3"></script>
+    <script src="/storefront-renderer.js?v=3"></script>
+    <script src="/script.js?v=stable-5"></script>
+
+    <!-- ══════════════════════════════════════════════
+         FIRESTORE REAL-TIME ORDER TRACKING SCRIPT
+    ══════════════════════════════════════════════ -->
+    <script type="module">
+      import { db } from "/src/firebase.js";
+      import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+      const INR = new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0
+      });
+
+      function escapeHtml(s) {
+        return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+        })[c]);
+      }
+
+      const statusMap = {
+        pending: { index: 0, fill: "0%", label: "Order Placed", desc: "Received at atelier" },
+        processing: { index: 1, fill: "33.3%", label: "Atelier Packaging", desc: "Velvet gift box prep" },
+        shipped: { index: 2, fill: "66.6%", label: "In Transit", desc: "Express courier dispatch" },
+        delivered: { index: 3, fill: "100%", label: "Delivered", desc: "Delivered to customer" },
+        cancelled: { index: -1, fill: "0%", label: "Cancelled", desc: "Order cancelled" }
+      };
+
+      async function executeTrack(orderId) {
+        const mount = document.getElementById("track-result-mount");
+        const cleanId = String(orderId || "").trim().toUpperCase().replace(/^#/, "");
+
+        if (!cleanId) return;
+
+        mount.innerHTML = `<div class="spinner"></div>`;
+
+        let order = null;
+
+        try {
+          const docRef = doc(db, "orders", cleanId);
+          const snap = await getDoc(docRef);
+          if (snap.exists()) {
+            order = { id: snap.id, ...snap.data() };
+          }
+        } catch (err) {
+          console.warn("[Track] Firestore error:", err);
+        }
+
+        // Fallback to local guest order
+        if (!order) {
+          try {
+            const cached = JSON.parse(localStorage.getItem("shivara_recent_order"));
+            if (cached && (cached.orderId === cleanId || cached.orderId === `SHV-${cleanId}`)) {
+              order = cached;
+            }
+          } catch {}
+        }
+
+        if (!order) {
+          mount.innerHTML = `
+            <div class="track-result-card" style="text-align:center; padding: 40px 20px;">
+              <div style="font-size:36px; margin-bottom:12px;">🔍</div>
+              <h3 style="margin-bottom:8px; font-family:'Italiana',serif;">No Order Found</h3>
+              <p style="color:#8c827a; margin-bottom:16px;">We could not find any order with reference <strong>#${escapeHtml(cleanId)}</strong>. Please verify the ID from your confirmation screen.</p>
+              <p style="font-size:13px; color:#a89f95;">Need help? Call Concierge: <a href="tel:+919457041215" style="color:#c5a059; font-weight:600;">+91 94570 41215</a></p>
+            </div>
+          `;
+          return;
+        }
+
+        const currentStatus = (order.status || "Pending").toLowerCase();
+        const currentMeta = statusMap[currentStatus] || statusMap.pending;
+        const statusIdx = currentMeta.index;
+
+        const customer = order.shippingDetails || order.customerInfo || {};
+        const items = order.items || [];
+        const total = order.totalAmount || items.reduce((sum, i) => sum + (Number(i.price) * (i.quantity || 1)), 0) || 499;
+
+        const steps = [
+          { label: "Order Placed", icon: "✓", desc: "Order confirmed" },
+          { label: "Atelier Packaging", icon: "🎁", desc: "Quality inspected" },
+          { label: "In Transit", icon: "🚚", desc: "Dispatched Pan-India" },
+          { label: "Delivered", icon: "✨", desc: "Arrived at doorstep" }
+        ];
+
+        const stepperHtml = steps.map((step, idx) => {
+          let nodeClass = "step-node";
+          if (idx < statusIdx) nodeClass += " completed";
+          else if (idx === statusIdx) nodeClass += " current";
+          return `
+            <div class="${nodeClass}">
+              <div class="step-circle">${step.icon}</div>
+              <div class="step-label">${step.label}</div>
+              <div class="step-desc">${step.desc}</div>
+            </div>
+          `;
+        }).join("");
+
+        mount.innerHTML = `
+          <div class="track-result-card">
+            <div class="track-head">
+              <div>
+                <h3>Order #${escapeHtml(order.orderId || cleanId)}</h3>
+                <small style="color:#8c827a;">Status Updated Live from Atelier OMS</small>
+              </div>
+              <span class="order-status-pill status-${escapeHtml(currentStatus)}">● ${escapeHtml(order.status || "Pending")}</span>
+            </div>
+
+            <!-- Stepper Timeline -->
+            <div class="timeline-stepper">
+              <div class="timeline-track-bar">
+                <div class="timeline-track-fill" style="width: ${currentMeta.fill};"></div>
+              </div>
+              ${stepperHtml}
+            </div>
+
+            <!-- Shipping & Items Breakdown -->
+            <div class="track-details-grid">
+              <div class="detail-card-inner">
+                <h4>Shipping Address</h4>
+                <p><strong>${escapeHtml(customer.name || order.customerName || "Customer")}</strong></p>
+                <p>${escapeHtml(customer.address || order.shippingAddress || "N/A")}</p>
+                <p>PIN: ${escapeHtml(customer.pincode || order.pincode || "N/A")}</p>
+                <p>Phone: +91 ${escapeHtml(customer.phone || order.customerPhone || "N/A")}</p>
+              </div>
+
+              <div class="detail-card-inner">
+                <h4>Order Summary</h4>
+                <p><strong>Total Items:</strong> ${items.reduce((s, i) => s + (i.quantity || 1), 0)} piece(s)</p>
+                <p><strong>Total Paid:</strong> <span style="font-weight:700; color:#1a1512;">${INR.format(total)}</span></p>
+                <p><strong>Packaging:</strong> Signature Keepsake Velvet Box (Complimentary)</p>
+                <p><strong>Delivery:</strong> Express Insured Courier</p>
+              </div>
+            </div>
+
+            <div style="margin-top: 24px; text-align: center;">
+              <a href="/collections/all" class="stable-button stable-button--dark">Continue Shopping</a>
+            </div>
+          </div>
+        `;
+      }
+
+      document.getElementById("track-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const input = document.getElementById("track-order-id");
+        executeTrack(input.value);
+      });
+
+      // Auto-populate from URL query param ?id=...
+      window.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const urlId = params.get("id");
+        if (urlId) {
+          document.getElementById("track-order-id").value = urlId;
+          executeTrack(urlId);
+        }
+      });
+    </script>
+  </body>
+</html>

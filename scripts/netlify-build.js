@@ -27,6 +27,8 @@ const buildInfo = {
 const publicFiles = [
   "index.html",
   "product.html",
+  "order-confirmation.html",
+  "track-order.html",
   "admin.html",
   "admin-store.js",
   "shop-data.js",
