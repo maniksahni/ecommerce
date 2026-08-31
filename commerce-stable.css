@@ -2074,3 +2074,232 @@ body.catalog-stable {
     transform: none;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   LUXURY STOREFRONT & WHATSAPP CONCIERGE CHECKOUT ENHANCEMENTS
+═══════════════════════════════════════════════════════════════ */
+
+/* Wishlist Heart Icon & Pulse Animation */
+.stable-card__wish {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #2b1a0e;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease, color 0.2s ease;
+}
+.stable-card__wish:hover {
+  transform: scale(1.12);
+  background: #ffffff;
+}
+.stable-card__wish.is-active {
+  background: #9b2d30;
+  color: #ffffff;
+  border-color: #9b2d30;
+  animation: heartPulse 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes heartPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* Sold Out Overlay & Badge */
+.stable-card.is-sold-out .stable-card__media img {
+  filter: grayscale(0.55) opacity(0.8);
+}
+.stable-card__sold-out-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(43, 26, 14, 0.35);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.stable-card__sold-out-overlay span {
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: rgba(43, 26, 14, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+.stable-card__add.stable-card__add--sold-out {
+  background: #e2ddd6 !important;
+  color: #8c8378 !important;
+  cursor: not-allowed !important;
+  border: none !important;
+}
+
+/* Glassmorphic Category Filter Bar */
+.storefront-filter-dock {
+  position: relative;
+  z-index: 5;
+  margin: 0 auto 24px;
+  padding: 12px clamp(16px, 3vw, 48px);
+  background: rgba(253, 246, 238, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--stable-line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.storefront-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+  max-width: 380px;
+}
+.storefront-search-input {
+  width: 100%;
+  padding: 9px 16px 9px 36px;
+  border-radius: 24px;
+  border: 1px solid rgba(180, 130, 60, 0.3);
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  color: var(--stable-ink);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.storefront-search-input:focus {
+  border-color: var(--stable-gold);
+  box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.18);
+}
+.storefront-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #9e8e7c;
+  pointer-events: none;
+}
+
+/* Concierge WhatsApp Checkout Modal */
+.stable-checkout-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(20, 12, 6, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.stable-checkout-modal.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.luxury-checkout-card {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 32px 28px;
+  background: #fdfaf6;
+  border-radius: 16px;
+  border: 1px solid rgba(212, 168, 67, 0.35);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
+  transform: scale(0.95);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.stable-checkout-modal.is-open .luxury-checkout-card {
+  transform: scale(1);
+}
+.checkout-header {
+  text-align: center;
+  margin-bottom: 22px;
+}
+.checkout-header small {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--stable-gold);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.checkout-header h2 {
+  font-family: "Italiana", serif;
+  font-size: 26px;
+  margin: 6px 0 8px;
+  color: var(--stable-ink);
+}
+.checkout-header p {
+  font-size: 12px;
+  color: #6d5d4d;
+  margin: 0;
+  line-height: 1.45;
+}
+.checkout-order-summary {
+  background: rgba(235, 226, 214, 0.45);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(180, 130, 60, 0.18);
+  font-size: 13px;
+}
+.checkout-form .form-row {
+  margin-bottom: 14px;
+}
+.checkout-form label span {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--stable-ink);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+.checkout-form .req {
+  color: var(--stable-red);
+}
+.checkout-form input,
+.checkout-form textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(180, 130, 60, 0.28);
+  background: #ffffff;
+  font-size: 13px;
+  color: var(--stable-ink);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.checkout-form input:focus,
+.checkout-form textarea:focus {
+  border-color: var(--stable-gold);
+  box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.15);
+}
+.checkout-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 20px;
+}

@@ -153,6 +153,22 @@
           </button>
         </div>
 
+        <!-- Glassmorphic Filter & Live Search Dock -->
+        <div class="storefront-filter-dock">
+          <div class="storefront-search-wrap">
+            <span class="storefront-search-icon" aria-hidden="true">🔍</span>
+            <input class="storefront-search-input" id="live-catalog-search" type="search" placeholder="Search by name, SKU, or keyword…" autocomplete="off" aria-label="Search live catalog" />
+          </div>
+          <div class="storefront-sort-wrap">
+            <select id="live-catalog-sort" class="storefront-search-input" style="padding-left: 14px; cursor: pointer;" aria-label="Sort products">
+              <option value="featured">Sort: Curated Featured</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="ready">Ready to Order</option>
+            </select>
+          </div>
+        </div>
+
         <!-- Real-Time Main Product Grid -->
         <div class="commerce-product-grid" id="products-grid"></div>
       </section>
@@ -341,17 +357,42 @@
         });
       }
 
+      let currentSearchTerm = "";
+      let currentSort = "featured";
+      let searchDebounceTimer = null;
+
       /* ─── Re-render Storefront DOM in Real Time ─── */
       function renderStorefrontGrid() {
         const grid = document.getElementById("products-grid");
         if (!grid) return;
 
-        const filtered = liveProductsList.filter(p => matchesCategory(p, currentCategory));
+        let filtered = liveProductsList.filter(p => matchesCategory(p, currentCategory));
+
+        // Keyword Search Filter
+        if (currentSearchTerm.trim()) {
+          const q = currentSearchTerm.toLowerCase().trim();
+          filtered = filtered.filter(p => {
+            const title = (p.title || "").toLowerCase();
+            const desc = (p.description || "").toLowerCase();
+            const sku = (p.sku || "").toLowerCase();
+            const cat = (p.category || "").toLowerCase();
+            return title.includes(q) || desc.includes(q) || sku.includes(q) || cat.includes(q);
+          });
+        }
+
+        // Sorting Logic
+        if (currentSort === "price-asc") {
+          filtered.sort((a, b) => (Number(a.price) || 999999) - (Number(b.price) || 999999));
+        } else if (currentSort === "price-desc") {
+          filtered.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
+        } else if (currentSort === "ready") {
+          filtered = filtered.filter(p => p.priceStatus === "confirmed" && !p.isSoldOut);
+        }
 
         if (!filtered.length) {
           grid.innerHTML = `<div class="stable-empty" style="grid-column: 1 / -1; padding: 48px 16px; text-align: center;">
-            <h3>No products found in this category</h3>
-            <p>Explore other curated jewellery categories.</p>
+            <h3>No products found</h3>
+            <p>Try searching for a different piece or exploring another category.</p>
           </div>`;
           return;
         }
@@ -441,6 +482,27 @@
             b.setAttribute("aria-selected", String(isActive));
           });
 
+          renderStorefrontGrid();
+        });
+      }
+
+      // Search input debounced listener
+      const liveSearchInput = document.getElementById("live-catalog-search");
+      if (liveSearchInput) {
+        liveSearchInput.addEventListener("input", (e) => {
+          clearTimeout(searchDebounceTimer);
+          searchDebounceTimer = setTimeout(() => {
+            currentSearchTerm = e.target.value;
+            renderStorefrontGrid();
+          }, 120);
+        });
+      }
+
+      // Sort dropdown change listener
+      const liveSortSelect = document.getElementById("live-catalog-sort");
+      if (liveSortSelect) {
+        liveSortSelect.addEventListener("change", (e) => {
+          currentSort = e.target.value;
           renderStorefrontGrid();
         });
       }
