@@ -16,7 +16,12 @@
     return;
   }
   const products = catalogApi.getAllProducts();
-  const productMap = new Map(products.map((product) => [product.id, product]));
+  const productMap = new Map();
+  products.forEach((p) => {
+    productMap.set(p.id, p);
+    if (p.slug) productMap.set(p.slug, p);
+    if (p.sourcePostId) productMap.set(p.sourcePostId, p);
+  });
   const whatsappNumber = "919457041215";
   const storageKeys = {
     cart: "shivara-cart-v3",
@@ -430,25 +435,22 @@
   }
 
   function addToCart(id, variantId = null, quantity = 1, allowEnquiryOptions = false) {
-    const product = productMap.get(id);
+    const product = productMap.get(id) || products.find((p) => p.id === id || p.slug === id || p.sourcePostId === id);
     if (!product || product.priceStatus === "unavailable") return false;
     if (product.isSoldOut === true) {
       showToast("This item is currently sold out");
       return false;
     }
-    if (product.optionsStatus === "confirm" && !product.variants.length && !allowEnquiryOptions) {
-      showToast("Please confirm options on WhatsApp");
-      return false;
-    }
+    const targetId = product.id;
     const variant = validVariant(product, variantId);
     if (product.variants.length && !variant) {
       showToast("Choose an available option");
       return false;
     }
     const normalizedVariant = variant?.id || null;
-    const existing = cart.find((item) => item.id === id && item.variantId === normalizedVariant);
+    const existing = cart.find((item) => item.id === targetId && item.variantId === normalizedVariant);
     if (existing) existing.qty += Math.max(1, Number(quantity) || 1);
-    else cart.push({ id, variantId: normalizedVariant, qty: Math.max(1, Number(quantity) || 1) });
+    else cart.push({ id: targetId, variantId: normalizedVariant, qty: Math.max(1, Number(quantity) || 1) });
     saveCart();
     renderCart();
     updateCounts();
