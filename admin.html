@@ -3185,6 +3185,7 @@
 
       // Initialize with baseline products immediately so products are 100% visible on load
       initializeBaselineProducts();
+      switchTab('dashboard');
 
       // Sign in anonymously in Firebase Auth in background
       try {
@@ -3866,7 +3867,6 @@
       const modalTitle = $('#order-modal-title');
       const modalDate = $('#order-modal-date');
       const modalBody = $('#order-modal-body');
-      const phoneBtn = $('#order-modal-phone-btn');
       const modal = $('#order-details-modal');
 
       if (modalTitle) modalTitle.textContent = `Order #${order.orderId || order.id}`;
@@ -3875,9 +3875,8 @@
 
       const phone = order.customerPhone || '';
       const rawPhone = phone.replace(/[^0-9]/g, '').slice(-10);
-      if (phoneBtn) {
-        phoneBtn.href = rawPhone ? `tel:${rawPhone}` : '#';
-      }
+      const waMsg = encodeURIComponent(`Hello ${order.customerName || 'Patron'}, this is Shivara Luxe Concierge regarding your order #${order.orderId || order.id}. Current Status: ${order.status || 'Processing'}.`);
+      const waUrl = rawPhone ? `https://wa.me/91${rawPhone}?text=${waMsg}` : '#';
 
       const items = Array.isArray(order.items) ? order.items : [];
       const itemsHtml = items.map((item) => {
@@ -3890,11 +3889,6 @@
           <td style="text-align:right;"><strong>₹${((Number(item.price) || 0) * (item.quantity || 1)).toLocaleString('en-IN')}</strong></td>
         </tr>`;
       }).join('');
-
-      const phone = order.customerPhone || '';
-      const rawPhone = phone.replace(/[^0-9]/g, '').slice(-10);
-      const waMsg = encodeURIComponent(`Hello ${order.customerName || 'Patron'}, this is Shivara Luxe Concierge regarding your order #${order.orderId || order.id}. Current Status: ${order.status || 'Processing'}.`);
-      const waUrl = rawPhone ? `https://wa.me/91${rawPhone}?text=${waMsg}` : '#';
 
       if (modalBody) {
         modalBody.innerHTML = `
