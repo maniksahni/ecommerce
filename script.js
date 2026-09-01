@@ -311,13 +311,32 @@
         </div>
       </header>
       <nav class="stable-mobile-dock" aria-label="Mobile shopping navigation">
-        <a href="/"><span aria-hidden="true">⌂</span><small>Home</small></a>
-        <button type="button" data-menu-open><span aria-hidden="true">☰</span><small>Shop</small></button>
-        <button type="button" data-search-open><span aria-hidden="true">⌕</span><small>Search</small></button>
-        <a href="/track-order.html"><span aria-hidden="true">📦</span><small>Track</small></a>
-        <button type="button" data-account-open><span aria-hidden="true">👤</span><small>Account</small></button>
-        <a href="/wishlist"><span aria-hidden="true">♡</span><small>Wishlist</small><b data-wishlist-count>0</b></a>
-        <button type="button" data-cart-open><span aria-hidden="true">Bag</span><small>Bag</small><b data-cart-count>0</b></button>
+        <a href="/" class="stable-dock-item" aria-label="Home">
+          <span class="dock-icon" aria-hidden="true">⌂</span>
+          <span class="dock-label">Home</span>
+        </a>
+        <button type="button" class="stable-dock-item" data-menu-open aria-label="Explore categories">
+          <span class="dock-icon" aria-hidden="true">☰</span>
+          <span class="dock-label">Explore</span>
+        </button>
+        <button type="button" class="stable-dock-item" data-search-open aria-label="Search catalog">
+          <span class="dock-icon" aria-hidden="true">⌕</span>
+          <span class="dock-label">Search</span>
+        </button>
+        <a href="/wishlist" class="stable-dock-item" aria-label="Wishlist">
+          <span class="dock-icon-wrap">
+            <span class="dock-icon" aria-hidden="true">♡</span>
+            <b class="dock-badge" data-wishlist-count>0</b>
+          </span>
+          <span class="dock-label">Wishlist</span>
+        </a>
+        <button type="button" class="stable-dock-item" data-cart-open aria-label="Shopping bag">
+          <span class="dock-icon-wrap">
+            <span class="dock-icon" aria-hidden="true">👜</span>
+            <b class="dock-badge" data-cart-count>0</b>
+          </span>
+          <span class="dock-label">Bag</span>
+        </button>
       </nav>`;
   }
 
