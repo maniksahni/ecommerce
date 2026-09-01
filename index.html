@@ -139,13 +139,19 @@
             <span class="storefront-search-icon" aria-hidden="true">⌕</span>
             <input class="storefront-search-input" id="live-catalog-search" type="search" placeholder="Search by name, category, or motif…" autocomplete="off" aria-label="Search live catalog" />
           </div>
-          <div class="storefront-sort-wrap">
-            <select id="live-catalog-sort" class="storefront-sort-select" aria-label="Sort products">
-              <option value="featured">Sort: Curated Featured</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="ready">Ready to Order</option>
-            </select>
+          <div class="storefront-dock-actions">
+            <button type="button" class="storefront-filter-btn" id="storefront-filter-toggle" aria-label="Filter by category">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+              <span>Filters</span>
+            </button>
+            <div class="storefront-sort-wrap">
+              <select id="live-catalog-sort" class="storefront-sort-select" aria-label="Sort products">
+                <option value="featured">Sort: Curated Featured</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="ready">Ready to Order</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -437,6 +443,18 @@
           });
 
           renderStorefrontGrid();
+        });
+      }
+
+      // Filter button toggle listener
+      const filterToggleBtn = document.getElementById("storefront-filter-toggle");
+      if (filterToggleBtn && filterContainer) {
+        filterToggleBtn.addEventListener("click", () => {
+          const isHidden = filterContainer.classList.toggle("is-collapsed");
+          filterToggleBtn.classList.toggle("is-active", !isHidden);
+          if (!isHidden) {
+            filterContainer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          }
         });
       }
 

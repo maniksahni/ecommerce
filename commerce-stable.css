@@ -866,6 +866,7 @@ main {
   margin-bottom: 12px;
 }
 .storefront-filter-chips::-webkit-scrollbar { display: none; }
+.storefront-filter-chips.is-collapsed { display: none !important; }
 
 .filter-chip {
   display: inline-flex;
@@ -2874,6 +2875,56 @@ body.catalog-stable {
   font-size: 16px;
   color: #97641d;
   pointer-events: none;
+}
+
+.storefront-dock-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.storefront-filter-btn {
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(197, 168, 128, 0.35);
+  background: #ffffff;
+  color: var(--stable-ink);
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(25, 18, 12, 0.04);
+}
+
+.storefront-filter-btn:hover {
+  border-color: var(--stable-ink);
+  background: #fdfaf6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(25, 18, 12, 0.09);
+}
+
+.storefront-filter-btn.is-active {
+  background: var(--stable-ink);
+  color: #ffffff;
+  border-color: var(--stable-ink);
+}
+
+.storefront-filter-btn svg {
+  color: #97641d;
+  transition: color 0.2s ease;
+}
+
+.storefront-filter-btn.is-active svg {
+  color: #ffffff;
 }
 
 .storefront-sort-wrap {
