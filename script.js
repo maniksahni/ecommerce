@@ -962,37 +962,171 @@
     renderSignature();
   }
 
+  /* ═══════════════════════════════════════════════════════════════
+     HAUTE COUTURE MOTION & INTERACTION ARCHITECTURE
+     • Custom Minimalist Champagne Cursor (Dot + Lag Follower Ring)
+     • Magnetic Attraction Physics on Primary Action Buttons
+     • Atmospheric Hero Parallax & Depth
+     • Material Lighting Specular Glare Dynamics
+     • Silk Veil Scroll Unmasking Transitions
+  ═══════════════════════════════════════════════════════════════ */
   function initialisePremiumMotion() {
-    const hero = document.querySelector("[data-hero]");
     const precisePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (hero && precisePointer.matches && !reducedMotion.matches) {
-      hero.addEventListener("pointermove", (event) => {
-        const bounds = hero.getBoundingClientRect();
-        const x = ((event.clientX - bounds.left) / bounds.width - .5) * 2;
-        const y = ((event.clientY - bounds.top) / bounds.height - .5) * 2;
-        hero.style.setProperty("--pointer-x", x.toFixed(3));
-        hero.style.setProperty("--pointer-y", y.toFixed(3));
+
+    /* ─── 1. Custom Minimalist Luxury Cursor ─── */
+    const cursorDot = document.getElementById("luxe-cursor-dot");
+    const cursorRing = document.getElementById("luxe-cursor-ring");
+    const cursorText = document.getElementById("luxe-cursor-text");
+
+    if (cursorDot && cursorRing && precisePointer.matches && !reducedMotion.matches) {
+      document.body.classList.add("has-luxe-cursor");
+
+      let mouseX = -100;
+      let mouseY = -100;
+      let ringX = -100;
+      let ringY = -100;
+      let isHovering = false;
+      let isVisible = false;
+
+      window.addEventListener("pointermove", (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        if (!isVisible) {
+          isVisible = true;
+          cursorDot.style.opacity = "1";
+          cursorRing.style.opacity = "1";
+        }
       }, { passive: true });
-      hero.addEventListener("pointerleave", () => {
-        hero.style.setProperty("--pointer-x", "0");
-        hero.style.setProperty("--pointer-y", "0");
+
+      document.addEventListener("pointerleave", () => {
+        isVisible = false;
+        cursorDot.style.opacity = "0";
+        cursorRing.style.opacity = "0";
+      });
+
+      // Smooth 60fps / 120fps Cursor Lerp Loop
+      function renderCursor() {
+        const ease = 0.18;
+        ringX += (mouseX - ringX) * ease;
+        ringY += (mouseY - ringY) * ease;
+
+        cursorDot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
+        cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
+
+        requestAnimationFrame(renderCursor);
+      }
+      requestAnimationFrame(renderCursor);
+
+      // Global Delegation for Luxury Hover States
+      document.addEventListener("pointerover", (e) => {
+        const target = e.target.closest("a, button, input, select, textarea, .stable-card, .filter-chip, [data-cursor]");
+        if (target) {
+          isHovering = true;
+          cursorRing.classList.add("is-hovering");
+          cursorDot.classList.add("is-hovering");
+
+          const cursorType = target.getAttribute("data-cursor") || (target.closest(".stable-card") ? "view" : "");
+          if (cursorType === "view" && cursorText) {
+            cursorRing.classList.add("is-view-mode");
+            cursorText.textContent = "VIEW";
+          }
+        }
+      });
+
+      document.addEventListener("pointerout", (e) => {
+        const target = e.target.closest("a, button, input, select, textarea, .stable-card, .filter-chip, [data-cursor]");
+        if (target) {
+          isHovering = false;
+          cursorRing.classList.remove("is-hovering", "is-view-mode");
+          cursorDot.classList.remove("is-hovering");
+          if (cursorText) cursorText.textContent = "";
+        }
+      });
+    }
+
+    /* ─── 2. Magnetic CTA Buttons Physics ─── */
+    if (precisePointer.matches && !reducedMotion.matches) {
+      function bindMagneticTarget(element) {
+        if (element._hasMagneticBound) return;
+        element._hasMagneticBound = true;
+
+        const strength = parseFloat(element.getAttribute("data-magnetic") || "0.32");
+
+        element.addEventListener("pointermove", (e) => {
+          const rect = element.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+          const deltaX = (e.clientX - centerX) * strength;
+          const deltaY = (e.clientY - centerY) * strength;
+
+          element.style.transform = `translate3d(${deltaX.toFixed(2)}px, ${deltaY.toFixed(2)}px, 0)`;
+        }, { passive: true });
+
+        element.addEventListener("pointerleave", () => {
+          element.style.transform = "translate3d(0, 0, 0)";
+        });
+      }
+
+      function refreshMagneticButtons() {
+        document.querySelectorAll(".magnetic-btn, [data-magnetic]").forEach(bindMagneticTarget);
+      }
+      refreshMagneticButtons();
+      setInterval(refreshMagneticButtons, 2000);
+    }
+
+    /* ─── 3. Material Lighting Glare Tracking ─── */
+    if (precisePointer.matches && !reducedMotion.matches) {
+      document.addEventListener("pointermove", (e) => {
+        const card = e.target.closest(".stable-card");
+        if (card) {
+          const rect = card.getBoundingClientRect();
+          const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+          const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
+          card.style.setProperty("--glare-x", `${x.toFixed(1)}%`);
+          card.style.setProperty("--glare-y", `${y.toFixed(1)}%`);
+        }
       }, { passive: true });
     }
 
+    /* ─── 4. Parallax Hero Architecture ─── */
+    const hero = document.querySelector("[data-hero]");
+    if (hero && precisePointer.matches && !reducedMotion.matches) {
+      hero.addEventListener("pointermove", (event) => {
+        const bounds = hero.getBoundingClientRect();
+        const x = ((event.clientX - bounds.left) / bounds.width - 0.5) * 2;
+        const y = ((event.clientY - bounds.top) / bounds.height - 0.5) * 2;
+        hero.style.setProperty("--pointer-x", x.toFixed(3));
+        hero.style.setProperty("--pointer-y", y.toFixed(3));
+      }, { passive: true });
+
+      hero.addEventListener("pointerleave", () => {
+        hero.style.setProperty("--pointer-x", "0");
+        hero.style.setProperty("--pointer-y", "0");
+      });
+    }
+
+    /* ─── 5. Silk Scroll Veil Unmasking Transitions ─── */
     if ("IntersectionObserver" in window && !reducedMotion.matches) {
-      const observer = new IntersectionObserver((entries) => {
+      const silkObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add("is-in-view");
-            observer.unobserve(entry.target);
+            entry.target.classList.add("is-silk-revealed", "is-in-view");
+            silkObserver.unobserve(entry.target);
           }
         });
-      }, { threshold: .08, rootMargin: "0px 0px -6% 0px" });
-      document.querySelectorAll(".category-rail-section, .living-deck, .home-products, .signature-edit, .stable-reassurance").forEach((section) => {
-        section.classList.add("motion-reveal");
-        observer.observe(section);
-      });
+      }, { threshold: 0.06, rootMargin: "0px 0px -4% 0px" });
+
+      function observeSilkElements() {
+        document.querySelectorAll(".category-rail-section, .living-deck, .home-products, .signature-edit, .stable-reassurance, .stable-editorial, .silk-reveal, .stable-card").forEach((el) => {
+          if (!el.classList.contains("is-silk-revealed")) {
+            silkObserver.observe(el);
+          }
+        });
+      }
+
+      observeSilkElements();
+      setInterval(observeSilkElements, 1500);
     }
   }
 

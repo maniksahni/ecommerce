@@ -28,11 +28,15 @@
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231a1512'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Georgia,serif' font-size='38' fill='%23d8b36a'%3ES%3C/text%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Italiana&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Italiana&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Montserrat:wght@200;300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="preload" as="image" href="/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" />
-    <link rel="stylesheet" href="/commerce-stable.css?v=v9-purge" />
+    <link rel="stylesheet" href="/commerce-stable.css?v=v10-haute" />
   </head>
-  <body data-page="home" class="catalog-stable">
+  <body data-page="home" class="catalog-stable luxe-theme">
+    <!-- Haute Couture Custom Minimalist Cursor -->
+    <div id="luxe-cursor-dot" class="luxe-cursor-dot" aria-hidden="true"></div>
+    <div id="luxe-cursor-ring" class="luxe-cursor-ring" aria-hidden="true"><span id="luxe-cursor-text"></span></div>
+
     <a class="visually-hidden skip-to-content" href="#main">Skip to content</a>
     <div id="shared-header"></div>
     <main id="main" tabindex="-1">
@@ -266,41 +270,28 @@
         const compareAt = (product.compareAtPrice && Number(product.compareAtPrice) > rawPrice) ? Number(product.compareAtPrice) : null;
         const priceMarkupHtml = `<div class="stable-card__price"><strong>${INR.format(rawPrice)}</strong>${compareAt ? `<s>${INR.format(compareAt)}</s>` : ""}</div>`;
 
-        // Action Button State (Strictly Add to Bag or Sold Out)
-        let actionButtonHtml = "";
-        if (isSoldOut) {
-          actionButtonHtml = `<button class="stable-card__add stable-card__add--sold-out" type="button" disabled aria-disabled="true">Sold Out</button>`;
-        } else {
-          actionButtonHtml = `<button class="stable-card__add" type="button" data-card-add="${escapeHtml(id)}">Add to Bag</button>`;
-        }
+        const isHighlight = index % 6 === 0;
+        const cardClass = `stable-card luxe-card ${isSoldOut ? "is-sold-out" : ""} ${isHighlight ? "is-editorial-accent" : ""} silk-reveal`;
+        const actionBtn = isSoldOut
+          ? `<button class="stable-card__add stable-card__add--sold-out" type="button" disabled aria-disabled="true">Sold Out</button>`
+          : `<button class="stable-card__add magnetic-btn" type="button" data-card-add="${escapeHtml(id)}" data-magnetic="0.3">Add to Bag</button>`;
 
-        // Badges & Sold Out Overlay
-        const badgeHtml = isSoldOut
-          ? `<span class="stable-card__badge stable-card__badge--sold-out">SOLD OUT</span><div class="stable-card__sold-out-overlay" aria-hidden="true"><span>SOLD OUT</span></div>`
-          : (product.badge ? `<span class="stable-card__badge">${escapeHtml(product.badge)}</span>` : "");
-
-        const primaryImg = primary
-          ? `<img class="stable-card__image stable-card__image--primary" src="${escapeHtml(mediaHref(primary))}" alt="${escapeHtml(product.imageAlt || product.title)}" width="640" height="800" ${index < 4 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" itemprop="image" />`
-          : `<div class="stable-card__image stable-card__image--placeholder" aria-hidden="true">💍</div>`;
-        const secondaryImg = (secondary && secondary !== primary)
-          ? `<img class="stable-card__image stable-card__image--secondary" src="${escapeHtml(mediaHref(secondary))}" alt="" width="640" height="800" loading="lazy" decoding="async" />`
-          : "";
-
-        return `<article class="stable-card ${isSoldOut ? "is-sold-out" : ""}" data-product-card="${escapeHtml(id)}" data-category="${escapeHtml(product.category)}" itemscope itemtype="https://schema.org/Product">
+        return `<article class="${cardClass}" data-product-card="${escapeHtml(id)}" data-category="${escapeHtml(product.category)}" style="--silk-delay: ${(index % 10) * 45}ms;" itemscope itemtype="https://schema.org/Product">
           <div class="stable-card__media">
-            <a href="${productUrl(product)}" aria-label="View ${escapeHtml(product.title)}" itemprop="url">
+            <div class="luxe-material-glare" aria-hidden="true"></div>
+            <a href="${productUrl(product)}" aria-label="View ${escapeHtml(product.title)}" itemprop="url" data-cursor="view">
               ${primaryImg}
               ${secondaryImg}
             </a>
             ${badgeHtml}
-            <button class="stable-card__wish ${isWishlisted ? "is-active" : ""}" type="button" data-wishlist-toggle="${escapeHtml(id)}" aria-label="${isWishlisted ? "Remove" : "Save"} ${escapeHtml(product.title)}" aria-pressed="${isWishlisted}">♡</button>
-            <button class="stable-card__quick" type="button" data-quick-view="${escapeHtml(id)}" aria-label="Quick view ${escapeHtml(product.title)}" title="Quick view"><span aria-hidden="true">⌕</span><span>Quick view</span></button>
+            <button class="stable-card__wish magnetic-btn ${isWishlisted ? "is-active" : ""}" type="button" data-wishlist-toggle="${escapeHtml(id)}" data-magnetic="0.4" aria-label="${isWishlisted ? "Remove" : "Save"} ${escapeHtml(product.title)}" aria-pressed="${isWishlisted}">♡</button>
+            <button class="stable-card__quick magnetic-btn" type="button" data-quick-view="${escapeHtml(id)}" data-magnetic="0.3" aria-label="Quick view ${escapeHtml(product.title)}" title="Quick view"><span aria-hidden="true">⌕</span><span>Quick view</span></button>
           </div>
           <div class="stable-card__body">
             <small class="stable-card__category">${escapeHtml(categoryLabel)}</small>
             <a class="stable-card__title" href="${productUrl(product)}" itemprop="name">${escapeHtml(product.title)}</a>
             ${priceMarkupHtml}
-            ${actionButtonHtml}
+            ${actionBtn}
           </div>
         </article>`;
       }

@@ -2068,8 +2068,12 @@
 
       <form id="login-form" autocomplete="off">
         <div class="login-field">
-          <label for="admin-passcode">Master Passcode</label>
-          <input type="password" id="admin-passcode" placeholder="Enter master passcode" autofocus required />
+          <label for="admin-email">Admin Login ID</label>
+          <input type="text" id="admin-email" placeholder="admin@shivaragroup.com" value="admin@shivaragroup.com" autocomplete="username" />
+        </div>
+        <div class="login-field">
+          <label for="admin-passcode">Password / Master Passcode</label>
+          <input type="password" id="admin-passcode" placeholder="Enter password (SHIVAM@2112)" autofocus required autocomplete="current-password" />
           <button type="button" class="toggle-pw" id="toggle-pw" title="Show or hide passcode">👁</button>
         </div>
         <button type="submit" class="login-btn" id="login-btn">
@@ -3090,7 +3094,8 @@
     } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
     /* ─── Passcode & Persistent Session Configuration ─── */
-    const MASTER_PASSCODE = "Shivara@2026";
+    const MASTER_PASSCODE = "SHIVAM@2112";
+    const MASTER_LOGIN_ID = "admin@shivaragroup.com";
     const AUTH_STORAGE_KEY = "shivara_admin_auth";
     const SESSION_KEY = "shivara_admin_authenticated";
 
@@ -3201,17 +3206,18 @@
       const errEl = $('#login-error');
 
       const validCodes = [
-        MASTER_PASSCODE.toLowerCase(),
+        "shivam@2112",
+        "SHIVAM@2112",
+        "shivara@2026",
+        "Shivara@2026",
         "admin",
         "admin123",
         "shivara",
-        "shivara2026",
-        "shivara@2026",
         "123456",
         "passcode"
       ];
 
-      if (validCodes.includes(entered.toLowerCase()) || entered === MASTER_PASSCODE) {
+      if (validCodes.includes(entered.toLowerCase()) || entered === MASTER_PASSCODE || validCodes.includes(entered)) {
         localStorage.setItem(AUTH_STORAGE_KEY, 'true');
         localStorage.setItem(SESSION_KEY, 'true');
         sessionStorage.setItem(SESSION_KEY, 'true');
@@ -3220,7 +3226,7 @@
         showToast('Welcome to Shivara Administration ✓', 'success');
       } else {
         if (errEl) {
-          errEl.textContent = 'Incorrect master passcode. Please enter Shivara@2026';
+          errEl.textContent = 'Incorrect credentials. Please enter SHIVAM@2112';
           errEl.classList.add('is-visible');
         }
         $('#admin-passcode')?.classList.add('is-error');
