@@ -1383,29 +1383,36 @@
         max-width: 100%;
       }
 
-      #view-products .table-container {
-        background: transparent;
-        border: none;
-        box-shadow: none;
-        overflow: visible;
-        margin-bottom: 28px;
-      }
-
+      #view-products .table-container,
+      #view-products table,
+      #view-products table tbody,
       table#products-table,
       table#products-table tbody {
-        display: block;
-        width: 100%;
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
       }
 
+      #view-products table thead,
       table#products-table thead {
-        display: none;
+        display: none !important;
       }
 
       #products-tbody {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        width: 100%;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
       }
 
       .admin-product-row {
@@ -1414,17 +1421,18 @@
           "thumb title title"
           "thumb cat status"
           "price price price"
-          "actions actions actions";
-        grid-template-columns: 64px 1fr auto;
-        gap: 8px 10px;
-        align-items: center;
-        background: var(--ivory-card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-md);
-        padding: 14px;
-        box-shadow: var(--shadow-sm);
-        width: 100%;
-        box-sizing: border-box;
+          "actions actions actions" !important;
+        grid-template-columns: 64px 1fr auto !important;
+        gap: 8px 10px !important;
+        align-items: center !important;
+        background: var(--ivory-card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--radius-md) !important;
+        padding: 14px !important;
+        box-shadow: var(--shadow-sm) !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
         transition: transform 0.15s ease, box-shadow 0.15s ease;
       }
 
@@ -2386,10 +2394,11 @@
 
       <!-- Products Table -->
       <div class="table-container">
-        <table>
+        <table id="products-table">
           <thead>
             <tr>
-              <th>Item</th>
+              <th style="width: 70px;">Photo</th>
+              <th>Product Details</th>
               <th>Category</th>
               <th>Live Price (₹)</th>
               <th>Inventory Status</th>
@@ -2398,7 +2407,7 @@
           </thead>
           <tbody id="products-tbody">
             <tr>
-              <td colspan="5" style="text-align:center; padding:36px; color:var(--muted)">
+              <td colspan="6" style="text-align:center; padding:36px; color:var(--muted)">
                 Loading catalogue items…
               </td>
             </tr>
