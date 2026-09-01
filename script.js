@@ -262,7 +262,10 @@
     const accountLabel = customerSession ? (customerSession.name ? customerSession.name.split(" ")[0] : "Account") : "Sign In";
     return `<div class="stable-announcement"><span data-announcement-text>${announcements[0]}</span></div>
       <header class="stable-header">
-        <button class="stable-header__menu" type="button" data-menu-open aria-label="Open menu">☰</button>
+        <button class="stable-header__menu" type="button" data-menu-open aria-label="Open menu">
+          <span class="menu-icon" aria-hidden="true">☰</span>
+          <span class="menu-label">Menu</span>
+        </button>
         <a class="stable-logo" href="/" aria-label="Shivara home">SHIVARA<small>JEWELLERY ATELIER</small></a>
         <nav class="stable-nav" aria-label="Main navigation">
           <div class="stable-nav__mega-wrap">
@@ -297,14 +300,14 @@
           <a href="/collections/evil-eye">Evil Eye</a>
           <a href="/collections/watches">Watches</a>
           <a href="/collections/jewellery-sets">Sets</a>
-          <a href="/track-order.html" class="stable-track-nav-link" style="color:#c5a059; font-weight:600;">Track Order</a>
+          <a href="/track-order.html" class="stable-track-nav-link">Track Order</a>
         </nav>
         <div class="stable-header__actions">
-          <button type="button" data-search-open aria-label="Search">⌕</button>
-          <a href="/track-order.html" class="stable-header-track" style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; text-decoration:none; color:inherit; padding:6px 10px; border-radius:4px; border:1px solid rgba(0,0,0,0.1);">Track</a>
-          <button type="button" data-account-open class="stable-header-account" aria-label="Account" style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; padding:6px 10px; border-radius:4px; border:1px solid rgba(0,0,0,0.1); background:transparent; cursor:pointer; color:inherit;">👤 <span data-account-name>${escapeHtml(accountLabel)}</span></button>
-          <a class="stable-wish-link" href="/wishlist" aria-label="Wishlist">♡<span data-wishlist-count>0</span></a>
-          <button type="button" data-cart-open aria-label="Open bag">Bag <span data-cart-count>0</span></button>
+          <button type="button" class="stable-header__btn stable-header__btn--icon" data-search-open aria-label="Search" title="Search">⌕</button>
+          <a href="/track-order.html" class="stable-header__btn stable-header__btn--text">Track</a>
+          <button type="button" data-account-open class="stable-header__btn stable-header__btn--account" aria-label="Account">👤 <span data-account-name>${escapeHtml(accountLabel)}</span></button>
+          <a class="stable-header__btn stable-header__btn--wish stable-wish-link" href="/wishlist" aria-label="Wishlist">♡<span class="header-badge" data-wishlist-count>0</span></a>
+          <button type="button" data-cart-open class="stable-header__btn stable-header__btn--bag" aria-label="Open bag"><span>Bag</span><span class="header-badge" data-cart-count>0</span></button>
         </div>
       </header>
       <nav class="stable-mobile-dock" aria-label="Mobile shopping navigation">
