@@ -553,6 +553,8 @@ body.catalog-stable a { color: inherit; }
   }
 }
 
+.stable-shop-intents { display: none !important; }
+
 /* ─── Standard Identical-Height Product Card ─── */
 .stable-card {
   min-width: 0;
@@ -1759,25 +1761,7 @@ body.catalog-stable {
   .stable-category-rail { grid-auto-columns: 76px; gap: 8px; }
   .stable-category-rail strong { margin-top: 6px; font-size: 9px; }
   .stable-category-rail small { display: none; }
-  .stable-shop-intents {
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(190px, 72vw);
-    grid-template-columns: none;
-    gap: 7px;
-    overflow-x: auto;
-    padding: 0 9px 20px;
-    scroll-snap-type: x proximity;
-    scrollbar-width: none;
-  }
-  .stable-shop-intents::-webkit-scrollbar { display: none; }
-  .stable-shop-intents a {
-    min-height: 96px;
-    justify-content: center;
-    padding: 13px;
-    border-right: 1px solid var(--stable-line);
-    scroll-snap-align: start;
-  }
-  .stable-shop-intents strong { font-size: 18px; }
+  .stable-shop-intents { display: none !important; }
 
   .home-products { padding-top: 26px; padding-bottom: 26px; }
   .commerce-product-grid { gap: 16px 6px !important; }
