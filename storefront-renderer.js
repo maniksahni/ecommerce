@@ -61,22 +61,18 @@
     if (isSoldOut) {
       action = `<button class="stable-card__add stable-card__add--sold-out" type="button" disabled aria-disabled="true">Sold Out</button>`;
     } else {
-      action = `<button class="stable-card__add magnetic-btn" type="button" data-card-add="${escapeHtml(product.id)}" data-magnetic="0.3">Add to Bag</button>`;
+      action = `<button class="stable-card__add" type="button" data-card-add="${escapeHtml(product.id)}">Add to Bag</button>`;
     }
 
-    const isHighlight = index % 6 === 0;
-    const cardClass = `stable-card luxe-card ${isSoldOut ? "is-sold-out" : ""} ${isHighlight ? "is-editorial-accent" : ""} silk-reveal`;
-
-    return `<article class="${cardClass}" data-commerce-renderer="shared-v1" data-product-card="${escapeHtml(product.id)}" data-category="${escapeHtml(product.category)}" style="--silk-delay: ${(index % 10) * 45}ms;" itemscope itemtype="https://schema.org/Product">
+    return `<article class="stable-card ${isSoldOut ? "is-sold-out" : ""}" data-commerce-renderer="shared-v1" data-product-card="${escapeHtml(product.id)}" data-category="${escapeHtml(product.category)}" itemscope itemtype="https://schema.org/Product">
       <div class="stable-card__media">
-        <div class="luxe-material-glare" aria-hidden="true"></div>
-        <a href="${productUrl(product)}" aria-label="View ${escapeHtml(product.title)}" itemprop="url" data-cursor="view">
+        <a href="${productUrl(product)}" aria-label="View ${escapeHtml(product.title)}" itemprop="url">
           <img class="stable-card__image stable-card__image--primary" src="${escapeHtml(mediaHref(primary))}" alt="${escapeHtml(product.imageAlt)}" width="640" height="800" ${index < 5 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" itemprop="image" />
           ${secondary ? `<img class="stable-card__image stable-card__image--secondary" src="${escapeHtml(mediaHref(secondary))}" alt="" width="640" height="800" loading="lazy" decoding="async" />` : ""}
         </a>
         ${isSoldOut ? `<span class="stable-card__badge stable-card__badge--sold-out">SOLD OUT</span><div class="stable-card__sold-out-overlay" aria-hidden="true"><span>SOLD OUT</span></div>` : (badge ? `<span class="stable-card__badge">${escapeHtml(badge)}</span>` : "")}
-        <button class="stable-card__wish magnetic-btn ${isWishlisted ? "is-active" : ""}" type="button" data-wishlist-toggle="${escapeHtml(product.id)}" data-magnetic="0.4" aria-label="${isWishlisted ? "Remove" : "Save"} ${escapeHtml(product.title)}" aria-pressed="${isWishlisted}">♡</button>
-        <button class="stable-card__quick magnetic-btn" type="button" data-quick-view="${escapeHtml(product.id)}" data-magnetic="0.3" aria-label="Quick view ${escapeHtml(product.title)}" title="Quick view"><span aria-hidden="true">⌕</span><span>Quick view</span></button>
+        <button class="stable-card__wish ${isWishlisted ? "is-active" : ""}" type="button" data-wishlist-toggle="${escapeHtml(product.id)}" aria-label="${isWishlisted ? "Remove" : "Save"} ${escapeHtml(product.title)}" aria-pressed="${isWishlisted}">♡</button>
+        <button class="stable-card__quick" type="button" data-quick-view="${escapeHtml(product.id)}" aria-label="Quick view ${escapeHtml(product.title)}" title="Quick view"><span aria-hidden="true">⌕</span><span>Quick view</span></button>
       </div>
       <div class="stable-card__body">
         <small class="stable-card__category">${escapeHtml(categoryLabels[product.category] || product.category)}</small>
