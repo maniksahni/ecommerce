@@ -1561,7 +1561,6 @@
           });
 
           await batch.commit();
-          console.log("[OMS] Atomic checkout transaction committed:", orderRef);
         } catch (err) {
           console.warn("[OMS] Note on Firestore atomic order persistence:", err?.message || err);
         }
