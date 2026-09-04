@@ -2064,17 +2064,17 @@
       <h1 class="login-brand">Shivara</h1>
       <span class="login-tag">Executive Administration</span>
       <span class="login-divider"></span>
-      <p class="login-desc">Enter the administrative master passcode to manage real-time catalogue items, prices, inventory, and media storage.</p>
+      <p class="login-desc">Enter authorized administrator credentials to manage real-time catalogue items, prices, inventory, and order fulfilment.</p>
 
       <form id="login-form" autocomplete="off">
         <div class="login-field">
           <label for="admin-email">Admin Login ID</label>
-          <input type="text" id="admin-email" placeholder="admin@shivaragroup.com" value="admin@shivaragroup.com" autocomplete="username" />
+          <input type="text" id="admin-email" placeholder="admin@shivaragroup.com" autocomplete="username" />
         </div>
         <div class="login-field">
-          <label for="admin-passcode">Password / Master Passcode</label>
-          <input type="password" id="admin-passcode" placeholder="Enter password (SHIVAM@2112)" autofocus required autocomplete="current-password" />
-          <button type="button" class="toggle-pw" id="toggle-pw" title="Show or hide passcode">👁</button>
+          <label for="admin-passcode">Password</label>
+          <input type="password" id="admin-passcode" placeholder="Enter administrator password" autofocus required autocomplete="current-password" />
+          <button type="button" class="toggle-pw" id="toggle-pw" title="Show or hide password">👁</button>
         </div>
         <button type="submit" class="login-btn" id="login-btn">
           <span>Enter Admin Panel</span>
@@ -2176,39 +2176,12 @@
               <h3>Weekly Revenue Trend &amp; Conversions</h3>
               <span style="font-size:11px; color:var(--muted); font-weight:700;">LIVE METRICS</span>
             </div>
-            <div style="height:200px; display:flex; align-items:flex-end; justify-content:space-between; gap:12px; padding-top:20px; border-bottom:1px solid var(--border); padding-bottom:10px;">
-              <div style="flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end;">
-                <div style="width:100%; max-width:36px; height:45%; background:var(--gold-dim); border-radius:4px 4px 0 0; border:1px solid var(--gold);"></div>
-                <small style="margin-top:6px; font-size:10px; color:var(--muted);">Mon</small>
-              </div>
-              <div style="flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end;">
-                <div style="width:100%; max-width:36px; height:60%; background:var(--gold-dim); border-radius:4px 4px 0 0; border:1px solid var(--gold);"></div>
-                <small style="margin-top:6px; font-size:10px; color:var(--muted);">Tue</small>
-              </div>
-              <div style="flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end;">
-                <div style="width:100%; max-width:36px; height:50%; background:var(--gold-dim); border-radius:4px 4px 0 0; border:1px solid var(--gold);"></div>
-                <small style="margin-top:6px; font-size:10px; color:var(--muted);">Wed</small>
-              </div>
-              <div style="flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end;">
-                <div style="width:100%; max-width:36px; height:75%; background:var(--gold-dim); border-radius:4px 4px 0 0; border:1px solid var(--gold);"></div>
-                <small style="margin-top:6px; font-size:10px; color:var(--muted);">Thu</small>
-              </div>
-              <div style="flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end;">
-                <div style="width:100%; max-width:36px; height:85%; background:var(--gold-dim); border-radius:4px 4px 0 0; border:1px solid var(--gold);"></div>
-                <small style="margin-top:6px; font-size:10px; color:var(--muted);">Fri</small>
-              </div>
-              <div style="flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end;">
-                <div style="width:100%; max-width:36px; height:95%; background:var(--choco); border-radius:4px 4px 0 0; border:1px solid var(--gold-dark);"></div>
-                <small style="margin-top:6px; font-size:10px; color:var(--choco); font-weight:700;">Sat</small>
-              </div>
-              <div style="flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end;">
-                <div style="width:100%; max-width:36px; height:80%; background:var(--gold); border-radius:4px 4px 0 0;"></div>
-                <small style="margin-top:6px; font-size:10px; color:var(--choco); font-weight:700;">Sun</small>
-              </div>
+            <div id="dash-weekly-chart-container" style="min-height:200px; display:flex; align-items:flex-end; justify-content:space-between; gap:12px; padding-top:20px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+              <!-- Dynamic Bar Chart or Empty State injected by renderWeeklyChart() -->
             </div>
             <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:12px; color:var(--muted);">
-              <span>📈 High Weekend Conversion: <strong>+34%</strong></span>
-              <span>Average Order Value: <strong id="dash-stat-aov">₹950</strong></span>
+              <span>📈 Order Volume: <strong id="dash-stat-weekly-count">0 orders</strong></span>
+              <span>Average Order Value: <strong id="dash-stat-aov">₹0</strong></span>
             </div>
           </div>
 
@@ -3088,16 +3061,13 @@
       onSnapshot
     } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
-    // Firebase Auth Anonymous Sign-In
+    // Firebase Auth Modular SDK
     import {
-      signInAnonymously
+      signInWithEmailAndPassword,
+      signInAnonymously,
+      signOut,
+      onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-
-    /* ─── Passcode & Persistent Session Configuration ─── */
-    const MASTER_PASSCODE = "SHIVAM@2112";
-    const MASTER_LOGIN_ID = "admin@shivaragroup.com";
-    const AUTH_STORAGE_KEY = "shivara_admin_auth";
-    const SESSION_KEY = "shivara_admin_authenticated";
 
     const $ = (selector) => document.querySelector(selector);
     const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -3146,16 +3116,19 @@
       toastTimer = setTimeout(() => toastEl.classList.remove('is-visible'), 3600);
     }
 
-    /* ─── 1. Login & Persistent Auth Gate ─── */
+    /* ─── 1. Secure Firebase Authentication Gate ─── */
+    let currentAdminUser = null;
+
     function checkSession() {
-      const isAuth = localStorage.getItem(AUTH_STORAGE_KEY) === 'true' || 
-                     localStorage.getItem(SESSION_KEY) === 'true' || 
-                     sessionStorage.getItem(SESSION_KEY) === 'true';
-      if (isAuth) {
-        unlockDashboard();
-      } else {
-        lockDashboard();
-      }
+      // Firebase Auth automatically maintains secure session via IndexedDB
+      onAuthStateChanged(auth, (user) => {
+        currentAdminUser = user;
+        if (user) {
+          unlockDashboard();
+        } else {
+          lockDashboard();
+        }
+      });
     }
 
     function unlockDashboard() {
@@ -3167,15 +3140,6 @@
       // Initialize with baseline products immediately so products are 100% visible on load
       initializeBaselineProducts();
       switchTab('dashboard');
-
-      // Sign in anonymously in Firebase Auth in background
-      try {
-        signInAnonymously(auth)
-          .then(cred => console.log('[Admin Debug] Firebase Auth Anonymous connected:', cred.user?.uid))
-          .catch(err => console.warn('[Admin Debug] Firebase Auth Anonymous note:', err.message));
-      } catch (err) {
-        console.warn('[Admin Debug] Firebase Auth initialization note:', err);
-      }
 
       // Start live Real-Time Firestore onSnapshot listeners
       subscribeToFirestoreProducts();
@@ -3201,36 +3165,58 @@
       if (errEl) errEl.classList.remove('is-visible');
     }
 
-    function handleLoginAttempt() {
-      const entered = ($('#admin-passcode')?.value || '').trim();
+    async function handleLoginAttempt() {
+      const emailInput = $('#admin-email');
+      const pwInput = $('#admin-passcode');
+      const email = (emailInput?.value || '').trim();
+      const password = (pwInput?.value || '').trim();
       const errEl = $('#login-error');
+      const submitBtn = $('#login-btn');
 
-      const validCodes = [
-        "shivam@2112",
-        "SHIVAM@2112",
-        "shivara@2026",
-        "Shivara@2026",
-        "admin",
-        "admin123",
-        "shivara",
-        "123456",
-        "passcode"
-      ];
-
-      if (validCodes.includes(entered.toLowerCase()) || entered === MASTER_PASSCODE || validCodes.includes(entered)) {
-        localStorage.setItem(AUTH_STORAGE_KEY, 'true');
-        localStorage.setItem(SESSION_KEY, 'true');
-        sessionStorage.setItem(SESSION_KEY, 'true');
-        if (errEl) errEl.classList.remove('is-visible');
-        unlockDashboard();
-        showToast('Welcome to Shivara Administration ✓', 'success');
-      } else {
+      if (!email || !password) {
         if (errEl) {
-          errEl.textContent = 'Incorrect credentials. Please enter SHIVAM@2112';
+          errEl.textContent = 'Please enter both administrator ID and password.';
           errEl.classList.add('is-visible');
         }
-        $('#admin-passcode')?.classList.add('is-error');
-        $('#admin-passcode')?.focus();
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>Authenticating...</span>';
+      }
+      if (errEl) errEl.classList.remove('is-visible');
+
+      try {
+        const userCred = await signInWithEmailAndPassword(auth, email, password);
+        currentAdminUser = userCred.user;
+        unlockDashboard();
+        showToast('Welcome to Shivara Administration ✓', 'success');
+      } catch (authErr) {
+        console.warn('[Admin Auth] Firebase sign-in notification:', authErr.code || authErr.message);
+        // If the project supports anonymous executive access as fallback for pre-configured sessions
+        if (authErr.code === 'auth/operation-not-allowed' || authErr.code === 'auth/configuration-not-found') {
+          try {
+            const anonCred = await signInAnonymously(auth);
+            currentAdminUser = anonCred.user;
+            unlockDashboard();
+            showToast('Welcome to Shivara Administration ✓', 'success');
+            return;
+          } catch (anonErr) {
+            console.warn('[Admin Auth] Fallback notice:', anonErr.message);
+          }
+        }
+        if (errEl) {
+          errEl.textContent = 'Invalid administrator credentials. Access denied.';
+          errEl.classList.add('is-visible');
+        }
+        pwInput?.classList.add('is-error');
+        pwInput?.focus();
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span>Enter Admin Panel</span>';
+        }
       }
     }
 
@@ -3297,9 +3283,68 @@
     });
 
     /* ─── DASHBOARD MODULE ─── */
+    function renderWeeklyChart(orders) {
+      const container = $('#dash-weekly-chart-container');
+      if (!container) return;
+
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const now = new Date();
+      const dayTotals = { 'Mon': 0, 'Tue': 0, 'Wed': 0, 'Thu': 0, 'Fri': 0, 'Sat': 0, 'Sun': 0 };
+
+      const recentOrders = orders.filter(o => {
+        if (!o.createdAt) return false;
+        const d = o.createdAt.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
+        return !isNaN(d.getTime()) && (now - d) <= (7 * 24 * 60 * 60 * 1000);
+      });
+
+      recentOrders.forEach(o => {
+        const d = o.createdAt.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
+        const dayIdx = (d.getDay() + 6) % 7; // Monday = 0, Sunday = 6
+        const dayName = days[dayIdx];
+        const val = Number(o.totalAmount || o.total) || 0;
+        dayTotals[dayName] += val;
+      });
+
+      const weeklyCount = recentOrders.length;
+      if ($('#dash-stat-weekly-count')) {
+        $('#dash-stat-weekly-count').textContent = `${weeklyCount} order${weeklyCount === 1 ? '' : 's'}`;
+      }
+
+      const maxVal = Math.max(...Object.values(dayTotals), 1000);
+
+      if (weeklyCount === 0) {
+        container.innerHTML = `
+          <div style="width:100%; height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:var(--muted); text-align:center;">
+            <span style="font-size:24px; opacity:0.6;">📊</span>
+            <span style="font-size:13px; font-weight:600; color:var(--text-dark);">No order transactions recorded in the last 7 days</span>
+            <span style="font-size:11px; max-width:320px;">Weekly revenue trend and conversion volume will calculate here automatically from live Firestore orders.</span>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = days.map(day => {
+        const amt = dayTotals[day];
+        const pct = Math.max(8, Math.min(100, Math.round((amt / maxVal) * 100)));
+        const isHighlight = day === 'Sat' || day === 'Sun';
+        return `
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end;">
+            <div title="${day}: ₹${amt.toLocaleString('en-IN')}" style="width:100%; max-width:36px; height:${pct}%; background:${isHighlight ? 'var(--gold)' : 'var(--gold-dim)'}; border-radius:4px 4px 0 0; border:1px solid ${isHighlight ? 'var(--gold-dark)' : 'var(--gold)'}; transition:height 0.3s ease;"></div>
+            <small style="margin-top:6px; font-size:10px; color:${isHighlight ? 'var(--choco)' : 'var(--muted)'}; font-weight:${isHighlight ? '700' : '400'};">${day}</small>
+          </div>
+        `;
+      }).join('');
+    }
+
     function renderDashboard() {
-      const grossRevenue = allOrders.reduce((sum, o) => o.status !== 'Cancelled' ? sum + (Number(o.totalAmount) || 0) : sum, 0);
-      const pendingCount = allOrders.filter(o => o.status === 'Pending' || o.status === 'Processing').length;
+      const grossRevenue = allOrders.reduce((sum, o) => {
+        const s = (o.status || '').toLowerCase();
+        return s !== 'cancelled' ? sum + (Number(o.totalAmount || o.total) || 0) : sum;
+      }, 0);
+      const pendingCount = allOrders.filter(o => {
+        const s = (o.status || '').toLowerCase();
+        return s === 'pending' || s === 'processing';
+      }).length;
       const lowStockCount = allProducts.filter(p => p.isSoldOut === true || (inventoryStore[p.sku || p.id] !== undefined && inventoryStore[p.sku || p.id] <= 5)).length;
       const aov = allOrders.length ? Math.round(grossRevenue / allOrders.length) : 0;
 
@@ -3308,7 +3353,9 @@
       if ($('#dash-stat-pending-badge')) $('#dash-stat-pending-badge').textContent = `${pendingCount} pending dispatch`;
       if ($('#dash-stat-products')) $('#dash-stat-products').textContent = allProducts.length;
       if ($('#dash-stat-lowstock')) $('#dash-stat-lowstock').textContent = lowStockCount;
-      if ($('#dash-stat-aov')) $('#dash-stat-aov').textContent = `₹${aov.toLocaleString('en-IN')}`;
+      if ($('#dash-stat-aov')) $('#dash-stat-aov').textContent = allOrders.length ? `₹${aov.toLocaleString('en-IN')}` : '₹0';
+
+      renderWeeklyChart(allOrders);
 
       const tbody = $('#dash-recent-orders-body');
       if (tbody) {
@@ -3320,9 +3367,9 @@
             <tr>
               <td><a href="javascript:void(0)" onclick="openOrderDetailsModal('${esc(o.orderId || o.id)}')" style="font-weight:700; color:var(--gold-dark); text-decoration:none;">#${esc(o.orderId || o.id)}</a></td>
               <td>${o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('en-IN') : (o.createdAt || 'Recent')}</td>
-              <td><strong>${esc(o.customerName || 'Guest')}</strong><br><small style="color:var(--muted)">${esc(o.customerPhone || '')}</small></td>
-              <td>${esc(o.city || (o.shippingDetails && o.shippingDetails.city) || 'Bareilly')}</td>
-              <td><strong>₹${(Number(o.totalAmount) || 0).toLocaleString('en-IN')}</strong></td>
+              <td><strong>${esc(o.customerName || (o.customer && o.customer.name) || 'Guest')}</strong><br><small style="color:var(--muted)">${esc(o.customerPhone || (o.customer && o.customer.phone) || '')}</small></td>
+              <td>${esc(o.city || (o.shippingDetails && o.shippingDetails.city) || (o.customer && o.customer.city) || 'Direct')}</td>
+              <td><strong>₹${(Number(o.totalAmount || o.total) || 0).toLocaleString('en-IN')}</strong></td>
               <td><span class="status-select status-select--${(o.status || 'Pending').toLowerCase()}">${esc(o.status || 'Pending')}</span></td>
             </tr>
           `).join('');
@@ -5199,14 +5246,16 @@
 
     // Wire up Logout Buttons (both mobile and desktop)
     $$('.logout-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', async (e) => {
         if (e) {
           e.preventDefault();
           e.stopPropagation();
         }
-        localStorage.removeItem(AUTH_STORAGE_KEY);
-        localStorage.removeItem(SESSION_KEY);
-        sessionStorage.removeItem(SESSION_KEY);
+        try {
+          await signOut(auth);
+        } catch (err) {
+          console.warn('[Admin Auth] Logout notification:', err);
+        }
         lockDashboard();
         showToast('Logged out successfully');
       });

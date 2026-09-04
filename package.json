@@ -7,6 +7,8 @@
     "start": "node server.js",
     "audit:catalog": "node scripts/catalog-audit.js",
     "audit:routes": "node scripts/storefront-route-audit.js",
+    "test": "node scripts/catalog-audit.js && node scripts/test-backend-crud.js && node scripts/test-oms-flow.js && node scripts/test-full-architecture.js && node scripts/test-production-security.js && node scripts/smoke-test.js",
+    "test:security": "node scripts/test-production-security.js",
     "test:smoke": "node scripts/smoke-test.js",
     "test:experience": "node scripts/experience-test.js",
     "test:storefront": "node scripts/storefront-consistency-test.js",
@@ -16,7 +18,7 @@
     "test:architecture": "node scripts/test-full-architecture.js",
     "build": "node scripts/netlify-build.js",
     "build:netlify": "node scripts/netlify-build.js",
-    "deploy:firebase": "npm run build && npx --yes firebase-tools deploy --only hosting",
+    "deploy:firebase": "npm run build && npx --yes firebase-tools deploy --only hosting,firestore:rules",
     "test:netlify": "npm run build:netlify && node scripts/netlify-build-test.js"
   },
   "dependencies": {

@@ -143,6 +143,37 @@ for (const product of catalogApi.getAllProducts()) {
   write(`products/${product.slug}/index.html`, page);
 }
 
+const policyContent = {
+  shipping: {
+    title: "Shipping & Delivery Policy",
+    copy: "Shivara provides insured, express Pan-India shipping on all fine jewellery orders. Every piece is carefully packaged in our signature velvet keepsake box with protective transit cushioning and dispatched within 24–48 hours from our Bareilly atelier. Delivery typically completes within 3–5 business days via reputed courier partners. Tracking references are updated in real-time."
+  },
+  privacy: {
+    title: "Privacy Policy",
+    copy: "At Shivara, we respect and safeguard customer data with utmost confidentiality. Customer contact details, delivery addresses, and order histories are encrypted and used solely for fulfilling orders, providing delivery updates, and concierge customer service. We do not sell or disclose customer data to third-party advertisers."
+  },
+  terms: {
+    title: "Terms of Service",
+    copy: "All jewellery pieces featured in the Shivara catalogue undergo meticulous craftsmanship inspection. Prices, product descriptions, and availability are maintained with full transparency. Orders placed via our platform are confirmed for genuine delivery with PAN-India concierge support."
+  },
+  refund: {
+    title: "Return & Refund Policy",
+    copy: "Every Shivara creation comes with our quality guarantee and 100% anti-tarnish assurance. In the unlikely event of receiving a transit-damaged item or packaging discrepancy, reach out to our concierge within 48 hours of delivery for immediate, hassle-free replacement or resolution."
+  },
+  contact: {
+    title: "Contact & Concierge Information",
+    copy: "Shivara Jewellery Atelier | Head Concierge & Atelier Office: Bareilly, Uttar Pradesh, India. Contact: +91 94570 41215 | WhatsApp: https://wa.me/919457041215 | Email: support@shivaragroup.com. Available Mon–Sat 10:00 AM – 8:00 PM IST."
+  }
+};
+
+for (const [slug, policy] of Object.entries(policyContent)) {
+  const html = stamp(`<!doctype html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="description" content="${escapeHtml(policy.copy)}" /><title>${escapeHtml(policy.title)} | Shivara</title><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Italiana&amp;display=swap" rel="stylesheet" /><link rel="stylesheet" href="/commerce-stable.css?v=2" /><link rel="canonical" href="https://the-shivara-group-86c9c.web.app/policies/${slug}" /></head><body class="catalog-stable"><div id="shared-header"></div><main class="stable-page"><nav class="stable-breadcrumb"><a href="/">Home</a><span>/</span><span>${escapeHtml(policy.title)}</span></nav><article style="max-width:780px;margin:0 auto;padding:40px 20px 80px;"><p style="font-size:11px;font-weight:700;letter-spacing:1.6px;color:#c5a059;text-transform:uppercase;margin-bottom:12px;">SHIVARA ATELIER POLICIES</p><h1 style="font:400 clamp(32px,5vw,52px)/1.15 'Italiana',Georgia,serif;letter-spacing:0;margin:0 0 24px;color:#1a1512;">${escapeHtml(policy.title)}</h1><p style="font-size:15px;line-height:1.8;color:#4a423b;margin-bottom:32px;">${escapeHtml(policy.copy)}</p><div style="display:flex;gap:12px;flex-wrap:wrap;"><a class="stable-button stable-button--dark" href="/collections/all">Explore Collection</a><a class="stable-button stable-button--plain" href="/track-order.html">Track Order</a></div></article></main><div id="shared-footer"></div><script src="/shop-data.js"></script><script src="/catalog-data.js"></script><script src="/storefront-renderer.js"></script><script src="/script.js"></script></body></html>`);
+  write(`policies/${slug}/index.html`, html);
+}
+
+const confirmPage = fs.readFileSync(path.join(output, "order-confirmation.html"), "utf8");
+write("order-confirmation/index.html", confirmPage);
+
 write("netlify-build-info.js", `window.SHIVARA_BUILD_INFO=Object.freeze(${JSON.stringify(buildInfo)});\n`);
 write("404.html", stamp(`<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Page not found | Shivara</title><link rel="stylesheet" href="/commerce-stable.css?v=4"></head><body class="catalog-stable"><main class="stable-empty" style="min-height:100vh;display:grid;place-content:center;text-align:center;padding:24px"><p>404</p><h1 style="font:400 52px/1 Italiana,serif;letter-spacing:0">Page not found</h1><p>This page is not part of the curated Shivara catalogue.</p><a class="stable-button stable-button--dark" href="/collections/all">Browse jewellery</a></main></body></html>`));
 write("_headers", `/*\n  X-Shivara-Build: ${buildInfo.commit}\n  X-Shivara-Catalog-Version: ${buildInfo.catalogVersion}\n  X-Shivara-App-Version: ${buildInfo.appVersion}\n  Cache-Control: public, max-age=0, must-revalidate\n`);

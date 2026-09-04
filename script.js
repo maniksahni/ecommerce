@@ -1435,8 +1435,14 @@
       event.preventDefault();
       event.stopPropagation();
 
+      const form = event.target;
+      const submitBtn = form.querySelector('button[type="submit"]');
+
       const name = (document.querySelector("#cust-name")?.value || "").trim();
-      const phone = (document.querySelector("#cust-phone")?.value || "").trim();
+      let phone = (document.querySelector("#cust-phone")?.value || "").trim().replace(/\D/g, "");
+      if (phone.length === 12 && phone.startsWith("91")) phone = phone.slice(2);
+      if (phone.length === 11 && phone.startsWith("0")) phone = phone.slice(1);
+
       const email = (document.querySelector("#cust-email")?.value || "").trim();
       const address = (document.querySelector("#cust-address")?.value || "").trim();
       const pincode = (document.querySelector("#cust-pincode")?.value || "").trim();
@@ -1445,9 +1451,43 @@
       const note = (document.querySelector("#cust-note")?.value || "").trim();
       const paymentMethod = (document.querySelector('input[name="payment-method"]:checked')?.value || "COD").trim();
 
-      if (!name || !phone || !address || !pincode) {
-        showToast("Please fill in all required delivery details.");
+      // Indian E-Commerce Checkout Validations
+      if (!name || name.length < 2) {
+        showToast("Please enter your full name.");
+        document.querySelector("#cust-name")?.focus();
         return;
+      }
+      if (!phone || !/^[6-9]\d{9}$/.test(phone)) {
+        showToast("Please enter a valid 10-digit Indian mobile number.");
+        document.querySelector("#cust-phone")?.focus();
+        return;
+      }
+      if (!pincode || !/^[1-9][0-9]{5}$/.test(pincode)) {
+        showToast("Please enter a valid 6-digit Indian PIN code.");
+        document.querySelector("#cust-pincode")?.focus();
+        return;
+      }
+      if (!address || address.length < 5) {
+        showToast("Please enter complete delivery street address.");
+        document.querySelector("#cust-address")?.focus();
+        return;
+      }
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast("Please enter a valid email address.");
+        document.querySelector("#cust-email")?.focus();
+        return;
+      }
+      if (!cart.length) {
+        showToast("Your shopping bag is empty.");
+        return;
+      }
+
+      // Prevent duplicate order submissions
+      if (submitBtn) {
+        if (submitBtn.disabled) return;
+        submitBtn.disabled = true;
+        submitBtn.dataset.originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = "<span>Confirming Order...</span>";
       }
 
       try {
@@ -1460,25 +1500,44 @@
         }
       } catch {}
 
-      const summary = cartSummary();
-      const orderRef = "SHV-" + Math.floor(10000 + Math.random() * 90000);
-      const dateStr = new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+      // Generate Collision-Safe Timestamped Order ID (SHV-YYYYMMDD-XXXXXX)
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, "0");
+      const d = String(now.getDate()).padStart(2, "0");
+      const randHex = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const orderRef = `SHV-${y}${m}${d}-${randHex}`;
+      const dateStr = now.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 
+      // Recalculate totals from trusted product data
+      let verifiedSubtotal = 0;
       const orderItems = cart.map(item => {
         const product = productMap.get(item.id);
         const variant = validVariant(product, item.variantId);
         const value = pricing(product);
+        const unitPrice = (value && value.confirmed && typeof value.price === "number") ? value.price : 499;
+        verifiedSubtotal += (unitPrice * item.qty);
         return {
           productId: product?.id || item.id,
           slug: product?.slug || item.id,
           sku: product?.sku || "",
           title: product?.title || "Jewellery Item",
-          price: value.confirmed ? value.price : 499,
+          price: unitPrice,
           quantity: item.qty,
           imageUrl: (product?.images && product.images[0]) || "",
           variantLabel: variant?.label || null
         };
       });
+
+      let verifiedDiscount = 0;
+      if (activeCoupon) {
+        if (activeCoupon.type === "percentage") {
+          verifiedDiscount = Math.round((verifiedSubtotal * (Number(activeCoupon.value) || 0)) / 100);
+        } else if (activeCoupon.type === "fixed") {
+          verifiedDiscount = Math.min(verifiedSubtotal, Number(activeCoupon.value) || 0);
+        }
+      }
+      const verifiedTotal = Math.max(0, verifiedSubtotal - verifiedDiscount);
 
       const customerInfo = {
         name,
@@ -1492,8 +1551,10 @@
       };
 
       const orderDocument = {
+        id: orderRef,
         orderId: orderRef,
-        customerInfo,
+        customer: customerInfo,
+        customerInfo: customerInfo,
         customerName: name,
         customerPhone: phone,
         customerEmail: email,
@@ -1505,11 +1566,13 @@
         shippingDetails: customerInfo,
         items: orderItems,
         itemCount: cart.reduce((sum, i) => sum + i.qty, 0),
-        totalAmount: summary.confirmedTotal,
-        subtotal: summary.subtotal,
-        discountAmount: summary.discount,
+        total: verifiedTotal,
+        totalAmount: verifiedTotal,
+        subtotal: verifiedSubtotal,
+        discountAmount: verifiedDiscount,
         appliedCoupon: activeCoupon?.code || null,
-        paymentMethod,
+        paymentMethod: paymentMethod,
+        paymentStatus: paymentMethod === "COD" ? "COD" : "Payment Pending",
         status: "Pending",
         createdAt: new Date().toISOString()
       };
@@ -1519,7 +1582,7 @@
         localStorage.setItem("shivara_recent_order", JSON.stringify({
           orderId: orderRef,
           date: dateStr,
-          totalAmount: summary.confirmedTotal,
+          totalAmount: verifiedTotal,
           items: orderItems,
           customerInfo,
           paymentMethod,

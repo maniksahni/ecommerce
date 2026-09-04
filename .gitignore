@@ -6,3 +6,9 @@ dist/
 .netlify/
 .firebase/
 admin-products.json
+.env
+.env.*
+*.pem
+*.key
+service-account*.json
+*.log

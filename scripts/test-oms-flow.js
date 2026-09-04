@@ -14,12 +14,12 @@ const rootDir = process.cwd();
 // 1. Validate firestore.rules
 const rulesContent = fs.readFileSync(path.join(rootDir, "firestore.rules"), "utf-8");
 assert(rulesContent.includes("match /orders/{orderId}"), "firestore.rules must contain match /orders/{orderId}");
-assert(rulesContent.includes("allow read, write: if true;"), "firestore.rules must allow read, write on orders collection");
-console.log("PASS 1: firestore.rules allows full read/write for guest orders and admin OMS");
+assert(rulesContent.includes("allow create:") && rulesContent.includes("allow get: if true;"), "firestore.rules must allow secure order creation and tracking get");
+console.log("PASS 1: firestore.rules allows validated guest order creation and order tracking get");
 
 // 2. Validate script.js Guest Checkout & Atomic Inventory Sync
 const scriptContent = fs.readFileSync(path.join(rootDir, "script.js"), "utf-8");
-assert(scriptContent.includes("orderRef = \"SHV-\""), "script.js must generate unique SHV- orderId prefix");
+assert(scriptContent.includes("orderRef = `SHV-") || scriptContent.includes('orderRef = "SHV-'), "script.js must generate unique SHV- orderId prefix");
 assert(scriptContent.includes("customerInfo"), "script.js order payload must contain customerInfo");
 assert(scriptContent.includes("shivara_recent_order"), "script.js must persist recent order to localStorage");
 assert(scriptContent.includes("doc(db, \"orders\", orderRef)"), "script.js must persist order document to Firestore orders collection");
