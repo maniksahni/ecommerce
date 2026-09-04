@@ -38,6 +38,7 @@ const publicFiles = [
   "admin-catalog-snapshot.js",
   "storefront-renderer.js",
   "script.js",
+  "video-commerce.js",
   "commerce-stable.css"
 ];
 
