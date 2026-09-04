@@ -4118,11 +4118,34 @@ body.catalog-stable {
   margin-bottom: 12px;
 }
 
+.reel-modal-live-badge {
+  display: inline-block;
+  background: rgba(229, 185, 90, 0.25);
+  border: 1px solid #e5b95a;
+  color: #f7d070;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+}
+
 .reel-dock-card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 10px;
-  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 12px;
+  padding: 12px 14px;
   color: #1e150f;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.reel-dock-details {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -4131,36 +4154,73 @@ body.catalog-stable {
 
 .reel-dock-title {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
+  color: #1a1512;
 }
 
 .reel-dock-price strong {
-  font-size: 14px;
+  font-size: 15px;
+  color: #1a1512;
 }
 
 .reel-dock-price s {
-  font-size: 11px;
+  font-size: 12px;
   color: #888;
   margin-left: 4px;
 }
 
 .reel-dock-discount {
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #2e7d32;
+  margin-left: 6px;
+  background: rgba(46, 125, 50, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.reel-dock-actions-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.reel-dock-view-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4ede4;
+  color: #1a1512;
+  border: 1px solid #dcd4c8;
+  border-radius: 6px;
+  padding: 9px 12px;
+  font-size: 12px;
   font-weight: 700;
-  color: #c62828;
-  margin-left: 4px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.reel-dock-view-btn:hover {
+  background: #e8ded2;
 }
 
 .reel-dock-buy-btn {
+  flex: 1;
   background: #244b3d;
   color: #fff;
   border: none;
   border-radius: 6px;
-  padding: 8px 14px;
+  padding: 9px 14px;
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reel-dock-buy-btn:hover {
+  background: #18352b;
 }
 
 /* ─── Explore All Banner & Editorial Feature ─── */
