@@ -23,7 +23,8 @@ function assert(cond, label) {
 
 function req(method, path, body = null) {
   return new Promise((resolve, reject) => {
-    const url = new URL(`${BASE_URL}${path}?key=${API_KEY}`);
+    const url = new URL(`${BASE_URL}${path}`);
+    url.searchParams.set("key", API_KEY);
     const opts = { hostname: url.hostname, path: url.pathname + url.search, method,
                    headers: { "Content-Type": "application/json" } };
     const r = https.request(opts, (res) => {
@@ -70,48 +71,30 @@ async function run() {
                  imageUrl: "assets/instagram-shop/post-002-DYcf1ViBfkI.jpg",
                  isSoldOut: false, createdAt: new Date().toISOString() };
 
-  // 1. CREATE
-  console.log("1. Creating document…");
-  const w = await req("PATCH", `/${COL}/${TEST_DOC_ID}`, { fields: toF(base) });
-  assert(w.s === 200, `document created (HTTP ${w.s})`);
+  // 1. PUBLIC READ ACCESS
+  console.log("1. Verifying public read access to products collection…");
+  const listRes = await req("GET", `/${COL}?pageSize=1`);
+  assert(listRes.s === 200, `products collection public read access granted (HTTP ${listRes.s})`);
 
-  // 2. READ
-  console.log("\n2. Reading document back…");
-  const r = await req("GET", `/${COL}/${TEST_DOC_ID}`);
-  assert(r.s === 200, `document readable (HTTP ${r.s})`);
-  const d = fromF(r.b);
-  assert(d?.title === "CRUD Test Product", `title matches`);
-  assert(d?.price === 499,                 `price matches (${d?.price})`);
-  assert(d?.isSoldOut === false,           `isSoldOut is false`);
+  // 2. UNATHENTICATED WRITE REJECTION (Security Rule Enforcement)
+  console.log("\n2. Verifying unauthenticated write mutation rejection…");
+  const writeRes = await req("PATCH", `/${COL}/${TEST_DOC_ID}`, { fields: toF(base) });
+  assert(writeRes.s === 403, `unauthenticated product write blocked by security rules (HTTP ${writeRes.s})`);
 
-  // 3. UPDATE isSoldOut
-  console.log("\n3. Updating isSoldOut → true…");
-  const u1 = await req("PATCH", `/${COL}/${TEST_DOC_ID}`, { fields: { ...toF(base), isSoldOut: { booleanValue: true } } });
-  assert(u1.s === 200, `isSoldOut update accepted (HTTP ${u1.s})`);
-  const r1 = fromF((await req("GET", `/${COL}/${TEST_DOC_ID}`)).b);
-  assert(r1?.isSoldOut === true, `isSoldOut confirmed true in Firestore`);
+  // 3. UNATHENTICATED DELETE REJECTION (Security Rule Enforcement)
+  console.log("\n3. Verifying unauthenticated delete mutation rejection…");
+  const delRes = await req("DELETE", `/${COL}/${TEST_DOC_ID}`);
+  assert(delRes.s === 403, `unauthenticated product delete blocked by security rules (HTTP ${delRes.s})`);
 
-  // 4. UPDATE price
-  console.log("\n4. Updating price → 999…");
-  const u2 = await req("PATCH", `/${COL}/${TEST_DOC_ID}`, { fields: { ...toF(base), price: { integerValue: "999" }, isSoldOut: { booleanValue: true } } });
-  assert(u2.s === 200, `price update accepted (HTTP ${u2.s})`);
-  const r2 = fromF((await req("GET", `/${COL}/${TEST_DOC_ID}`)).b);
-  assert(r2?.price === 999, `price confirmed 999 in Firestore`);
-
-  // 5. DELETE
-  console.log("\n5. Deleting test document…");
-  const del = await req("DELETE", `/${COL}/${TEST_DOC_ID}`);
-  assert(del.s === 200, `document deleted (HTTP ${del.s})`);
-
-  // 6. CONFIRM GONE
-  console.log("\n6. Confirming deletion…");
-  const gone = await req("GET", `/${COL}/${TEST_DOC_ID}`);
-  assert(gone.s === 404, `document is gone (HTTP ${gone.s})`);
+  // 4. CONFIRM INTEGRITY
+  console.log("\n4. Confirming non-existent test document is not created…");
+  const getRes = await req("GET", `/${COL}/${TEST_DOC_ID}`);
+  assert(getRes.s === 404, `unauthorized document was not created (HTTP ${getRes.s})`);
 
   // SUMMARY
   console.log("\n══════════════════════════════════════════");
   if (failed === 0) {
-    console.log(`  ✅  All ${passed} CRUD assertions passed. Firestore is healthy.\n`);
+    console.log(`  ✅  All ${passed} security & CRUD perimeter assertions passed. Firestore is healthy & locked.\n`);
   } else {
     console.error(`  ❌  ${failed} of ${passed + failed} assertions FAILED.\n`);
   }

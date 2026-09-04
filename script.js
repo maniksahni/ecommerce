@@ -1749,6 +1749,13 @@
     }
   });
 
+  window.addEventListener("scroll", () => {
+    const header = document.querySelector(".stable-header");
+    if (header) {
+      header.classList.toggle("is-scrolled", window.scrollY > 20);
+    }
+  }, { passive: true });
+
   window.addEventListener("popstate", () => {
     collectionVisible = 24;
     renderCollection();
