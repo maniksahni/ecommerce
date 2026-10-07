@@ -32,6 +32,13 @@ service cloud.firestore {
       allow read, write: if isAuthenticated();
     }
 
+    // Order Tracking Projection (Public lookup with masked PII)
+    match /order_tracking/{orderId} {
+      allow get: if true;
+      allow create: if true;
+      allow update, delete: if isAuthenticated();
+    }
+
     // Coupons: Public read for storefront checkout validation; Admin-only write
     match /coupons/{couponId} {
       allow read: if true;

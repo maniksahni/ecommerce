@@ -698,22 +698,53 @@
           return;
         }
       }
-      const errData = await res.json().catch(() => ({}));
-      showToast(errData.error || "Invalid or expired promo code");
-    } catch {
-      const localCoupons = {
-        "WELCOME10": { code: "WELCOME10", discountType: "percent", discountValue: 10, minOrderValue: 499, isActive: true },
-        "LUXE15": { code: "LUXE15", discountType: "percent", discountValue: 15, minOrderValue: 1499, isActive: true },
-        "SHIVARA500": { code: "SHIVARA500", discountType: "flat", discountValue: 500, minOrderValue: 2499, isActive: true }
-      };
-      if (localCoupons[clean]) {
-        activeCoupon = localCoupons[clean];
-        saveStorage(storageKeys.coupon, activeCoupon);
-        renderCart();
-        showToast(`Coupon ${clean} applied!`);
-      } else {
-        showToast("Invalid promo code");
+    } catch {}
+
+    // Firestore direct coupon validation for Firebase Hosting
+    try {
+      const { db } = await import("/src/firebase.js");
+      const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js");
+      const couponSnap = await getDoc(doc(db, "coupons", clean));
+      if (couponSnap.exists()) {
+        const cData = couponSnap.data();
+        if (cData.isActive !== false) {
+          const minVal = Number(cData.minOrderValue || 0);
+          if (minVal > 0 && summary.subtotal < minVal) {
+            showToast(`Coupon ${clean} requires minimum order value of ₹${minVal}`);
+            return;
+          }
+          activeCoupon = { code: clean, ...cData };
+          saveStorage(storageKeys.coupon, activeCoupon);
+          renderCart();
+          const disc = cartSummary().discount;
+          showToast(`Coupon ${clean} applied! You saved ${formatMoney(disc)}`);
+          return;
+        } else {
+          showToast(`Coupon ${clean} is currently inactive`);
+          return;
+        }
       }
+    } catch (fsErr) {
+      console.warn("[Storefront] Firestore coupon check note:", fsErr);
+    }
+
+    const localCoupons = {
+      "WELCOME10": { code: "WELCOME10", discountType: "percent", discountValue: 10, minOrderValue: 499, isActive: true },
+      "LUXE15": { code: "LUXE15", discountType: "percent", discountValue: 15, minOrderValue: 1499, isActive: true },
+      "SHIVARA500": { code: "SHIVARA500", discountType: "flat", discountValue: 500, minOrderValue: 2499, isActive: true }
+    };
+    if (localCoupons[clean]) {
+      const c = localCoupons[clean];
+      if (c.minOrderValue && summary.subtotal < c.minOrderValue) {
+        showToast(`Coupon requires minimum order value of ₹${c.minOrderValue}`);
+        return;
+      }
+      activeCoupon = c;
+      saveStorage(storageKeys.coupon, activeCoupon);
+      renderCart();
+      showToast(`Coupon ${clean} applied!`);
+    } else {
+      showToast("Invalid promo code");
     }
   }
 
@@ -1863,6 +1894,52 @@
     scheduleSignatureRotation();
   });
 
+  async function loadLiveStorefrontConfig() {
+    try {
+      const { db } = await import("/src/firebase.js");
+      const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js");
+
+      // 1. Live Banners from Firestore
+      try {
+        const bannerSnap = await getDoc(doc(db, "banners", "config"));
+        if (bannerSnap.exists()) {
+          const bData = bannerSnap.data();
+          if (Array.isArray(bData.announcements) && bData.announcements.length > 0) {
+            announcements.length = 0;
+            announcements.push(...bData.announcements);
+            renderAnnouncement();
+          }
+        }
+      } catch (bErr) {
+        console.warn("[Config] Banners sync note:", bErr);
+      }
+
+      // 2. Live Settings from Firestore
+      try {
+        const setSnap = await getDoc(doc(db, "admin_settings", "general"));
+        if (setSnap.exists()) {
+          const sData = setSnap.data();
+          if (sData.whatsapp) {
+            const cleanWa = String(sData.whatsapp).replace(/[^0-9]/g, "");
+            if (cleanWa) {
+              const fullWa = cleanWa.length === 10 ? `91${cleanWa}` : cleanWa;
+              document.querySelectorAll('a[href*="wa.me"]').forEach(link => {
+                link.href = link.href.replace(/wa\.me\/\d+/, `wa.me/${fullWa}`);
+              });
+            }
+          }
+          if (sData.phone) {
+            document.querySelectorAll('a[href*="tel:"]').forEach(link => {
+              link.href = `tel:${sData.phone.replace(/\s+/g, '')}`;
+            });
+          }
+        }
+      } catch (sErr) {
+        console.warn("[Config] Settings sync note:", sErr);
+      }
+    } catch {}
+  }
+
   async function bootstrapStorefront() {
     if (!catalogApi.getAllProducts().length) throw new Error("Curated catalogue integrity check failed during bootstrap");
     renderChrome();
@@ -1876,6 +1953,7 @@
     renderWishlist();
     renderCart();
     syncWishlistControls();
+    loadLiveStorefrontConfig().catch(() => {});
     document.dispatchEvent(new CustomEvent("shivara:storefront-ready", {
       detail: { catalogueVersion: catalogApi.version, productCount: products.length }
     }));

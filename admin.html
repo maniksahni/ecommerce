@@ -2052,6 +2052,49 @@
     @media (max-width: 640px) {
       .settings-fields-grid { grid-template-columns: 1fr; }
     }
+
+    /* ─── Printable Packing Slip Styling ─── */
+    .packing-slip-paper {
+      background: #ffffff;
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: #1a1a1a;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #packing-slip-modal,
+      #packing-slip-modal * {
+        visibility: visible !important;
+      }
+      #packing-slip-modal {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        background: #ffffff !important;
+        display: block !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+      }
+      #packing-slip-modal .modal-card {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: none !important;
+        overflow: visible !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -2225,11 +2268,12 @@
                 <th>City</th>
                 <th>Total</th>
                 <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="dash-recent-orders-body">
               <tr>
-                <td colspan="6" style="text-align:center; padding:28px; color:var(--muted)">Loading recent order stream…</td>
+                <td colspan="7" style="text-align:center; padding:28px; color:var(--muted)">Loading recent order stream…</td>
               </tr>
             </tbody>
           </table>
@@ -2496,76 +2540,153 @@
         </div>
 
         <div class="admin-category-grid" id="admin-categories-container">
-          <div class="admin-cat-card">
-            <div class="admin-cat-icon">✨</div>
-            <div class="admin-cat-info">
-              <h4>Earrings</h4>
-              <p>Slug: <code>/collections/earrings</code> · <strong id="cat-count-earrings">18 items</strong></p>
-              <small style="color:var(--gold-dark); font-weight:600;">THE FINAL TOUCH</small>
+          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
+            <div style="display:flex; align-items:center; gap:14px; width:100%;">
+              <div class="admin-cat-icon">✨</div>
+              <div class="admin-cat-info" style="flex:1;">
+                <h4>Earrings</h4>
+                <p>Slug: <code>/collections/earrings</code> · <strong id="cat-count-earrings">18 items</strong></p>
+                <small style="color:var(--gold-dark); font-weight:600;">THE FINAL TOUCH</small>
+              </div>
+            </div>
+            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
+              <a href="/collections/earrings" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
+              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('earrings')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
             </div>
           </div>
-          <div class="admin-cat-card">
-            <div class="admin-cat-icon">💍</div>
-            <div class="admin-cat-info">
-              <h4>Rings</h4>
-              <p>Slug: <code>/collections/rings</code> · <strong id="cat-count-rings">23 items</strong></p>
-              <small style="color:var(--gold-dark); font-weight:600;">THE RING EDIT</small>
+
+          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
+            <div style="display:flex; align-items:center; gap:14px; width:100%;">
+              <div class="admin-cat-icon">💍</div>
+              <div class="admin-cat-info" style="flex:1;">
+                <h4>Rings</h4>
+                <p>Slug: <code>/collections/rings</code> · <strong id="cat-count-rings">23 items</strong></p>
+                <small style="color:var(--gold-dark); font-weight:600;">THE RING EDIT</small>
+              </div>
+            </div>
+            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
+              <a href="/collections/rings" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
+              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('rings')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
             </div>
           </div>
-          <div class="admin-cat-card">
-            <div class="admin-cat-icon">✨</div>
-            <div class="admin-cat-info">
-              <h4>Bracelets &amp; Bangles</h4>
-              <p>Slug: <code>/collections/bracelets</code> · <strong id="cat-count-bracelets">14 items</strong></p>
-              <small style="color:var(--gold-dark); font-weight:600;">THE WRIST EDIT</small>
+
+          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
+            <div style="display:flex; align-items:center; gap:14px; width:100%;">
+              <div class="admin-cat-icon">✨</div>
+              <div class="admin-cat-info" style="flex:1;">
+                <h4>Bracelets &amp; Bangles</h4>
+                <p>Slug: <code>/collections/bracelets</code> · <strong id="cat-count-bracelets">14 items</strong></p>
+                <small style="color:var(--gold-dark); font-weight:600;">THE WRIST EDIT</small>
+              </div>
+            </div>
+            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
+              <a href="/collections/bracelets" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
+              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('bracelets')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
             </div>
           </div>
-          <div class="admin-cat-card">
-            <div class="admin-cat-icon">📿</div>
-            <div class="admin-cat-info">
-              <h4>Neck Wear &amp; Pendants</h4>
-              <p>Slug: <code>/collections/neckwear</code> · <strong id="cat-count-necklaces">45 items</strong></p>
-              <small style="color:var(--gold-dark); font-weight:600;">THE NECKLINE EDIT</small>
+
+          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
+            <div style="display:flex; align-items:center; gap:14px; width:100%;">
+              <div class="admin-cat-icon">📿</div>
+              <div class="admin-cat-info" style="flex:1;">
+                <h4>Neck Wear &amp; Pendants</h4>
+                <p>Slug: <code>/collections/neckwear</code> · <strong id="cat-count-necklaces">45 items</strong></p>
+                <small style="color:var(--gold-dark); font-weight:600;">THE NECKLINE EDIT</small>
+              </div>
+            </div>
+            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
+              <a href="/collections/neckwear" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
+              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('necklaces')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
             </div>
           </div>
-          <div class="admin-cat-card">
-            <div class="admin-cat-icon">🧿</div>
-            <div class="admin-cat-info">
-              <h4>Evil Eye</h4>
-              <p>Slug: <code>/collections/evil-eye</code> · <strong id="cat-count-evil-eye">3 items</strong></p>
-              <small style="color:var(--gold-dark); font-weight:600;">THE PROTECTION EDIT</small>
+
+          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
+            <div style="display:flex; align-items:center; gap:14px; width:100%;">
+              <div class="admin-cat-icon">🧿</div>
+              <div class="admin-cat-info" style="flex:1;">
+                <h4>Evil Eye</h4>
+                <p>Slug: <code>/collections/evil-eye</code> · <strong id="cat-count-evil-eye">3 items</strong></p>
+                <small style="color:var(--gold-dark); font-weight:600;">THE PROTECTION EDIT</small>
+              </div>
+            </div>
+            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
+              <a href="/collections/evil-eye" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
+              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('evil-eye')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
             </div>
           </div>
-          <div class="admin-cat-card">
-            <div class="admin-cat-icon">⌚</div>
-            <div class="admin-cat-info">
-              <h4>Watches</h4>
-              <p>Slug: <code>/collections/watches</code> · <strong id="cat-count-watches">4 items</strong></p>
-              <small style="color:var(--gold-dark); font-weight:600;">THE WATCH EDIT</small>
+
+          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
+            <div style="display:flex; align-items:center; gap:14px; width:100%;">
+              <div class="admin-cat-icon">⌚</div>
+              <div class="admin-cat-info" style="flex:1;">
+                <h4>Watches</h4>
+                <p>Slug: <code>/collections/watches</code> · <strong id="cat-count-watches">4 items</strong></p>
+                <small style="color:var(--gold-dark); font-weight:600;">THE WATCH EDIT</small>
+              </div>
+            </div>
+            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
+              <a href="/collections/watches" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
+              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('watches')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
             </div>
           </div>
-          <div class="admin-cat-card">
-            <div class="admin-cat-icon">👑</div>
-            <div class="admin-cat-info">
-              <h4>Jewellery Sets</h4>
-              <p>Slug: <code>/collections/jewellery-sets</code> · <strong id="cat-count-sets">3 items</strong></p>
-              <small style="color:var(--gold-dark); font-weight:600;">THE COORDINATED EDIT</small>
+
+          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
+            <div style="display:flex; align-items:center; gap:14px; width:100%;">
+              <div class="admin-cat-icon">👑</div>
+              <div class="admin-cat-info" style="flex:1;">
+                <h4>Jewellery Sets</h4>
+                <p>Slug: <code>/collections/jewellery-sets</code> · <strong id="cat-count-sets">3 items</strong></p>
+                <small style="color:var(--gold-dark); font-weight:600;">THE COORDINATED EDIT</small>
+              </div>
+            </div>
+            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
+              <a href="/collections/jewellery-sets" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
+              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('sets')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
             </div>
           </div>
-          <div class="admin-cat-card">
-            <div class="admin-cat-icon">🛡️</div>
-            <div class="admin-cat-info">
-              <h4>Anti Tarnish</h4>
-              <p>Slug: <code>/collections/anti-tarnish</code> · <strong id="cat-count-anti-tarnish">16 items</strong></p>
-              <small style="color:var(--gold-dark); font-weight:600;">THE EVERYDAY EDIT</small>
+
+          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
+            <div style="display:flex; align-items:center; gap:14px; width:100%;">
+              <div class="admin-cat-icon">🛡️</div>
+              <div class="admin-cat-info" style="flex:1;">
+                <h4>Anti Tarnish</h4>
+                <p>Slug: <code>/collections/anti-tarnish</code> · <strong id="cat-count-anti-tarnish">16 items</strong></p>
+                <small style="color:var(--gold-dark); font-weight:600;">THE EVERYDAY EDIT</small>
+              </div>
+            </div>
+            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
+              <a href="/collections/anti-tarnish" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
+              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('anti-tarnish')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
             </div>
           </div>
-          <div class="admin-cat-card">
-            <div class="admin-cat-icon">🎁</div>
-            <div class="admin-cat-info">
-              <h4>Gifting Edit</h4>
-              <p>Slug: <code>/collections/gifting</code> · <strong id="cat-count-gifting">23 items</strong></p>
-              <small style="color:var(--gold-dark); font-weight:600;">THE GIFTING ROOM</small>
+
+          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
+            <div style="display:flex; align-items:center; gap:14px; width:100%;">
+              <div class="admin-cat-icon">🎁</div>
+              <div class="admin-cat-info" style="flex:1;">
+                <h4>Gifting Edit</h4>
+                <p>Slug: <code>/collections/gifting</code> · <strong id="cat-count-gifting">23 items</strong></p>
+                <small style="color:var(--gold-dark); font-weight:600;">THE GIFTING ROOM</small>
+              </div>
+            </div>
+            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
+              <a href="/collections/gifting" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
+              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('gifting')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
+            </div>
+          </div>
+
+          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
+            <div style="display:flex; align-items:center; gap:14px; width:100%;">
+              <div class="admin-cat-icon">💎</div>
+              <div class="admin-cat-info" style="flex:1;">
+                <h4>All Jewellery</h4>
+                <p>Slug: <code>/collections/all</code> · <strong id="cat-count-all">114 items</strong></p>
+                <small style="color:var(--gold-dark); font-weight:600;">COMPLETE CATALOGUE</small>
+              </div>
+            </div>
+            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
+              <a href="/collections/all" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
+              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('all')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
             </div>
           </div>
         </div>
@@ -3034,7 +3155,25 @@
   </div>
 
   <!-- ════════════════════════════════════════
-       8. TOAST NOTIFICATION CONTAINER
+       8. EXECUTIVE PACKING SLIP MODAL
+  ════════════════════════════════════════ -->
+  <div class="modal-overlay" id="packing-slip-modal">
+    <div class="modal-card" style="width:min(760px, 95vw); max-height:92vh; overflow-y:auto; text-align:left; padding:32px;">
+      <div class="no-print" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid var(--border); padding-bottom:12px;">
+        <h3 style="margin:0; font-size:18px;">Patron Order Packing Slip</h3>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn btn-gold btn-sm" onclick="window.print()">🖨️ Print Slip</button>
+          <button type="button" id="slip-modal-close-btn" class="btn btn-outline btn-sm">✕ Close</button>
+        </div>
+      </div>
+      <div id="packing-slip-content" class="packing-slip-paper">
+        <!-- Dynamically injected by openPackingSlipModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       9. TOAST NOTIFICATION CONTAINER
   ════════════════════════════════════════ -->
   <div class="toast" id="toast"></div>
 
@@ -3058,7 +3197,10 @@
       writeBatch,
       query,
       orderBy,
-      onSnapshot
+      onSnapshot,
+      getDoc,
+      getDocs,
+      updateDoc
     } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
     // Firebase Auth Modular SDK
@@ -3141,9 +3283,13 @@
       initializeBaselineProducts();
       switchTab('dashboard');
 
-      // Start live Real-Time Firestore onSnapshot listeners
+      // Start live Real-Time Firestore onSnapshot listeners for all modules
       subscribeToFirestoreProducts();
       subscribeToFirestoreOrders();
+      subscribeToFirestoreInventory();
+      subscribeToFirestoreCoupons();
+      subscribeToFirestoreBanners();
+      subscribeToFirestoreSettings();
     }
 
     function lockDashboard() {
@@ -3154,6 +3300,22 @@
       if (unsubscribeOrders) {
         unsubscribeOrders();
         unsubscribeOrders = null;
+      }
+      if (unsubscribeInventory) {
+        unsubscribeInventory();
+        unsubscribeInventory = null;
+      }
+      if (unsubscribeCoupons) {
+        unsubscribeCoupons();
+        unsubscribeCoupons = null;
+      }
+      if (unsubscribeBanners) {
+        unsubscribeBanners();
+        unsubscribeBanners = null;
+      }
+      if (unsubscribeSettings) {
+        unsubscribeSettings();
+        unsubscribeSettings = null;
       }
       const adminScreen = $('#admin-screen');
       const loginScreen = $('#login-screen');
@@ -3357,22 +3519,46 @@
 
       renderWeeklyChart(allOrders);
 
+      // Keep customers count reactive on dashboard
+      const customers = computeCustomers();
+      if ($('#tab-badge-customers')) $('#tab-badge-customers').textContent = customers.length;
+
       const tbody = $('#dash-recent-orders-body');
       if (tbody) {
         const recent = allOrders.slice(0, 5);
         if (!recent.length) {
-          tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--muted)">No orders placed yet. Orders will appear here live in real-time.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--muted)">No orders placed yet. Orders will appear here live in real-time.</td></tr>`;
         } else {
-          tbody.innerHTML = recent.map(o => `
-            <tr>
+          tbody.innerHTML = recent.map(o => {
+            const status = o.status || 'Pending';
+            const statusClass = `status-select status-select--${status.toLowerCase()}`;
+            const patronPhone = o.customerPhone || (o.customer && o.customer.phone) || (o.shippingDetails && o.shippingDetails.phone) || '';
+            const patronName = o.customerName || (o.customer && o.customer.name) || (o.shippingDetails && o.shippingDetails.name) || 'Guest';
+            const patronCity = o.city || (o.shippingDetails && o.shippingDetails.city) || (o.customer && o.customer.city) || 'Direct';
+            const totalVal = Number(o.totalAmount || o.total) || 0;
+
+            return `<tr>
               <td><a href="javascript:void(0)" onclick="openOrderDetailsModal('${esc(o.orderId || o.id)}')" style="font-weight:700; color:var(--gold-dark); text-decoration:none;">#${esc(o.orderId || o.id)}</a></td>
               <td>${o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('en-IN') : (o.createdAt || 'Recent')}</td>
-              <td><strong>${esc(o.customerName || (o.customer && o.customer.name) || 'Guest')}</strong><br><small style="color:var(--muted)">${esc(o.customerPhone || (o.customer && o.customer.phone) || '')}</small></td>
-              <td>${esc(o.city || (o.shippingDetails && o.shippingDetails.city) || (o.customer && o.customer.city) || 'Direct')}</td>
-              <td><strong>₹${(Number(o.totalAmount || o.total) || 0).toLocaleString('en-IN')}</strong></td>
-              <td><span class="status-select status-select--${(o.status || 'Pending').toLowerCase()}">${esc(o.status || 'Pending')}</span></td>
-            </tr>
-          `).join('');
+              <td><strong>${esc(patronName)}</strong><br><small style="color:var(--muted)">${esc(patronPhone)}</small></td>
+              <td>${esc(patronCity)}</td>
+              <td><strong>₹${totalVal.toLocaleString('en-IN')}</strong></td>
+              <td>
+                <select class="${statusClass}" data-action="change-order-status" data-order-id="${esc(o.orderId || o.id)}">
+                  <option value="Pending" ${status === 'Pending' ? 'selected' : ''}>Pending</option>
+                  <option value="Confirmed" ${status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+                  <option value="Processing" ${status === 'Processing' ? 'selected' : ''}>Processing</option>
+                  <option value="Shipped" ${status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                  <option value="Delivered" ${status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                  <option value="Cancelled" ${status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                </select>
+              </td>
+              <td style="white-space:nowrap;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="openOrderDetailsModal('${esc(o.orderId || o.id)}')">View</button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="openPackingSlipModal('${esc(o.orderId || o.id)}')">Slip 📄</button>
+              </td>
+            </tr>`;
+          }).join('');
         }
       }
     }
@@ -3381,7 +3567,8 @@
     function renderCategoriesView() {
       const counts = {
         earrings: 0, rings: 0, bracelets: 0, necklaces: 0,
-        "evil-eye": 0, watches: 0, sets: 0, "anti-tarnish": 0, gifting: 0
+        "evil-eye": 0, watches: 0, sets: 0, "anti-tarnish": 0, gifting: 0,
+        all: allProducts.length
       };
       allProducts.forEach(p => {
         const cat = (p.category || '').toLowerCase();
@@ -3397,10 +3584,25 @@
       if ($('#cat-count-sets')) $('#cat-count-sets').textContent = `${counts.sets} items`;
       if ($('#cat-count-anti-tarnish')) $('#cat-count-anti-tarnish').textContent = `${counts['anti-tarnish']} items`;
       if ($('#cat-count-gifting')) $('#cat-count-gifting').textContent = `${counts.gifting} items`;
+      if ($('#cat-count-all')) $('#cat-count-all').textContent = `${counts.all} items`;
     }
 
-    /* ─── INVENTORY MODULE ─── */
+    window.filterByCatAndSwitch = function(catKey) {
+      switchTab('products');
+      const catSelect = $('#category-filter');
+      if (catSelect) {
+        catSelect.value = catKey;
+        const pillsTrack = $('#category-pills-track');
+        if (pillsTrack) {
+          $$('.category-pill', pillsTrack).forEach(b => b.classList.toggle('is-active', b.getAttribute('data-cat') === catKey));
+        }
+        applyFilters();
+      }
+    };
+
+    /* ─── INVENTORY MODULE (REAL-TIME FIRESTORE SYNC) ─── */
     let inventoryStore = {};
+    let unsubscribeInventory = null;
     try {
       inventoryStore = JSON.parse(localStorage.getItem('shivara_admin_inventory') || '{}');
     } catch {}
@@ -3429,6 +3631,8 @@
         else if (filter === 'out-of-stock') matchFilter = stock === 0;
         return matchQ && matchFilter;
       });
+
+      if ($('#tab-badge-inventory')) $('#tab-badge-inventory').textContent = allProducts.length;
 
       if (!items.length) {
         tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:32px; color:var(--muted)">No inventory items match filter.</td></tr>`;
@@ -3462,6 +3666,32 @@
       }).join('');
     }
 
+    function subscribeToFirestoreInventory() {
+      if (unsubscribeInventory) {
+        unsubscribeInventory();
+        unsubscribeInventory = null;
+      }
+      try {
+        unsubscribeInventory = onSnapshot(collection(db, "inventory"), (snapshot) => {
+          snapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            const sku = data?.sku || docSnap.id;
+            if (sku) {
+              inventoryStore[sku] = Number(data.stock || 0);
+            }
+          });
+          try {
+            localStorage.setItem('shivara_admin_inventory', JSON.stringify(inventoryStore));
+          } catch {}
+          renderInventoryTable();
+        }, (err) => {
+          console.warn("[Inventory] Snapshot notice:", err.message);
+        });
+      } catch (err) {
+        console.warn("[Inventory] Listener setup error:", err);
+      }
+    }
+
     window.changeSkuStock = function(sku, delta) {
       const input = document.getElementById(`stock-val-${sku}`);
       if (input) {
@@ -3475,33 +3705,101 @@
       inventoryStore[sku] = Math.max(0, Number(val) || 0);
     };
 
-    window.saveSingleSkuStock = function(sku) {
-      localStorage.setItem('shivara_admin_inventory', JSON.stringify(inventoryStore));
-      showToast(`✓ Stock for SKU ${sku} updated to ${inventoryStore[sku]}`, 'success');
-      renderInventoryTable();
+    window.saveSingleSkuStock = async function(sku) {
+      const stockVal = Math.max(0, Number(inventoryStore[sku]) || 0);
+      try {
+        const invRef = doc(db, "inventory", String(sku));
+        await setDoc(invRef, {
+          sku: sku,
+          stock: stockVal,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        // Synchronize product isSoldOut status
+        const product = allProducts.find(p => (p.sku || p.id) === sku);
+        if (product) {
+          const isSold = stockVal === 0;
+          product.isSoldOut = isSold;
+          const prodRef = doc(db, "products", String(product.id));
+          await setDoc(prodRef, {
+            isSoldOut: isSold,
+            updatedAt: serverTimestamp()
+          }, { merge: true });
+        }
+
+        try {
+          localStorage.setItem('shivara_admin_inventory', JSON.stringify(inventoryStore));
+        } catch {}
+
+        showToast(`✓ Stock for SKU ${sku} updated to ${stockVal} & saved to cloud`, 'success');
+        renderInventoryTable();
+        updateStats();
+        renderDashboard();
+      } catch (err) {
+        showToast(`Stock save error: ${err.message}`, 'error');
+      }
     };
 
-    $('#btn-save-inventory')?.addEventListener('click', () => {
-      localStorage.setItem('shivara_admin_inventory', JSON.stringify(inventoryStore));
-      showToast('✓ All SKU inventory levels saved successfully', 'success');
-      renderInventoryTable();
-    });
+    window.saveAllInventory = async function() {
+      const btn = $('#btn-save-inventory');
+      if (btn) btn.disabled = true;
+      try {
+        const batch = writeBatch(db);
+        allProducts.forEach(p => {
+          const sku = p.sku || p.id;
+          const stockVal = getStock(p);
+          const invRef = doc(db, "inventory", String(sku));
+          batch.set(invRef, {
+            sku: sku,
+            stock: stockVal,
+            updatedAt: serverTimestamp()
+          }, { merge: true });
 
+          const isSold = stockVal === 0;
+          p.isSoldOut = isSold;
+          const prodRef = doc(db, "products", String(p.id));
+          batch.set(prodRef, {
+            isSoldOut: isSold,
+            updatedAt: serverTimestamp()
+          }, { merge: true });
+        });
+        await batch.commit();
+
+        try {
+          localStorage.setItem('shivara_admin_inventory', JSON.stringify(inventoryStore));
+        } catch {}
+
+        showToast('✓ All SKU inventory levels saved to cloud', 'success');
+        renderInventoryTable();
+        updateStats();
+        renderDashboard();
+      } catch (err) {
+        showToast(`Batch save error: ${err.message}`, 'error');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    };
+
+    $('#btn-save-inventory')?.addEventListener('click', window.saveAllInventory);
     $('#inventory-search-input')?.addEventListener('input', renderInventoryTable);
     $('#inventory-stock-filter')?.addEventListener('change', renderInventoryTable);
 
-    /* ─── CUSTOMERS CRM MODULE ─── */
+    /* ─── CUSTOMERS CRM MODULE (REACTIVE AGGREGATION) ─── */
     function computeCustomers() {
       const map = new Map();
       allOrders.forEach(o => {
-        const phone = o.customerPhone || o.shippingDetails?.phone || o.customerInfo?.phone || 'Guest';
-        const key = phone.trim();
+        const phone = (o.customerPhone || o.shippingDetails?.phone || o.customer?.phone || o.customerInfo?.phone || o.shippingAddress?.phone || '').trim();
+        const name = (o.customerName || o.shippingDetails?.name || o.customer?.name || o.customerInfo?.name || 'Patron').trim();
+        const email = (o.customerEmail || o.shippingDetails?.email || o.customer?.email || o.customerInfo?.email || '').trim();
+        const city = (o.city || o.shippingDetails?.city || o.customer?.city || o.customerInfo?.city || 'India').trim();
+
+        const key = phone || email || name || ('order-' + (o.orderId || o.id));
         if (!map.has(key)) {
           map.set(key, {
-            phone: key,
-            name: o.customerName || o.shippingDetails?.name || o.customerInfo?.name || 'Patron',
-            email: o.customerEmail || o.shippingDetails?.email || '',
-            city: o.city || o.shippingDetails?.city || 'Bareilly',
+            phone: phone || 'N/A',
+            name: name,
+            email: email,
+            city: city,
             totalOrders: 0,
             ltv: 0,
             lastOrderDate: o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('en-IN') : (o.createdAt || 'Recent'),
@@ -3510,8 +3808,9 @@
         }
         const record = map.get(key);
         record.totalOrders++;
-        if (o.status !== 'Cancelled') {
-          record.ltv += (Number(o.totalAmount) || 0);
+        const s = (o.status || '').toLowerCase();
+        if (s !== 'cancelled') {
+          record.ltv += (Number(o.totalAmount || o.total) || 0);
         }
         record.orders.push(o);
       });
@@ -3539,17 +3838,22 @@
       tbody.innerHTML = filtered.map(c => {
         const tier = c.ltv >= 2500 ? 'VIP Patron' : (c.totalOrders > 1 ? 'Repeat Patron' : 'New Patron');
         const tierClass = c.ltv >= 2500 ? 'tier-badge--vip' : (c.totalOrders > 1 ? 'tier-badge--repeat' : 'tier-badge--new');
+        const rawPhone = c.phone.replace(/[^0-9]/g, '').slice(-10);
+        const waUrl = rawPhone ? `https://wa.me/91${rawPhone}?text=${encodeURIComponent(`Hello ${c.name}, greeting from Shivara Luxe Concierge.`)}` : '';
 
         return `<tr>
           <td><div style="display:flex; align-items:center; gap:8px;"><div style="width:32px; height:32px; border-radius:50%; background:var(--gold-dim); display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--gold-dark);">${c.name.charAt(0)}</div><strong>${esc(c.name)}</strong></div></td>
-          <td><strong>${esc(c.phone)}</strong>${c.email ? `<br><small style="color:var(--muted)">${esc(c.email)}</small>` : ''}</td>
+          <td><a href="${rawPhone ? `tel:${rawPhone}` : '#'}" style="text-decoration:none; color:inherit;"><strong>${esc(c.phone)}</strong></a>${c.email ? `<br><small style="color:var(--muted)">${esc(c.email)}</small>` : ''}</td>
           <td>${esc(c.city)}</td>
           <td><strong>${c.totalOrders}</strong></td>
           <td><strong style="color:var(--gold-dark);">₹${c.ltv.toLocaleString('en-IN')}</strong></td>
           <td>${esc(c.lastOrderDate)}</td>
           <td><span class="tier-badge ${tierClass}">${tier}</span></td>
           <td>
-            <button type="button" class="btn btn-outline btn-sm" onclick="openCustomerHistoryModal('${esc(c.phone)}')">Orders (${c.orders.length})</button>
+            <div style="display:flex; gap:6px;">
+              <button type="button" class="btn btn-outline btn-sm" onclick="openCustomerHistoryModal('${esc(c.phone)}')">Orders (${c.orders.length})</button>
+              ${waUrl ? `<a href="${waUrl}" target="_blank" rel="noreferrer" class="btn btn-sm" style="background:#25D366; color:#fff; text-decoration:none; display:inline-flex; align-items:center; padding:4px 8px; font-size:11px;">💬 WhatsApp</a>` : ''}
+            </div>
           </td>
         </tr>`;
       }).join('');
@@ -3586,7 +3890,7 @@
                   <td><strong>#${esc(o.orderId || o.id)}</strong></td>
                   <td>${o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('en-IN') : (o.createdAt || 'Recent')}</td>
                   <td>${(o.items || []).map(i => esc(i.title)).join(', ')}</td>
-                  <td><strong>₹${(Number(o.totalAmount) || 0).toLocaleString('en-IN')}</strong></td>
+                  <td><strong>₹${(Number(o.totalAmount || o.total) || 0).toLocaleString('en-IN')}</strong></td>
                   <td><span class="status-select status-select--${(o.status || 'Pending').toLowerCase()}">${esc(o.status || 'Pending')}</span></td>
                 </tr>
               `).join('')}
@@ -3615,17 +3919,9 @@
       showToast('✓ Customer CSV exported successfully', 'success');
     });
 
-    /* ─── COUPONS MODULE ─── */
-    let couponsStore = [
-      { code: "WELCOME10", discountType: "percent", discountValue: 10, minOrderValue: 499, maxDiscount: 250, isActive: true },
-      { code: "LUXE15", discountType: "percent", discountValue: 15, minOrderValue: 1499, maxDiscount: 500, isActive: true },
-      { code: "SHIVARA500", discountType: "flat", discountValue: 500, minOrderValue: 2499, maxDiscount: 500, isActive: true }
-    ];
-
-    try {
-      const savedCoupons = JSON.parse(localStorage.getItem('shivara_admin_coupons') || '[]');
-      if (savedCoupons.length) couponsStore = savedCoupons;
-    } catch {}
+    /* ─── COUPONS MODULE (REAL-TIME FIRESTORE SYNC) ─── */
+    let couponsStore = [];
+    let unsubscribeCoupons = null;
 
     function renderCouponsTable() {
       const tbody = $('#coupons-table-body');
@@ -3634,7 +3930,7 @@
       if ($('#tab-badge-coupons')) $('#tab-badge-coupons').textContent = couponsStore.length;
 
       if (!couponsStore.length) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:28px; color:var(--muted)">No coupons configured yet.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:28px; color:var(--muted)">No coupons configured yet. Click "+ Create New Coupon" above.</td></tr>`;
         return;
       }
 
@@ -3657,22 +3953,83 @@
       `).join('');
     }
 
-    window.toggleCoupon = function(idx) {
-      if (couponsStore[idx]) {
-        couponsStore[idx].isActive = !couponsStore[idx].isActive;
-        localStorage.setItem('shivara_admin_coupons', JSON.stringify(couponsStore));
+    async function seedDefaultCoupons() {
+      const defaults = [
+        { code: "WELCOME10", discountType: "percent", discountValue: 10, minOrderValue: 499, maxDiscount: 250, isActive: true },
+        { code: "LUXE15", discountType: "percent", discountValue: 15, minOrderValue: 1499, maxDiscount: 500, isActive: true },
+        { code: "SHIVARA500", discountType: "flat", discountValue: 500, minOrderValue: 2499, maxDiscount: 500, isActive: true }
+      ];
+      try {
+        const batch = writeBatch(db);
+        defaults.forEach(c => {
+          const cRef = doc(db, "coupons", c.code);
+          batch.set(cRef, { ...c, createdAt: serverTimestamp() }, { merge: true });
+        });
+        await batch.commit();
+        couponsStore = defaults;
         renderCouponsTable();
-        showToast(`Coupon ${couponsStore[idx].code} is now ${couponsStore[idx].isActive ? 'Active' : 'Paused'}`);
+      } catch (err) {
+        console.warn("Coupons auto-seed note:", err);
+      }
+    }
+
+    function subscribeToFirestoreCoupons() {
+      if (unsubscribeCoupons) {
+        unsubscribeCoupons();
+        unsubscribeCoupons = null;
+      }
+      try {
+        unsubscribeCoupons = onSnapshot(collection(db, "coupons"), (snapshot) => {
+          if (!snapshot.empty) {
+            const list = [];
+            snapshot.forEach(docSnap => {
+              list.push({ code: docSnap.id, ...docSnap.data() });
+            });
+            couponsStore = list;
+            renderCouponsTable();
+          } else {
+            seedDefaultCoupons();
+          }
+          try {
+            localStorage.setItem('shivara_admin_coupons', JSON.stringify(couponsStore));
+          } catch {}
+        }, (err) => {
+          console.warn("[Coupons] Listener note:", err.message);
+        });
+      } catch (err) {
+        console.warn("[Coupons] Subscribe error:", err);
+      }
+    }
+
+    window.toggleCoupon = async function(idx) {
+      if (couponsStore[idx]) {
+        const c = couponsStore[idx];
+        const nextState = !c.isActive;
+        c.isActive = nextState;
+        renderCouponsTable();
+        try {
+          const cRef = doc(db, "coupons", c.code);
+          await setDoc(cRef, { isActive: nextState, updatedAt: serverTimestamp() }, { merge: true });
+          showToast(`Coupon ${c.code} is now ${nextState ? 'Active' : 'Paused'}`);
+        } catch (err) {
+          showToast(`Coupon update error: ${err.message}`, 'error');
+        }
       }
     };
 
-    window.deleteCoupon = function(idx) {
+    window.deleteCoupon = async function(idx) {
       if (couponsStore[idx]) {
-        const code = couponsStore[idx].code;
+        const c = couponsStore[idx];
+        const code = c.code;
         couponsStore.splice(idx, 1);
-        localStorage.setItem('shivara_admin_coupons', JSON.stringify(couponsStore));
         renderCouponsTable();
-        showToast(`Coupon ${code} deleted.`);
+        try {
+          const cRef = doc(db, "coupons", code);
+          await deleteDoc(cRef);
+          showToast(`✓ Coupon ${code} deleted.`);
+        } catch (err) {
+          showToast(`Coupon delete error: ${err.message}`, 'error');
+        }
       }
     };
 
@@ -3684,7 +4041,7 @@
       $('#coupon-modal')?.classList.remove('is-open');
     });
 
-    $('#create-coupon-form')?.addEventListener('submit', (e) => {
+    $('#create-coupon-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const code = ($('#coupon-code-input')?.value || '').toUpperCase().trim();
       const discountType = $('#coupon-type-input')?.value || 'percent';
@@ -3694,17 +4051,56 @@
 
       if (!code) return;
 
-      couponsStore.push({ code, discountType, discountValue, minOrderValue, maxDiscount, isActive: true });
-      localStorage.setItem('shivara_admin_coupons', JSON.stringify(couponsStore));
+      const newCoupon = { code, discountType, discountValue, minOrderValue, maxDiscount, isActive: true };
+      couponsStore.unshift(newCoupon);
       $('#coupon-modal')?.classList.remove('is-open');
       $('#create-coupon-form').reset();
       renderCouponsTable();
-      showToast(`✓ Created coupon ${code}`, 'success');
+
+      try {
+        const cRef = doc(db, "coupons", code);
+        await setDoc(cRef, { ...newCoupon, createdAt: serverTimestamp() }, { merge: true });
+        showToast(`✓ Created coupon ${code} & saved to cloud`, 'success');
+      } catch (err) {
+        showToast(`Coupon save error: ${err.message}`, 'error');
+      }
     });
 
-    /* ─── BANNERS MODULE ─── */
+    /* ─── BANNERS MODULE (REAL-TIME FIRESTORE SYNC) ─── */
+    let unsubscribeBanners = null;
+
     function renderBannersView() {
-      // In-place editable inputs are already bound
+      // In-place editable inputs are automatically synchronized via onSnapshot
+    }
+
+    function subscribeToFirestoreBanners() {
+      if (unsubscribeBanners) {
+        unsubscribeBanners();
+        unsubscribeBanners = null;
+      }
+      try {
+        const bannerRef = doc(db, "banners", "config");
+        unsubscribeBanners = onSnapshot(bannerRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            if (Array.isArray(data.announcements) && data.announcements.length > 0) {
+              const container = $('#announcement-inputs-container');
+              if (container) {
+                container.innerHTML = data.announcements.map(line => `
+                  <input type="text" class="announcement-line-input" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:4px;" value="${esc(line)}" />
+                `).join('');
+              }
+            }
+            if (data.hero?.kicker && $('#hero-kicker-input')) $('#hero-kicker-input').value = data.hero.kicker;
+            if (data.hero?.title && $('#hero-title-input')) $('#hero-title-input').value = data.hero.title;
+            if (data.marquee && $('#marquee-text-input')) $('#marquee-text-input').value = data.marquee;
+          }
+        }, (err) => {
+          console.warn("[Banners] Listener note:", err.message);
+        });
+      } catch (err) {
+        console.warn("[Banners] Subscribe error:", err);
+      }
     }
 
     $('#btn-add-announcement')?.addEventListener('click', () => {
@@ -3719,33 +4115,57 @@
       }
     });
 
-    $('#btn-save-banners')?.addEventListener('click', () => {
+    $('#btn-save-banners')?.addEventListener('click', async () => {
       const lines = [...document.querySelectorAll('.announcement-line-input')].map(i => i.value.trim()).filter(Boolean);
       const kicker = $('#hero-kicker-input')?.value || '';
       const title = $('#hero-title-input')?.value || '';
       const marquee = $('#marquee-text-input')?.value || '';
 
-      const bannerData = { announcements: lines, hero: { kicker, title }, marquee };
-      localStorage.setItem('shivara_admin_banners', JSON.stringify(bannerData));
-      showToast('✓ Storefront banners and announcements saved', 'success');
+      const bannerData = { announcements: lines, hero: { kicker, title }, marquee, updatedAt: serverTimestamp() };
+      try {
+        const bannerRef = doc(db, "banners", "config");
+        await setDoc(bannerRef, bannerData, { merge: true });
+        showToast('✓ Storefront banners and announcements saved to cloud', 'success');
+      } catch (err) {
+        showToast(`Banners save error: ${err.message}`, 'error');
+      }
     });
 
-    /* ─── SETTINGS MODULE ─── */
+    /* ─── SETTINGS MODULE (REAL-TIME FIRESTORE SYNC) ─── */
+    let unsubscribeSettings = null;
+
     function renderSettingsView() {
-      try {
-        const saved = JSON.parse(localStorage.getItem('shivara_admin_settings') || '{}');
-        if (saved.storeName && $('#set-store-name')) $('#set-store-name').value = saved.storeName;
-        if (saved.tagline && $('#set-tagline')) $('#set-tagline').value = saved.tagline;
-        if (saved.phone && $('#set-phone')) $('#set-phone').value = saved.phone;
-        if (saved.whatsapp && $('#set-whatsapp')) $('#set-whatsapp').value = saved.whatsapp;
-        if (saved.email && $('#set-email')) $('#set-email').value = saved.email;
-        if (saved.city && $('#set-city')) $('#set-city').value = saved.city;
-        if (saved.threshold && $('#set-threshold')) $('#set-threshold').value = saved.threshold;
-        if (saved.currency && $('#set-currency')) $('#set-currency').value = saved.currency;
-      } catch {}
+      // In-place editable inputs are automatically populated by listener
     }
 
-    $('#btn-save-settings')?.addEventListener('click', () => {
+    function subscribeToFirestoreSettings() {
+      if (unsubscribeSettings) {
+        unsubscribeSettings();
+        unsubscribeSettings = null;
+      }
+      try {
+        const setRef = doc(db, "admin_settings", "general");
+        unsubscribeSettings = onSnapshot(setRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const saved = docSnap.data();
+            if (saved.storeName && $('#set-store-name')) $('#set-store-name').value = saved.storeName;
+            if (saved.tagline && $('#set-tagline')) $('#set-tagline').value = saved.tagline;
+            if (saved.phone && $('#set-phone')) $('#set-phone').value = saved.phone;
+            if (saved.whatsapp && $('#set-whatsapp')) $('#set-whatsapp').value = saved.whatsapp;
+            if (saved.email && $('#set-email')) $('#set-email').value = saved.email;
+            if (saved.city && $('#set-city')) $('#set-city').value = saved.city;
+            if (saved.threshold && $('#set-threshold')) $('#set-threshold').value = saved.threshold;
+            if (saved.currency && $('#set-currency')) $('#set-currency').value = saved.currency;
+          }
+        }, (err) => {
+          console.warn("[Settings] Listener note:", err.message);
+        });
+      } catch (err) {
+        console.warn("[Settings] Subscribe error:", err);
+      }
+    }
+
+    $('#btn-save-settings')?.addEventListener('click', async () => {
       const settings = {
         storeName: $('#set-store-name')?.value || '',
         tagline: $('#set-tagline')?.value || '',
@@ -3754,20 +4174,30 @@
         email: $('#set-email')?.value || '',
         city: $('#set-city')?.value || '',
         threshold: Number($('#set-threshold')?.value || 999),
-        currency: $('#set-currency')?.value || '₹ INR'
+        currency: $('#set-currency')?.value || '₹ INR',
+        updatedAt: serverTimestamp()
       };
-      localStorage.setItem('shivara_admin_settings', JSON.stringify(settings));
-      showToast('✓ Atelier settings and concierge contacts saved', 'success');
+      try {
+        const setRef = doc(db, "admin_settings", "general");
+        await setDoc(setRef, settings, { merge: true });
+        showToast('✓ Atelier settings and concierge contacts saved to cloud', 'success');
+      } catch (err) {
+        showToast(`Settings save error: ${err.message}`, 'error');
+      }
     });
 
     /* ─── Real-Time Orders Stream & OMS Engine ─── */
     function updateOrderStats() {
       const total = allOrders.length;
-      const pending = allOrders.filter(o => o.status === 'Pending' || o.status === 'Processing').length;
-      const delivered = allOrders.filter(o => o.status === 'Delivered').length;
+      const pending = allOrders.filter(o => {
+        const s = (o.status || '').toLowerCase();
+        return s === 'pending' || s === 'processing';
+      }).length;
+      const delivered = allOrders.filter(o => (o.status || '').toLowerCase() === 'delivered').length;
       const grossRevenue = allOrders.reduce((sum, o) => {
-        if (o.status !== 'Cancelled') {
-          return sum + (Number(o.totalAmount) || 0);
+        const s = (o.status || '').toLowerCase();
+        if (s !== 'cancelled') {
+          return sum + (Number(o.totalAmount || o.total) || 0);
         }
         return sum;
       }, 0);
@@ -3792,16 +4222,16 @@
       let filtered = [...allOrders];
 
       if (currentOrdersStatusFilter !== 'all') {
-        filtered = filtered.filter(o => o.status === currentOrdersStatusFilter);
+        filtered = filtered.filter(o => (o.status || '').toLowerCase() === currentOrdersStatusFilter.toLowerCase());
       }
 
       if (currentOrdersSearchQuery.trim()) {
         const q = currentOrdersSearchQuery.toLowerCase().trim();
         filtered = filtered.filter(o => {
-          const id = (o.orderId || '').toLowerCase();
-          const name = (o.customerName || '').toLowerCase();
-          const phone = (o.customerPhone || '').toLowerCase();
-          const pin = (o.pincode || '').toLowerCase();
+          const id = (o.orderId || o.id || '').toLowerCase();
+          const name = (o.customerName || (o.customer && o.customer.name) || '').toLowerCase();
+          const phone = (o.customerPhone || (o.customer && o.customer.phone) || '').toLowerCase();
+          const pin = (o.pincode || (o.customer && o.customer.pincode) || '').toLowerCase();
           const itemsStr = (Array.isArray(o.items) ? o.items.map(i => i.title).join(' ') : '').toLowerCase();
           return id.includes(q) || name.includes(q) || phone.includes(q) || pin.includes(q) || itemsStr.includes(q);
         });
@@ -3820,21 +4250,23 @@
         const dateStr = order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : (order.createdAt || 'Recent');
         const status = order.status || 'Pending';
         const statusClass = `status-select status-select--${status.toLowerCase()}`;
-        const phone = order.customerPhone || '';
+        const phone = order.customerPhone || (order.customer && order.customer.phone) || (order.shippingDetails && order.shippingDetails.phone) || '';
+        const patronName = order.customerName || (order.customer && order.customer.name) || (order.shippingDetails && order.shippingDetails.name) || 'Guest Customer';
+        const pincode = order.pincode || (order.customer && order.customer.pincode) || (order.shippingDetails && order.shippingDetails.pincode) || '';
         const itemCount = Array.isArray(order.items) ? order.items.reduce((s, i) => s + (i.quantity || 1), 0) : 1;
         const firstItem = Array.isArray(order.items) && order.items[0] ? order.items[0].title : 'Jewellery Item';
         const itemSummary = itemCount > 1 ? `${esc(firstItem)} <small style="color:var(--muted)">(+${itemCount - 1} more)</small>` : esc(firstItem);
-        const totalFormatted = `₹${(Number(order.totalAmount) || 0).toLocaleString('en-IN')}`;
+        const totalFormatted = `₹${(Number(order.totalAmount || order.total) || 0).toLocaleString('en-IN')}`;
 
         return `<tr data-order-id="${esc(order.orderId || order.id)}">
           <td><strong style="color:var(--choco); font-family:monospace; font-size:13px;">#${esc(order.orderId || order.id)}</strong></td>
           <td style="white-space:nowrap; color:var(--muted); font-size:11px;">${esc(dateStr)}</td>
           <td>
-            <strong>${esc(order.customerName || 'Guest Customer')}</strong>
-            ${order.pincode ? `<div style="font-size:10px; color:var(--muted);">PIN: ${esc(order.pincode)}</div>` : ''}
+            <strong>${esc(patronName)}</strong>
+            ${pincode ? `<div style="font-size:10px; color:var(--muted);">PIN: ${esc(pincode)}</div>` : ''}
           </td>
           <td>
-            <a href="tel:${esc(phone)}" class="btn btn-sm btn-outline" style="padding:4px 8px; font-size:11px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+            <a href="${phone ? `tel:${esc(phone)}` : '#'}" class="btn btn-sm btn-outline" style="padding:4px 8px; font-size:11px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
               📞 ${esc(phone || 'Call')}
             </a>
           </td>
@@ -3843,16 +4275,16 @@
           <td>
             <select class="${statusClass}" data-action="change-order-status" data-order-id="${esc(order.orderId || order.id)}">
               <option value="Pending" ${status === 'Pending' ? 'selected' : ''}>Pending</option>
+              <option value="Confirmed" ${status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
               <option value="Processing" ${status === 'Processing' ? 'selected' : ''}>Processing</option>
               <option value="Shipped" ${status === 'Shipped' ? 'selected' : ''}>Shipped</option>
               <option value="Delivered" ${status === 'Delivered' ? 'selected' : ''}>Delivered</option>
               <option value="Cancelled" ${status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
             </select>
           </td>
-          <td>
-            <button type="button" class="btn btn-sm btn-outline" data-action="view-order-details" data-order-id="${esc(order.orderId || order.id)}">
-              View
-            </button>
+          <td style="white-space:nowrap;">
+            <button type="button" class="btn btn-sm btn-outline" data-action="view-order-details" data-order-id="${esc(order.orderId || order.id)}">View</button>
+            <button type="button" class="btn btn-sm btn-outline" onclick="openPackingSlipModal('${esc(order.orderId || order.id)}')">Slip 📄</button>
           </td>
         </tr>`;
       }).join('');
@@ -3864,31 +4296,31 @@
         unsubscribeOrders = null;
       }
 
+      function handleOrdersSnapshot(snapshot) {
+        const ordersList = [];
+        snapshot.forEach(docSnap => {
+          ordersList.push({
+            id: docSnap.id,
+            ...docSnap.data()
+          });
+        });
+        allOrders = ordersList;
+        updateOrderStats();
+        renderOrdersTable();
+        renderDashboard();
+        const customers = computeCustomers();
+        if ($('#tab-badge-customers')) $('#tab-badge-customers').textContent = customers.length;
+      }
+
       try {
         const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
-        unsubscribeOrders = onSnapshot(q, (snapshot) => {
-          const ordersList = [];
-          snapshot.forEach(docSnap => {
-            ordersList.push({
-              id: docSnap.id,
-              ...docSnap.data()
-            });
-          });
-          allOrders = ordersList;
-          updateOrderStats();
-          renderOrdersTable();
-        }, (err) => {
+        unsubscribeOrders = onSnapshot(q, handleOrdersSnapshot, (err) => {
           console.warn("Orders query fallback note:", err.message);
-          onSnapshot(collection(db, "orders"), (fallbackSnap) => {
-            const fallbackList = [];
-            fallbackSnap.forEach(d => fallbackList.push({ id: d.id, ...d.data() }));
-            allOrders = fallbackList;
-            updateOrderStats();
-            renderOrdersTable();
-          });
+          unsubscribeOrders = onSnapshot(collection(db, "orders"), handleOrdersSnapshot);
         });
       } catch (err) {
         console.warn("Subscribe orders error:", err);
+        unsubscribeOrders = onSnapshot(collection(db, "orders"), handleOrdersSnapshot);
       }
     }
 
@@ -3900,10 +4332,22 @@
           updatedAt: serverTimestamp()
         }, { merge: true });
 
+        // Synchronize with public order_tracking projection
+        try {
+          const trackRef = doc(db, "order_tracking", String(orderId));
+          await setDoc(trackRef, {
+            status: newStatus,
+            updatedAt: serverTimestamp()
+          }, { merge: true });
+        } catch (tErr) {
+          console.warn("[OMS] Tracking projection note:", tErr);
+        }
+
         const order = allOrders.find(o => o.orderId === orderId || o.id === orderId);
         if (order) order.status = newStatus;
         updateOrderStats();
         renderOrdersTable();
+        renderDashboard();
         showToast(`✓ Order #${orderId} status updated to ${newStatus}`, 'success');
         return true;
       } catch (err) {
@@ -3929,9 +4373,10 @@
       const dateStr = order.createdAt?.toDate ? order.createdAt.toDate().toLocaleString('en-IN') : (order.createdAt || 'Recent');
       if (modalDate) modalDate.textContent = `Placed on ${dateStr} · Status: ${order.status || 'Pending'}`;
 
-      const phone = order.customerPhone || '';
+      const phone = order.customerPhone || (order.customer && order.customer.phone) || (order.shippingDetails && order.shippingDetails.phone) || '';
       const rawPhone = phone.replace(/[^0-9]/g, '').slice(-10);
-      const waMsg = encodeURIComponent(`Hello ${order.customerName || 'Patron'}, this is Shivara Luxe Concierge regarding your order #${order.orderId || order.id}. Current Status: ${order.status || 'Processing'}.`);
+      const patronName = order.customerName || (order.customer && order.customer.name) || (order.shippingDetails && order.shippingDetails.name) || 'Patron';
+      const waMsg = encodeURIComponent(`Hello ${patronName}, this is Shivara Luxe Concierge regarding your order #${order.orderId || order.id}. Current Status: ${order.status || 'Processing'}.`);
       const waUrl = rawPhone ? `https://wa.me/91${rawPhone}?text=${waMsg}` : '#';
 
       const items = Array.isArray(order.items) ? order.items : [];
@@ -3951,15 +4396,15 @@
           <div class="order-detail-grid">
             <div class="order-info-card">
               <h4>Customer Information</h4>
-              <p><strong>Name:</strong> ${esc(order.customerName || 'Guest')}</p>
-              <p><strong>Phone:</strong> ${esc(order.customerPhone || 'N/A')}</p>
+              <p><strong>Name:</strong> ${esc(patronName)}</p>
+              <p><strong>Phone:</strong> ${esc(phone || 'N/A')}</p>
               ${order.customerEmail ? `<p><strong>Email:</strong> ${esc(order.customerEmail)}</p>` : ''}
               ${order.orderNote ? `<p><strong>Order Note:</strong> <em>"${esc(order.orderNote)}"</em></p>` : ''}
             </div>
             <div class="order-info-card">
               <h4>Delivery &amp; Courier</h4>
-              <p>${esc(order.shippingAddress || (order.shippingDetails && order.shippingDetails.shippingAddress) || 'Address not provided')}</p>
-              <p><strong>PIN:</strong> ${esc(order.pincode || (order.shippingDetails && order.shippingDetails.pincode) || 'N/A')} · <strong>Payment:</strong> ${esc(order.paymentMethod || 'COD')}</p>
+              <p>${esc(order.shippingAddress || (order.shippingDetails && order.shippingDetails.shippingAddress) || (order.customer && order.customer.address) || 'Address not provided')}</p>
+              <p><strong>PIN:</strong> ${esc(order.pincode || (order.shippingDetails && order.shippingDetails.pincode) || (order.customer && order.customer.pincode) || 'N/A')} · <strong>Payment:</strong> ${esc(order.paymentMethod || 'COD')}</p>
               <div style="margin-top:8px; display:flex; gap:6px;">
                 <input type="text" id="modal-tracking-id" placeholder="Courier Tracking ID (e.g. BLUEDART-1234)" value="${esc(order.trackingNumber || '')}" style="flex:1; padding:4px 8px; font-size:11px; border:1px solid var(--border); border-radius:4px;" />
                 <button type="button" class="btn btn-sm btn-gold" onclick="saveOrderTracking('${esc(order.orderId || order.id)}')">Save Tracking</button>
@@ -3988,6 +4433,7 @@
               <label style="font-size:11px; font-weight:700; text-transform:uppercase;">Status:</label>
               <select class="status-select status-select--${(order.status || 'Pending').toLowerCase()}" data-action="change-order-status" data-order-id="${esc(order.orderId || order.id)}">
                 <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                <option value="Confirmed" ${order.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
                 <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
                 <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
                 <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
@@ -3997,11 +4443,12 @@
             <div style="font-size:15px;">
               ${order.discountAmount ? `<span style="font-size:12px; color:var(--green); margin-right:8px;">Discount: -₹${order.discountAmount}</span>` : ''}
               <span>Grand Total: </span>
-              <strong style="color:var(--rose); font-size:18px;">₹${(Number(order.totalAmount) || 0).toLocaleString('en-IN')}</strong>
+              <strong style="color:var(--rose); font-size:18px;">₹${(Number(order.totalAmount || order.total) || 0).toLocaleString('en-IN')}</strong>
             </div>
           </div>
 
-          <div style="display:flex; gap:10px; margin-top:14px; justify-content:flex-end;">
+          <div style="display:flex; gap:10px; margin-top:14px; justify-content:flex-end; flex-wrap:wrap;">
+            <button type="button" class="btn btn-outline btn-sm" onclick="openPackingSlipModal('${esc(order.orderId || order.id)}')">📄 Print Packing Slip</button>
             <a href="${waUrl}" target="_blank" rel="noreferrer" class="btn btn-sm" style="background:#25D366; color:#fff;">💬 WhatsApp Customer</a>
             <a id="order-modal-phone-btn" href="${rawPhone ? `tel:${rawPhone}` : '#'}" class="btn btn-gold btn-sm">📞 Call Customer</a>
           </div>
@@ -4012,17 +4459,153 @@
     };
 
     window.saveOrderTracking = async function(orderId) {
-      const tracking = $('#modal-tracking-id')?.value || '';
+      const tracking = ($('#modal-tracking-id')?.value || '').trim();
       try {
         const orderRef = doc(db, "orders", String(orderId));
         await setDoc(orderRef, { trackingNumber: tracking, updatedAt: serverTimestamp() }, { merge: true });
+
+        try {
+          const trackRef = doc(db, "order_tracking", String(orderId));
+          await setDoc(trackRef, { trackingNumber: tracking, updatedAt: serverTimestamp() }, { merge: true });
+        } catch (tErr) {
+          console.warn("[OMS] Tracking projection note:", tErr);
+        }
+
         const order = allOrders.find(o => o.orderId === orderId || o.id === orderId);
         if (order) order.trackingNumber = tracking;
         showToast(`✓ Tracking ID saved for Order #${orderId}`, 'success');
-      } catch {
-        showToast(`✓ Tracking ID updated locally`, 'success');
+      } catch (err) {
+        showToast(`Tracking save error: ${err.message}`, 'error');
       }
     };
+
+    window.openPackingSlipModal = function(orderId) {
+      const order = allOrders.find(o => (o.orderId || o.id) === orderId);
+      if (!order) {
+        showToast("Order details not found for packing slip", "error");
+        return;
+      }
+
+      const slipContainer = $('#packing-slip-content');
+      const modal = $('#packing-slip-modal');
+      if (!slipContainer || !modal) return;
+
+      const dateStr = order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : (order.createdAt || 'Recent');
+      const items = Array.isArray(order.items) ? order.items : [];
+      const totalAmount = Number(order.totalAmount || order.total || 0);
+      const discount = Number(order.discountAmount || 0);
+      const subtotal = Number(order.subtotal || totalAmount + discount);
+      const customer = order.customer || order.shippingDetails || order.customerInfo || {};
+      const patronName = order.customerName || customer.name || 'Patron';
+      const patronPhone = order.customerPhone || customer.phone || 'N/A';
+      const patronAddress = order.shippingAddress || customer.address || customer.shippingAddress || 'Address on file';
+      const patronCity = order.city || customer.city || 'Bareilly';
+      const patronState = order.state || customer.state || 'Uttar Pradesh';
+      const patronPin = order.pincode || customer.pincode || '';
+
+      slipContainer.innerHTML = `
+        <div style="border-bottom: 2px solid #1a1a1a; padding-bottom: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <h1 style="font-family:'Italiana',serif; font-size: 28px; margin: 0; color: #1a1a1a; letter-spacing: 2px;">SHIVARA</h1>
+            <p style="margin: 4px 0 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #8c827a;">LUXURY JEWELLERY ATELIER · DISPATCH PACKING SLIP</p>
+            <p style="margin: 2px 0 0; font-size: 10px; color: #8c827a;">Civil Lines, Bareilly, UP 243001 · Concierge: +91 94570 41215</p>
+          </div>
+          <div style="text-align: right;">
+            <div style="display:inline-block; border: 1px solid #1a1a1a; padding: 4px 10px; font-weight: 700; font-family: monospace; font-size: 13px;">#${esc(order.orderId || order.id)}</div>
+            <div style="font-size: 11px; color: #666; margin-top: 4px;">Date: <strong>${esc(dateStr)}</strong></div>
+            <div style="font-size: 11px; color: #666;">Payment: <strong style="color:#b23b3b;">${esc(order.paymentMethod || 'COD')}</strong></div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+          <div style="border: 1px solid #e5ded4; border-radius: 4px; padding: 12px; background: #faf8f5;">
+            <h4 style="margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #735930;">Ship To Patron</h4>
+            <div style="font-size: 13px; font-weight: 700; color: #1a1a1a;">${esc(patronName)}</div>
+            <div style="font-size: 12px; color: #4a4a4a; margin-top: 4px; line-height: 1.4;">
+              ${esc(patronAddress)}<br />
+              ${esc(patronCity)}, ${esc(patronState)} - <strong>${esc(patronPin)}</strong>
+            </div>
+            <div style="font-size: 12px; color: #1a1a1a; margin-top: 6px;">📞 <strong>${esc(patronPhone)}</strong></div>
+            ${order.orderNote ? `<div style="font-size: 11px; color: #8c827a; margin-top: 6px; font-style: italic;">Note: "${esc(order.orderNote)}"</div>` : ''}
+          </div>
+
+          <div style="border: 1px solid #e5ded4; border-radius: 4px; padding: 12px; background: #faf8f5;">
+            <h4 style="margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #735930;">Logistics &amp; Courier</h4>
+            <div style="font-size: 12px;"><strong>Courier:</strong> ${esc(order.courierPartner || 'Delhivery Surface / Express')}</div>
+            <div style="font-size: 12px; margin-top: 4px;"><strong>AWB / Tracking:</strong> <span style="font-family:monospace; font-weight:700;">${esc(order.trackingNumber || 'Awaiting Dispatch Scan')}</span></div>
+            <div style="font-size: 12px; margin-top: 4px;"><strong>Status:</strong> <span style="font-weight:700; color:#735930;">${esc(order.status || 'Pending')}</span></div>
+            <div style="margin-top: 10px; padding: 6px; border: 1px dashed #c5a059; font-size: 10px; color: #735930; text-align: center;">
+              ★ Verified Genuine 18K Gold Plated Luxury Atelier Quality ★
+            </div>
+          </div>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px;">
+          <thead>
+            <tr style="background: #1a1a1a; color: #fff;">
+              <th style="padding: 8px 10px; text-align: left;">#</th>
+              <th style="padding: 8px 10px; text-align: left;">Item Description</th>
+              <th style="padding: 8px 10px; text-align: left;">SKU</th>
+              <th style="padding: 8px 10px; text-align: center;">Qty</th>
+              <th style="padding: 8px 10px; text-align: right;">Unit Price</th>
+              <th style="padding: 8px 10px; text-align: right;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items.map((item, i) => `
+              <tr style="border-bottom: 1px solid #e5ded4;">
+                <td style="padding: 8px 10px; color: #8c827a;">${i + 1}</td>
+                <td style="padding: 8px 10px;"><strong>${esc(item.title || 'Jewellery Item')}</strong>${item.variantLabel ? `<br><small style="color:#8c827a;">${esc(item.variantLabel)}</small>` : ''}</td>
+                <td style="padding: 8px 10px; font-family: monospace;">${esc(item.sku || 'SHV-GEN')}</td>
+                <td style="padding: 8px 10px; text-align: center; font-weight: 700;">${item.quantity || 1}</td>
+                <td style="padding: 8px 10px; text-align: right;">₹${(Number(item.price) || 0).toLocaleString('en-IN')}</td>
+                <td style="padding: 8px 10px; text-align: right; font-weight: 700;">₹${((Number(item.price) || 0) * (item.quantity || 1)).toLocaleString('en-IN')}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 24px;">
+          <div style="width: 260px; font-size: 12px;">
+            <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+              <span>Subtotal:</span>
+              <span>₹${subtotal.toLocaleString('en-IN')}</span>
+            </div>
+            ${discount > 0 ? `
+              <div style="display: flex; justify-content: space-between; padding: 4px 0; color: #1f6b3b;">
+                <span>Discount (${esc(order.appliedCoupon || 'Promo')}):</span>
+                <span>-₹${discount.toLocaleString('en-IN')}</span>
+              </div>
+            ` : ''}
+            <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+              <span>Express Shipping:</span>
+              <span style="color: #1f6b3b; font-weight: 600;">FREE</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-top: 2px solid #1a1a1a; font-size: 15px; font-weight: 700;">
+              <span>Grand Total:</span>
+              <span style="color: #b23b3b;">₹${totalAmount.toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px dashed #ccc; padding-top: 14px; display: flex; justify-content: space-between; align-items: flex-end; font-size: 10px; color: #8c827a;">
+          <div>
+            <strong>Authenticity &amp; Care:</strong> Anti-tarnish coated. Avoid direct perfume & chemical exposure.<br />
+            Shivara Guarantee: Complimentary returns on damaged-in-transit pieces.
+          </div>
+          <div style="text-align: right;">
+            <div style="border-bottom: 1px solid #1a1a1a; width: 140px; margin-bottom: 4px;"></div>
+            <span>Authorized Atelier Dispatcher</span>
+          </div>
+        </div>
+      `;
+
+      modal.classList.add('is-open');
+    };
+
+    $('#slip-modal-close-btn')?.addEventListener('click', () => {
+      $('#packing-slip-modal')?.classList.remove('is-open');
+    });
 
     function closeOrderDetailsModal() {
       $('#order-details-modal')?.classList.remove('is-open');
