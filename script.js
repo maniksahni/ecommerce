@@ -413,7 +413,7 @@
           <div class="checkout-header">
             <small>THE SHIVARA ATELIER</small>
             <h2 id="checkout-modal-title">Express Secure Checkout</h2>
-            <p>Enter your shipping details and select your payment method.</p>
+            <p>Enter your shipping details. Cash on Delivery is currently the only available payment method.</p>
           </div>
           <div class="checkout-order-summary" id="checkout-order-summary"></div>
           <form class="checkout-form" id="checkout-details-form">
@@ -439,32 +439,17 @@
             <div class="payment-methods-box">
               <small>PAYMENT METHOD</small>
               <div class="payment-options">
-                <label class="payment-option">
-                  <input type="radio" name="payment-method" value="COD" checked />
+                <div class="payment-option is-selected" aria-label="Cash on Delivery selected">
                   <div class="payment-option__content">
                     <strong>Cash on Delivery (COD)</strong>
-                    <small>Pay at your doorstep upon express delivery</small>
+                    <small>Pay at your doorstep when your Shivara order arrives</small>
                   </div>
-                </label>
-                <label class="payment-option">
-                  <input type="radio" name="payment-method" value="UPI" />
-                  <div class="payment-option__content">
-                    <strong>UPI Express (GPay, PhonePe, Paytm, QR)</strong>
-                    <small>Instant zero-fee payment confirmation</small>
-                  </div>
-                </label>
-                <label class="payment-option">
-                  <input type="radio" name="payment-method" value="Card" />
-                  <div class="payment-option__content">
-                    <strong>Debit / Credit Card / NetBanking</strong>
-                    <small>100% Encrypted 256-bit bank checkout</small>
-                  </div>
-                </label>
+                </div>
               </div>
             </div>
             <div class="checkout-actions">
               <button type="submit" class="stable-button stable-button--dark checkout-submit-btn">
-                <span>Confirm Order</span>
+                <span>Place COD Order</span>
               </button>
               <button type="button" class="stable-button stable-button--plain" data-layer-close>Return to Bag</button>
             </div>
@@ -1449,7 +1434,7 @@
       const city = (document.querySelector("#cust-city")?.value || "").trim();
       const state = (document.querySelector("#cust-state")?.value || "").trim();
       const note = (document.querySelector("#cust-note")?.value || "").trim();
-      const paymentMethod = (document.querySelector('input[name="payment-method"]:checked')?.value || "COD").trim();
+      const paymentMethod = "COD";
 
       // Indian E-Commerce Checkout Validations
       if (!name || name.length < 2) {
@@ -1572,7 +1557,7 @@
         discountAmount: verifiedDiscount,
         appliedCoupon: activeCoupon?.code || null,
         paymentMethod: paymentMethod,
-        paymentStatus: paymentMethod === "COD" ? "COD" : "Payment Pending",
+        paymentStatus: "COD",
         status: "Pending",
         createdAt: new Date().toISOString()
       };
