@@ -320,6 +320,8 @@
 
         mount.innerHTML = `<div class="spinner"></div>`;
 
+        let order = null;
+
         try {
           const trackRef = doc(db, "order_tracking", cleanId);
           const trackSnap = await getDoc(trackRef);
@@ -336,11 +338,32 @@
           console.warn("[Track] Firestore error:", err);
         }
 
-        // Fallback to local guest order
+        // Fallback to server API or local storage
+        if (!order) {
+          try {
+            const apiRes = await fetch(`/api/orders/${encodeURIComponent(cleanId)}`);
+            if (apiRes.ok) {
+              const apiData = await apiRes.json();
+              if (apiData && (apiData.order || apiData.id || apiData.orderId)) {
+                order = apiData.order || apiData;
+              }
+            }
+          } catch {}
+        }
+
+        if (!order) {
+          try {
+            const adminCached = JSON.parse(localStorage.getItem("shivara_admin_orders"));
+            if (Array.isArray(adminCached)) {
+              order = adminCached.find(o => (o.orderId || o.id || "").toUpperCase().replace(/^#/, "") === cleanId);
+            }
+          } catch {}
+        }
+
         if (!order) {
           try {
             const cached = JSON.parse(localStorage.getItem("shivara_recent_order"));
-            if (cached && (cached.orderId === cleanId || cached.orderId === `SHV-${cleanId}`)) {
+            if (cached && ((cached.orderId || "").toUpperCase().replace(/^#/, "") === cleanId)) {
               order = cached;
             }
           } catch {}

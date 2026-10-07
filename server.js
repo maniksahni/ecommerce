@@ -751,13 +751,36 @@ const server = http.createServer(async (request, response) => {
     }
   }
 
+  // Public / Admin Orders List
+  if (pathname === "/api/orders" && request.method === "GET") {
+    return sendJson(response, 200, { ok: true, orders: loadAdminOrdersStore() });
+  }
+
   // Customer Order Lookup / Tracking
   if (pathname.startsWith("/api/orders/") && request.method === "GET") {
     const id = decodeURIComponent(pathname.slice("/api/orders/".length)).trim();
     const orders = loadAdminOrdersStore();
-    const order = orders.find((o) => o.orderId.toLowerCase() === id.toLowerCase() || o.customerPhone === id);
+    const order = orders.find((o) => (o.orderId || o.id || "").toLowerCase() === id.toLowerCase() || o.customerPhone === id);
     if (!order) return sendJson(response, 404, { error: "Order not found" });
     return sendJson(response, 200, { ok: true, order });
+  }
+
+  // Update Order Status / Tracking
+  if (pathname.startsWith("/api/orders/") && (request.method === "PUT" || request.method === "PATCH")) {
+    const id = decodeURIComponent(pathname.slice("/api/orders/".length)).trim();
+    try {
+      const body = await readJsonBody(request);
+      const orders = loadAdminOrdersStore();
+      const idx = orders.findIndex((o) => (o.orderId || o.id || "").toLowerCase() === id.toLowerCase());
+      if (idx !== -1) {
+        orders[idx] = { ...orders[idx], ...body, updatedAt: new Date().toISOString() };
+        saveAdminOrdersStore(orders);
+        return sendJson(response, 200, { ok: true, order: orders[idx] });
+      }
+      return sendJson(response, 404, { error: "Order not found to update" });
+    } catch {
+      return sendJson(response, 400, { error: "Invalid update payload" });
+    }
   }
 
   // Customer Coupon Validation

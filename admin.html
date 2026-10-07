@@ -3279,8 +3279,9 @@
       if (loginScreen) loginScreen.style.display = 'none';
       if (adminScreen) adminScreen.classList.add('is-active');
 
-      // Initialize with baseline products immediately so products are 100% visible on load
+      // Initialize with baseline products & orders immediately
       initializeBaselineProducts();
+      initializeBaselineOrders();
       switchTab('dashboard');
 
       // Start live Real-Time Firestore onSnapshot listeners for all modules
@@ -3291,6 +3292,11 @@
       subscribeToFirestoreBanners();
       subscribeToFirestoreSettings();
     }
+
+    window.unlockDashboard = unlockDashboard;
+    window.lockDashboard = lockDashboard;
+    window.initializeBaselineOrders = initializeBaselineOrders;
+    window.switchTab = switchTab;
 
     function lockDashboard() {
       if (unsubscribeProducts) {
@@ -3920,7 +3926,17 @@
     });
 
     /* ─── COUPONS MODULE (REAL-TIME FIRESTORE SYNC) ─── */
-    let couponsStore = [];
+    let couponsStore = (function() {
+      try {
+        const cached = JSON.parse(localStorage.getItem('shivara_admin_coupons'));
+        if (Array.isArray(cached) && cached.length) return cached;
+      } catch {}
+      return [
+        { code: "WELCOME10", discountType: "percent", discountValue: 10, minOrderValue: 499, maxDiscount: 250, isActive: true },
+        { code: "LUXE15", discountType: "percent", discountValue: 15, minOrderValue: 1499, maxDiscount: 500, isActive: true },
+        { code: "SHIVARA500", discountType: "flat", discountValue: 500, minOrderValue: 2499, maxDiscount: 500, isActive: true }
+      ];
+    })();
     let unsubscribeCoupons = null;
 
     function renderCouponsTable() {
@@ -4345,6 +4361,16 @@
 
         const order = allOrders.find(o => o.orderId === orderId || o.id === orderId);
         if (order) order.status = newStatus;
+        try {
+          localStorage.setItem('shivara_admin_orders', JSON.stringify(allOrders));
+        } catch {}
+        try {
+          await fetch(`/api/orders/${encodeURIComponent(orderId)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+          });
+        } catch {}
         updateOrderStats();
         renderOrdersTable();
         renderDashboard();
@@ -4472,7 +4498,20 @@
         }
 
         const order = allOrders.find(o => o.orderId === orderId || o.id === orderId);
-        if (order) order.trackingNumber = tracking;
+        if (order) {
+          order.trackingNumber = tracking;
+          order.courierPartner = "Blue Dart Express";
+        }
+        try {
+          localStorage.setItem('shivara_admin_orders', JSON.stringify(allOrders));
+        } catch {}
+        try {
+          await fetch(`/api/orders/${encodeURIComponent(orderId)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ trackingNumber: tracking, courierPartner: "Blue Dart Express" })
+          });
+        } catch {}
         showToast(`✓ Tracking ID saved for Order #${orderId}`, 'success');
       } catch (err) {
         showToast(`Tracking save error: ${err.message}`, 'error');
@@ -4671,6 +4710,49 @@
 
       applyFilters();
       updateStats();
+    }
+
+    async function initializeBaselineOrders() {
+      const orders = [];
+
+      try {
+        const cachedAdmin = JSON.parse(localStorage.getItem('shivara_admin_orders'));
+        if (Array.isArray(cachedAdmin)) orders.push(...cachedAdmin);
+      } catch {}
+
+      try {
+        const recentGuest = JSON.parse(localStorage.getItem('shivara_recent_order'));
+        if (recentGuest && !orders.some(o => (o.orderId || o.id) === recentGuest.orderId)) {
+          orders.unshift({
+            id: recentGuest.orderId,
+            orderId: recentGuest.orderId,
+            ...recentGuest,
+            createdAt: recentGuest.date || new Date().toISOString()
+          });
+        }
+      } catch {}
+
+      try {
+        const res = await fetch('/api/orders');
+        if (res.ok) {
+          const data = await res.json();
+          const list = Array.isArray(data) ? data : (data.orders || []);
+          list.forEach(o => {
+            const oid = o.orderId || o.id;
+            if (oid && !orders.some(x => (x.orderId || x.id) === oid)) {
+              orders.push(o);
+            }
+          });
+        }
+      } catch {}
+
+      if (orders.length > 0 && (!allOrders || allOrders.length === 0)) {
+        allOrders = orders;
+        updateOrderStats();
+        renderOrdersTable();
+        renderDashboard();
+        computeCustomers();
+      }
     }
 
     function updateLiveStatus(state, text) {
