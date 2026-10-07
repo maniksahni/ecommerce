@@ -91,21 +91,21 @@ test("firestore.rules enforces authenticated admin-only mutations and protects c
   
   // Products must require authentication for write
   assert.strictEqual(
-    rules.includes("match /products/{productId}") && rules.includes("allow write: if isAuthenticated()"),
+    rules.includes("match /products/{productId}") && (rules.includes("allow write: if isAdmin()") || rules.includes("allow write: if isAuthenticated()")),
     true,
     "Product write mutations must require admin authentication"
   );
   
   // Customers CRM must be admin-only
   assert.strictEqual(
-    rules.includes("match /customers/{customerId}") && rules.includes("allow read, write: if isAuthenticated()"),
+    rules.includes("match /customers/{customerId}") && (rules.includes("allow read, write: if isAdmin()") || rules.includes("allow read, write: if isAuthenticated()")),
     true,
     "Customers CRM data must be strictly admin-only"
   );
   
   // Orders list must require authentication (preventing public dumping of all orders)
   assert.strictEqual(
-    rules.includes("allow list: if isAuthenticated()"),
+    rules.includes("allow list: if isAdmin()") || rules.includes("allow list: if isAuthenticated()"),
     true,
     "Listing all orders must require admin authentication"
   );

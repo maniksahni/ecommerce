@@ -318,10 +318,16 @@
         // 1. Try Firestore First
         if (orderId) {
           try {
-            const docRef = doc(db, "orders", orderId);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-              orderData = { id: docSnap.id, ...docSnap.data() };
+            const trackRef = doc(db, "order_tracking", orderId);
+            const trackSnap = await getDoc(trackRef);
+            if (trackSnap.exists()) {
+              orderData = { id: trackSnap.id, ...trackSnap.data() };
+            } else {
+              const docRef = doc(db, "orders", orderId);
+              const docSnap = await getDoc(docRef);
+              if (docSnap.exists()) {
+                orderData = { id: docSnap.id, ...docSnap.data() };
+              }
             }
           } catch (err) {
             console.warn("[Confirmation] Firestore fetch note:", err);
@@ -356,7 +362,9 @@
         const status = orderData.status || "Pending";
         const statusClass = `status-${status.toLowerCase()}`;
         const customer = orderData.shippingDetails || orderData.customerInfo || {};
-        const total = orderData.totalAmount || items.reduce((sum, i) => sum + (Number(i.price) * (i.quantity || 1)), 0) || 499;
+        const total = Number.isFinite(Number(orderData.totalAmount))
+          ? Number(orderData.totalAmount)
+          : items.reduce((sum, i) => sum + (Number(i.price || 0) * (i.quantity || 1)), 0);
 
         const dateFormatted = orderData.date || (orderData.createdAt ? new Date(orderData.createdAt.seconds * 1000).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }));
 
@@ -396,7 +404,7 @@
                 </div>
                 <div class="meta-block">
                   <small>Payment</small>
-                  <strong>Cash on Delivery (COD)</strong>
+                  <strong>${escapeHtml(orderData.paymentMethod || "Cash on Delivery (COD)")}</strong>
                 </div>
               </div>
 

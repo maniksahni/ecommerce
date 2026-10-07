@@ -714,6 +714,34 @@ const server = http.createServer(async (request, response) => {
       const body = await readJsonBody(request);
       const normalized = normalizeAdminOrderInput(body);
       if (normalized.error) return sendJson(response, 400, { error: normalized.error });
+
+      // Server-side catalogue price verification
+      let serverSubtotal = 0;
+      for (const item of normalized.order.items) {
+        const prod = products.find((p) => p.id === item.productId || p.slug === item.slug || p.sku === item.sku);
+        const canonPrice = (prod && Number.isFinite(Number(prod.price)) && Number(prod.price) > 0)
+          ? Number(prod.price)
+          : (Number.isFinite(Number(item.price)) && Number(item.price) > 0 ? Number(item.price) : null);
+
+        if (!canonPrice) {
+          return sendJson(response, 400, { error: `Unverified price for item: ${item.title || item.sku || "unknown"}` });
+        }
+        item.price = canonPrice;
+        serverSubtotal += canonPrice * (Math.max(1, Number(item.quantity) || 1));
+      }
+      normalized.order.subtotal = serverSubtotal;
+      normalized.order.totalAmount = Math.max(0, serverSubtotal - (Number(normalized.order.discountAmount) || 0));
+
+      // Decrement inventory stock levels
+      const inventory = loadAdminInventoryStore();
+      for (const item of normalized.order.items) {
+        const skuKey = item.sku || item.productId || item.slug;
+        if (skuKey && inventory[skuKey] !== undefined) {
+          inventory[skuKey] = Math.max(0, Number(inventory[skuKey]) - (Math.max(1, Number(item.quantity) || 1)));
+        }
+      }
+      saveAdminInventoryStore(inventory);
+
       const orders = loadAdminOrdersStore();
       orders.unshift(normalized.order);
       saveAdminOrdersStore(orders);

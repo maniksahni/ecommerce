@@ -176,6 +176,35 @@ write("order-confirmation/index.html", confirmPage);
 
 write("netlify-build-info.js", `window.SHIVARA_BUILD_INFO=Object.freeze(${JSON.stringify(buildInfo)});\n`);
 write("404.html", stamp(`<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Page not found | Shivara</title><link rel="stylesheet" href="/commerce-stable.css?v=4"></head><body class="catalog-stable"><main class="stable-empty" style="min-height:100vh;display:grid;place-content:center;text-align:center;padding:24px"><p>404</p><h1 style="font:400 52px/1 Italiana,serif;letter-spacing:0">Page not found</h1><p>This page is not part of the curated Shivara catalogue.</p><a class="stable-button stable-button--dark" href="/collections/all">Browse jewellery</a></main></body></html>`));
+
+// Public Static APIs for Firebase Hosting / CDN Resolution
+const defaultSettings = {
+  ok: true,
+  settings: {
+    storeName: "Shivara Luxe",
+    tagline: "Statement Jewellery Atelier",
+    supportPhone: "+91 94570 41215",
+    supportEmail: "support@shivaragroup.com",
+    whatsappNumber: "919457041215",
+    freeShippingThreshold: 999,
+    expressShippingFee: 0,
+    enableCod: true,
+    enableOnlinePayment: false
+  }
+};
+const defaultBanners = {
+  ok: true,
+  banners: [
+    { id: "b1", text: "PAN India express complimentary shipping", active: true },
+    { id: "b2", text: "Handcrafted 18K gold-plated anti-tarnish statement edits", active: true },
+    { id: "b3", text: "Concierge shopping & WhatsApp styling: +91 94570 41215", active: true }
+  ]
+};
+write("api/settings.json", JSON.stringify(defaultSettings, null, 2));
+write("api/settings", JSON.stringify(defaultSettings, null, 2));
+write("api/banners.json", JSON.stringify(defaultBanners, null, 2));
+write("api/banners", JSON.stringify(defaultBanners, null, 2));
+
 write("_headers", `/*\n  X-Shivara-Build: ${buildInfo.commit}\n  X-Shivara-Catalog-Version: ${buildInfo.catalogVersion}\n  X-Shivara-App-Version: ${buildInfo.appVersion}\n  Cache-Control: public, max-age=0, must-revalidate\n`);
 
 const routeRules = [

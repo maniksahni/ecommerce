@@ -305,6 +305,7 @@ body.commerce-modal-open {
   line-height: 1.45;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .jlt-product-card__price {
@@ -617,6 +618,7 @@ body.commerce-modal-open {
   line-height: 1.4;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .commerce-cart-line small {

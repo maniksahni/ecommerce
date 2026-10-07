@@ -320,13 +320,17 @@
 
         mount.innerHTML = `<div class="spinner"></div>`;
 
-        let order = null;
-
         try {
-          const docRef = doc(db, "orders", cleanId);
-          const snap = await getDoc(docRef);
-          if (snap.exists()) {
-            order = { id: snap.id, ...snap.data() };
+          const trackRef = doc(db, "order_tracking", cleanId);
+          const trackSnap = await getDoc(trackRef);
+          if (trackSnap.exists()) {
+            order = { id: trackSnap.id, ...trackSnap.data() };
+          } else {
+            const docRef = doc(db, "orders", cleanId);
+            const snap = await getDoc(docRef);
+            if (snap.exists()) {
+              order = { id: snap.id, ...snap.data() };
+            }
           }
         } catch (err) {
           console.warn("[Track] Firestore error:", err);
@@ -360,7 +364,20 @@
 
         const customer = order.shippingDetails || order.customerInfo || {};
         const items = order.items || [];
-        const total = order.totalAmount || items.reduce((sum, i) => sum + (Number(i.price) * (i.quantity || 1)), 0) || 499;
+        const total = Number.isFinite(Number(order.totalAmount))
+          ? Number(order.totalAmount)
+          : items.reduce((sum, i) => sum + (Number(i.price || 0) * (i.quantity || 1)), 0);
+
+        function maskPhone(p) {
+          const raw = String(p || "").replace(/\D/g, "");
+          return raw.length >= 4 ? `+91 ••••••${raw.slice(-4)}` : "Verified Phone";
+        }
+
+        function maskAddress(addr, pin, city) {
+          if (!pin && !city && !addr) return "Secure Delivery Address";
+          const dest = [city, pin].filter(Boolean).join(" · ");
+          return dest ? `PAN-India Express Transit (${dest})` : "PAN-India Express Delivery";
+        }
 
         const steps = [
           { label: "Order Placed", icon: "✓", desc: "Order confirmed" },
@@ -403,17 +420,17 @@
             <!-- Shipping & Items Breakdown -->
             <div class="track-details-grid">
               <div class="detail-card-inner">
-                <h4>Shipping Address</h4>
-                <p><strong>${escapeHtml(customer.name || order.customerName || "Customer")}</strong></p>
-                <p>${escapeHtml(customer.address || order.shippingAddress || "N/A")}</p>
-                <p>PIN: ${escapeHtml(customer.pincode || order.pincode || "N/A")}</p>
-                <p>Phone: +91 ${escapeHtml(customer.phone || order.customerPhone || "N/A")}</p>
+                <h4>Shipping Details</h4>
+                <p><strong>Recipient:</strong> ${escapeHtml(customer.name || order.customerName || "Verified Patron")}</p>
+                <p><strong>Destination:</strong> ${escapeHtml(maskAddress(customer.address || order.shippingAddress, customer.pincode || order.pincode, customer.city || order.city))}</p>
+                <p><strong>PIN Code:</strong> ${escapeHtml(customer.pincode || order.pincode || "••••••")}</p>
+                <p><strong>Contact:</strong> ${escapeHtml(maskPhone(customer.phone || order.customerPhone))}</p>
               </div>
 
               <div class="detail-card-inner">
                 <h4>Order Summary</h4>
                 <p><strong>Total Items:</strong> ${items.reduce((s, i) => s + (i.quantity || 1), 0)} piece(s)</p>
-                <p><strong>Total Paid:</strong> <span style="font-weight:700; color:#1a1512;">${INR.format(total)}</span></p>
+                <p><strong>Total (COD):</strong> <span style="font-weight:700; color:#1a1512;">${INR.format(total)}</span></p>
                 <p><strong>Packaging:</strong> Signature Keepsake Velvet Box (Complimentary)</p>
                 <p><strong>Delivery:</strong> Express Insured Courier</p>
               </div>

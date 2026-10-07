@@ -131,24 +131,24 @@
   }
 
   function formatMoney(value) {
-    const val = Number.isFinite(Number(value)) && Number(value) > 0 ? Number(value) : 499;
+    const val = Number.isFinite(Number(value)) && Number(value) >= 0 ? Number(value) : 0;
     return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
   }
 
   function pricing(product) {
-    const rawPrice = (product && Number.isFinite(Number(product.price)) && Number(product.price) > 0)
-      ? Number(product.price)
-      : 499;
-    const compareAt = (product && product.compareAtPrice && Number(product.compareAtPrice) > rawPrice)
+    const hasValidPrice = product && Number.isFinite(Number(product.price)) && Number(product.price) > 0;
+    const isConfirmed = hasValidPrice && product?.priceStatus === "confirmed";
+    const rawPrice = hasValidPrice ? Number(product.price) : null;
+    const compareAt = (product && rawPrice && product.compareAtPrice && Number(product.compareAtPrice) > rawPrice)
       ? Number(product.compareAtPrice)
       : null;
-    const discount = compareAt ? Math.round(((compareAt - rawPrice) / compareAt) * 100) : 0;
+    const discount = (compareAt && rawPrice) ? Math.round(((compareAt - rawPrice) / compareAt) * 100) : 0;
     return {
-      confirmed: true,
+      confirmed: isConfirmed,
       price: rawPrice,
       compareAt,
       discount,
-      label: formatMoney(rawPrice)
+      label: rawPrice ? formatMoney(rawPrice) : "Price upon request"
     };
   }
 
@@ -442,7 +442,13 @@
                 <div class="payment-option is-selected" aria-label="Cash on Delivery selected">
                   <div class="payment-option__content">
                     <strong>Cash on Delivery (COD)</strong>
-                    <small>Pay at your doorstep when your Shivara order arrives</small>
+                    <small>Complimentary insured delivery · Pay upon arrival at doorstep</small>
+                  </div>
+                </div>
+                <div class="payment-option payment-option--disabled" style="opacity:0.55; cursor:not-allowed; background:#faf8f5; border:1px dashed #d8cfc4;">
+                  <div class="payment-option__content">
+                    <strong>UPI &amp; Card Gateway</strong>
+                    <small style="color:#8c827a;">Direct gateway launching soon · Use COD for ₹0-risk checkout</small>
                   </div>
                 </div>
               </div>
@@ -590,7 +596,10 @@
 
   function addToCart(id, variantId = null, quantity = 1) {
     const product = productMap.get(id) || products.find((p) => p.id === id || p.slug === id || p.sourcePostId === id);
-    if (!product || product.priceStatus === "unavailable") return false;
+    if (!product || product.priceStatus === "unavailable" || !product.price || Number(product.price) <= 0) {
+      showToast("Price for this piece is upon request. Contact concierge.");
+      return false;
+    }
     if (product.isSoldOut === true) {
       showToast("This item is currently sold out");
       return false;
@@ -658,7 +667,7 @@
     const rawSubtotal = cart.reduce((sum, item) => {
       const product = productMap.get(item.id);
       const value = pricing(product);
-      return sum + (value.price || 499) * item.qty;
+      return sum + (Number(value.price) || 0) * item.qty;
     }, 0);
     const discount = calculateDiscount(rawSubtotal);
     const finalTotal = Math.max(0, rawSubtotal - discount);
@@ -1399,7 +1408,7 @@
     }
   });
 
-  document.addEventListener("submit", (event) => {
+  document.addEventListener("submit", async (event) => {
     if (event.target && event.target.id === "customer-login-form") {
       event.preventDefault();
       const name = (document.querySelector("#acc-name")?.value || "").trim();
@@ -1496,30 +1505,52 @@
 
       // Recalculate totals from trusted product data
       let verifiedSubtotal = 0;
-      const orderItems = cart.map(item => {
+      let hasUnconfirmedPrice = false;
+      const orderItems = [];
+
+      for (const item of cart) {
         const product = productMap.get(item.id);
         const variant = validVariant(product, item.variantId);
         const value = pricing(product);
-        const unitPrice = (value && value.confirmed && typeof value.price === "number") ? value.price : 499;
-        verifiedSubtotal += (unitPrice * item.qty);
-        return {
+        if (!value || !value.confirmed || typeof value.price !== "number" || value.price <= 0) {
+          hasUnconfirmedPrice = true;
+          break;
+        }
+        const unitPrice = value.price;
+        const qty = Math.max(1, Number(item.qty) || 1);
+        verifiedSubtotal += (unitPrice * qty);
+        orderItems.push({
           productId: product?.id || item.id,
           slug: product?.slug || item.id,
-          sku: product?.sku || "",
+          sku: product?.sku || `SHV-${item.id}`,
           title: product?.title || "Jewellery Item",
           price: unitPrice,
-          quantity: item.qty,
+          quantity: qty,
           imageUrl: (product?.images && product.images[0]) || "",
           variantLabel: variant?.label || null
-        };
-      });
+        });
+      }
+
+      if (hasUnconfirmedPrice || !orderItems.length) {
+        showToast("One or more items in your bag requires manual price confirmation. Please contact concierge.");
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = submitBtn.dataset.originalText || "<span>Confirm Order</span>";
+        }
+        return;
+      }
 
       let verifiedDiscount = 0;
       if (activeCoupon) {
-        if (activeCoupon.type === "percentage") {
-          verifiedDiscount = Math.round((verifiedSubtotal * (Number(activeCoupon.value) || 0)) / 100);
-        } else if (activeCoupon.type === "fixed") {
-          verifiedDiscount = Math.min(verifiedSubtotal, Number(activeCoupon.value) || 0);
+        if (activeCoupon.type === "percentage" || activeCoupon.discountType === "percent") {
+          const pct = Number(activeCoupon.value || activeCoupon.discountValue) || 0;
+          verifiedDiscount = Math.round((verifiedSubtotal * pct) / 100);
+          if (activeCoupon.maxDiscount && verifiedDiscount > activeCoupon.maxDiscount) {
+            verifiedDiscount = activeCoupon.maxDiscount;
+          }
+        } else {
+          const flat = Number(activeCoupon.value || activeCoupon.discountValue) || 0;
+          verifiedDiscount = Math.min(verifiedSubtotal, flat);
         }
       }
       const verifiedTotal = Math.max(0, verifiedSubtotal - verifiedDiscount);
@@ -1550,19 +1581,138 @@
         orderNote: note || "",
         shippingDetails: customerInfo,
         items: orderItems,
-        itemCount: cart.reduce((sum, i) => sum + i.qty, 0),
+        itemCount: orderItems.reduce((sum, i) => sum + i.quantity, 0),
         total: verifiedTotal,
         totalAmount: verifiedTotal,
         subtotal: verifiedSubtotal,
         discountAmount: verifiedDiscount,
         appliedCoupon: activeCoupon?.code || null,
-        paymentMethod: paymentMethod,
-        paymentStatus: "COD",
+        paymentMethod: "COD",
+        paymentStatus: "Pending COD Collection",
         status: "Pending",
         createdAt: new Date().toISOString()
       };
 
-      // Save to localStorage for frictionless guest reference
+      // Persist order document in Firestore (Awaited with error handling)
+      let firestoreSuccess = false;
+      try {
+        const { db } = await import("/src/firebase.js");
+        const { doc, setDoc, getDoc, updateDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js");
+
+        // 1. Numeric Inventory Stock Verification
+        let stockSufficient = true;
+        let outOfStockItemName = "";
+        for (const item of orderItems) {
+          const invKey = item.sku || item.productId || item.slug;
+          if (invKey) {
+            try {
+              const invSnap = await getDoc(doc(db, "inventory", invKey));
+              if (invSnap.exists()) {
+                const available = Number(invSnap.data().stock);
+                if (Number.isFinite(available) && available < item.quantity) {
+                  stockSufficient = false;
+                  outOfStockItemName = `${item.title} (Only ${available} left in stock)`;
+                  break;
+                }
+              }
+            } catch {}
+          }
+        }
+
+        if (!stockSufficient) {
+          showToast(outOfStockItemName || "Selected quantity exceeds current stock. Please adjust.");
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = submitBtn.dataset.originalText || "<span>Confirm Order</span>";
+          }
+          return;
+        }
+
+        // 2. Persist Full Order Document (Private)
+        const orderDocRef = doc(db, "orders", orderRef);
+        await setDoc(orderDocRef, {
+          ...orderDocument,
+          createdAt: serverTimestamp(),
+          createdAtIso: new Date().toISOString(),
+          updatedAt: serverTimestamp()
+        });
+
+        // 3. Persist Sanitized Tracking Projection (Protects Customer Street Address/Email/Phone from public snooping)
+        try {
+          const trackingDocRef = doc(db, "order_tracking", orderRef);
+          const maskedName = name ? `${name.charAt(0)}. ${name.split(" ").slice(1).join(" ").replace(/./g, "*") || "***"}` : "Customer";
+          await setDoc(trackingDocRef, {
+            orderId: orderRef,
+            status: "Pending",
+            createdAt: serverTimestamp(),
+            createdAtIso: new Date().toISOString(),
+            itemCount: orderItems.reduce((sum, i) => sum + i.quantity, 0),
+            items: orderItems.map(i => ({
+              title: i.title,
+              quantity: i.quantity,
+              price: i.price,
+              imageUrl: i.imageUrl || "",
+              sku: i.sku || ""
+            })),
+            total: verifiedTotal,
+            totalAmount: verifiedTotal,
+            city: city || "",
+            state: state || "",
+            pincode: pincode || "",
+            customerName: maskedName,
+            paymentMethod: "COD"
+          });
+        } catch (trackErr) {
+          console.warn("[OMS] Tracking projection note:", trackErr);
+        }
+
+        // 4. Atomic Numeric Inventory Decrement
+        for (const item of orderItems) {
+          const invKey = item.sku || item.productId || item.slug;
+          if (invKey) {
+            try {
+              const invRef = doc(db, "inventory", invKey);
+              const invSnap = await getDoc(invRef);
+              if (invSnap.exists()) {
+                const currentStock = Number(invSnap.data().stock) || 0;
+                const nextStock = Math.max(0, currentStock - item.quantity);
+                await updateDoc(invRef, {
+                  stock: nextStock,
+                  isSoldOut: nextStock <= 0,
+                  updatedAt: serverTimestamp()
+                });
+              }
+            } catch (invErr) {
+              console.warn("[Inventory] Stock decrement note:", invErr);
+            }
+          }
+        }
+
+        firestoreSuccess = true;
+      } catch (err) {
+        console.error("[OMS] Firestore order persistence error:", err);
+      }
+
+      // Also notify local/cloud Node API if active
+      try {
+        await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(orderDocument)
+        });
+      } catch {}
+
+      // Critical guard: If the order was NOT persisted, abort with error toast
+      if (!firestoreSuccess) {
+        showToast("Unable to record order due to a network connection error. Please try again.");
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = submitBtn.dataset.originalText || "<span>Confirm Order</span>";
+        }
+        return;
+      }
+
+      // Save to localStorage ONLY AFTER confirmed persistence
       try {
         localStorage.setItem("shivara_recent_order", JSON.stringify({
           orderId: orderRef,
@@ -1570,49 +1720,10 @@
           totalAmount: verifiedTotal,
           items: orderItems,
           customerInfo,
-          paymentMethod,
+          paymentMethod: "COD",
           status: "Pending"
         }));
       } catch {}
-
-      // Send to local Node.js Server
-      fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderDocument)
-      }).catch(() => {});
-
-      // Execute Atomic writeBatch in Firestore
-      (async () => {
-        try {
-          const { db } = await import("/src/firebase.js");
-          const { doc, writeBatch, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js");
-          const batch = writeBatch(db);
-
-          // 1. Order Document
-          const orderDocRef = doc(db, "orders", orderRef);
-          batch.set(orderDocRef, {
-            ...orderDocument,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
-          });
-
-          // 2. Mark each purchased product as Sold Out
-          orderItems.forEach(item => {
-            if (item.productId) {
-              const prodRef = doc(db, "products", String(item.productId));
-              batch.set(prodRef, {
-                isSoldOut: true,
-                updatedAt: serverTimestamp()
-              }, { merge: true });
-            }
-          });
-
-          await batch.commit();
-        } catch (err) {
-          console.warn("[OMS] Note on Firestore atomic order persistence:", err?.message || err);
-        }
-      })();
 
       // Clear the Cart on successful order placement
       cart.length = 0;

@@ -17,17 +17,17 @@ assert(rulesContent.includes("match /orders/{orderId}"), "firestore.rules must c
 assert(rulesContent.includes("allow create:") && rulesContent.includes("allow get: if true;"), "firestore.rules must allow secure order creation and tracking get");
 console.log("PASS 1: firestore.rules allows validated guest order creation and order tracking get");
 
-// 2. Validate script.js Guest Checkout & Atomic Inventory Sync
+// 2. Validate script.js Guest Checkout & Order Persistence
 const scriptContent = fs.readFileSync(path.join(rootDir, "script.js"), "utf-8");
 assert(scriptContent.includes("orderRef = `SHV-") || scriptContent.includes('orderRef = "SHV-'), "script.js must generate unique SHV- orderId prefix");
 assert(scriptContent.includes("customerInfo"), "script.js order payload must contain customerInfo");
 assert(scriptContent.includes("shivara_recent_order"), "script.js must persist recent order to localStorage");
 assert(scriptContent.includes("doc(db, \"orders\", orderRef)"), "script.js must persist order document to Firestore orders collection");
-assert(scriptContent.includes("isSoldOut: true"), "script.js must mark purchased items as isSoldOut: true in Firestore");
+assert(scriptContent.includes("paymentMethod: \"COD\""), "script.js must enforce Cash on Delivery (COD) for Phase 1 launch");
 assert(scriptContent.includes("cart.length = 0"), "script.js must clear the cart on successful checkout");
 assert(scriptContent.includes("totalAmount:"), "script.js order payload must contain totalAmount");
 assert(scriptContent.includes("status: \"Pending\""), "script.js order payload must default status to Pending");
-console.log("PASS 2: script.js guest checkout persistence, atomic isSoldOut sync, and cart clear verified");
+console.log("PASS 2: script.js guest checkout persistence, Phase 1 COD, and cart clear verified");
 
 // 3. Validate admin.html OMS Interface
 const adminHtmlContent = fs.readFileSync(path.join(rootDir, "admin.html"), "utf-8");
