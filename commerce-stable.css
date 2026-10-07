@@ -3197,18 +3197,20 @@ body.catalog-stable {
   right: 0;
   bottom: 0;
   width: min(440px, 100vw);
-  background: var(--stable-sand);
-  z-index: 120;
+  background: var(--stable-paper);
+  z-index: 600;
   display: flex;
   flex-direction: column;
+  visibility: hidden;
   transform: translateX(100%);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s;
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.2);
   padding: 24px;
   overflow-y: auto;
 }
 
 .stable-drawer--account.is-open {
+  visibility: visible;
   transform: translateX(0);
 }
 
@@ -3282,6 +3284,28 @@ body.catalog-stable {
 .account-actions-grid a {
   text-decoration: none;
   text-align: center;
+}
+
+.account-actions-grid .stable-button--line {
+  border: 1px solid var(--stable-line);
+  color: var(--stable-ink) !important;
+  background: #ffffff;
+}
+
+.account-actions-grid .stable-button--line:hover {
+  background: rgba(212, 168, 67, 0.1);
+  border-color: var(--stable-gold);
+}
+
+.account-actions-grid .stable-button--plain {
+  border: 1px solid var(--stable-line);
+  color: var(--stable-ink);
+  background: #ffffff;
+}
+
+.account-actions-grid .stable-button--plain:hover {
+  background: rgba(212, 168, 67, 0.1);
+  border-color: var(--stable-gold);
 }
 
 .account-logout-btn {
