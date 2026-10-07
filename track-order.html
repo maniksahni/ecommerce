@@ -290,7 +290,7 @@
     ══════════════════════════════════════════════ -->
     <script type="module">
       import { db } from "/src/firebase.js";
-      import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+      import { doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
       const INR = new Intl.NumberFormat("en-IN", {
         style: "currency",
@@ -306,69 +306,17 @@
 
       const statusMap = {
         pending: { index: 0, fill: "0%", label: "Order Placed", desc: "Received at atelier" },
+        confirmed: { index: 0, fill: "15%", label: "Order Confirmed", desc: "Verified for dispatch" },
         processing: { index: 1, fill: "33.3%", label: "Atelier Packaging", desc: "Velvet gift box prep" },
         shipped: { index: 2, fill: "66.6%", label: "In Transit", desc: "Express courier dispatch" },
         delivered: { index: 3, fill: "100%", label: "Delivered", desc: "Delivered to customer" },
         cancelled: { index: -1, fill: "0%", label: "Cancelled", desc: "Order cancelled" }
       };
 
-      async function executeTrack(orderId) {
+      let activeTrackingUnsubscribe = null;
+
+      function renderOrderUI(order, cleanId) {
         const mount = document.getElementById("track-result-mount");
-        const cleanId = String(orderId || "").trim().toUpperCase().replace(/^#/, "");
-
-        if (!cleanId) return;
-
-        mount.innerHTML = `<div class="spinner"></div>`;
-
-        let order = null;
-
-        try {
-          const trackRef = doc(db, "order_tracking", cleanId);
-          const trackSnap = await getDoc(trackRef);
-          if (trackSnap.exists()) {
-            order = { id: trackSnap.id, ...trackSnap.data() };
-          } else {
-            const docRef = doc(db, "orders", cleanId);
-            const snap = await getDoc(docRef);
-            if (snap.exists()) {
-              order = { id: snap.id, ...snap.data() };
-            }
-          }
-        } catch (err) {
-          console.warn("[Track] Firestore error:", err);
-        }
-
-        // Fallback to server API or local storage
-        if (!order) {
-          try {
-            const apiRes = await fetch(`/api/orders/${encodeURIComponent(cleanId)}`);
-            if (apiRes.ok) {
-              const apiData = await apiRes.json();
-              if (apiData && (apiData.order || apiData.id || apiData.orderId)) {
-                order = apiData.order || apiData;
-              }
-            }
-          } catch {}
-        }
-
-        if (!order) {
-          try {
-            const adminCached = JSON.parse(localStorage.getItem("shivara_admin_orders"));
-            if (Array.isArray(adminCached)) {
-              order = adminCached.find(o => (o.orderId || o.id || "").toUpperCase().replace(/^#/, "") === cleanId);
-            }
-          } catch {}
-        }
-
-        if (!order) {
-          try {
-            const cached = JSON.parse(localStorage.getItem("shivara_recent_order"));
-            if (cached && ((cached.orderId || "").toUpperCase().replace(/^#/, "") === cleanId)) {
-              order = cached;
-            }
-          } catch {}
-        }
-
         if (!order) {
           mount.innerHTML = `
             <div class="track-result-card" style="text-align:center; padding: 40px 20px;">
@@ -389,7 +337,7 @@
         const items = order.items || [];
         const total = Number.isFinite(Number(order.totalAmount))
           ? Number(order.totalAmount)
-          : items.reduce((sum, i) => sum + (Number(i.price || 0) * (i.quantity || 1)), 0);
+          : (Number.isFinite(Number(order.total)) ? Number(order.total) : items.reduce((sum, i) => sum + (Number(i.price || 0) * (i.quantity || 1)), 0));
 
         function maskPhone(p) {
           const raw = String(p || "").replace(/\D/g, "");
@@ -422,23 +370,40 @@
           `;
         }).join("");
 
+        const trackingNumber = order.trackingNumber || order.awb || "";
+        const courierPartner = order.courierPartner || order.courier || "";
+
         mount.innerHTML = `
           <div class="track-result-card">
             <div class="track-head">
               <div>
-                <h3>Order #${escapeHtml(order.orderId || cleanId)}</h3>
+                <h3 id="tracking-display-order-id">Order #${escapeHtml(order.orderId || cleanId)}</h3>
                 <small style="color:#8c827a;">Status Updated Live from Atelier OMS</small>
               </div>
-              <span class="order-status-pill status-${escapeHtml(currentStatus)}">● ${escapeHtml(order.status || "Pending")}</span>
+              <span id="tracking-display-status-pill" class="order-status-pill status-${escapeHtml(currentStatus)}">● ${escapeHtml(order.status || "Pending")}</span>
             </div>
 
             <!-- Stepper Timeline -->
             <div class="timeline-stepper">
               <div class="timeline-track-bar">
-                <div class="timeline-track-fill" style="width: ${currentMeta.fill};"></div>
+                <div class="timeline-track-fill" id="tracking-display-timeline-fill" style="width: ${currentMeta.fill};"></div>
               </div>
               ${stepperHtml}
             </div>
+
+            ${(trackingNumber || courierPartner) ? `
+            <!-- Live Courier Tracking Strip -->
+            <div id="tracking-courier-strip" style="margin: 18px 0; padding: 14px 18px; background: #faf7f2; border: 1px solid #ebd8b5; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #8c827a;">Express Dispatch Carrier</div>
+                <div style="font-size: 15px; font-weight: 600; color: #1a1512; margin-top: 2px;">
+                  <span id="tracking-courier-name">${escapeHtml(courierPartner || "Blue Dart Express")}</span>
+                  ${trackingNumber ? ` — AWB: <code id="tracking-awb-number" style="background:#fff; border:1px solid #d4af37; padding:2px 8px; border-radius:4px; font-weight:700; color:#8c6d23;">${escapeHtml(trackingNumber)}</code>` : ""}
+                </div>
+              </div>
+              <span style="font-size: 11px; font-weight: 700; color: #1b5e20; background: #e8f5e9; padding: 4px 10px; border-radius: 99px;">● In Real-Time Transit</span>
+            </div>
+            ` : ""}
 
             <!-- Shipping & Items Breakdown -->
             <div class="track-details-grid">
@@ -466,18 +431,87 @@
         `;
       }
 
-      document.getElementById("track-form").addEventListener("submit", (e) => {
+      async function executeTrack(orderId) {
+        const mount = document.getElementById("track-result-mount");
+        const cleanId = String(orderId || "").trim().toUpperCase().replace(/^#/, "");
+
+        if (!cleanId) return;
+
+        if (activeTrackingUnsubscribe) {
+          activeTrackingUnsubscribe();
+          activeTrackingUnsubscribe = null;
+        }
+
+        mount.innerHTML = `<div class="spinner"></div>`;
+
+        // Subscribe to Realtime onSnapshot on sanitized order_tracking projection
+        const trackRef = doc(db, "order_tracking", cleanId);
+        activeTrackingUnsubscribe = onSnapshot(trackRef, async (trackSnap) => {
+          if (trackSnap.exists()) {
+            const liveOrder = { id: trackSnap.id, ...trackSnap.data() };
+            renderOrderUI(liveOrder, cleanId);
+            return;
+          }
+
+          // Fallback check on orders doc
+          let fallbackOrder = null;
+          try {
+            const orderDocRef = doc(db, "orders", cleanId);
+            const oSnap = await getDoc(orderDocRef);
+            if (oSnap.exists()) {
+              fallbackOrder = { id: oSnap.id, ...oSnap.data() };
+            }
+          } catch {}
+
+          if (!fallbackOrder) {
+            try {
+              const apiRes = await fetch(`/api/orders/${encodeURIComponent(cleanId)}`);
+              if (apiRes.ok) {
+                const apiData = await apiRes.json();
+                if (apiData && (apiData.order || apiData.id || apiData.orderId)) {
+                  fallbackOrder = apiData.order || apiData;
+                }
+              }
+            } catch {}
+          }
+
+          if (!fallbackOrder) {
+            try {
+              const adminCached = JSON.parse(localStorage.getItem("shivara_admin_orders"));
+              if (Array.isArray(adminCached)) {
+                fallbackOrder = adminCached.find(o => (o.orderId || o.id || "").toUpperCase().replace(/^#/, "") === cleanId);
+              }
+            } catch {}
+          }
+
+          if (!fallbackOrder) {
+            try {
+              const cached = JSON.parse(localStorage.getItem("shivara_recent_order"));
+              if (cached && ((cached.orderId || "").toUpperCase().replace(/^#/, "") === cleanId)) {
+                fallbackOrder = cached;
+              }
+            } catch {}
+          }
+
+          renderOrderUI(fallbackOrder, cleanId);
+        }, (err) => {
+          console.warn("[Track] Realtime listener error:", err);
+        });
+      }
+
+      document.getElementById("track-form")?.addEventListener("submit", (e) => {
         e.preventDefault();
         const input = document.getElementById("track-order-id");
-        executeTrack(input.value);
+        if (input) executeTrack(input.value);
       });
 
       // Auto-populate from URL query param ?id=...
       window.addEventListener("DOMContentLoaded", () => {
         const params = new URLSearchParams(window.location.search);
-        const urlId = params.get("id");
+        const urlId = params.get("id") || params.get("order") || params.get("orderId");
         if (urlId) {
-          document.getElementById("track-order-id").value = urlId;
+          const input = document.getElementById("track-order-id");
+          if (input) input.value = urlId;
           executeTrack(urlId);
         }
       });

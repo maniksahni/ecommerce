@@ -2527,167 +2527,24 @@
         </div>
       </div><!-- /view-orders -->
 
-      <!-- VIEW 3: CATEGORIES MANAGER -->
+      <!-- VIEW 3: CATEGORIES MANAGER (REAL-TIME FIRESTORE BACKED) -->
       <div id="view-categories" class="tab-view">
         <div class="section-header">
           <div>
             <h2 class="section-title">Categories &amp; Collections</h2>
-            <p class="section-subtitle">Manage storefront collection rails, slugs, item counts, and display kickers</p>
+            <p class="section-subtitle">Manage live Firestore category taxonomy, slugs, active navigation states, and display kickers</p>
           </div>
-          <button type="button" class="btn btn-gold btn-sm" onclick="showToast('Categories are synchronized with curated catalog rail.')">
-            <span>✓</span> Categories Active
-          </button>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="btn btn-gold btn-sm" id="btn-open-add-category" onclick="openAddCategoryModal()">
+              <span>＋</span> Add Category
+            </button>
+          </div>
         </div>
 
         <div class="admin-category-grid" id="admin-categories-container">
-          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
-            <div style="display:flex; align-items:center; gap:14px; width:100%;">
-              <div class="admin-cat-icon">✨</div>
-              <div class="admin-cat-info" style="flex:1;">
-                <h4>Earrings</h4>
-                <p>Slug: <code>/collections/earrings</code> · <strong id="cat-count-earrings">18 items</strong></p>
-                <small style="color:var(--gold-dark); font-weight:600;">THE FINAL TOUCH</small>
-              </div>
-            </div>
-            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
-              <a href="/collections/earrings" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
-              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('earrings')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
-            </div>
-          </div>
-
-          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
-            <div style="display:flex; align-items:center; gap:14px; width:100%;">
-              <div class="admin-cat-icon">💍</div>
-              <div class="admin-cat-info" style="flex:1;">
-                <h4>Rings</h4>
-                <p>Slug: <code>/collections/rings</code> · <strong id="cat-count-rings">23 items</strong></p>
-                <small style="color:var(--gold-dark); font-weight:600;">THE RING EDIT</small>
-              </div>
-            </div>
-            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
-              <a href="/collections/rings" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
-              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('rings')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
-            </div>
-          </div>
-
-          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
-            <div style="display:flex; align-items:center; gap:14px; width:100%;">
-              <div class="admin-cat-icon">✨</div>
-              <div class="admin-cat-info" style="flex:1;">
-                <h4>Bracelets &amp; Bangles</h4>
-                <p>Slug: <code>/collections/bracelets</code> · <strong id="cat-count-bracelets">14 items</strong></p>
-                <small style="color:var(--gold-dark); font-weight:600;">THE WRIST EDIT</small>
-              </div>
-            </div>
-            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
-              <a href="/collections/bracelets" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
-              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('bracelets')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
-            </div>
-          </div>
-
-          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
-            <div style="display:flex; align-items:center; gap:14px; width:100%;">
-              <div class="admin-cat-icon">📿</div>
-              <div class="admin-cat-info" style="flex:1;">
-                <h4>Neck Wear &amp; Pendants</h4>
-                <p>Slug: <code>/collections/neckwear</code> · <strong id="cat-count-necklaces">45 items</strong></p>
-                <small style="color:var(--gold-dark); font-weight:600;">THE NECKLINE EDIT</small>
-              </div>
-            </div>
-            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
-              <a href="/collections/neckwear" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
-              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('necklaces')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
-            </div>
-          </div>
-
-          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
-            <div style="display:flex; align-items:center; gap:14px; width:100%;">
-              <div class="admin-cat-icon">🧿</div>
-              <div class="admin-cat-info" style="flex:1;">
-                <h4>Evil Eye</h4>
-                <p>Slug: <code>/collections/evil-eye</code> · <strong id="cat-count-evil-eye">3 items</strong></p>
-                <small style="color:var(--gold-dark); font-weight:600;">THE PROTECTION EDIT</small>
-              </div>
-            </div>
-            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
-              <a href="/collections/evil-eye" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
-              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('evil-eye')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
-            </div>
-          </div>
-
-          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
-            <div style="display:flex; align-items:center; gap:14px; width:100%;">
-              <div class="admin-cat-icon">⌚</div>
-              <div class="admin-cat-info" style="flex:1;">
-                <h4>Watches</h4>
-                <p>Slug: <code>/collections/watches</code> · <strong id="cat-count-watches">4 items</strong></p>
-                <small style="color:var(--gold-dark); font-weight:600;">THE WATCH EDIT</small>
-              </div>
-            </div>
-            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
-              <a href="/collections/watches" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
-              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('watches')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
-            </div>
-          </div>
-
-          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
-            <div style="display:flex; align-items:center; gap:14px; width:100%;">
-              <div class="admin-cat-icon">👑</div>
-              <div class="admin-cat-info" style="flex:1;">
-                <h4>Jewellery Sets</h4>
-                <p>Slug: <code>/collections/jewellery-sets</code> · <strong id="cat-count-sets">3 items</strong></p>
-                <small style="color:var(--gold-dark); font-weight:600;">THE COORDINATED EDIT</small>
-              </div>
-            </div>
-            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
-              <a href="/collections/jewellery-sets" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
-              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('sets')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
-            </div>
-          </div>
-
-          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
-            <div style="display:flex; align-items:center; gap:14px; width:100%;">
-              <div class="admin-cat-icon">🛡️</div>
-              <div class="admin-cat-info" style="flex:1;">
-                <h4>Anti Tarnish</h4>
-                <p>Slug: <code>/collections/anti-tarnish</code> · <strong id="cat-count-anti-tarnish">16 items</strong></p>
-                <small style="color:var(--gold-dark); font-weight:600;">THE EVERYDAY EDIT</small>
-              </div>
-            </div>
-            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
-              <a href="/collections/anti-tarnish" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
-              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('anti-tarnish')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
-            </div>
-          </div>
-
-          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
-            <div style="display:flex; align-items:center; gap:14px; width:100%;">
-              <div class="admin-cat-icon">🎁</div>
-              <div class="admin-cat-info" style="flex:1;">
-                <h4>Gifting Edit</h4>
-                <p>Slug: <code>/collections/gifting</code> · <strong id="cat-count-gifting">23 items</strong></p>
-                <small style="color:var(--gold-dark); font-weight:600;">THE GIFTING ROOM</small>
-              </div>
-            </div>
-            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
-              <a href="/collections/gifting" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
-              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('gifting')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
-            </div>
-          </div>
-
-          <div class="admin-cat-card" style="flex-direction:column; align-items:flex-start;">
-            <div style="display:flex; align-items:center; gap:14px; width:100%;">
-              <div class="admin-cat-icon">💎</div>
-              <div class="admin-cat-info" style="flex:1;">
-                <h4>All Jewellery</h4>
-                <p>Slug: <code>/collections/all</code> · <strong id="cat-count-all">114 items</strong></p>
-                <small style="color:var(--gold-dark); font-weight:600;">COMPLETE CATALOGUE</small>
-              </div>
-            </div>
-            <div style="margin-top:12px; display:flex; gap:8px; width:100%;">
-              <a href="/collections/all" target="_blank" class="btn btn-outline btn-sm" style="flex:1; text-align:center; padding:5px 8px; font-size:11px; text-decoration:none;">Storefront ↗</a>
-              <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('all')" style="flex:1; padding:5px 8px; font-size:11px;">Filter Products →</button>
-            </div>
+          <!-- Dynamically populated from Firestore onSnapshot listener -->
+          <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+            Connecting to atelier category taxonomy...
           </div>
         </div>
       </div><!-- /view-categories -->
@@ -3139,6 +2996,66 @@
   </div>
 
   <!-- ════════════════════════════════════════
+       6B. CATEGORY MANAGER MODAL (ADD / EDIT)
+  ════════════════════════════════════════ -->
+  <div class="modal-overlay" id="category-modal">
+    <div class="modal-card" style="max-width: 540px; text-align: left;">
+      <h3 class="modal-title" id="cat-modal-header-title">Add Category</h3>
+      <p class="modal-desc">Configure storefront collection taxonomy, slugs, kickers, and visibility.</p>
+      <form id="category-form" autocomplete="off">
+        <input type="hidden" id="cat-is-editing" value="false" />
+        <input type="hidden" id="cat-original-slug" value="" />
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--choco); display:block; margin-bottom:4px;">CATEGORY TITLE *</label>
+            <input type="text" id="cat-name-input" required placeholder="e.g. Anklets" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:4px;" />
+          </div>
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--choco); display:block; margin-bottom:4px;">URL SLUG *</label>
+            <input type="text" id="cat-slug-input" required placeholder="e.g. anklets" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:4px;" />
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--choco); display:block; margin-bottom:4px;">HEADER KICKER</label>
+            <input type="text" id="cat-kicker-input" placeholder="e.g. THE ANKLET EDIT" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:4px;" />
+          </div>
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--choco); display:block; margin-bottom:4px;">DISPLAY ORDER</label>
+            <input type="number" id="cat-order-input" value="10" min="1" max="99" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:4px;" />
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label style="font-size:11px; font-weight:700; color:var(--choco); display:block; margin-bottom:4px;">DESCRIPTION</label>
+          <textarea id="cat-desc-input" rows="2" placeholder="Collection narrative and craftsmanship edit..." style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:4px; font-family:inherit;"></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label style="font-size:11px; font-weight:700; color:var(--choco); display:block; margin-bottom:4px;">REPRESENTATIVE IMAGE / ICON URL</label>
+          <input type="text" id="cat-image-input" placeholder="assets/catalog-2026-07-26/item-001.jpg" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:4px;" />
+        </div>
+        <div style="display:flex; gap:16px; flex-wrap:wrap; padding:10px 14px; background:var(--bg-subtle); border-radius:6px; margin-bottom:16px;">
+          <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; cursor:pointer;">
+            <input type="checkbox" id="cat-active-input" checked />
+            <span>Active on Storefront</span>
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; cursor:pointer;">
+            <input type="checkbox" id="cat-nav-input" checked />
+            <span>Show in Navbar</span>
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; cursor:pointer;">
+            <input type="checkbox" id="cat-rail-input" checked />
+            <span>Show on Homepage Rail</span>
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" id="category-modal-cancel" onclick="document.getElementById('category-modal').classList.remove('is-open')">Cancel</button>
+          <button type="submit" class="btn btn-gold">Save Category</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
        7. CUSTOMER ORDER HISTORY MODAL
   ════════════════════════════════════════ -->
   <div class="modal-overlay" id="customer-modal">
@@ -3203,10 +3120,9 @@
       updateDoc
     } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
-    // Firebase Auth Modular SDK
+    // Firebase Auth Modular SDK (Strict Admin Only - No Anonymous Executive Access)
     import {
       signInWithEmailAndPassword,
-      signInAnonymously,
       signOut,
       onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
@@ -3288,6 +3204,7 @@
       subscribeToFirestoreProducts();
       subscribeToFirestoreOrders();
       subscribeToFirestoreInventory();
+      subscribeToFirestoreCategories();
       subscribeToFirestoreCoupons();
       subscribeToFirestoreBanners();
       subscribeToFirestoreSettings();
@@ -3310,6 +3227,10 @@
       if (unsubscribeInventory) {
         unsubscribeInventory();
         unsubscribeInventory = null;
+      }
+      if (unsubscribeCategories) {
+        unsubscribeCategories();
+        unsubscribeCategories = null;
       }
       if (unsubscribeCoupons) {
         unsubscribeCoupons();
@@ -3361,19 +3282,7 @@
         unlockDashboard();
         showToast('Welcome to Shivara Administration ✓', 'success');
       } catch (authErr) {
-        console.warn('[Admin Auth] Firebase sign-in notification:', authErr.code || authErr.message);
-        // If the project supports anonymous executive access as fallback for pre-configured sessions
-        if (authErr.code === 'auth/operation-not-allowed' || authErr.code === 'auth/configuration-not-found') {
-          try {
-            const anonCred = await signInAnonymously(auth);
-            currentAdminUser = anonCred.user;
-            unlockDashboard();
-            showToast('Welcome to Shivara Administration ✓', 'success');
-            return;
-          } catch (anonErr) {
-            console.warn('[Admin Auth] Fallback notice:', anonErr.message);
-          }
-        }
+        console.warn('[Admin Auth] Firebase sign-in failure:', authErr.code || authErr.message);
         if (errEl) {
           errEl.textContent = 'Invalid administrator credentials. Access denied.';
           errEl.classList.add('is-visible');
@@ -3569,29 +3478,225 @@
       }
     }
 
-    /* ─── CATEGORIES MODULE ─── */
-    function renderCategoriesView() {
-      const counts = {
-        earrings: 0, rings: 0, bracelets: 0, necklaces: 0,
-        "evil-eye": 0, watches: 0, sets: 0, "anti-tarnish": 0, gifting: 0,
-        all: allProducts.length
-      };
-      allProducts.forEach(p => {
-        const cat = (p.category || '').toLowerCase();
-        if (counts[cat] !== undefined) counts[cat]++;
-      });
+    /* ─── CATEGORIES MODULE (REAL-TIME FIRESTORE BACKED) ─── */
+    const baselineCategories = [
+      { id: 'new-arrivals', slug: 'new-arrivals', name: 'New Arrivals', kicker: 'THE CURATED ARRIVALS', order: 10, isActive: true, showInNav: true, showInRail: true },
+      { id: 'earrings', slug: 'earrings', name: 'Earrings', kicker: 'THE EARRING EDIT', order: 20, isActive: true, showInNav: true, showInRail: true },
+      { id: 'rings', slug: 'rings', name: 'Rings', kicker: 'THE STATEMENT RING EDIT', order: 30, isActive: true, showInNav: true, showInRail: true },
+      { id: 'bracelets', slug: 'bracelets', name: 'Bracelets', kicker: 'THE WRIST WEAR EDIT', order: 40, isActive: true, showInNav: true, showInRail: true },
+      { id: 'necklaces', slug: 'necklaces', name: 'Neck Wear', kicker: 'THE NECKLACE & PENDANT EDIT', order: 50, isActive: true, showInNav: true, showInRail: true },
+      { id: 'evil-eye', slug: 'evil-eye', name: 'Evil Eye', kicker: 'THE PROTECTION EDIT', order: 60, isActive: true, showInNav: true, showInRail: true },
+      { id: 'watches', slug: 'watches', name: 'Watches', kicker: 'THE WATCH EDIT', order: 70, isActive: true, showInNav: true, showInRail: true },
+      { id: 'jewellery-sets', slug: 'jewellery-sets', name: 'Jewellery Sets', kicker: 'THE COORDINATED EDIT', order: 80, isActive: true, showInNav: true, showInRail: true },
+      { id: 'anti-tarnish', slug: 'anti-tarnish', name: 'Anti Tarnish', kicker: 'THE EVERYDAY EDIT', order: 90, isActive: true, showInNav: true, showInRail: true },
+      { id: 'gifting', slug: 'gifting', name: 'Gifting Edit', kicker: 'THE GIFTING ROOM', order: 100, isActive: true, showInNav: true, showInRail: true }
+    ];
+    let categoriesStore = [...baselineCategories];
+    let unsubscribeCategories = null;
 
-      if ($('#cat-count-earrings')) $('#cat-count-earrings').textContent = `${counts.earrings} items`;
-      if ($('#cat-count-rings')) $('#cat-count-rings').textContent = `${counts.rings} items`;
-      if ($('#cat-count-bracelets')) $('#cat-count-bracelets').textContent = `${counts.bracelets} items`;
-      if ($('#cat-count-necklaces')) $('#cat-count-necklaces').textContent = `${counts.necklaces} items`;
-      if ($('#cat-count-evil-eye')) $('#cat-count-evil-eye').textContent = `${counts['evil-eye']} items`;
-      if ($('#cat-count-watches')) $('#cat-count-watches').textContent = `${counts.watches} items`;
-      if ($('#cat-count-sets')) $('#cat-count-sets').textContent = `${counts.sets} items`;
-      if ($('#cat-count-anti-tarnish')) $('#cat-count-anti-tarnish').textContent = `${counts['anti-tarnish']} items`;
-      if ($('#cat-count-gifting')) $('#cat-count-gifting').textContent = `${counts.gifting} items`;
-      if ($('#cat-count-all')) $('#cat-count-all').textContent = `${counts.all} items`;
+    function renderCategoriesView() {
+      const container = $('#admin-categories-container');
+      if (!container) return;
+
+      if ($('#tab-badge-categories')) $('#tab-badge-categories').textContent = categoriesStore.length;
+
+      if (!categoriesStore.length) {
+        container.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 48px; background: var(--card-bg); border-radius: 8px; border: 1px dashed var(--border);">
+            <div style="font-size: 32px; margin-bottom: 8px;">🏷️</div>
+            <h3 style="font-family:'Italiana',serif; font-size:18px;">No Categories Found</h3>
+            <p style="color:var(--muted); font-size:13px; margin: 4px 0 16px;">Create a new category to configure storefront collection navigation.</p>
+            <button type="button" class="btn btn-gold btn-sm" onclick="openAddCategoryModal()">＋ Create First Category</button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = categoriesStore.map((cat, idx) => {
+        const slug = cat.slug || cat.id;
+        const name = cat.name || cat.title || slug;
+        const kicker = cat.kicker || 'COLLECTION EDIT';
+        const isActive = cat.isActive !== false;
+        const showInNav = cat.showInNav !== false;
+        const showInRail = cat.showInRail !== false;
+        const order = Number(cat.order) || (idx + 1) * 10;
+        const itemCount = allProducts.filter(p => (p.category || '').toLowerCase() === slug.toLowerCase()).length;
+        const img = cat.image ? `<img src="${esc(cat.image)}" style="width:48px; height:48px; object-fit:cover; border-radius:6px; border:1px solid var(--border);" alt="" />` : `<div style="width:48px; height:48px; border-radius:6px; background:var(--gold-dim); display:flex; align-items:center; justify-content:center; font-size:20px;">💍</div>`;
+
+        return `
+          <div class="admin-category-card admin-cat-card" style="background:var(--card-bg); border:1px solid ${isActive ? 'var(--border)' : 'rgba(200,50,50,0.3)'}; border-radius:8px; padding:16px; display:flex; flex-direction:column; justify-content:space-between; position:relative; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                <div style="display:flex; gap:12px; align-items:center;">
+                  ${img}
+                  <div>
+                    <span style="font-size:10px; font-weight:700; letter-spacing:1px; color:var(--gold-dark); text-transform:uppercase;">${esc(kicker)}</span>
+                    <h3 style="margin:2px 0; font-size:16px; font-family:'Italiana',serif; font-weight:700;">${esc(name)}</h3>
+                    <small style="color:var(--muted); font-family:monospace; font-size:11px;">/collections/${esc(slug)}</small>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-sm ${isActive ? 'btn-gold' : 'btn-outline'}" onclick="toggleCategoryActive('${esc(slug)}')">
+                  ${isActive ? '✓ Active' : 'Paused'}
+                </button>
+              </div>
+
+              <div style="display:flex; gap:8px; margin: 10px 0; flex-wrap:wrap;">
+                <span class="stock-pill ${itemCount > 0 ? 'stock-pill--in' : 'stock-pill--low'}" style="font-size:11px;">${itemCount} Products</span>
+                <span style="font-size:11px; padding:3px 8px; border-radius:4px; background:var(--bg-subtle); color:var(--text-muted);">Order: ${order}</span>
+                ${showInNav ? '<span style="font-size:11px; padding:3px 8px; border-radius:4px; background:var(--bg-subtle); color:var(--choco);">Navbar ✓</span>' : ''}
+                ${showInRail ? '<span style="font-size:11px; padding:3px 8px; border-radius:4px; background:var(--bg-subtle); color:var(--choco);">Rail ✓</span>' : ''}
+              </div>
+
+              ${cat.description ? `<p style="font-size:12px; color:var(--muted); margin:0 0 12px; line-height:1.4;">${esc(cat.description)}</p>` : ''}
+            </div>
+
+            <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border-light); display:flex; gap:6px; flex-wrap:wrap; justify-content:space-between; align-items:center;">
+              <div style="display:flex; gap:6px;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="openEditCategoryModal('${esc(slug)}')">Edit</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="deleteCategory('${esc(slug)}')">Delete</button>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <a href="/collections/${esc(slug)}" target="_blank" class="btn btn-outline btn-sm" style="text-decoration:none;">Storefront ↗</a>
+                <button type="button" class="btn btn-gold btn-sm" onclick="filterByCatAndSwitch('${esc(slug)}')">Products →</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
+
+    function subscribeToFirestoreCategories() {
+      if (unsubscribeCategories) {
+        unsubscribeCategories();
+        unsubscribeCategories = null;
+      }
+      try {
+        unsubscribeCategories = onSnapshot(collection(db, "categories"), (snapshot) => {
+          const list = [];
+          snapshot.forEach(docSnap => {
+            list.push({ id: docSnap.id, slug: docSnap.id, ...docSnap.data() });
+          });
+          list.sort((a, b) => (Number(a.order) || 99) - (Number(b.order) || 99));
+          categoriesStore = list;
+          renderCategoriesView();
+        }, (err) => {
+          console.warn("[Categories] Snapshot note:", err.message);
+        });
+      } catch (err) {
+        console.warn("[Categories] Listener error:", err);
+      }
+    }
+
+    window.openAddCategoryModal = function() {
+      const modal = $('#category-modal');
+      const form = $('#category-form');
+      if (!modal || !form) return;
+      form.reset();
+      $('#cat-is-editing').value = 'false';
+      $('#cat-original-slug').value = '';
+      $('#cat-modal-header-title').textContent = 'Add Category';
+      $('#cat-active-input').checked = true;
+      $('#cat-nav-input').checked = true;
+      $('#cat-rail-input').checked = true;
+      $('#cat-order-input').value = (categoriesStore.length + 1) * 10;
+      modal.classList.add('is-open');
+    };
+
+    window.openEditCategoryModal = function(slug) {
+      const cat = categoriesStore.find(c => (c.slug || c.id) === slug);
+      if (!cat) return;
+      const modal = $('#category-modal');
+      if (!modal) return;
+
+      $('#cat-is-editing').value = 'true';
+      $('#cat-original-slug').value = slug;
+      $('#cat-modal-header-title').textContent = `Edit Category: ${cat.name || cat.title || slug}`;
+      $('#cat-name-input').value = cat.name || cat.title || '';
+      $('#cat-slug-input').value = cat.slug || cat.id || '';
+      $('#cat-kicker-input').value = cat.kicker || '';
+      $('#cat-order-input').value = cat.order !== undefined ? cat.order : 10;
+      $('#cat-desc-input').value = cat.description || '';
+      $('#cat-image-input').value = cat.image || '';
+      $('#cat-active-input').checked = cat.isActive !== false;
+      $('#cat-nav-input').checked = cat.showInNav !== false;
+      $('#cat-rail-input').checked = cat.showInRail !== false;
+
+      modal.classList.add('is-open');
+    };
+
+    window.toggleCategoryActive = async function(slug, forceVal) {
+      const cat = categoriesStore.find(c => (c.slug || c.id) === slug);
+      if (!cat) return;
+      const nextState = forceVal !== undefined ? forceVal : !cat.isActive;
+      cat.isActive = nextState;
+      renderCategoriesView();
+      try {
+        const catRef = doc(db, "categories", slug);
+        await setDoc(catRef, { isActive: nextState, updatedAt: serverTimestamp() }, { merge: true });
+        showToast(`Category ${cat.name || slug} is now ${nextState ? 'Active' : 'Paused'}`);
+      } catch (err) {
+        showToast(`Category update error: ${err.message}`, 'error');
+      }
+    };
+
+    window.deleteCategory = async function(slug) {
+      if (!confirm(`Are you sure you want to delete category "${slug}"?`)) return;
+      try {
+        const catRef = doc(db, "categories", slug);
+        await deleteDoc(catRef);
+        showToast(`✓ Category ${slug} deleted.`);
+      } catch (err) {
+        showToast(`Category delete error: ${err.message}`, 'error');
+      }
+    };
+
+    $('#category-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const isEditing = $('#cat-is-editing')?.value === 'true';
+      const origSlug = ($('#cat-original-slug')?.value || '').trim();
+      const name = ($('#cat-name-input')?.value || '').trim();
+      const slug = ($('#cat-slug-input')?.value || '').toLowerCase().trim().replace(/[^a-z0-9-]/g, '-');
+      const kicker = ($('#cat-kicker-input')?.value || '').trim().toUpperCase();
+      const order = Number($('#cat-order-input')?.value || 10);
+      const desc = ($('#cat-desc-input')?.value || '').trim();
+      const image = ($('#cat-image-input')?.value || '').trim();
+      const isActive = $('#cat-active-input')?.checked ?? true;
+      const showInNav = $('#cat-nav-input')?.checked ?? true;
+      const showInRail = $('#cat-rail-input')?.checked ?? true;
+
+      if (!name || !slug) {
+        showToast('Category name and slug are required', 'error');
+        return;
+      }
+
+      const catData = {
+        name,
+        title: name,
+        slug,
+        kicker: kicker || 'COLLECTION EDIT',
+        order,
+        description: desc,
+        image,
+        isActive,
+        showInNav,
+        showInRail,
+        updatedAt: serverTimestamp()
+      };
+
+      try {
+        const catRef = doc(db, "categories", slug);
+        await setDoc(catRef, catData, { merge: true });
+        if (isEditing && origSlug && origSlug !== slug) {
+          try {
+            await deleteDoc(doc(db, "categories", origSlug));
+          } catch {}
+        }
+        $('#category-modal')?.classList.remove('is-open');
+        showToast(`✓ Category ${name} saved to cloud`, 'success');
+      } catch (err) {
+        showToast(`Category save error: ${err.message}`, 'error');
+      }
+    });
 
     window.filterByCatAndSwitch = function(catKey) {
       switchTab('products');
@@ -4030,6 +4135,23 @@
         } catch (err) {
           showToast(`Coupon update error: ${err.message}`, 'error');
         }
+      }
+    };
+
+    window.toggleCouponActive = async function(code, forceVal) {
+      const clean = String(code || '').toUpperCase().trim();
+      const c = couponsStore.find(item => item.code.toUpperCase() === clean);
+      const nextState = forceVal !== undefined ? forceVal : (c ? !c.isActive : true);
+      if (c) c.isActive = nextState;
+      renderCouponsTable();
+      try {
+        const cRef = doc(db, "coupons", clean);
+        await setDoc(cRef, { isActive: nextState, updatedAt: serverTimestamp() }, { merge: true });
+        showToast(`Coupon ${clean} is now ${nextState ? 'Active' : 'Paused'}`);
+        return true;
+      } catch (err) {
+        showToast(`Coupon update error: ${err.message}`, 'error');
+        return false;
       }
     };
 
@@ -4484,15 +4606,16 @@
       modal?.classList.add('is-open');
     };
 
-    window.saveOrderTracking = async function(orderId) {
-      const tracking = ($('#modal-tracking-id')?.value || '').trim();
+    window.saveOrderTracking = async function(orderId, customCourier, customTracking) {
+      const tracking = (customTracking !== undefined ? customTracking : ($('#modal-tracking-id')?.value || '')).trim();
+      const courier = customCourier || "Blue Dart Express";
       try {
         const orderRef = doc(db, "orders", String(orderId));
-        await setDoc(orderRef, { trackingNumber: tracking, updatedAt: serverTimestamp() }, { merge: true });
+        await setDoc(orderRef, { trackingNumber: tracking, courierPartner: courier, updatedAt: serverTimestamp() }, { merge: true });
 
         try {
           const trackRef = doc(db, "order_tracking", String(orderId));
-          await setDoc(trackRef, { trackingNumber: tracking, updatedAt: serverTimestamp() }, { merge: true });
+          await setDoc(trackRef, { trackingNumber: tracking, courierPartner: courier, updatedAt: serverTimestamp() }, { merge: true });
         } catch (tErr) {
           console.warn("[OMS] Tracking projection note:", tErr);
         }
@@ -4500,7 +4623,7 @@
         const order = allOrders.find(o => o.orderId === orderId || o.id === orderId);
         if (order) {
           order.trackingNumber = tracking;
-          order.courierPartner = "Blue Dart Express";
+          order.courierPartner = courier;
         }
         try {
           localStorage.setItem('shivara_admin_orders', JSON.stringify(allOrders));
@@ -4509,12 +4632,14 @@
           await fetch(`/api/orders/${encodeURIComponent(orderId)}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ trackingNumber: tracking, courierPartner: "Blue Dart Express" })
+            body: JSON.stringify({ trackingNumber: tracking, courierPartner: courier })
           });
         } catch {}
         showToast(`✓ Tracking ID saved for Order #${orderId}`, 'success');
+        return true;
       } catch (err) {
         showToast(`Tracking save error: ${err.message}`, 'error');
+        return false;
       }
     };
 

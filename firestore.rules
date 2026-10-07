@@ -2,70 +2,90 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper function for admin authentication
-    function isAuthenticated() {
-      return request.auth != null;
+    // Strict Admin Authorization: Custom admin claim or explicitly approved admin email allowlist
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.admin == true ||
+        request.auth.token.email in ['maniksahni@gmail.com', 'admin@shivaragroup.com']
+      );
     }
 
-    // Products: Public read for storefront; Authenticated admin write
+    // Products: Public read for storefront; Admin-only write (with constrained isSoldOut sync)
     match /products/{productId} {
       allow read: if true;
-      allow write: if isAuthenticated();
+      allow update: if isAdmin() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isSoldOut', 'updatedAt'])
+        && request.resource.data.isSoldOut is bool
+      );
+      allow create, delete: if isAdmin();
+    }
+
+    // Categories: Public read for storefront; Admin-only write
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // Orders:
-    // - Public customer can get a single order by direct ID (for order tracking)
+    // - Public customer can get a single order by direct ID
     // - Public customer can create an order with valid schema and initial Pending/Confirmed status
     // - Only authenticated admins can list orders, change statuses, or delete orders
     match /orders/{orderId} {
       allow get: if true;
-      allow list: if isAuthenticated();
+      allow list: if isAdmin();
       allow create: if request.resource.data.keys().hasAll(['id', 'items', 'total', 'customer', 'status', 'createdAt'])
                     && request.resource.data.status in ['Pending', 'pending', 'Confirmed', 'confirmed']
                     && request.resource.data.total is number
                     && request.resource.data.total >= 0;
-      allow update, delete: if isAuthenticated();
+      allow update, delete: if isAdmin();
     }
 
     // Customers CRM: Strictly admin-only for customer privacy
     match /customers/{customerId} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if isAdmin();
     }
 
     // Order Tracking Projection (Public lookup with masked PII)
     match /order_tracking/{orderId} {
       allow get: if true;
       allow create: if true;
-      allow update, delete: if isAuthenticated();
+      allow update, delete: if isAdmin();
     }
 
-    // Coupons: Public read for storefront checkout validation; Admin-only write
+    // Coupons: Public read for storefront; Admin-only write
     match /coupons/{couponId} {
       allow read: if true;
-      allow write: if isAuthenticated();
+      allow write: if isAdmin();
     }
 
-    // Admin Settings: Public read for storefront configuration; Admin-only write
+    // Admin Settings: Public read for storefront; Admin-only write
     match /admin_settings/{settingId} {
       allow read: if true;
-      allow write: if isAuthenticated();
+      allow write: if isAdmin();
     }
 
     // Banners: Public read for promotional banners; Admin-only write
     match /banners/{bannerId} {
       allow read: if true;
-      allow write: if isAuthenticated();
+      allow write: if isAdmin();
     }
 
-    // Inventory: Public read; Admin-only write
+    // Inventory: Public read; Admin-only write OR secure atomic stock decrement
     match /inventory/{itemId} {
       allow read: if true;
-      allow write: if isAuthenticated();
+      allow update: if isAdmin() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock', 'isSoldOut', 'updatedAt'])
+        && request.resource.data.stock is number
+        && request.resource.data.stock >= 0
+        && request.resource.data.stock < resource.data.stock
+        && (request.resource.data.stock == 0 ? request.resource.data.isSoldOut == true : true)
+      );
+      allow create, delete: if isAdmin();
     }
 
-    // Default deny for any other collections unless authenticated
+    // Default deny for any other collections unless authenticated admin
     match /{document=**} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if isAdmin();
     }
   }
 }

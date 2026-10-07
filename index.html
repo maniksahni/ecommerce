@@ -688,18 +688,24 @@
         // 2. Setup Real-Time Firestore onSnapshot Listener
         function handleSnapshot(snapshot) {
           if (!snapshot.empty) {
-            const firestoreProducts = [];
             snapshot.forEach(docSnap => {
               const data = docSnap.data() || {};
-              firestoreProducts.push({
-                id: docSnap.id,
+              const id = docSnap.id;
+              const idx = liveProductsList.findIndex(p => p.id === id || p.slug === id || p.sku === (data.sku || id));
+              const updatedItem = {
+                id,
+                slug: data.slug || id,
                 ...data,
                 price: Number.isFinite(Number(data.price)) ? Number(data.price) : 499,
                 isSoldOut: Boolean(data.isSoldOut)
-              });
+              };
+              if (idx >= 0) {
+                liveProductsList[idx] = { ...liveProductsList[idx], ...updatedItem };
+              } else {
+                liveProductsList.unshift(updatedItem);
+              }
             });
 
-            liveProductsList = firestoreProducts;
             document.dispatchEvent(new CustomEvent("shivara:products-synced", {
               detail: { products: liveProductsList }
             }));
@@ -721,6 +727,34 @@
           onSnapshot(collection(db, "products"), handleSnapshot, (err) => {
             console.warn("Firestore collection snapshot note:", err?.message || err);
           });
+        }
+
+        // Real-Time Inventory Subscription for Homepage
+        try {
+          onSnapshot(collection(db, "inventory"), (invSnap) => {
+            invSnap.docChanges().forEach((change) => {
+              const data = change.doc.data() || {};
+              const docId = change.doc.id;
+              const sku = data.sku || docId;
+              const stock = Number(data.stock || 0);
+              const isSoldOut = Boolean(data.isSoldOut || stock <= 0);
+
+              const matching = liveProductsList.filter(p =>
+                p.sku === sku || p.id === sku || p.slug === sku ||
+                p.sku === docId || p.id === docId || p.slug === docId
+              );
+              matching.forEach(p => {
+                p.stock = stock;
+                p.isSoldOut = isSoldOut;
+              });
+            });
+            updateCategoryCounts();
+            renderStorefrontGrid();
+          }, (err) => {
+            console.warn("Real-time inventory listener note:", err?.message);
+          });
+        } catch (invErr) {
+          console.warn("Inventory listener setup note:", invErr);
         }
       }
 

@@ -21,6 +21,7 @@
     productMap.set(p.id, p);
     if (p.slug) productMap.set(p.slug, p);
     if (p.sourcePostId) productMap.set(p.sourcePostId, p);
+    if (p.sku) productMap.set(p.sku, p);
   });
   const storageKeys = {
     cart: "shivara-cart-v3",
@@ -99,6 +100,9 @@
   let signatureTimer = 0;
   let searchTimer = 0;
   let collectionVisible = 24;
+  const liveCouponsMap = new Map();
+  const liveInventoryMap = new Map();
+  let liveCategoriesList = [];
 
   function escapeHtml(value) {
     return String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
@@ -292,14 +296,14 @@
               <div class="stable-nav__mega-features">${megaFeatures.map(([product, label]) => `<a href="${productUrl(product)}"><img src="${escapeHtml(mediaHref(product.images[0]))}" alt="" /><span><small>${label}</small><strong>${escapeHtml(product.title)}</strong></span></a>`).join("")}</div>
             </div>
           </div>
-          <a href="/collections/new-arrivals">New Arrivals</a>
-          <a href="/collections/earrings">Earrings</a>
-          <a href="/collections/rings">Rings</a>
-          <a href="/collections/bracelets">Bracelets</a>
-          <a href="/collections/neckwear">Neck Wear</a>
-          <a href="/collections/evil-eye">Evil Eye</a>
-          <a href="/collections/watches">Watches</a>
-          <a href="/collections/jewellery-sets">Sets</a>
+          <a href="/collections/new-arrivals" data-nav-category="new-arrivals">New Arrivals</a>
+          <a href="/collections/earrings" data-nav-category="earrings">Earrings</a>
+          <a href="/collections/rings" data-nav-category="rings">Rings</a>
+          <a href="/collections/bracelets" data-nav-category="bracelets">Bracelets</a>
+          <a href="/collections/neckwear" data-nav-category="neckwear">Neck Wear</a>
+          <a href="/collections/evil-eye" data-nav-category="evil-eye">Evil Eye</a>
+          <a href="/collections/watches" data-nav-category="watches">Watches</a>
+          <a href="/collections/jewellery-sets" data-nav-category="jewellery-sets">Sets</a>
           <a href="/track-order.html" class="stable-track-nav-link">Track Order</a>
         </nav>
         <div class="stable-header__actions">
@@ -310,6 +314,7 @@
           <button type="button" data-cart-open class="stable-header__btn stable-header__btn--bag" aria-label="Open bag"><span>Bag</span><span class="header-badge" data-cart-count>0</span></button>
         </div>
       </header>
+      <div id="storefront-promo-strip" class="storefront-promo-strip" style="display:none;"></div>
       <nav class="stable-mobile-dock" aria-label="Mobile shopping navigation">
         <a href="/" class="stable-dock-item" aria-label="Home">
           <span class="dock-icon" aria-hidden="true">⌂</span>
@@ -686,66 +691,43 @@
       return;
     }
     const summary = cartSummary();
-    try {
-      const res = await fetch(`/api/coupons/validate?code=${encodeURIComponent(clean)}&amount=${summary.subtotal}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.ok && data.coupon) {
-          activeCoupon = data.coupon;
-          saveStorage(storageKeys.coupon, activeCoupon);
-          renderCart();
-          showToast(`Coupon ${clean} applied! You saved ${formatMoney(data.discountAmount || 0)}`);
-          return;
-        }
-      }
-    } catch {}
 
-    // Firestore direct coupon validation for Firebase Hosting
-    try {
-      const { db } = await import("/src/firebase.js");
-      const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js");
-      const couponSnap = await getDoc(doc(db, "coupons", clean));
-      if (couponSnap.exists()) {
-        const cData = couponSnap.data();
-        if (cData.isActive !== false) {
-          const minVal = Number(cData.minOrderValue || 0);
-          if (minVal > 0 && summary.subtotal < minVal) {
-            showToast(`Coupon ${clean} requires minimum order value of ₹${minVal}`);
-            return;
-          }
-          activeCoupon = { code: clean, ...cData };
-          saveStorage(storageKeys.coupon, activeCoupon);
-          renderCart();
-          const disc = cartSummary().discount;
-          showToast(`Coupon ${clean} applied! You saved ${formatMoney(disc)}`);
-          return;
-        } else {
-          showToast(`Coupon ${clean} is currently inactive`);
-          return;
+    // 1. Check live in-memory realtime coupons map (SSOT)
+    let c = liveCouponsMap.get(clean);
+
+    // 2. Direct Firestore fallback check if listener hasn't received snapshot yet
+    if (!c) {
+      try {
+        const { db } = await import("/src/firebase.js");
+        const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js");
+        const couponSnap = await getDoc(doc(db, "coupons", clean));
+        if (couponSnap.exists()) {
+          const cData = couponSnap.data();
+          c = { code: clean, ...cData };
+          liveCouponsMap.set(clean, c);
         }
+      } catch (fsErr) {
+        console.warn("[Storefront] Firestore coupon check note:", fsErr);
       }
-    } catch (fsErr) {
-      console.warn("[Storefront] Firestore coupon check note:", fsErr);
     }
 
-    const localCoupons = {
-      "WELCOME10": { code: "WELCOME10", discountType: "percent", discountValue: 10, minOrderValue: 499, isActive: true },
-      "LUXE15": { code: "LUXE15", discountType: "percent", discountValue: 15, minOrderValue: 1499, isActive: true },
-      "SHIVARA500": { code: "SHIVARA500", discountType: "flat", discountValue: 500, minOrderValue: 2499, isActive: true }
-    };
-    if (localCoupons[clean]) {
-      const c = localCoupons[clean];
-      if (c.minOrderValue && summary.subtotal < c.minOrderValue) {
-        showToast(`Coupon requires minimum order value of ₹${c.minOrderValue}`);
-        return;
-      }
-      activeCoupon = c;
-      saveStorage(storageKeys.coupon, activeCoupon);
-      renderCart();
-      showToast(`Coupon ${clean} applied!`);
-    } else {
-      showToast("Invalid promo code");
+    // 3. Strict verification: must exist and have isActive === true
+    if (!c || c.isActive === false) {
+      showToast("Invalid or inactive promo code");
+      return;
     }
+
+    const minVal = Number(c.minOrderValue || 0);
+    if (minVal > 0 && summary.subtotal < minVal) {
+      showToast(`Coupon ${clean} requires minimum order value of ₹${minVal}`);
+      return;
+    }
+
+    activeCoupon = c;
+    saveStorage(storageKeys.coupon, activeCoupon);
+    renderCart();
+    const disc = cartSummary().discount;
+    showToast(`Coupon ${clean} applied! You saved ${formatMoney(disc)}`);
   }
 
   function removeCoupon() {
@@ -769,7 +751,27 @@
     const footer = document.querySelector("#cart-footer");
     if (!lines || !footer) return;
     if (!cart.length) {
-      lines.innerHTML = `<div class="stable-empty"><h3>Your bag is empty</h3><p>Start with the curated catalogue.</p></div>`;
+      const activeOffers = Array.from(liveCouponsMap.values()).filter(c => c.isActive !== false);
+      const emptyOffersHtml = activeOffers.length > 0 ? `
+        <div class="cart-promo-offers" id="cart-promo-offers" style="margin-top:16px; padding:12px; background:#faf7f2; border:1px dashed #d4af37; border-radius:6px; text-align:left;">
+          <div style="font-size:10px; font-weight:700; color:#8c6d23; letter-spacing:1px; margin-bottom:8px; text-transform:uppercase;">✨ Available Offers</div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            ${activeOffers.map(c => `
+              <div class="cart-promo-card" data-coupon-card="${escapeHtml(c.code)}" style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border-radius:4px; border:1px solid #ebd8b5;">
+                <div>
+                  <strong style="color:#1a1512; font-family:monospace; font-size:12px;">${escapeHtml(c.code)}</strong>
+                  <span style="color:#666; font-size:11px; margin-left:4px;">${c.discountType === 'percent' ? `Get ${c.discountValue}% off` : `Flat ₹${c.discountValue} off`}${c.minOrderValue ? ` on orders above ₹${c.minOrderValue}` : ''}</span>
+                </div>
+                <div style="display:flex; gap:6px;">
+                  <button type="button" class="btn-copy-code" data-copy-coupon="${escapeHtml(c.code)}" style="background:transparent; border:1px solid #d4af37; color:#8c6d23; font-size:10px; font-weight:600; padding:2px 6px; border-radius:3px; cursor:pointer;">Copy Code</button>
+                  <button type="button" class="btn-apply-code" data-apply-coupon="${escapeHtml(c.code)}" style="background:#1a1512; border:none; color:#fff; font-size:10px; font-weight:600; padding:2px 8px; border-radius:3px; cursor:pointer;">Apply</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>` : "";
+
+      lines.innerHTML = `<div class="stable-empty"><h3>Your bag is empty</h3><p>Start with the curated catalogue.</p>${emptyOffersHtml}</div>`;
       footer.innerHTML = `<button class="stable-button stable-button--dark" type="button" data-layer-close>Continue Shopping</button>`;
       updateCounts();
       return;
@@ -802,6 +804,26 @@
     lines.innerHTML = `${giftBarHtml}<div class="stable-cart-group">${cart.map(renderLine).join("")}</div>`;
     const complement = catalogApi.getRelatedProducts(productMap.get(cart[0].id)).find((product) => !cart.some((item) => item.id === product.id));
 
+    const activeOffers = Array.from(liveCouponsMap.values()).filter(c => c.isActive !== false);
+    const promoOffersHtml = (!activeCoupon && activeOffers.length > 0) ? `
+      <div class="cart-promo-offers" id="cart-promo-offers" style="margin-top:10px; padding:10px 12px; background:#faf7f2; border:1px dashed #d4af37; border-radius:6px;">
+        <div style="font-size:10px; font-weight:700; color:#8c6d23; letter-spacing:1px; margin-bottom:8px; text-transform:uppercase;">✨ Available Offers</div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          ${activeOffers.map(c => `
+            <div class="cart-promo-card" data-coupon-card="${escapeHtml(c.code)}" style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border-radius:4px; border:1px solid #ebd8b5;">
+              <div>
+                <strong style="color:#1a1512; font-family:monospace; font-size:12px;">${escapeHtml(c.code)}</strong>
+                <span style="color:#666; font-size:11px; margin-left:4px;">${c.discountType === 'percent' ? `Get ${c.discountValue}% off` : `Flat ₹${c.discountValue} off`}${c.minOrderValue ? ` on orders above ₹${c.minOrderValue}` : ''}</span>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button type="button" class="btn-copy-code" data-copy-coupon="${escapeHtml(c.code)}" style="background:transparent; border:1px solid #d4af37; color:#8c6d23; font-size:10px; font-weight:600; padding:2px 6px; border-radius:3px; cursor:pointer;">Copy Code</button>
+                <button type="button" class="btn-apply-code" data-apply-coupon="${escapeHtml(c.code)}" style="background:#1a1512; border:none; color:#fff; font-size:10px; font-weight:600; padding:2px 8px; border-radius:3px; cursor:pointer;">Apply</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>` : "";
+
     const couponDockHtml = activeCoupon ? `
       <div class="cart-coupon-applied">
         <div>
@@ -813,7 +835,8 @@
       <div class="cart-coupon-box">
         <input type="text" id="cart-coupon-input" placeholder="Promo code (e.g. WELCOME10)" autocomplete="off" />
         <button type="button" id="cart-coupon-apply" class="stable-button stable-button--dark">Apply</button>
-      </div>`;
+      </div>
+      ${promoOffersHtml}`;
 
     footer.innerHTML = `
       ${complement ? `<article class="stable-cart-complement"><img src="${escapeHtml(mediaHref(complement.images[0]))}" alt="" /><div><small>COMPLETE THE EDIT</small><strong>${escapeHtml(complement.title)}</strong>${priceMarkup(complement, "stable-search-price")}</div><button type="button" data-quick-view="${complement.id}">View</button></article>` : ""}
@@ -1271,6 +1294,25 @@
       if (input) applyCouponCode(input.value);
       return;
     }
+    const applyQuickCoupon = target.closest("[data-apply-coupon]");
+    if (applyQuickCoupon) {
+      const code = applyQuickCoupon.getAttribute("data-apply-coupon");
+      const input = document.querySelector("#cart-coupon-input");
+      if (input) input.value = code;
+      applyCouponCode(code);
+      return;
+    }
+    const copyQuickCoupon = target.closest("[data-copy-coupon]");
+    if (copyQuickCoupon) {
+      const code = copyQuickCoupon.getAttribute("data-copy-coupon");
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(code).catch(() => {});
+      }
+      const input = document.querySelector("#cart-coupon-input");
+      if (input) input.value = code;
+      showToast(`Coupon code ${code} copied!`);
+      return;
+    }
     if (target.closest("[data-coupon-remove]")) {
       removeCoupon();
       return;
@@ -1624,55 +1666,70 @@
         createdAt: new Date().toISOString()
       };
 
-      // Persist order document in Firestore (Awaited with error handling)
+      // Persist order atomically via Firestore runTransaction
       let firestoreSuccess = false;
       try {
         const { db } = await import("/src/firebase.js");
-        const { doc, setDoc, getDoc, updateDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js");
+        const { doc, runTransaction, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js");
 
-        // 1. Numeric Inventory Stock Verification
-        let stockSufficient = true;
-        let outOfStockItemName = "";
-        for (const item of orderItems) {
-          const invKey = item.sku || item.productId || item.slug;
-          if (invKey) {
-            try {
-              const invSnap = await getDoc(doc(db, "inventory", invKey));
-              if (invSnap.exists()) {
-                const available = Number(invSnap.data().stock);
-                if (Number.isFinite(available) && available < item.quantity) {
-                  stockSufficient = false;
-                  outOfStockItemName = `${item.title} (Only ${available} left in stock)`;
-                  break;
-                }
+        await runTransaction(db, async (transaction) => {
+          // 1. Read all inventory items first (Firestore transaction rule: all reads before writes)
+          const invReads = [];
+          for (const item of orderItems) {
+            const invKey = item.sku || item.productId || item.slug;
+            if (invKey) {
+              const invRef = doc(db, "inventory", invKey);
+              const invSnap = await transaction.get(invRef);
+              invReads.push({ item, invRef, invSnap, invKey });
+            }
+          }
+
+          // 2. Atomically verify current stock for all items
+          for (const { item, invSnap } of invReads) {
+            if (invSnap.exists()) {
+              const available = Number(invSnap.data().stock);
+              if (Number.isFinite(available) && available < item.quantity) {
+                throw new Error(`Insufficient stock for "${item.title}". Only ${available} available.`);
               }
-            } catch {}
+            }
           }
-        }
 
-        if (!stockSufficient) {
-          showToast(outOfStockItemName || "Selected quantity exceeds current stock. Please adjust.");
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = submitBtn.dataset.originalText || "<span>Confirm Order</span>";
+          // 3. Decrement numeric inventory and update sold-out state atomically
+          for (const { item, invRef, invSnap } of invReads) {
+            if (invSnap.exists()) {
+              const currentStock = Number(invSnap.data().stock) || 0;
+              const nextStock = Math.max(0, currentStock - item.quantity);
+              transaction.update(invRef, {
+                stock: nextStock,
+                isSoldOut: nextStock === 0,
+                updatedAt: serverTimestamp()
+              });
+
+              if (nextStock === 0) {
+                try {
+                  const prodRef = doc(db, "products", item.productId || item.slug);
+                  transaction.update(prodRef, {
+                    isSoldOut: true,
+                    updatedAt: serverTimestamp()
+                  });
+                } catch {}
+              }
+            }
           }
-          return;
-        }
 
-        // 2. Persist Full Order Document (Private)
-        const orderDocRef = doc(db, "orders", orderRef);
-        await setDoc(orderDocRef, {
-          ...orderDocument,
-          createdAt: serverTimestamp(),
-          createdAtIso: new Date().toISOString(),
-          updatedAt: serverTimestamp()
-        });
+          // 4. Create private order document
+          const orderDocRef = doc(db, "orders", orderRef);
+          transaction.set(orderDocRef, {
+            ...orderDocument,
+            createdAt: serverTimestamp(),
+            createdAtIso: new Date().toISOString(),
+            updatedAt: serverTimestamp()
+          });
 
-        // 3. Persist Sanitized Tracking Projection (Protects Customer Street Address/Email/Phone from public snooping)
-        try {
+          // 5. Create sanitized tracking projection document
           const trackingDocRef = doc(db, "order_tracking", orderRef);
           const maskedName = name ? `${name.charAt(0)}. ${name.split(" ").slice(1).join(" ").replace(/./g, "*") || "***"}` : "Customer";
-          await setDoc(trackingDocRef, {
+          transaction.set(trackingDocRef, {
             orderId: orderRef,
             status: "Pending",
             createdAt: serverTimestamp(),
@@ -1693,35 +1750,17 @@
             customerName: maskedName,
             paymentMethod: "COD"
           });
-        } catch (trackErr) {
-          console.warn("[OMS] Tracking projection note:", trackErr);
-        }
-
-        // 4. Atomic Numeric Inventory Decrement
-        for (const item of orderItems) {
-          const invKey = item.sku || item.productId || item.slug;
-          if (invKey) {
-            try {
-              const invRef = doc(db, "inventory", invKey);
-              const invSnap = await getDoc(invRef);
-              if (invSnap.exists()) {
-                const currentStock = Number(invSnap.data().stock) || 0;
-                const nextStock = Math.max(0, currentStock - item.quantity);
-                await updateDoc(invRef, {
-                  stock: nextStock,
-                  isSoldOut: nextStock <= 0,
-                  updatedAt: serverTimestamp()
-                });
-              }
-            } catch (invErr) {
-              console.warn("[Inventory] Stock decrement note:", invErr);
-            }
-          }
-        }
+        });
 
         firestoreSuccess = true;
       } catch (err) {
-        console.error("[OMS] Firestore order persistence error:", err);
+        console.error("[OMS] Firestore atomic order transaction error:", err);
+        showToast(err.message || "Unable to complete order. Stock verification failed.");
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = submitBtn.dataset.originalText || "<span>Confirm Order</span>";
+        }
+        return;
       }
 
       // Also notify local/cloud Node API if active
@@ -1894,50 +1933,402 @@
     scheduleSignatureRotation();
   });
 
-  async function loadLiveStorefrontConfig() {
-    try {
-      const { db } = await import("/src/firebase.js");
-      const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js");
+  // ─────────────────────────────────────────────────────────────
+  // UNIVERSAL STOREFRONT REALTIME SERVICE (FIRESTORE ONSNAPSHOT)
+  // ─────────────────────────────────────────────────────────────
+  let universalRealtimeInitialized = false;
 
-      // 1. Live Banners from Firestore
-      try {
-        const bannerSnap = await getDoc(doc(db, "banners", "config"));
-        if (bannerSnap.exists()) {
-          const bData = bannerSnap.data();
-          if (Array.isArray(bData.announcements) && bData.announcements.length > 0) {
-            announcements.length = 0;
-            announcements.push(...bData.announcements);
-            renderAnnouncement();
-          }
+  function updateProductDomRealtime(productId, patch) {
+    const product = productMap.get(productId);
+    if (!product) return;
+
+    const liveStock = patch.stock !== undefined ? Number(patch.stock) : liveInventoryMap.get(product.sku || product.id);
+    const isSoldOut = patch.isSoldOut !== undefined ? Boolean(patch.isSoldOut) : (liveStock !== undefined ? liveStock <= 0 : Boolean(product.isSoldOut));
+    const currentPrice = patch.price !== undefined ? Number(patch.price) : Number(product.price || 499);
+    const currentTitle = patch.title !== undefined ? patch.title : product.title;
+
+    // 1. Update all product cards on the page
+    const matchingCards = document.querySelectorAll(`article[data-product-card="${product.id}"], article[data-product-card="${product.slug}"]`);
+    matchingCards.forEach((card) => {
+      if (isSoldOut) {
+        card.classList.add("is-sold-out");
+        const media = card.querySelector(".stable-card__media");
+        if (media && !media.querySelector(".stable-card__badge--sold-out")) {
+          media.insertAdjacentHTML("beforeend", `<span class="stable-card__badge stable-card__badge--sold-out">SOLD OUT</span><div class="stable-card__sold-out-overlay" aria-hidden="true"><span>SOLD OUT</span></div>`);
         }
-      } catch (bErr) {
-        console.warn("[Config] Banners sync note:", bErr);
+        const addBtn = card.querySelector(".stable-card__add");
+        if (addBtn) {
+          addBtn.disabled = true;
+          addBtn.classList.add("stable-card__add--sold-out");
+          addBtn.textContent = "Sold Out";
+          addBtn.removeAttribute("data-card-add");
+        }
+      } else {
+        card.classList.remove("is-sold-out");
+        card.querySelector(".stable-card__badge--sold-out")?.remove();
+        card.querySelector(".stable-card__sold-out-overlay")?.remove();
+        const addBtn = card.querySelector(".stable-card__add");
+        if (addBtn) {
+          addBtn.disabled = false;
+          addBtn.classList.remove("stable-card__add--sold-out");
+          addBtn.textContent = "Add to Bag";
+          addBtn.setAttribute("data-card-add", product.id);
+        }
       }
 
-      // 2. Live Settings from Firestore
+      if (patch.price !== undefined) {
+        const priceElem = card.querySelector(".stable-card__price strong");
+        if (priceElem) priceElem.textContent = formatMoney(currentPrice);
+        const bestPriceElem = card.querySelector(".stable-card__best-price strong");
+        if (bestPriceElem) bestPriceElem.textContent = formatMoney(Math.round(currentPrice * 0.85));
+      }
+
+      if (patch.title !== undefined) {
+        const titleElem = card.querySelector(".stable-card__title");
+        if (titleElem) titleElem.textContent = currentTitle;
+      }
+    });
+
+    // 2. Update PDP (Product Detail Page) if active
+    const pdpContainer = document.querySelector(`[data-shared-product-page="${product.id}"], [data-shared-product-page="${product.slug}"]`);
+    if (pdpContainer) {
+      const availElem = pdpContainer.querySelector(".stable-pdp__meta span");
+      if (availElem) {
+        availElem.innerHTML = isSoldOut ? '<i aria-hidden="true"></i>Sold Out' : '<i aria-hidden="true"></i>In Stock · Available for Express Dispatch';
+      }
+
+      const pdpButtons = pdpContainer.querySelectorAll(".stable-pdp__actions button, .stable-mobile-buy button");
+      pdpButtons.forEach((btn) => {
+        if (btn.classList.contains("stable-button--dark")) {
+          if (isSoldOut) {
+            btn.disabled = true;
+            btn.style.opacity = "0.6";
+            btn.style.cursor = "not-allowed";
+            btn.textContent = "Sold Out";
+            btn.removeAttribute("data-pdp-add");
+          } else {
+            btn.disabled = false;
+            btn.style.opacity = "";
+            btn.style.cursor = "";
+            btn.textContent = "Add to Bag";
+            btn.setAttribute("data-pdp-add", product.id);
+          }
+        }
+      });
+
+      if (patch.price !== undefined) {
+        pdpContainer.querySelectorAll(".stable-pdp__price strong, .stable-mobile-buy__price strong").forEach((el) => {
+          el.textContent = formatMoney(currentPrice);
+        });
+      }
+
+      if (patch.title !== undefined) {
+        const h1 = pdpContainer.querySelector("h1[itemprop='name']");
+        if (h1) h1.textContent = currentTitle;
+      }
+    }
+
+    // 3. Update Quick View modal if active
+    const quickModal = document.querySelector("#quick-view");
+    if (quickModal && quickModal.classList.contains("is-open") && quickState.product?.id === product.id) {
+      const quickAddBtn = quickModal.querySelector("[data-quick-add]");
+      if (quickAddBtn) {
+        if (isSoldOut) {
+          quickAddBtn.disabled = true;
+          quickAddBtn.textContent = "Sold Out";
+        } else {
+          quickAddBtn.disabled = false;
+          quickAddBtn.textContent = "Add to Bag";
+        }
+      }
+      if (patch.price !== undefined) {
+        const qPrice = quickModal.querySelector(".stable-quick__price strong");
+        if (qPrice) qPrice.textContent = formatMoney(currentPrice);
+      }
+    }
+
+    // 4. Update cart maximum quantity & sold-out alerts
+    const cartItem = cart.find(i => i.id === product.id);
+    if (cartItem && isSoldOut) {
+      const cartDrawer = document.querySelector("#cart-drawer");
+      if (cartDrawer && cartDrawer.classList.contains("is-open")) {
+        renderCart();
+      }
+    }
+  }
+
+  function renderStorefrontPromoStrip() {
+    const strip = document.querySelector("#storefront-promo-strip");
+    if (!strip) return;
+
+    const activeList = Array.from(liveCouponsMap.values()).filter(c => c.isActive !== false);
+    if (!activeList.length) {
+      strip.style.display = "none";
+      strip.innerHTML = "";
+      return;
+    }
+
+    strip.style.display = "block";
+    strip.innerHTML = `
+      <div class="storefront-promo-strip__content" style="background: linear-gradient(90deg, #1f1b14 0%, #29241b 100%); border-bottom: 1px solid rgba(197, 160, 89, 0.35); padding: 7px 16px; display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; font-size: 0.82rem; color: #f5ede1;">
+        ${activeList.map(c => {
+          const discountDesc = c.discountType === "percent"
+            ? `${c.discountValue}% off`
+            : `₹${c.discountValue} off`;
+          const minText = Number(c.minOrderValue) > 0 ? ` on orders above ₹${c.minOrderValue}` : "";
+          return `
+            <div class="promo-strip-offer" data-coupon-strip="${escapeHtml(c.code)}" style="display:inline-flex; align-items:center; gap:8px;">
+              <span style="background:#c5a059; color:#121212; font-weight:700; font-size:0.75rem; padding:2px 7px; border-radius:3px; letter-spacing:0.04em;">${escapeHtml(c.code)}</span>
+              <span style="letter-spacing:0.02em;">Get <strong>${discountDesc}</strong>${minText}</span>
+              <button type="button" class="promo-strip-copy-btn" data-copy-coupon="${escapeHtml(c.code)}" style="background:transparent; border:1px solid #c5a059; color:#c5a059; padding:2px 8px; border-radius:3px; font-size:0.72rem; font-weight:600; cursor:pointer; text-transform:uppercase; letter-spacing:0.05em; transition:all 0.2s ease;">Copy Code</button>
+            </div>
+          `;
+        }).join('<span style="color:rgba(197,160,89,0.4); user-select:none;">•</span>')}
+      </div>
+    `;
+  }
+
+  function renderCategoriesNavigationRealtime(categoriesList) {
+    const activeCats = (categoriesList || []).filter(c => c.isActive !== false);
+    if (!activeCats.length) return;
+
+    // 1. Update mega-menu categories
+    const megaCatContainer = document.querySelector(".stable-nav__mega-categories");
+    if (megaCatContainer) {
+      megaCatContainer.innerHTML = `<small>BY CATEGORY</small>` + activeCats.map(c => `
+        <a href="/collections/${escapeHtml(c.slug)}">${escapeHtml(c.name || c.title || c.slug)}</a>
+      `).join("");
+    }
+
+    // 2. Update top navbar direct collection links
+    const stableNav = document.querySelector(".stable-nav");
+    if (stableNav) {
+      categoriesList.forEach(c => {
+        const slug = c.slug || c.id;
+        const navLink = stableNav.querySelector(`a[data-nav-category="${slug}"], a[href="/collections/${slug}"]:not(.stable-nav__mega a)`);
+        const shouldShow = c.isActive !== false && c.showInNav !== false;
+        if (navLink) {
+          navLink.style.display = shouldShow ? "" : "none";
+          if (!navLink.hasAttribute("data-nav-category")) navLink.setAttribute("data-nav-category", slug);
+        } else if (shouldShow) {
+          const trackLink = stableNav.querySelector(".stable-track-nav-link");
+          const newA = document.createElement("a");
+          newA.href = `/collections/${slug}`;
+          newA.setAttribute("data-nav-category", slug);
+          newA.textContent = c.name || c.title || slug;
+          if (trackLink) {
+            stableNav.insertBefore(newA, trackLink);
+          } else {
+            stableNav.appendChild(newA);
+          }
+        }
+      });
+    }
+
+    // 3. Update mobile drawer category navigation
+    const drawerNav = document.querySelector("#menu-drawer nav");
+    if (drawerNav) {
+      const totalCount = products.length;
+      drawerNav.innerHTML = `<small>SHOP BY CATEGORY</small>` + activeCats.map(c => {
+        const slug = c.slug;
+        const count = productsForCollection(slug).length;
+        return `<a href="${collectionUrl(slug)}" data-drawer-category="${escapeHtml(slug)}">${escapeHtml(c.name || c.title || slug)}<span>${count}</span></a>`;
+      }).join("") + `<a href="/collections/all"><strong>All Products</strong><span>${totalCount}</span></a><a href="/track-order.html" style="color:#c5a059; font-weight:600;"><strong>Track Order</strong><span>Live Status</span></a>`;
+    }
+
+    // 4. Update homepage category rail
+    const railContainer = document.querySelector("#commerce-category-grid");
+    if (railContainer) {
+      const railCats = activeCats.filter(c => c.showInRail !== false);
+      railContainer.innerHTML = railCats.map(c => {
+        const slug = c.slug;
+        const label = c.name || c.title || slug;
+        const prod = productsForCollection(slug)[0] || products[0];
+        const count = productsForCollection(slug).length;
+        const imgUrl = c.image || (prod ? mediaHref(prod.images[0]) : "");
+        return `<a href="${collectionUrl(slug)}" data-rail-category="${escapeHtml(slug)}">
+          <span><img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(label)} collection" loading="lazy" /></span>
+          <strong>${escapeHtml(label)}</strong>
+          <small>${count} ${count === 1 ? "product" : "products"}</small>
+        </a>`;
+      }).join("");
+    }
+  }
+
+  async function initUniversalRealtimeService() {
+    if (universalRealtimeInitialized) return;
+    universalRealtimeInitialized = true;
+
+    try {
+      const { db } = await import("/src/firebase.js");
+      const { collection, doc, onSnapshot } = await import("https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js");
+
+      // ─── 1. REALTIME INVENTORY SUBSCRIPTION ───
       try {
-        const setSnap = await getDoc(doc(db, "admin_settings", "general"));
-        if (setSnap.exists()) {
-          const sData = setSnap.data();
-          if (sData.whatsapp) {
-            const cleanWa = String(sData.whatsapp).replace(/[^0-9]/g, "");
-            if (cleanWa) {
-              const fullWa = cleanWa.length === 10 ? `91${cleanWa}` : cleanWa;
-              document.querySelectorAll('a[href*="wa.me"]').forEach(link => {
-                link.href = link.href.replace(/wa\.me\/\d+/, `wa.me/${fullWa}`);
+        onSnapshot(collection(db, "inventory"), (snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            const data = change.doc.data();
+            const docId = change.doc.id;
+            const sku = data?.sku || docId;
+            const stock = Number(data?.stock || 0);
+            const isSoldOut = Boolean(data?.isSoldOut || stock <= 0);
+
+            liveInventoryMap.set(sku, stock);
+            liveInventoryMap.set(docId, stock);
+
+            // Find matching product in catalog
+            const prod = products.find(p =>
+              p.sku === sku || p.id === sku || p.slug === sku ||
+              p.sku === docId || p.id === docId || p.slug === docId
+            );
+            if (prod) {
+              liveInventoryMap.set(prod.id, stock);
+              if (prod.slug) liveInventoryMap.set(prod.slug, stock);
+              if (prod.sku) liveInventoryMap.set(prod.sku, stock);
+              updateProductDomRealtime(prod.id, { stock, isSoldOut });
+            }
+          });
+        }, (err) => {
+          console.warn("[Realtime] Inventory listener note:", err.message);
+        });
+      } catch (invErr) {
+        console.warn("[Realtime] Inventory setup error:", invErr);
+      }
+
+      // ─── 2. REALTIME PRODUCTS CATALOG SUBSCRIPTION ───
+      try {
+        onSnapshot(collection(db, "products"), (snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            const data = change.doc.data();
+            const prodId = change.doc.id;
+            const prod = productMap.get(prodId) || products.find(p => p.id === prodId || p.slug === prodId);
+            if (prod) {
+              const patch = {};
+              if (data.price !== undefined) patch.price = Number(data.price);
+              if (data.title !== undefined) patch.title = data.title;
+              if (data.isSoldOut !== undefined) patch.isSoldOut = Boolean(data.isSoldOut);
+              updateProductDomRealtime(prod.id, patch);
+            }
+          });
+        }, (err) => {
+          console.warn("[Realtime] Products listener note:", err.message);
+        });
+      } catch (prodErr) {
+        console.warn("[Realtime] Products setup error:", prodErr);
+      }
+
+      // ─── 3. REALTIME CATEGORIES TAXONOMY SUBSCRIPTION ───
+      try {
+        onSnapshot(collection(db, "categories"), (snapshot) => {
+          const list = [];
+          snapshot.forEach(docSnap => {
+            list.push({ id: docSnap.id, slug: docSnap.id, ...docSnap.data() });
+          });
+          list.sort((a, b) => (Number(a.order) || 99) - (Number(b.order) || 99));
+          liveCategoriesList = list;
+          renderCategoriesNavigationRealtime(list);
+        }, (err) => {
+          console.warn("[Realtime] Categories listener note:", err.message);
+        });
+      } catch (catErr) {
+        console.warn("[Realtime] Categories setup error:", catErr);
+      }
+
+      // ─── 4. REALTIME COUPONS / PROMOTIONS SUBSCRIPTION ───
+      try {
+        onSnapshot(collection(db, "coupons"), (snapshot) => {
+          liveCouponsMap.clear();
+          snapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            const code = (data.code || docSnap.id).toUpperCase();
+            liveCouponsMap.set(code, { ...data, code });
+          });
+
+          // Live coupon invalidation guard
+          if (activeCoupon) {
+            const currentLive = liveCouponsMap.get(activeCoupon.code.toUpperCase());
+            if (!currentLive || currentLive.isActive === false) {
+              const revokedCode = activeCoupon.code;
+              activeCoupon = null;
+              localStorage.removeItem(storageKeys.coupon);
+              renderCart();
+              showToast(`Promotion "${revokedCode}" is no longer active.`);
+            }
+          }
+
+          // Update storefront promo strip live
+          renderStorefrontPromoStrip();
+
+          // If cart is currently visible, re-render offers
+          const cartDrawer = document.querySelector("#cart-drawer");
+          if (cartDrawer && cartDrawer.classList.contains("is-open")) {
+            renderCart();
+          }
+        }, (err) => {
+          console.warn("[Realtime] Coupons listener note:", err.message);
+        });
+      } catch (coupErr) {
+        console.warn("[Realtime] Coupons setup error:", coupErr);
+      }
+
+      // ─── 5. REALTIME BANNERS & ANNOUNCEMENTS SUBSCRIPTION ───
+      try {
+        onSnapshot(doc(db, "banners", "config"), (docSnap) => {
+          if (docSnap.exists()) {
+            const bData = docSnap.data();
+            if (Array.isArray(bData.announcements) && bData.announcements.length > 0) {
+              announcements.length = 0;
+              announcements.push(...bData.announcements);
+              const node = document.querySelector("[data-announcement-text]");
+              if (node && announcements.length > 0) {
+                node.textContent = announcements[announcementIndex % announcements.length];
+              }
+            }
+            if (bData.hero?.title) {
+              const heroTitle = document.querySelector("[data-hero-title]");
+              if (heroTitle) heroTitle.textContent = bData.hero.title;
+            }
+            if (bData.hero?.kicker) {
+              const heroKicker = document.querySelector("[data-hero-kicker]");
+              if (heroKicker) heroKicker.textContent = bData.hero.kicker;
+            }
+          }
+        }, (err) => {
+          console.warn("[Realtime] Banners listener note:", err.message);
+        });
+      } catch (banErr) {
+        console.warn("[Realtime] Banners setup error:", banErr);
+      }
+
+      // ─── 6. REALTIME SETTINGS & CONCIERGE CONTACTS SUBSCRIPTION ───
+      try {
+        onSnapshot(doc(db, "admin_settings", "general"), (docSnap) => {
+          if (docSnap.exists()) {
+            const sData = docSnap.data();
+            if (sData.whatsapp) {
+              const cleanWa = String(sData.whatsapp).replace(/[^0-9]/g, "");
+              if (cleanWa) {
+                const fullWa = cleanWa.length === 10 ? `91${cleanWa}` : cleanWa;
+                document.querySelectorAll('a[href*="wa.me"]').forEach(link => {
+                  link.href = link.href.replace(/wa\.me\/\d+/, `wa.me/${fullWa}`);
+                });
+              }
+            }
+            if (sData.phone) {
+              document.querySelectorAll('a[href*="tel:"]').forEach(link => {
+                link.href = `tel:${sData.phone.replace(/\s+/g, '')}`;
               });
             }
           }
-          if (sData.phone) {
-            document.querySelectorAll('a[href*="tel:"]').forEach(link => {
-              link.href = `tel:${sData.phone.replace(/\s+/g, '')}`;
-            });
-          }
-        }
-      } catch (sErr) {
-        console.warn("[Config] Settings sync note:", sErr);
+        }, (err) => {
+          console.warn("[Realtime] Settings listener note:", err.message);
+        });
+      } catch (setErr) {
+        console.warn("[Realtime] Settings setup error:", setErr);
       }
-    } catch {}
+    } catch (globalErr) {
+      console.warn("[Realtime] Service initialization error:", globalErr);
+    }
   }
 
   async function bootstrapStorefront() {
@@ -1953,7 +2344,7 @@
     renderWishlist();
     renderCart();
     syncWishlistControls();
-    loadLiveStorefrontConfig().catch(() => {});
+    initUniversalRealtimeService().catch(() => {});
     document.dispatchEvent(new CustomEvent("shivara:storefront-ready", {
       detail: { catalogueVersion: catalogApi.version, productCount: products.length }
     }));
