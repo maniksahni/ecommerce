@@ -1,5 +1,39 @@
 [
   {
+    "orderId": "SHV-TEST-1791393854753",
+    "customerName": "Radhika Test",
+    "customerPhone": "9876543210",
+    "customerEmail": "radhika.test@example.com",
+    "shippingAddress": "Flat 402, Civil Lines",
+    "pincode": "243001",
+    "city": "Bareilly",
+    "state": "Uttar Pradesh",
+    "orderNote": "",
+    "items": [
+      {
+        "productId": "halo-gift-ring",
+        "title": "Halo Gift Ring",
+        "price": 399,
+        "quantity": 2
+      },
+      {
+        "productId": "tulip-pendant",
+        "title": "Tulip Pendant",
+        "price": 299,
+        "quantity": 3
+      }
+    ],
+    "totalAmount": 1595,
+    "discountAmount": 100,
+    "appliedCoupon": "WELCOME10",
+    "paymentMethod": "COD",
+    "trackingNumber": null,
+    "courierPartner": "Delhivery Express",
+    "status": "Pending",
+    "createdAt": "2026-10-07T17:24:14.754Z",
+    "subtotal": 1695
+  },
+  {
     "orderId": "SHV-20261007-4P6L9J",
     "customerName": "Aditi Rao",
     "customerPhone": "9876543210",
