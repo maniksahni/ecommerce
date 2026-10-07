@@ -2,6 +2,15 @@
   "hosting": {
     "public": "dist",
     "cleanUrls": true,
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "run": {
+          "serviceId": "shivara-commerce-api",
+          "region": "us-central1"
+        }
+      }
+    ],
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -13,7 +22,7 @@
         "headers": [
           {
             "key": "X-Shivara-Build",
-            "value": "45a0dad24f5df357023c5166495ec54fcf21f3e6"
+            "value": "df898bd4e2a5710d87183de30e7db67636aaf418"
           },
           {
             "key": "X-Shivara-Catalog-Version",

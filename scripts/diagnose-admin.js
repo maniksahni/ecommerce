@@ -53,7 +53,7 @@ server.listen(4123, async () => {
     const passInput = await page.$("#admin-passcode");
     console.log("Password input found?", Boolean(passInput));
     if (passInput) {
-      await page.fill("#admin-passcode", "Shivara@2026");
+      await page.fill("#admin-passcode", process.env.ADMIN_PASSWORD || "");
       await page.click("#login-btn");
       await page.waitForTimeout(1500);
 

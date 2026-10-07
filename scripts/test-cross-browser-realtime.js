@@ -21,7 +21,30 @@
  */
 
 import { chromium } from "playwright";
-import http from "node:http";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+function getAdminCredentials() {
+  let email = process.env.ADMIN_EMAIL || "admin@shivaragroup.com";
+  let password = process.env.ADMIN_PASSWORD || "";
+  if (!password) {
+    try {
+      const envPath = path.resolve(__dirname, "../.env");
+      if (fs.existsSync(envPath)) {
+        const lines = fs.readFileSync(envPath, "utf8").split("\n");
+        for (const line of lines) {
+          const [k, v] = line.split("=");
+          if (k === "ADMIN_EMAIL" && v) email = v.trim();
+          if (k === "ADMIN_PASSWORD" && v) password = v.trim();
+        }
+      }
+    } catch {}
+  }
+  return { email, password };
+}
 
 const PORT = 3000;
 const BASE_URL = `http://localhost:${PORT}`;
@@ -56,8 +79,9 @@ async function runDualBrowserRealtimeTests() {
     await adminPage.goto(`${BASE_URL}/admin.html`, { waitUntil: "domcontentloaded" });
     
     // Fill credentials for verified admin account
-    await adminPage.fill("#admin-email", "admin@shivaragroup.com");
-    await adminPage.fill("#admin-passcode", "ShivaraAdmin2026!");
+    const adminCreds = getAdminCredentials();
+    await adminPage.fill("#admin-email", adminCreds.email);
+    await adminPage.fill("#admin-passcode", adminCreds.password);
     await adminPage.click("#login-btn");
 
     // Wait for Admin Dashboard to unlock
@@ -360,6 +384,17 @@ async function runDualBrowserRealtimeTests() {
     log("═══════════════════════════════════════════════════════════════");
     return true;
   } finally {
+    try {
+      if (adminPage && !adminPage.isClosed()) {
+        await adminPage.evaluate(async () => {
+          const { db } = await import("/src/firebase.js");
+          const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js");
+          await setDoc(doc(db, "products", "tulip-pendant"), { price: 299, isSoldOut: false }, { merge: true });
+          await setDoc(doc(db, "inventory", "SHV-PND-003"), { stock: 999, isSoldOut: false }, { merge: true });
+          await setDoc(doc(db, "inventory", "tulip-pendant"), { stock: 999, isSoldOut: false }, { merge: true });
+        });
+      }
+    } catch {}
     await browser.close();
   }
 }

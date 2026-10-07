@@ -23,6 +23,7 @@ const {
   saveAdminInventoryStore,
   computeCustomersFromOrders
 } = require("./admin-store");
+const { syncOrderToFirestore, processOrderTransaction, getAdminFirestore } = require("./server-firebase");
 const packageInfo = require("./package.json");
 
 const root = __dirname;
@@ -148,6 +149,9 @@ function sendJson(response, status, payload, extraHeaders = {}) {
   response.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
     "Content-Length": Buffer.byteLength(serialized),
     ...extraHeaders
   });
@@ -441,6 +445,27 @@ const server = http.createServer(async (request, response) => {
   const pathname = decodeURIComponent(requestUrl.pathname).replace(/\/+$/, "") || "/";
   ensureFreshCatalog();
 
+  // CORS preflight
+  if (request.method === "OPTIONS") {
+    response.writeHead(204, {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
+      "Access-Control-Max-Age": "86400"
+    });
+    return response.end();
+  }
+
+  // Health endpoint (Cloud Run / Load Balancer compatibility)
+  if ((pathname === "/health" || pathname === "/api/health") && request.method === "GET") {
+    return sendJson(response, 200, {
+      status: "ok",
+      service: "shivara-commerce-api",
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+    });
+  }
+
   // ═════════════════════════════════════════════════════
   // ADMIN AUTHENTICATION & PORTAL
   // ═════════════════════════════════════════════════════
@@ -708,61 +733,231 @@ const server = http.createServer(async (request, response) => {
   // ═════════════════════════════════════════════════════
   // PUBLIC CLIENT-FACING APIS
   // ═════════════════════════════════════════════════════
-  // Guest / Customer Order Creation
-  if (pathname === "/api/orders" && request.method === "POST") {
+  // Guest / Customer Order Creation (Trusted Server-Side Transaction)
+  if ((pathname === "/api/orders" || pathname === "/api/checkout") && request.method === "POST") {
     try {
       const body = await readJsonBody(request);
-      const normalized = normalizeAdminOrderInput(body);
-      if (normalized.error) return sendJson(response, 400, { error: normalized.error });
 
-      // Server-side catalogue price verification
-      let serverSubtotal = 0;
-      for (const item of normalized.order.items) {
-        const prod = products.find((p) => p.id === item.productId || p.slug === item.slug || p.sku === item.sku);
-        const canonPrice = (prod && Number.isFinite(Number(prod.price)) && Number(prod.price) > 0)
-          ? Number(prod.price)
-          : (Number.isFinite(Number(item.price)) && Number(item.price) > 0 ? Number(item.price) : null);
+      // 1. Extract and sanitize customer delivery details
+      const customer = body.customer || body.customerInfo || body.shippingDetails || {};
+      const name = String(customer.name || body.customerName || body.name || "").trim();
+      let phone = String(customer.phone || body.customerPhone || body.phone || "").trim().replace(/\D/g, "");
+      if (phone.length === 12 && phone.startsWith("91")) phone = phone.slice(2);
+      if (phone.length === 11 && phone.startsWith("0")) phone = phone.slice(1);
+      const email = String(customer.email || body.customerEmail || body.email || "").trim();
+      const address = String(customer.address || body.shippingAddress || body.address || "").trim();
+      const pincode = String(customer.pincode || body.pincode || "").trim();
+      const city = String(customer.city || body.city || "").trim();
+      const state = String(customer.state || body.state || "").trim();
+      const note = String(customer.note || body.orderNote || body.note || "").trim();
 
-        if (!canonPrice) {
-          return sendJson(response, 400, { error: `Unverified price for item: ${item.title || item.sku || "unknown"}` });
+      // Mandatory validation guards
+      if (!name || name.length < 2) return sendJson(response, 400, { error: "Please enter your full name." });
+      if (!phone || !/^[6-9]\d{9}$/.test(phone)) return sendJson(response, 400, { error: "Please enter a valid 10-digit Indian mobile number." });
+      if (!pincode || !/^[1-9][0-9]{5}$/.test(pincode)) return sendJson(response, 400, { error: "Please enter a valid 6-digit Indian PIN code." });
+      if (!address || address.length < 5) return sendJson(response, 400, { error: "Please enter complete delivery street address." });
+
+      // 2. Validate items array
+      const rawItems = Array.isArray(body.items) ? body.items : [];
+      if (!rawItems.length) return sendJson(response, 400, { error: "Your shopping bag is empty." });
+
+      // 3. Fetch trusted catalogue prices server-side (Browser totals are IGNORED)
+      ensureFreshCatalog();
+      const adminProducts = loadAdminStore().products;
+      const allAvailableProducts = [...products, ...adminProducts];
+
+      let verifiedSubtotal = 0;
+      const verifiedOrderItems = [];
+
+      for (const item of rawItems) {
+        const prodId = String(item.productId || item.id || item.slug || "").trim();
+        const prod = allAvailableProducts.find((p) => p.id === prodId || p.slug === prodId || p.sku === prodId);
+        if (!prod) return sendJson(response, 400, { error: `Product not found: ${prodId}` });
+
+        const canonPrice = Number(prod.price);
+        if (!Number.isFinite(canonPrice) || canonPrice <= 0) {
+          return sendJson(response, 400, { error: `Unverified price for ${prod.title || prodId}` });
         }
-        item.price = canonPrice;
-        serverSubtotal += canonPrice * (Math.max(1, Number(item.quantity) || 1));
-      }
-      normalized.order.subtotal = serverSubtotal;
-      normalized.order.totalAmount = Math.max(0, serverSubtotal - (Number(normalized.order.discountAmount) || 0));
 
-      // Decrement inventory stock levels
-      const inventory = loadAdminInventoryStore();
-      for (const item of normalized.order.items) {
-        const skuKey = item.sku || item.productId || item.slug;
-        if (skuKey && inventory[skuKey] !== undefined) {
-          inventory[skuKey] = Math.max(0, Number(inventory[skuKey]) - (Math.max(1, Number(item.quantity) || 1)));
+        const qty = Math.max(1, Math.floor(Number(item.quantity || item.qty) || 1));
+        verifiedSubtotal += (canonPrice * qty);
+
+        verifiedOrderItems.push({
+          productId: prod.id || prodId,
+          slug: prod.slug || prodId,
+          sku: prod.sku || `SHV-${prod.id || prodId}`,
+          title: prod.title || "Jewellery Item",
+          price: canonPrice,
+          quantity: qty,
+          imageUrl: (prod.images && prod.images[0]) || prod.imageUrl || "",
+          variantLabel: item.variantLabel || null
+        });
+      }
+
+      // 4. Fetch and validate trusted coupon data server-side
+      let verifiedDiscount = 0;
+      let appliedCouponCode = null;
+      const couponCode = String(body.couponCode || body.appliedCoupon || "").toUpperCase().trim();
+      if (couponCode) {
+        const coupons = loadAdminCouponsStore();
+        const coupon = coupons.find((c) => c.code.toUpperCase() === couponCode);
+        if (coupon && coupon.isActive !== false) {
+          const notExpired = !coupon.expiresAt || new Date(coupon.expiresAt) > new Date();
+          const minOrder = Number(coupon.minOrderValue) || 0;
+          if (notExpired && verifiedSubtotal >= minOrder) {
+            if (coupon.discountType === "percent") {
+              const rawDisc = Math.round((verifiedSubtotal * Number(coupon.discountValue)) / 100);
+              const maxDisc = Number(coupon.maxDiscount);
+              verifiedDiscount = Number.isFinite(maxDisc) && maxDisc > 0 ? Math.min(rawDisc, maxDisc) : rawDisc;
+            } else if (coupon.discountType === "flat") {
+              verifiedDiscount = Math.min(verifiedSubtotal, Number(coupon.discountValue));
+            }
+            appliedCouponCode = coupon.code;
+          }
         }
       }
-      saveAdminInventoryStore(inventory);
 
-      const orders = loadAdminOrdersStore();
-      orders.unshift(normalized.order);
-      saveAdminOrdersStore(orders);
-      return sendJson(response, 201, { ok: true, order: normalized.order });
-    } catch {
-      return sendJson(response, 400, { error: "Unable to process order" });
+      const verifiedTotal = Math.max(0, verifiedSubtotal - verifiedDiscount);
+
+      // 5. Generate Collision-Safe Order ID & Document
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, "0");
+      const d = String(now.getDate()).padStart(2, "0");
+      const randHex = crypto.randomBytes(3).toString("hex").toUpperCase();
+      const orderRef = String(body.orderId || `SHV-${y}${m}${d}-${randHex}`).trim();
+
+      const customerInfo = { name, phone, email, address, pincode, city, state, note };
+      const orderDocument = {
+        id: orderRef,
+        orderId: orderRef,
+        customer: customerInfo,
+        customerInfo: customerInfo,
+        customerName: name,
+        customerPhone: phone,
+        customerEmail: email,
+        shippingAddress: address,
+        pincode: pincode,
+        city: city || "",
+        state: state || "",
+        orderNote: note || "",
+        shippingDetails: customerInfo,
+        items: verifiedOrderItems,
+        itemCount: verifiedOrderItems.reduce((sum, i) => sum + i.quantity, 0),
+        total: verifiedTotal,
+        totalAmount: verifiedTotal,
+        subtotal: verifiedSubtotal,
+        discountAmount: verifiedDiscount,
+        appliedCoupon: appliedCouponCode,
+        paymentMethod: "COD",
+        paymentStatus: "Pending COD Collection",
+        status: "Pending",
+        trackingNumber: null,
+        courierPartner: "Delhivery Express",
+        createdAt: now.toISOString()
+      };
+
+      // 6. Sanitized tracking projection
+      const maskedName = name ? `${name.charAt(0)}. ${name.split(" ").slice(1).join(" ").replace(/./g, "*") || "***"}` : "Customer";
+      const trackingDocument = {
+        orderId: orderRef,
+        status: "Pending",
+        createdAtIso: now.toISOString(),
+        itemCount: verifiedOrderItems.reduce((sum, i) => sum + i.quantity, 0),
+        items: verifiedOrderItems.map((i) => ({
+          title: i.title,
+          quantity: i.quantity,
+          price: i.price,
+          imageUrl: i.imageUrl || "",
+          sku: i.sku || ""
+        })),
+        total: verifiedTotal,
+        totalAmount: verifiedTotal,
+        city: city || "",
+        state: state || "",
+        pincode: pincode || "",
+        customerName: maskedName,
+        paymentMethod: "COD"
+      };
+
+      // 7. Atomic Concurrency-Safe Inventory & Order Transaction in Firestore SSOT
+      try {
+        await processOrderTransaction({
+          orderDocument,
+          trackingDocument,
+          itemsToValidate: verifiedOrderItems
+        });
+      } catch (txErr) {
+        if (txErr.statusCode === 409 || (txErr.message && txErr.message.includes("Insufficient stock"))) {
+          return sendJson(response, 409, { error: txErr.message });
+        }
+        console.error("[Firestore Order Transaction Error]:", txErr);
+        return sendJson(response, 500, { error: txErr.message || "Failed to process order transaction" });
+      }
+
+      // Also dual-write local store for dev/testing consistency
+      try {
+        const inventory = loadAdminInventoryStore();
+        for (const item of verifiedOrderItems) {
+          const invKey = item.sku || item.productId || item.slug;
+          const currentStock = inventory[invKey] !== undefined ? Number(inventory[invKey]) : 5;
+          inventory[invKey] = Math.max(0, currentStock - item.quantity);
+        }
+        saveAdminInventoryStore(inventory);
+
+        const orders = loadAdminOrdersStore();
+        orders.unshift(orderDocument);
+        saveAdminOrdersStore(orders);
+      } catch (storeErr) {
+        // Stateless runtime may not have writeable local storage
+        console.warn("[Local Store Note]:", storeErr.message);
+      }
+
+      return sendJson(response, 201, {
+        ok: true,
+        orderId: orderRef,
+        order: orderDocument
+      });
+    } catch (err) {
+      console.error("[Checkout Server Error]:", err);
+      return sendJson(response, 400, { error: err.message || "Unable to process order" });
     }
   }
 
   // Public / Admin Orders List
   if (pathname === "/api/orders" && request.method === "GET") {
-    return sendJson(response, 200, { ok: true, orders: loadAdminOrdersStore() });
+    try {
+      const orders = loadAdminOrdersStore();
+      if (orders && orders.length) return sendJson(response, 200, { ok: true, orders });
+    } catch {}
+    try {
+      const db = getAdminFirestore();
+      const snap = await db.collection("orders").orderBy("createdAt", "desc").limit(50).get();
+      if (!snap.empty) {
+        return sendJson(response, 200, { ok: true, orders: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
+      }
+    } catch {}
+    return sendJson(response, 200, { ok: true, orders: [] });
   }
 
   // Customer Order Lookup / Tracking
   if (pathname.startsWith("/api/orders/") && request.method === "GET") {
     const id = decodeURIComponent(pathname.slice("/api/orders/".length)).trim();
-    const orders = loadAdminOrdersStore();
-    const order = orders.find((o) => (o.orderId || o.id || "").toLowerCase() === id.toLowerCase() || o.customerPhone === id);
-    if (!order) return sendJson(response, 404, { error: "Order not found" });
-    return sendJson(response, 200, { ok: true, order });
+    try {
+      const orders = loadAdminOrdersStore();
+      const order = orders.find((o) => (o.orderId || o.id || "").toLowerCase() === id.toLowerCase() || o.customerPhone === id);
+      if (order) return sendJson(response, 200, { ok: true, order });
+    } catch {}
+    try {
+      const db = getAdminFirestore();
+      const doc = await db.collection("orders").doc(id).get();
+      if (doc.exists) return sendJson(response, 200, { ok: true, order: doc.data() });
+      const trackDoc = await db.collection("order_tracking").doc(id).get();
+      if (trackDoc.exists) return sendJson(response, 200, { ok: true, order: trackDoc.data() });
+    } catch (fsErr) {
+      console.warn("[Order Lookup]:", fsErr.message);
+    }
+    return sendJson(response, 404, { error: "Order not found" });
   }
 
   // Update Order Status / Tracking

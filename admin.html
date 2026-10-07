@@ -5375,9 +5375,8 @@
       }, 100);
     }
 
-    function closePriceModal() {
-      $('#price-modal').classList.remove('is-open');
-    }
+    window.openPriceModal = openPriceModal;
+    window.closePriceModal = closePriceModal;
 
     $('#price-modal-cancel').addEventListener('click', closePriceModal);
 
@@ -5466,6 +5465,7 @@
       resetFormState();
     };
 
+    window.startEditProduct = function(product) { startEditProduct(product); };
     function startEditProduct(product) {
       isEditing = true;
       editingDocId = product.id;

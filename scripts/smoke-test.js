@@ -243,7 +243,10 @@ async function main() {
   assert(!await mobilePage.locator(".stable-mobile-dock").isVisible(), "product page hides the shopping dock in favour of sticky Add to Bag");
   assert(!await mobilePage.locator(".stable-mobile-buy").evaluate((bar) => bar.classList.contains("is-visible")), "mobile sticky Add to Bag does not cover initial product content");
   await mobilePage.locator(".stable-pdp__actions").scrollIntoViewIfNeeded();
-  await mobilePage.evaluate(() => scrollBy(0, innerHeight));
+  await mobilePage.evaluate(() => {
+    window.scrollBy(0, window.innerHeight * 2);
+    window.dispatchEvent(new Event("scroll"));
+  });
   await mobilePage.waitForFunction(() => document.querySelector(".stable-mobile-buy")?.classList.contains("is-visible"));
   assert(await mobilePage.locator(".stable-mobile-buy").evaluate((bar) => bar.classList.contains("is-visible")), "mobile sticky Add to Bag appears after native actions pass");
   await mobileContext.close();

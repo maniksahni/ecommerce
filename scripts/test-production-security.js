@@ -140,18 +140,24 @@ test("Order ID generation is collision-safe with date prefix and high-entropy su
 });
 
 // ─── 4. Price Manipulation & Catalog Integrity Audit ───
-test("script.js validates pricing against catalog items during checkout", () => {
+test("Trusted backend server.js validates pricing against catalog items during checkout", () => {
+  const serverJs = fs.readFileSync(path.join(root, "server.js"), "utf8");
   const scriptJs = fs.readFileSync(path.join(root, "script.js"), "utf8");
   
   assert.strictEqual(
-    scriptJs.includes("verifiedSubtotal") && scriptJs.includes("pricing(product)"),
+    serverJs.includes("verifiedSubtotal") && serverJs.includes("canonPrice"),
     true,
-    "Order generation in script.js must compute verified subtotal against product catalog pricing"
+    "Order generation in server.js must compute verified subtotal against product catalog pricing"
   );
   assert.strictEqual(
-    scriptJs.includes("verifiedTotal"),
+    serverJs.includes("verifiedTotal"),
     true,
-    "Order total must be calculated using server/catalog verified pricing"
+    "Order total must be calculated using server verified pricing"
+  );
+  assert.strictEqual(
+    scriptJs.includes("/api/orders"),
+    true,
+    "script.js must delegate checkout to trusted /api/orders endpoint"
   );
 });
 

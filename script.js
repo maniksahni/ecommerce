@@ -391,7 +391,7 @@
     return `<div class="stable-backdrop" data-layer-close hidden></div>
       <aside class="stable-drawer stable-drawer--menu" id="menu-drawer" role="dialog" aria-modal="true" aria-labelledby="menu-title" aria-hidden="true">
         <div class="stable-layer__head"><div><small>JEWELLERY ATELIER</small><h2 id="menu-title">Shop Shivara</h2></div><button type="button" data-layer-close aria-label="Close menu">×</button></div>
-        <div class="stable-menu-utility"><button type="button" data-menu-search>Search products <span>⌕</span></button><a href="/wishlist">Your wishlist <span data-wishlist-count>0</span></a></div>
+        <div class="stable-menu-utility"><button type="button" data-menu-search>Search products <span>⌕</span></button><a href="/wishlist">Your wishlist <span data-wishlist-count>0</span></a><button type="button" data-account-open class="stable-menu-account">Patron Account <span>👤</span></button></div>
         <nav><small>SHOP BY CATEGORY</small>${categoryRail.map(([label, slug]) => `<a href="${collectionUrl(slug)}">${label}<span>${productsForCollection(slug).length}</span></a>`).join("")}<a href="/collections/all"><strong>All Products</strong><span>${products.length}</span></a><a href="/track-order.html" style="color:#c5a059; font-weight:600;"><strong>Track Order</strong><span>Live Status</span></a></nav>
         <a class="stable-menu-feature" href="${productUrl(menuFeature)}"><img src="${escapeHtml(mediaHref(menuFeature.images[0]))}" alt="${escapeHtml(menuFeature.imageAlt)}" /><span><small>THE SHIVARA EDIT</small><strong>${escapeHtml(menuFeature.title)}</strong><em>View product</em></span></a>
         <div class="stable-menu-help"><p>Need concierge assistance?</p><a href="tel:+919457041215">Call Concierge: +91 94570 41215</a></div>
@@ -1567,229 +1567,62 @@
         }
       } catch {}
 
-      // Generate Collision-Safe Timestamped Order ID (SHV-YYYYMMDD-XXXXXX)
-      const now = new Date();
-      const y = now.getFullYear();
-      const m = String(now.getMonth() + 1).padStart(2, "0");
-      const d = String(now.getDate()).padStart(2, "0");
-      const randHex = Math.random().toString(36).substring(2, 8).toUpperCase();
-      const orderRef = `SHV-${y}${m}${d}-${randHex}`;
-      const dateStr = now.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
-
-      // Recalculate totals from trusted product data
-      let verifiedSubtotal = 0;
-      let hasUnconfirmedPrice = false;
-      const orderItems = [];
-
-      for (const item of cart) {
-        const product = productMap.get(item.id);
-        const variant = validVariant(product, item.variantId);
-        const value = pricing(product);
-        if (!value || !value.confirmed || typeof value.price !== "number" || value.price <= 0) {
-          hasUnconfirmedPrice = true;
-          break;
-        }
-        const unitPrice = value.price;
-        const qty = Math.max(1, Number(item.qty) || 1);
-        verifiedSubtotal += (unitPrice * qty);
-        orderItems.push({
-          productId: product?.id || item.id,
-          slug: product?.slug || item.id,
-          sku: product?.sku || `SHV-${item.id}`,
-          title: product?.title || "Jewellery Item",
-          price: unitPrice,
-          quantity: qty,
-          imageUrl: (product?.images && product.images[0]) || "",
-          variantLabel: variant?.label || null
-        });
-      }
-
-      if (hasUnconfirmedPrice || !orderItems.length) {
-        showToast("One or more items in your bag requires manual price confirmation. Please contact concierge.");
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = submitBtn.dataset.originalText || "<span>Confirm Order</span>";
-        }
-        return;
-      }
-
-      let verifiedDiscount = 0;
-      if (activeCoupon) {
-        if (activeCoupon.type === "percentage" || activeCoupon.discountType === "percent") {
-          const pct = Number(activeCoupon.value || activeCoupon.discountValue) || 0;
-          verifiedDiscount = Math.round((verifiedSubtotal * pct) / 100);
-          if (activeCoupon.maxDiscount && verifiedDiscount > activeCoupon.maxDiscount) {
-            verifiedDiscount = activeCoupon.maxDiscount;
-          }
-        } else {
-          const flat = Number(activeCoupon.value || activeCoupon.discountValue) || 0;
-          verifiedDiscount = Math.min(verifiedSubtotal, flat);
-        }
-      }
-      const verifiedTotal = Math.max(0, verifiedSubtotal - verifiedDiscount);
-
-      const customerInfo = {
-        name,
-        phone,
-        email,
-        address,
-        pincode,
-        city,
-        state,
-        note: note || ""
-      };
-
-      const orderDocument = {
-        id: orderRef,
-        orderId: orderRef,
-        customer: customerInfo,
-        customerInfo: customerInfo,
-        customerName: name,
-        customerPhone: phone,
-        customerEmail: email,
-        shippingAddress: address,
-        pincode: pincode,
-        city: city || "",
-        state: state || "",
-        orderNote: note || "",
-        shippingDetails: customerInfo,
-        items: orderItems,
-        itemCount: orderItems.reduce((sum, i) => sum + i.quantity, 0),
-        total: verifiedTotal,
-        totalAmount: verifiedTotal,
-        subtotal: verifiedSubtotal,
-        discountAmount: verifiedDiscount,
-        appliedCoupon: activeCoupon?.code || null,
-        paymentMethod: "COD",
-        paymentStatus: "Pending COD Collection",
-        status: "Pending",
-        createdAt: new Date().toISOString()
-      };
-
-      // Persist order atomically via Firestore runTransaction
-      let firestoreSuccess = false;
+      // Post to Trusted Backend Endpoint for Server-Side Verification & Atomic Transaction
+      let confirmedOrder = null;
       try {
-        const { db } = await import("/src/firebase.js");
-        const { doc, runTransaction, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js");
+        const payload = {
+          items: cart.map((item) => ({
+            productId: item.id,
+            variantId: item.variantId || null,
+            quantity: Math.max(1, Number(item.qty) || 1)
+          })),
+          customer: {
+            name,
+            phone,
+            email,
+            address,
+            pincode,
+            city,
+            state,
+            note: note || ""
+          },
+          couponCode: activeCoupon?.code || null
+        };
 
-        await runTransaction(db, async (transaction) => {
-          // 1. Read all inventory items first (Firestore transaction rule: all reads before writes)
-          const invReads = [];
-          for (const item of orderItems) {
-            const invKey = item.sku || item.productId || item.slug;
-            if (invKey) {
-              const invRef = doc(db, "inventory", invKey);
-              const invSnap = await transaction.get(invRef);
-              invReads.push({ item, invRef, invSnap, invKey });
-            }
-          }
-
-          // 2. Atomically verify current stock for all items
-          for (const { item, invSnap } of invReads) {
-            if (invSnap.exists()) {
-              const available = Number(invSnap.data().stock);
-              if (Number.isFinite(available) && available < item.quantity) {
-                throw new Error(`Insufficient stock for "${item.title}". Only ${available} available.`);
-              }
-            }
-          }
-
-          // 3. Decrement numeric inventory and update sold-out state atomically
-          for (const { item, invRef, invSnap } of invReads) {
-            if (invSnap.exists()) {
-              const currentStock = Number(invSnap.data().stock) || 0;
-              const nextStock = Math.max(0, currentStock - item.quantity);
-              transaction.update(invRef, {
-                stock: nextStock,
-                isSoldOut: nextStock === 0,
-                updatedAt: serverTimestamp()
-              });
-
-              if (nextStock === 0) {
-                try {
-                  const prodRef = doc(db, "products", item.productId || item.slug);
-                  transaction.update(prodRef, {
-                    isSoldOut: true,
-                    updatedAt: serverTimestamp()
-                  });
-                } catch {}
-              }
-            }
-          }
-
-          // 4. Create private order document
-          const orderDocRef = doc(db, "orders", orderRef);
-          transaction.set(orderDocRef, {
-            ...orderDocument,
-            createdAt: serverTimestamp(),
-            createdAtIso: new Date().toISOString(),
-            updatedAt: serverTimestamp()
-          });
-
-          // 5. Create sanitized tracking projection document
-          const trackingDocRef = doc(db, "order_tracking", orderRef);
-          const maskedName = name ? `${name.charAt(0)}. ${name.split(" ").slice(1).join(" ").replace(/./g, "*") || "***"}` : "Customer";
-          transaction.set(trackingDocRef, {
-            orderId: orderRef,
-            status: "Pending",
-            createdAt: serverTimestamp(),
-            createdAtIso: new Date().toISOString(),
-            itemCount: orderItems.reduce((sum, i) => sum + i.quantity, 0),
-            items: orderItems.map(i => ({
-              title: i.title,
-              quantity: i.quantity,
-              price: i.price,
-              imageUrl: i.imageUrl || "",
-              sku: i.sku || ""
-            })),
-            total: verifiedTotal,
-            totalAmount: verifiedTotal,
-            city: city || "",
-            state: state || "",
-            pincode: pincode || "",
-            customerName: maskedName,
-            paymentMethod: "COD"
-          });
-        });
-
-        firestoreSuccess = true;
-      } catch (err) {
-        console.error("[OMS] Firestore atomic order transaction error:", err);
-        showToast(err.message || "Unable to complete order. Stock verification failed.");
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = submitBtn.dataset.originalText || "<span>Confirm Order</span>";
-        }
-        return;
-      }
-
-      // Also notify local/cloud Node API if active
-      try {
-        await fetch("/api/orders", {
+        const res = await fetch("/api/orders", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(orderDocument)
+          body: JSON.stringify(payload)
         });
-      } catch {}
 
-      // Critical guard: If the order was NOT persisted, abort with error toast
-      if (!firestoreSuccess) {
-        showToast("Unable to record order due to a network connection error. Please try again.");
+        const data = await res.json();
+        if (!res.ok || !data.ok || !data.orderId) {
+          throw new Error(data.error || "Unable to complete order. Stock verification failed.");
+        }
+        confirmedOrder = data.order;
+      } catch (err) {
+        console.error("[Checkout] Trusted backend checkout error:", err);
+        showToast(err.message || "Unable to process order. Please try again.");
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.innerHTML = submitBtn.dataset.originalText || "<span>Confirm Order</span>";
+          submitBtn.innerHTML = submitBtn.dataset.originalText || "<span>Place COD Order</span>";
         }
         return;
       }
 
-      // Save to localStorage ONLY AFTER confirmed persistence
+      // Server returns confirmed order with format: orderRef = `SHV-YYYYMMDD-XXXXXX`
+      const orderRef = confirmedOrder.orderId || confirmedOrder.id;
+      const finalOrderId = orderRef;
+
+      // Save to localStorage for immediate receipt hydration
+      // Note: Order document doc(db, "orders", orderRef) is created and synced by the trusted backend
       try {
         localStorage.setItem("shivara_recent_order", JSON.stringify({
-          orderId: orderRef,
-          date: dateStr,
-          totalAmount: verifiedTotal,
-          items: orderItems,
-          customerInfo,
+          orderId: finalOrderId,
+          date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+          totalAmount: confirmedOrder.totalAmount || confirmedOrder.total,
+          items: confirmedOrder.items,
+          customerInfo: confirmedOrder.customer || confirmedOrder.customerInfo,
           paymentMethod: "COD",
           status: "Pending"
         }));
@@ -1805,7 +1638,7 @@
       localStorage.removeItem(storageKeys.cart);
 
       closeLayer();
-      window.location.href = `/order-confirmation.html?id=${encodeURIComponent(orderRef)}`;
+      window.location.href = `/order-confirmation.html?id=${encodeURIComponent(finalOrderId)}`;
       return;
     }
 
