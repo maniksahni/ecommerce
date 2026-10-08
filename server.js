@@ -853,7 +853,7 @@ const server = http.createServer(async (request, response) => {
         paymentStatus: "Pending COD Collection",
         status: "Pending",
         trackingNumber: null,
-        courierPartner: "Delhivery Express",
+        courierPartner: null,
         createdAt: now.toISOString()
       };
 

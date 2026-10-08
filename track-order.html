@@ -391,19 +391,31 @@
               ${stepperHtml}
             </div>
 
-            ${(trackingNumber || courierPartner) ? `
-            <!-- Live Courier Tracking Strip -->
+            ${(trackingNumber && courierPartner) ? `
+            <!-- Live Courier Tracking Strip — only shown when Admin has assigned a courier -->
             <div id="tracking-courier-strip" style="margin: 18px 0; padding: 14px 18px; background: #faf7f2; border: 1px solid #ebd8b5; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
               <div>
-                <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #8c827a;">Express Dispatch Carrier</div>
+                <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #8c827a;">Dispatch Carrier</div>
                 <div style="font-size: 15px; font-weight: 600; color: #1a1512; margin-top: 2px;">
-                  <span id="tracking-courier-name">${escapeHtml(courierPartner || "Blue Dart Express")}</span>
+                  <span id="tracking-courier-name">${escapeHtml(courierPartner)}</span>
                   ${trackingNumber ? ` — AWB: <code id="tracking-awb-number" style="background:#fff; border:1px solid #d4af37; padding:2px 8px; border-radius:4px; font-weight:700; color:#8c6d23;">${escapeHtml(trackingNumber)}</code>` : ""}
                 </div>
               </div>
               <span style="font-size: 11px; font-weight: 700; color: #1b5e20; background: #e8f5e9; padding: 4px 10px; border-radius: 99px;">● In Real-Time Transit</span>
             </div>
-            ` : ""}
+            ` : (trackingNumber ? `
+            <!-- Tracking number available but courier not yet assigned -->
+            <div id="tracking-courier-strip" style="margin: 18px 0; padding: 14px 18px; background: #faf7f2; border: 1px solid #ebd8b5; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #8c827a;">Dispatch Carrier</div>
+                <div style="font-size: 15px; font-weight: 600; color: #1a1512; margin-top: 2px;">
+                  <span id="tracking-courier-name" style="color:#8c827a; font-style:italic;">To be assigned</span>
+                  — AWB: <code id="tracking-awb-number" style="background:#fff; border:1px solid #d4af37; padding:2px 8px; border-radius:4px; font-weight:700; color:#8c6d23;">${escapeHtml(trackingNumber)}</code>
+                </div>
+              </div>
+              <span style="font-size: 11px; font-weight: 700; color: #1b5e20; background: #e8f5e9; padding: 4px 10px; border-radius: 99px;">● In Real-Time Transit</span>
+            </div>
+            ` : "")}
 
             <!-- Shipping & Items Breakdown -->
             <div class="track-details-grid">

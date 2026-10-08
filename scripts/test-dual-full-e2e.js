@@ -281,7 +281,7 @@ async function runDualE2E() {
         }
       }
       if (typeof saveOrderTracking === "function") {
-        await saveOrderTracking(oid, "Blue Dart Express", "BD554433221IN");
+        await saveOrderTracking(oid, "Test Courier", "TST-AWB-554433221IN");
       }
     }, placedOrderId);
     await page.waitForTimeout(1500);
@@ -297,7 +297,7 @@ async function runDualE2E() {
       return el ? el.innerText : "";
     });
     console.log("    Customer Tracking Text snippet:", updatedTrackText.slice(0, 80));
-    assert(updatedTrackText.includes("Shipped") || updatedTrackText.includes("In Transit") || updatedTrackText.includes("Blue Dart") || updatedTrackText.length > 50, "Customer order tracking query successfully reflects latest OMS status");
+    assert(updatedTrackText.includes("Shipped") || updatedTrackText.includes("In Transit") || updatedTrackText.length > 50, "Customer order tracking query successfully reflects latest OMS status");
     await page.screenshot({ path: path.join(artifactDir, "proof-storefront-tracking-shipped.png") });
 
     // Return to Admin Panel for remaining sections

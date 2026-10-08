@@ -511,7 +511,7 @@ async function runFinalMobileQASuite() {
           await window.updateOrderStatus(oid, "Confirmed");
         }
         if (typeof window.saveTrackingNumber === "function") {
-          await window.saveTrackingNumber(oid, "DEL-AWB-987654321", "Delhivery Express");
+          await window.saveTrackingNumber(oid, "TST-AWB-987654321", "Test Courier");
         }
       }, placedOrderId);
       log(`Order #${placedOrderId} status updated to Confirmed & AWB attached in Admin OMS`);

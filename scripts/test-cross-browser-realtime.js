@@ -284,7 +284,7 @@ async function runDualBrowserRealtimeTests() {
     // SCENARIO G: Admin updates Confirmed -> Shipped + AWB -> Customer tracking updates live
     // ─────────────────────────────────────────────────────────────
     log("Testing SCENARIO G: Customer Tracking Dispatch & AWB Strip Live Update...");
-    const courierAWB = "BLUEDART-LIVE-883311";
+    const courierAWB = "TST-LIVE-883311";
 
     // In Admin Context A: Save Shipped status & Tracking AWB
     await adminPage.evaluate(async ({ orderId, awb }) => {
@@ -293,13 +293,13 @@ async function runDualBrowserRealtimeTests() {
       await setDoc(doc(db, "orders", orderId), {
         status: "Shipped",
         trackingNumber: awb,
-        courierPartner: "Blue Dart Express",
+        courierPartner: "Test Courier",
         updatedAt: serverTimestamp()
       }, { merge: true });
       await setDoc(doc(db, "order_tracking", orderId), {
         status: "Shipped",
         trackingNumber: awb,
-        courierPartner: "Blue Dart Express",
+        courierPartner: "Test Courier",
         updatedAt: serverTimestamp()
       }, { merge: true });
     }, { orderId: testOrderId, awb: courierAWB });

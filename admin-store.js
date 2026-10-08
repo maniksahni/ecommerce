@@ -170,7 +170,7 @@ function normalizeAdminOrderInput(body) {
       appliedCoupon: String(body?.appliedCoupon || "").trim() || null,
       paymentMethod: String(body?.paymentMethod || "COD").trim(),
       trackingNumber: String(body?.trackingNumber || "").trim() || null,
-      courierPartner: String(body?.courierPartner || "Delhivery Express").trim(),
+      courierPartner: body?.courierPartner ? String(body.courierPartner).trim() || null : null,
       status,
       createdAt: body?.createdAt || new Date().toISOString()
     }

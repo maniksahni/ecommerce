@@ -4553,9 +4553,12 @@
               <h4>Delivery &amp; Courier</h4>
               <p>${esc(order.shippingAddress || (order.shippingDetails && order.shippingDetails.shippingAddress) || (order.customer && order.customer.address) || 'Address not provided')}</p>
               <p><strong>PIN:</strong> ${esc(order.pincode || (order.shippingDetails && order.shippingDetails.pincode) || (order.customer && order.customer.pincode) || 'N/A')} · <strong>Payment:</strong> ${esc(order.paymentMethod || 'COD')}</p>
-              <div style="margin-top:8px; display:flex; gap:6px;">
-                <input type="text" id="modal-tracking-id" placeholder="Courier Tracking ID (e.g. BLUEDART-1234)" value="${esc(order.trackingNumber || '')}" style="flex:1; padding:4px 8px; font-size:11px; border:1px solid var(--border); border-radius:4px;" />
-                <button type="button" class="btn btn-sm btn-gold" onclick="saveOrderTracking('${esc(order.orderId || order.id)}')">Save Tracking</button>
+              <div style="margin-top:8px; display:flex; flex-direction:column; gap:6px;">
+                <div style="display:flex; gap:6px;">
+                  <input type="text" id="modal-courier-name" placeholder="Courier Partner" value="${esc(order.courierPartner || '')}" style="flex:1; padding:4px 8px; font-size:11px; border:1px solid var(--border); border-radius:4px;" />
+                  <input type="text" id="modal-tracking-id" placeholder="AWB / Tracking Number" value="${esc(order.trackingNumber || '')}" style="flex:1; padding:4px 8px; font-size:11px; border:1px solid var(--border); border-radius:4px;" />
+                </div>
+                <button type="button" class="btn btn-sm btn-gold" style="align-self:flex-start;" onclick="saveOrderTracking('${esc(order.orderId || order.id)}')">Save Tracking &amp; Courier</button>
               </div>
             </div>
           </div>
@@ -4608,7 +4611,7 @@
 
     window.saveOrderTracking = async function(orderId, customCourier, customTracking) {
       const tracking = (customTracking !== undefined ? customTracking : ($('#modal-tracking-id')?.value || '')).trim();
-      const courier = customCourier || "Blue Dart Express";
+      const courier = (customCourier !== undefined ? customCourier : ($('#modal-courier-name')?.value || '')).trim();
       try {
         const orderRef = doc(db, "orders", String(orderId));
         await setDoc(orderRef, { trackingNumber: tracking, courierPartner: courier, updatedAt: serverTimestamp() }, { merge: true });
@@ -4695,7 +4698,7 @@
 
           <div style="border: 1px solid #e5ded4; border-radius: 4px; padding: 12px; background: #faf8f5;">
             <h4 style="margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #735930;">Logistics &amp; Courier</h4>
-            <div style="font-size: 12px;"><strong>Courier:</strong> ${esc(order.courierPartner || 'Delhivery Surface / Express')}</div>
+            <div style="font-size: 12px;"><strong>Courier:</strong> ${esc(order.courierPartner || 'To be assigned')}</div>
             <div style="font-size: 12px; margin-top: 4px;"><strong>AWB / Tracking:</strong> <span style="font-family:monospace; font-weight:700;">${esc(order.trackingNumber || 'Awaiting Dispatch Scan')}</span></div>
             <div style="font-size: 12px; margin-top: 4px;"><strong>Status:</strong> <span style="font-weight:700; color:#735930;">${esc(order.status || 'Pending')}</span></div>
             <div style="margin-top: 10px; padding: 6px; border: 1px dashed #c5a059; font-size: 10px; color: #735930; text-align: center;">
