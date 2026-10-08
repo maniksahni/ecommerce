@@ -25,11 +25,14 @@ service cloud.firestore {
     // Orders:
     // - Public customer can get a single order by direct ID
     // - Only authenticated admins can list orders, change statuses, or delete orders
-    // - Only authenticated admins / trusted backend can create orders
+    // - Customers can create validated COD Pending orders; admins have full access
     match /orders/{orderId} {
       allow get: if true;
       allow list: if isAdmin();
-      allow create: if isAdmin();
+      allow create: if isAdmin() || (
+        request.resource.data.paymentMethod == "COD" &&
+        request.resource.data.status == "Pending"
+      );
       allow update, delete: if isAdmin();
     }
 
@@ -41,7 +44,8 @@ service cloud.firestore {
     // Order Tracking Projection (Public lookup with masked PII)
     match /order_tracking/{orderId} {
       allow get: if true;
-      allow write: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
     }
 
     // Coupons: Public read for storefront; Admin-only write
