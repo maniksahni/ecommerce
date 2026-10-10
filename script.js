@@ -209,8 +209,7 @@
 
   function renderGrid(mount, source) {
     if (!mount) return;
-    const markup = source.filter((product) => catalogApi.validateCommerceObject(product, "renderGrid")).map(productCard).join("");
-    mount.innerHTML = document.body.classList.contains("light-on-gold") ? markup.replaceAll('fetchpriority="high"', 'loading="lazy" fetchpriority="low"') : markup;
+    mount.innerHTML = source.filter((product) => catalogApi.validateCommerceObject(product, "renderGrid")).map(productCard).join("");
   }
 
   function renderAccountContent() {
@@ -297,7 +296,7 @@
                 <a href="/collections/watches">Watches</a>
                 <a href="/collections/jewellery-sets">Jewellery Sets</a>
               </div>
-              <div class="stable-nav__mega-features">${megaFeatures.map(([product, label]) => `<a href="${productUrl(product)}"><img loading="lazy" src="${escapeHtml(mediaHref(product.images[0]))}" alt="" /><span><small>${label}</small><strong>${escapeHtml(product.title)}</strong></span></a>`).join("")}</div>
+              <div class="stable-nav__mega-features">${megaFeatures.map(([product, label]) => `<a href="${productUrl(product)}"><img src="${escapeHtml(mediaHref(product.images[0]))}" alt="" /><span><small>${label}</small><strong>${escapeHtml(product.title)}</strong></span></a>`).join("")}</div>
             </div>
           </div>
           <a href="/collections/new-arrivals" data-nav-category="new-arrivals">New Arrivals</a>
@@ -352,7 +351,7 @@
   function sharedFooter() {
     const footerProduct = productMap.get("tulip-pendant");
     return `<footer class="stable-footer phase-footer">
-      <section class="phase-footer__finale"><div><p>THE LOOK IS NEVER FINISHED</p><h2>Until the<br />jewellery is.</h2><a class="stable-button stable-button--light" href="/collections/all">Explore Collection</a></div><figure aria-hidden="true"><span></span><img loading="lazy" src="${escapeHtml(mediaHref(footerProduct.images[0]))}" alt="" /></figure><strong aria-hidden="true">SHIVARA</strong></section>
+      <section class="phase-footer__finale"><div><p>THE LOOK IS NEVER FINISHED</p><h2>Until the<br />jewellery is.</h2><a class="stable-button stable-button--light" href="/collections/all">Explore Collection</a></div><figure aria-hidden="true"><span></span><img src="${escapeHtml(mediaHref(footerProduct.images[0]))}" alt="" /></figure><strong aria-hidden="true">SHIVARA</strong></section>
       <div class="phase-footer__links">
         <div>
           <a class="stable-logo stable-logo--footer" href="/">SHIVARA<small>JEWELLERY ATELIER</small></a>
@@ -397,7 +396,7 @@
         <div class="stable-layer__head"><div><small>JEWELLERY ATELIER</small><h2 id="menu-title">Shop Shivara</h2></div><button type="button" data-layer-close aria-label="Close menu">×</button></div>
         <div class="stable-menu-utility"><button type="button" data-menu-search>Search products <span>⌕</span></button><a href="/wishlist">Your wishlist <span data-wishlist-count>0</span></a><button type="button" data-account-open class="stable-menu-account">Patron Account <span>👤</span></button></div>
         <nav><small>SHOP BY CATEGORY</small>${categoryRail.map(([label, slug]) => `<a href="${collectionUrl(slug)}">${label}<span>${productsForCollection(slug).length}</span></a>`).join("")}<a href="/collections/all"><strong>All Products</strong><span>${products.length}</span></a><a href="/track-order.html" style="color:#c5a059; font-weight:600;"><strong>Track Order</strong><span>Live Status</span></a></nav>
-        <a class="stable-menu-feature" href="${productUrl(menuFeature)}"><img loading="lazy" src="${escapeHtml(mediaHref(menuFeature.images[0]))}" alt="${escapeHtml(menuFeature.imageAlt)}" /><span><small>THE SHIVARA EDIT</small><strong>${escapeHtml(menuFeature.title)}</strong><em>View product</em></span></a>
+        <a class="stable-menu-feature" href="${productUrl(menuFeature)}"><img src="${escapeHtml(mediaHref(menuFeature.images[0]))}" alt="${escapeHtml(menuFeature.imageAlt)}" /><span><small>THE SHIVARA EDIT</small><strong>${escapeHtml(menuFeature.title)}</strong><em>View product</em></span></a>
         <div class="stable-menu-help"><p>Need concierge assistance?</p><a href="tel:+919457041215">Call Concierge: +91 94570 41215</a></div>
       </aside>
       <aside class="stable-drawer stable-drawer--search" id="search-drawer" role="dialog" aria-modal="true" aria-labelledby="search-title" aria-hidden="true">
@@ -518,7 +517,7 @@
   function scheduleHeroRotation() {
     window.clearTimeout(heroTimer);
     const hero = document.querySelector("[data-hero]");
-    if (document.hidden || window.matchMedia("(prefers-reduced-motion: reduce)").matches || !hero || hero.hasAttribute("data-art-home")) return;
+    if (document.hidden || window.matchMedia("(prefers-reduced-motion: reduce)").matches || !hero) return;
     heroTimer = window.setTimeout(() => {
       if (isVisibleInViewport(hero) && !hero.matches(":hover") && !hero.contains(document.activeElement)) renderHero(heroIndex + 1);
       scheduleHeroRotation();
@@ -988,7 +987,7 @@
       const value = pricing(product);
       return `<article class="living-card living-card--${index + 1}">
         <a class="living-card__media" href="${productUrl(product)}">
-          <img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(product.imageAlt)}" loading="${document.body.classList.contains("light-on-gold") || index ? "lazy" : "eager"}" />
+          <img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(product.imageAlt)}" loading="${index ? "lazy" : "eager"}" />
           <span>${String(index + 1).padStart(2, "0")}</span>
         </a>
         <div class="living-card__copy">
@@ -1003,7 +1002,7 @@
 
   function renderHero(nextIndex = heroIndex) {
     const mount = document.querySelector("[data-hero]");
-    if (!mount || mount.hasAttribute("data-art-home")) return;
+    if (!mount) return;
     heroIndex = (nextIndex + heroIds.length) % heroIds.length;
     const product = productMap.get(heroIds[heroIndex]) || products[0];
     if (!product) return;
@@ -1029,7 +1028,7 @@
     mount.innerHTML = `<a class="signature-edit__image" href="${productUrl(product)}"><img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(product.imageAlt)}" loading="lazy" /></a><div><small>${signatureIndex + 1} / ${signatureProducts.length} · ${escapeHtml(product.sku)}</small><h3>${escapeHtml(product.title)}</h3>${priceMarkup(product, "signature-edit__price")}<p>${escapeHtml(product.description)}</p><button class="stable-button stable-button--light" type="button" data-quick-view="${product.id}">Quick View</button></div>`;
   }
 
-  const homeCatalogueState = { category: 'all', search: '', sort: 'featured', visible: 8 };
+  const homeCatalogueState = { category: 'all', search: '', sort: 'featured' };
   function renderHomeCatalogue() {
     const grid = document.querySelector('#products-grid');
     if (!grid) return;
@@ -1039,11 +1038,7 @@
     if (homeCatalogueState.sort === 'price-asc') list.sort((a, b) => a.price - b.price);
     if (homeCatalogueState.sort === 'price-desc') list.sort((a, b) => b.price - a.price);
     if (homeCatalogueState.sort === 'ready') list = list.filter(p => !p.isSoldOut);
-    const showroom = document.body.classList.contains("light-on-gold");
-    renderGrid(grid, showroom ? list.slice(0, homeCatalogueState.visible) : list);
-    grid.setAttribute("aria-busy", "false");
-    const more = document.querySelector("#home-catalog-more");
-    if (more) more.hidden = list.length <= homeCatalogueState.visible;
+    renderGrid(grid, list);
     if (!list.length) grid.innerHTML = '<p class="stable-empty">No products match these filters.</p>';
     document.querySelectorAll('#storefront-category-filters [data-cat]').forEach(button => {
       const count = button.querySelector('[id^="count-"]');
@@ -1051,10 +1046,8 @@
     });
   }
   document.addEventListener('click', event => {
-    if (event.target.closest('#home-catalog-more')) { homeCatalogueState.visible += 8; renderHomeCatalogue(); }
     const button = event.target.closest('#storefront-category-filters [data-cat]');
     if (button) {
-      homeCatalogueState.visible = 8;
       homeCatalogueState.category = button.dataset.cat;
       button.parentElement.querySelectorAll('[data-cat]').forEach(item => { item.classList.toggle('is-active', item === button); item.setAttribute('aria-selected', String(item === button)); });
       renderHomeCatalogue();
@@ -1074,9 +1067,9 @@
     renderLivingDeck();
     renderHomeCatalogue();
     [
-      ["new-arrivals", productsForCollection("new-arrivals").slice(0, document.body.classList.contains("light-on-gold") ? 4 : 12)],
+      ["new-arrivals", productsForCollection("new-arrivals").slice(0, 12)],
       ["all", products.slice(12, 24)],
-      ["rings", productsForCollection("rings").slice(0, document.body.classList.contains("light-on-gold") ? 4 : 8)],
+      ["rings", productsForCollection("rings").slice(0, 8)],
       ["neck-wear", productsForCollection("necklaces").slice(0, 10)]
     ].forEach(([section, source]) => {
       const mount = document.querySelector(`[data-product-section="${section}"]`);
@@ -1118,13 +1111,12 @@
 
   function collectionState() {
     const params = new URLSearchParams(location.search);
-    return { edit: params.get("edit") || "", sort: params.get("sort") || "featured", price: params.get("price") || "all", category: params.get("category") || "all", query: params.get("q") || "" };
+    return { sort: params.get("sort") || "featured", price: params.get("price") || "all", category: params.get("category") || "all", query: params.get("q") || "" };
   }
 
   function updateCollectionState(state, { replace = false } = {}) {
     collectionVisible = 24;
     const params = new URLSearchParams();
-    if (state.edit) params.set("edit", state.edit);
     if (state.sort !== "featured") params.set("sort", state.sort);
     if (state.price !== "all") params.set("price", state.price);
     if (state.category && state.category !== "all") params.set("category", state.category);
@@ -1139,7 +1131,6 @@
     const meta = categoryMeta[slug];
     const state = collectionState();
     let selected = productsForCollection(slug);
-    if (new URLSearchParams(location.search).get("edit") === "best-sellers") selected = selected.filter(product => product.badge === "Best Seller" || (product.collections || []).includes("best-sellers"));
     if (state.price === "confirmed") selected = selected.filter((product) => pricing(product).confirmed);
     if (slug === "all" && state.category !== "all" && categoryMeta[state.category]) {
       selected = selected.filter((product) => product.category === state.category || (product.collections || []).includes(state.category));
@@ -1159,7 +1150,7 @@
     if (state.sort === "title") selected.sort((a, b) => a.title.localeCompare(b.title));
     document.body.dataset.collection = slug;
     document.querySelector("[data-collection-kicker]").textContent = meta.kicker;
-    document.querySelector("[data-collection-title]").textContent = state.edit === "best-sellers" ? "Best Sellers" : meta.title;
+    document.querySelector("[data-collection-title]").textContent = meta.title;
     document.querySelector("[data-collection-description]").textContent = meta.description;
     document.querySelector("[data-collection-breadcrumb]").textContent = meta.title;
     document.querySelector("[data-collection-count]").textContent = `${selected.length} ${selected.length === 1 ? "product" : "products"}`;
@@ -2182,7 +2173,7 @@
             }
             if (bData.hero?.title) {
               const heroTitle = document.querySelector("[data-hero-title]");
-              if (heroTitle && !heroTitle.closest("[data-art-home]")) heroTitle.textContent = bData.hero.title;
+              if (heroTitle) heroTitle.textContent = bData.hero.title;
             }
             if (bData.hero?.kicker) {
               const heroKicker = document.querySelector("[data-hero-kicker]");

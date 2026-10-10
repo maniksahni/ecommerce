@@ -5671,7 +5671,3 @@ body.catalog-stable { background: #fbf8f4; color: #281a14; font-size: 14px; }
   .stable-hero__content { width: min(900px, 92%); }
   .stable-hero h1 { max-width: 800px; font-size: clamp(56px, 5.4vw, 78px); }
 }
-
-/* Cross-document transition enhancement; native navigation remains the fallback. */
-@view-transition { navigation: auto; }
-@media (prefers-reduced-motion: reduce) { ::view-transition-group(*) { animation-duration: 0s !important; } }

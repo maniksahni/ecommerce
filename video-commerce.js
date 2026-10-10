@@ -136,7 +136,7 @@
       <section class="watch-and-buy-section" aria-labelledby="watch-buy-heading">
         <div class="watch-buy-header">
           <div class="watch-buy-title-group">
-            <span class="watch-buy-eyebrow">LIVE ATELIER FEED</span>
+            <span class="watch-buy-eyebrow">✨ LIVE ATELIER FEED</span>
             <h2 id="watch-buy-heading" class="watch-buy-title">Watch and Buy</h2>
             <p class="watch-buy-subtitle">Explore real customer styling, craftsmanship reels &amp; buy instantly in one tap.</p>
           </div>
@@ -156,17 +156,17 @@
                     <span class="pulse-dot"></span> LIVE REEL
                   </div>
                   <div class="reel-views-pill">
-                    <span class="eye-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></span> ${reel.views}
+                    <span class="eye-icon">👁</span> ${reel.views}
                   </div>
                   <button type="button" class="reel-play-trigger" data-play-reel="${reel.id}" aria-label="Watch ${reel.productTitle} reel">
-                    <span class="play-icon-triangle"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m7 3 15 9-15 9V3Z"/></svg></span>
+                    <span class="play-icon-triangle">▶</span>
                   </button>
                 </div>
 
                 <!-- Floating Mini Product Quick-Buy Card -->
                 <div class="reel-product-card">
                   <a class="reel-product-thumb" href="${productUrl(reel)}" aria-label="View ${reel.productTitle}">
-                    <img loading="lazy" src="${reel.videoPoster}" alt="${reel.productTitle}" />
+                    <img src="${reel.videoPoster}" alt="${reel.productTitle}" />
                   </a>
                   <div class="reel-product-info">
                     <a class="reel-product-title" href="${productUrl(reel)}">${reel.productTitle}</a>
@@ -257,7 +257,7 @@
           <div class="reel-modal-media">
             <img class="reel-modal-img" id="reel-modal-img" src="" alt="" />
             <div class="reel-modal-overlay">
-              <div class="reel-modal-live-badge">LIVE ATELIER FEED</div>
+              <div class="reel-modal-live-badge">✨ LIVE ATELIER FEED</div>
               <div class="reel-modal-caption" id="reel-modal-caption"></div>
               <div class="reel-modal-product-dock" id="reel-modal-product-dock"></div>
             </div>
