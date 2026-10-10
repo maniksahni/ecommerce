@@ -2,6 +2,7 @@ const { execFileSync } = require("node:child_process");
 const fs = require("node:fs");
 const path = require("node:path");
 const { loadCatalog } = require("./catalog-lib");
+const { transformSync } = require("esbuild");
 
 const root = path.resolve(__dirname, "..");
 const output = path.join(root, "dist");
@@ -38,7 +39,9 @@ const publicFiles = [
   "storefront-renderer.js",
   "script.js",
   "video-commerce.js",
-  "commerce-stable.css"
+  "commerce-stable.css",
+  "showroom.css",
+  "showroom.js"
 ];
 
 const collectionMeta = {
@@ -90,8 +93,16 @@ fs.mkdirSync(output, { recursive: true });
 for (const file of publicFiles) {
   const source = path.join(root, file);
   const content = fs.readFileSync(source);
-  write(file, file.endsWith(".html") ? stamp(content.toString("utf8")) : content);
+  const presentationAsset = file.endsWith(".css") || ["script.js", "showroom.js", "storefront-renderer.js", "video-commerce.js"].includes(file);
+  const compiled = presentationAsset ? transformSync(content.toString("utf8"), { loader: file.endsWith(".css") ? "css" : "js", minify: true, target: "es2020", legalComments: "inline" }).code : content;
+  write(file, file.endsWith(".html") ? stamp(content.toString("utf8")) : compiled);
 }
+
+// Inline the small homepage presentation sheet to remove a render-blocking round trip.
+// The source of truth remains showroom.css; other routes retain their existing styling.
+const homepagePath = path.join(output, "index.html");
+const homepageStyles = fs.readFileSync(path.join(output, "showroom.css"), "utf8");
+fs.writeFileSync(homepagePath, fs.readFileSync(homepagePath, "utf8").replace('<link rel="stylesheet" href="/showroom.css" />', `<style data-showroom-styles>${homepageStyles}</style>`));
 
 for (const directory of ["assets", "vendor", "src"]) {
   const source = path.join(root, directory);

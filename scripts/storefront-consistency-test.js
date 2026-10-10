@@ -43,6 +43,17 @@ async function waitForServer() {
   throw new Error(`Storefront did not start at ${baseUrl}`);
 }
 
+async function fixtureContext(browser, options) {
+  const context = await browser.newContext(options);
+  // This suite compares the generated catalogue to the local curated fixture.
+  // Live Firestore can contain a different catalogue and belongs to the realtime suite.
+  await context.route("**/src/firebase.js", (route) => route.fulfill({
+    contentType: "application/javascript",
+    body: "export const db = null; export const auth = null;"
+  }));
+  return context;
+}
+
 async function main() {
   assert(catalogApi.getAll().length === catalog.products.length && catalogApi.getBySlug("tulip-pendant")?.sku === "SHV-PND-003", "canonical catalogue API aliases expose curated products only");
   if (!process.env.STOREFRONT_BASE_URL) {
@@ -61,7 +72,7 @@ async function main() {
 
   for (const slug of collectionSlugs) {
     const expected = catalogApi.getCollection(slug);
-    const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const context = await fixtureContext(browser, { viewport: { width: 1280, height: 900 } });
     const page = await context.newPage();
     const errors = [];
     const missing = [];
@@ -116,7 +127,7 @@ async function main() {
     await context.close();
   }
 
-  const stateContext = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const stateContext = await fixtureContext(browser, { viewport: { width: 1280, height: 900 } });
   await stateContext.addInitScript(() => {
     localStorage.setItem("shivara-cart-v2", JSON.stringify([{ id: "tulip-pendant", variantId: null, qty: 1 }, { id: "DYH8S7oRbLk", qty: 9 }]));
     localStorage.setItem("shivara-wishlist-v2", JSON.stringify(["tulip-pendant", "DYH8S7oRbLk"]));
