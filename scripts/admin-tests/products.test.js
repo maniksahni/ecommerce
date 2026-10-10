@@ -60,3 +60,13 @@ test('price modal close controller exists and dismisses the modal', () => {
   vm.runInContext(source + ';closePriceModal();', c);
   assert.equal(removed, 'is-open');
 });
+test('empty OMS ignores and clears stale browser orders and customers', async () => {
+  const start = html.indexOf('    async function initializeBaselineOrders() {');
+  const end = html.indexOf('    function updateLiveStatus(', start);
+  const removed = [];
+  const c = vm.createContext({ allOrders: [{ orderId: 'old-cached-order' }], localStorage: { removeItem: key => removed.push(key) }, updateOrderStats() {}, renderOrdersTable() {}, renderDashboard() {}, computeCustomers() {} });
+  vm.runInContext(html.slice(start, end), c);
+  await vm.runInContext('initializeBaselineOrders()', c);
+  assert.equal(c.allOrders.length, 0);
+  assert.deepEqual(removed.sort(), ['shivara_admin_orders', 'shivara_recent_order'].sort());
+});

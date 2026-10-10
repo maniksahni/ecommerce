@@ -4855,46 +4855,14 @@
     }
 
     async function initializeBaselineOrders() {
-      const orders = [];
-
-      try {
-        const cachedAdmin = JSON.parse(localStorage.getItem('shivara_admin_orders'));
-        if (Array.isArray(cachedAdmin)) orders.push(...cachedAdmin);
-      } catch {}
-
-      try {
-        const recentGuest = JSON.parse(localStorage.getItem('shivara_recent_order'));
-        if (recentGuest && !orders.some(o => (o.orderId || o.id) === recentGuest.orderId)) {
-          orders.unshift({
-            id: recentGuest.orderId,
-            orderId: recentGuest.orderId,
-            ...recentGuest,
-            createdAt: recentGuest.date || new Date().toISOString()
-          });
-        }
-      } catch {}
-
-      try {
-        const res = await fetch('/api/orders');
-        if (res.ok) {
-          const data = await res.json();
-          const list = Array.isArray(data) ? data : (data.orders || []);
-          list.forEach(o => {
-            const oid = o.orderId || o.id;
-            if (oid && !orders.some(x => (x.orderId || x.id) === oid)) {
-              orders.push(o);
-            }
-          });
-        }
-      } catch {}
-
-      if (orders.length > 0 && (!allOrders || allOrders.length === 0)) {
-        allOrders = orders;
-        updateOrderStats();
-        renderOrdersTable();
-        renderDashboard();
-        computeCustomers();
-      }
+      // Firestore is authoritative; stale browser orders must not repopulate an empty OMS.
+      localStorage.removeItem('shivara_admin_orders');
+      localStorage.removeItem('shivara_recent_order');
+      allOrders = [];
+      updateOrderStats();
+      renderOrdersTable();
+      renderDashboard();
+      computeCustomers();
     }
 
     function updateLiveStatus(state, text) {
