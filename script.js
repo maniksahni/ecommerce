@@ -15,7 +15,10 @@
     document.documentElement.classList.add("catalogue-unavailable");
     return;
   }
-  const products = catalogApi.getAllProducts();
+  let products = catalogApi.getAllProducts();
+  let cloudCatalogueLoaded = false;
+  let cloudProductRecords = [];
+  let pdpRenderedSignature = null;
   const productMap = new Map();
   products.forEach((p) => {
     productMap.set(p.id, p);
@@ -617,8 +620,14 @@
     }
     const normalizedVariant = variant?.id || null;
     const existing = cart.find((item) => item.id === targetId && item.variantId === normalizedVariant);
-    if (existing) existing.qty += Math.max(1, Number(quantity) || 1);
-    else cart.push({ id: targetId, variantId: normalizedVariant, qty: Math.max(1, Number(quantity) || 1) });
+    const amount = Math.max(1, Math.floor(Number(quantity) || 1));
+    const availableStock = liveInventoryMap.get(product.sku) ?? liveInventoryMap.get(product.cloudDocId) ?? product.stock;
+    if (availableStock !== undefined && (existing?.qty || 0) + amount > Number(availableStock)) {
+      showToast("This quantity is not available in stock");
+      return false;
+    }
+    if (existing) existing.qty += amount;
+    else cart.push({ id: targetId, variantId: normalizedVariant, qty: amount });
     saveCart();
     renderCart();
     updateCounts();
@@ -630,32 +639,38 @@
     return true;
   }
 
-  function updateLiveProducts(updatedList) {
-    if (!Array.isArray(updatedList) || !updatedList.length) return;
-    updatedList.forEach((item) => {
-      const existing = productMap.get(item.id) || productMap.get(item.slug);
-      const updated = existing ? { ...existing, ...item } : { ...item };
-      productMap.set(updated.id, updated);
-      if (updated.slug) productMap.set(updated.slug, updated);
-      const idx = products.findIndex((p) => p.id === updated.id || (updated.slug && p.slug === updated.slug));
-      if (idx !== -1) {
-        products[idx] = updated;
-      } else {
-        products.unshift(updated);
-      }
-    });
-    if (document.body.dataset.page === "home") {
-      renderHome();
-    }
-    syncWishlistControls();
-    updateCounts();
+  function syncCloudCatalogue() {
+    updateLiveProducts(cloudProductRecords.map(product => {
+      const stock = liveInventoryMap.get(product.sku) ?? liveInventoryMap.get(product.id);
+      return { ...product, ...(stock === undefined ? {} : { stock }), isSoldOut: product.isSoldOut === true || (stock !== undefined && stock <= 0) };
+    }));
   }
 
-  document.addEventListener("shivara:products-synced", (e) => {
-    if (e.detail?.products) {
-      updateLiveProducts(e.detail.products);
+  function updateLiveProducts(records) {
+    products = catalogApi.replaceProductsFromCloud(records);
+    cloudCatalogueLoaded = true;
+    productMap.clear();
+    products.forEach(product => {
+      [product.id, product.slug, product.sku, product.sourcePostId, product.cloudDocId].filter(Boolean).forEach(key => productMap.set(key, product));
+    });
+    cart = normalizeCart(cart);
+    saveCart();
+    renderHome({ force: true });
+    renderCollection();
+    renderProductPage({ force: true });
+    renderWishlist();
+    renderCart();
+    if (document.querySelector('#quick-view.is-open') && quickState.product) {
+      const product = productMap.get(quickState.product.id);
+      if (product) renderQuick(product);
+      else closeLayer();
     }
-  });
+    const searchInput = document.querySelector('#stable-search');
+    renderSearch(searchInput?.value || "");
+    syncWishlistControls();
+    updateCounts();
+    document.dispatchEvent(new CustomEvent('shivara:catalogue-synced', { detail: { productCount: products.length } }));
+  }
 
   function calculateDiscount(subtotal) {
     if (!activeCoupon) return 0;
@@ -957,6 +972,7 @@
     mount.innerHTML = categoryRail.map(([label, slug, productId]) => {
       const product = productMap.get(productId);
       const count = productsForCollection(slug).length;
+      if (!product) return "";
       return `<a href="${collectionUrl(slug)}"><span><img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(label)} collection" loading="lazy" /></span><strong>${escapeHtml(label)}</strong><small>${count} ${count === 1 ? "product" : "products"}</small></a>`;
     }).join("");
   }
@@ -988,7 +1004,8 @@
     const mount = document.querySelector("[data-hero]");
     if (!mount) return;
     heroIndex = (nextIndex + heroIds.length) % heroIds.length;
-    const product = productMap.get(heroIds[heroIndex]);
+    const product = productMap.get(heroIds[heroIndex]) || products[0];
+    if (!product) return;
     mount.querySelector("[data-hero-image]").src = `/${product.images[0]}`;
     mount.querySelector("[data-hero-image]").alt = product.imageAlt;
     mount.querySelector("[data-hero-title]").textContent = product.title;
@@ -1005,15 +1022,50 @@
     const mount = document.querySelector("#signature-product");
     if (!mount) return;
     const signatureProducts = catalogApi.getFeaturedProducts(12).filter((product) => pricing(product).confirmed).slice(0, 6);
+    if (!signatureProducts.length) { mount.innerHTML = ""; return; }
     signatureIndex = (nextIndex + signatureProducts.length) % signatureProducts.length;
     const product = signatureProducts[signatureIndex];
     mount.innerHTML = `<a class="signature-edit__image" href="${productUrl(product)}"><img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(product.imageAlt)}" loading="lazy" /></a><div><small>${signatureIndex + 1} / ${signatureProducts.length} · ${escapeHtml(product.sku)}</small><h3>${escapeHtml(product.title)}</h3>${priceMarkup(product, "signature-edit__price")}<p>${escapeHtml(product.description)}</p><button class="stable-button stable-button--light" type="button" data-quick-view="${product.id}">Quick View</button></div>`;
   }
 
-  function renderHome() {
+  const homeCatalogueState = { category: 'all', search: '', sort: 'featured' };
+  function renderHomeCatalogue() {
+    const grid = document.querySelector('#products-grid');
+    if (!grid) return;
+    let list = productsForCollection(homeCatalogueState.category);
+    const term = homeCatalogueState.search.trim().toLowerCase();
+    if (term) list = list.filter(p => [p.title, p.description, p.sku, p.category].join(' ').toLowerCase().includes(term));
+    if (homeCatalogueState.sort === 'price-asc') list.sort((a, b) => a.price - b.price);
+    if (homeCatalogueState.sort === 'price-desc') list.sort((a, b) => b.price - a.price);
+    if (homeCatalogueState.sort === 'ready') list = list.filter(p => !p.isSoldOut);
+    renderGrid(grid, list);
+    if (!list.length) grid.innerHTML = '<p class="stable-empty">No products match these filters.</p>';
+    document.querySelectorAll('#storefront-category-filters [data-cat]').forEach(button => {
+      const count = button.querySelector('[id^="count-"]');
+      if (count) count.textContent = productsForCollection(button.dataset.cat).length;
+    });
+  }
+  document.addEventListener('click', event => {
+    const button = event.target.closest('#storefront-category-filters [data-cat]');
+    if (button) {
+      homeCatalogueState.category = button.dataset.cat;
+      button.parentElement.querySelectorAll('[data-cat]').forEach(item => { item.classList.toggle('is-active', item === button); item.setAttribute('aria-selected', String(item === button)); });
+      renderHomeCatalogue();
+    }
+    if (event.target.closest('#storefront-filter-toggle')) document.querySelector('#storefront-category-filters')?.classList.toggle('is-collapsed');
+  });
+  document.addEventListener('input', event => {
+    if (event.target.id === 'live-catalog-search') { homeCatalogueState.search = event.target.value; renderHomeCatalogue(); }
+  });
+  document.addEventListener('change', event => {
+    if (event.target.id === 'live-catalog-sort') { homeCatalogueState.sort = event.target.value; renderHomeCatalogue(); }
+  });
+
+  function renderHome({ force = false } = {}) {
     if (document.body.dataset.page !== "home") return;
     renderCategoryRail();
     renderLivingDeck();
+    renderHomeCatalogue();
     [
       ["new-arrivals", productsForCollection("new-arrivals").slice(0, 12)],
       ["all", products.slice(12, 24)],
@@ -1025,7 +1077,7 @@
       const renderedIds = [...mount.querySelectorAll("[data-product-card]")].map((card) => card.dataset.productCard);
       const sourceIds = source.map((product) => product.id);
       const serverMarkupMatches = renderedIds.length === sourceIds.length && renderedIds.every((id, index) => id === sourceIds[index]);
-      if (!serverMarkupMatches) renderGrid(mount, source);
+      if (!serverMarkupMatches || force) renderGrid(mount, source);
     });
     syncWishlistControls();
     renderHero();
@@ -1137,17 +1189,28 @@
     saveStorage(storageKeys.recent, recent);
   }
 
-  function renderProductPage() {
+  function renderProductPage({ force = false } = {}) {
     if (document.body.dataset.page !== "product") return;
     const id = decodeURIComponent(location.pathname.split("/").filter(Boolean)[1] || "");
     const product = catalogApi.getProductBySlug(id) || catalogApi.getProductByLegacyId(id);
     const mount = document.querySelector("#product-page");
-    if (!product) return;
+    if (!product) {
+      if (cloudCatalogueLoaded) {
+        setupMobileBuyBar.cleanup?.();
+        mount.innerHTML = '<section class="stable-empty"><h1>This product is no longer available</h1><a class="stable-button" href="/collections/all">Browse the catalogue</a></section>';
+      }
+      return;
+    }
+    const signature = JSON.stringify(product);
+    const changed = signature !== pdpRenderedSignature;
+    pdpRenderedSignature = signature;
     rememberProduct(product.id);
     const related = catalogApi.getRelatedProducts(product, 5);
     const recentProducts = recent.filter((recentId) => recentId !== product.id).map((recentId) => productMap.get(recentId)).filter(Boolean).slice(0, 5);
     const serverPage = mount.querySelector(`[data-shared-product-page="${CSS.escape(product.id)}"]`);
-    if (!serverPage) {
+    const savedInputs = [...mount.querySelectorAll('input[id]')].map(input => ({ id: input.id, value: input.value }));
+    const deliveryMessage = mount.querySelector('[data-delivery-result]')?.textContent;
+    if (!serverPage || (force && changed)) {
       mount.innerHTML = cardRenderer.renderProductPage(catalogApi, product, {
         related,
         recent: recentProducts,
@@ -1159,6 +1222,8 @@
       const mobileBuy = mount.querySelector(".stable-mobile-buy");
       mobileBuy?.insertAdjacentHTML("beforebegin", `<section class="stable-products stable-products--pdp" data-recently-viewed><div class="stable-section-heading"><div><p>YOUR TRAIL</p><h2>Recently viewed</h2></div></div><div class="commerce-product-grid">${recentProducts.map(productCard).join("")}</div></section>`);
     }
+    savedInputs.forEach(saved => { const input = document.getElementById(saved.id); if (input) input.value = saved.value; });
+    if (deliveryMessage && mount.querySelector('[data-delivery-result]')) mount.querySelector('[data-delivery-result]').textContent = deliveryMessage;
     setupMobileBuyBar();
     setupPdpGallery();
     if (sessionStorage.getItem("shivara-transition-product") === product.id) {
@@ -1175,6 +1240,7 @@
     const bar = document.querySelector(".stable-mobile-buy");
     const nativeActions = document.querySelector(".stable-pdp__actions");
     if (!bar || !nativeActions || bar.dataset.mobileBuyReady) return;
+    setupMobileBuyBar.cleanup?.();
     bar.dataset.mobileBuyReady = "true";
     let scheduled = false;
     const update = () => {
@@ -1192,6 +1258,11 @@
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule, { passive: true });
     document.addEventListener("shivara:modal-change", schedule);
+    setupMobileBuyBar.cleanup = () => {
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      document.removeEventListener('shivara:modal-change', schedule);
+    };
     update();
   }
 
@@ -1376,7 +1447,15 @@
     const delta = target.closest("[data-cart-delta]");
     if (delta) {
       const item = cart.find((line) => line.id === delta.dataset.cartId && (line.variantId || "") === delta.dataset.variantId);
-      if (item) item.qty += Number(delta.dataset.cartDelta);
+      if (item) {
+        const product = productMap.get(item.id);
+        const stock = liveInventoryMap.get(product?.sku) ?? product?.stock;
+        if (Number(delta.dataset.cartDelta) > 0 && (product?.isSoldOut || (stock !== undefined && item.qty >= stock))) {
+          showToast("This quantity is not available in stock");
+          return;
+        }
+        item.qty += Number(delta.dataset.cartDelta);
+      }
       cart = cart.filter((line) => line.qty > 0);
       saveCart();
       renderCart();
@@ -1549,6 +1628,13 @@
         return;
       }
 
+      const unavailable = cart.find(item => {
+        const product = productMap.get(item.id);
+        const stock = liveInventoryMap.get(product?.sku) ?? liveInventoryMap.get(item.id);
+        return !product || product.isSoldOut || (stock !== undefined && item.qty > stock);
+      });
+      if (unavailable) { showToast('An item in your bag is unavailable in this quantity. Please update your bag.'); return; }
+
       // Prevent duplicate order submissions
       if (submitBtn) {
         if (submitBtn.disabled) return;
@@ -1596,6 +1682,12 @@
           body: JSON.stringify(payload)
         });
 
+        if (!res.ok && ![404, 405, 501].includes(res.status)) {
+          const failure = await res.json().catch(() => ({}));
+          showToast(failure.error || 'Unable to confirm this order. Please check availability and try again.');
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = submitBtn.dataset.originalText; }
+          return;
+        }
         if (res.ok) {
           const data = await res.json();
           if (data && data.ok && data.orderId) {
@@ -1873,125 +1965,6 @@
   // ─────────────────────────────────────────────────────────────
   let universalRealtimeInitialized = false;
 
-  function updateProductDomRealtime(productId, patch) {
-    const product = productMap.get(productId);
-    if (!product) return;
-
-    const liveStock = patch.stock !== undefined ? Number(patch.stock) : liveInventoryMap.get(product.sku || product.id);
-    const isSoldOut = patch.isSoldOut !== undefined ? Boolean(patch.isSoldOut) : (liveStock !== undefined ? liveStock <= 0 : Boolean(product.isSoldOut));
-    const currentPrice = patch.price !== undefined ? Number(patch.price) : Number(product.price || 499);
-    const currentTitle = patch.title !== undefined ? patch.title : product.title;
-
-    // 1. Update all product cards on the page
-    const matchingCards = document.querySelectorAll(`article[data-product-card="${product.id}"], article[data-product-card="${product.slug}"]`);
-    matchingCards.forEach((card) => {
-      if (isSoldOut) {
-        card.classList.add("is-sold-out");
-        const media = card.querySelector(".stable-card__media");
-        if (media && !media.querySelector(".stable-card__badge--sold-out")) {
-          media.insertAdjacentHTML("beforeend", `<span class="stable-card__badge stable-card__badge--sold-out">SOLD OUT</span><div class="stable-card__sold-out-overlay" aria-hidden="true"><span>SOLD OUT</span></div>`);
-        }
-        const addBtn = card.querySelector(".stable-card__add");
-        if (addBtn) {
-          addBtn.disabled = true;
-          addBtn.classList.add("stable-card__add--sold-out");
-          addBtn.textContent = "Sold Out";
-          addBtn.removeAttribute("data-card-add");
-        }
-      } else {
-        card.classList.remove("is-sold-out");
-        card.querySelector(".stable-card__badge--sold-out")?.remove();
-        card.querySelector(".stable-card__sold-out-overlay")?.remove();
-        const addBtn = card.querySelector(".stable-card__add");
-        if (addBtn) {
-          addBtn.disabled = false;
-          addBtn.classList.remove("stable-card__add--sold-out");
-          addBtn.textContent = "Add to Bag";
-          addBtn.setAttribute("data-card-add", product.id);
-        }
-      }
-
-      if (patch.price !== undefined) {
-        const priceElem = card.querySelector(".stable-card__price strong");
-        if (priceElem) priceElem.textContent = formatMoney(currentPrice);
-        const bestPriceElem = card.querySelector(".stable-card__best-price strong");
-        if (bestPriceElem) bestPriceElem.textContent = formatMoney(Math.round(currentPrice * 0.85));
-      }
-
-      if (patch.title !== undefined) {
-        const titleElem = card.querySelector(".stable-card__title");
-        if (titleElem) titleElem.textContent = currentTitle;
-      }
-    });
-
-    // 2. Update PDP (Product Detail Page) if active
-    const pdpContainer = document.querySelector(`[data-shared-product-page="${product.id}"], [data-shared-product-page="${product.slug}"]`);
-    if (pdpContainer) {
-      const availElem = pdpContainer.querySelector(".stable-pdp__meta span");
-      if (availElem) {
-        availElem.innerHTML = isSoldOut ? '<i aria-hidden="true"></i>Sold Out' : '<i aria-hidden="true"></i>In Stock · Available for Express Dispatch';
-      }
-
-      const pdpButtons = pdpContainer.querySelectorAll(".stable-pdp__actions button, .stable-mobile-buy button");
-      pdpButtons.forEach((btn) => {
-        if (btn.classList.contains("stable-button--dark")) {
-          if (isSoldOut) {
-            btn.disabled = true;
-            btn.style.opacity = "0.6";
-            btn.style.cursor = "not-allowed";
-            btn.textContent = "Sold Out";
-            btn.removeAttribute("data-pdp-add");
-          } else {
-            btn.disabled = false;
-            btn.style.opacity = "";
-            btn.style.cursor = "";
-            btn.textContent = "Add to Bag";
-            btn.setAttribute("data-pdp-add", product.id);
-          }
-        }
-      });
-
-      if (patch.price !== undefined) {
-        pdpContainer.querySelectorAll(".stable-pdp__price strong, .stable-mobile-buy__price strong").forEach((el) => {
-          el.textContent = formatMoney(currentPrice);
-        });
-      }
-
-      if (patch.title !== undefined) {
-        const h1 = pdpContainer.querySelector("h1[itemprop='name']");
-        if (h1) h1.textContent = currentTitle;
-      }
-    }
-
-    // 3. Update Quick View modal if active
-    const quickModal = document.querySelector("#quick-view");
-    if (quickModal && quickModal.classList.contains("is-open") && quickState.product?.id === product.id) {
-      const quickAddBtn = quickModal.querySelector("[data-quick-add]");
-      if (quickAddBtn) {
-        if (isSoldOut) {
-          quickAddBtn.disabled = true;
-          quickAddBtn.textContent = "Sold Out";
-        } else {
-          quickAddBtn.disabled = false;
-          quickAddBtn.textContent = "Add to Bag";
-        }
-      }
-      if (patch.price !== undefined) {
-        const qPrice = quickModal.querySelector(".stable-quick__price strong");
-        if (qPrice) qPrice.textContent = formatMoney(currentPrice);
-      }
-    }
-
-    // 4. Update cart maximum quantity & sold-out alerts
-    const cartItem = cart.find(i => i.id === product.id);
-    if (cartItem && isSoldOut) {
-      const cartDrawer = document.querySelector("#cart-drawer");
-      if (cartDrawer && cartDrawer.classList.contains("is-open")) {
-        renderCart();
-      }
-    }
-  }
-
   function renderStorefrontPromoStrip() {
     const strip = document.querySelector("#storefront-promo-strip");
     if (!strip) return;
@@ -2101,28 +2074,16 @@
       // ─── 1. REALTIME INVENTORY SUBSCRIPTION ───
       try {
         onSnapshot(collection(db, "inventory"), (snapshot) => {
-          snapshot.docChanges().forEach((change) => {
-            const data = change.doc.data();
-            const docId = change.doc.id;
-            const sku = data?.sku || docId;
-            const stock = Number(data?.stock || 0);
-            const isSoldOut = Boolean(data?.isSoldOut || stock <= 0);
-
-            liveInventoryMap.set(sku, stock);
-            liveInventoryMap.set(docId, stock);
-
-            // Find matching product in catalog
-            const prod = products.find(p =>
-              p.sku === sku || p.id === sku || p.slug === sku ||
-              p.sku === docId || p.id === docId || p.slug === docId
-            );
-            if (prod) {
-              liveInventoryMap.set(prod.id, stock);
-              if (prod.slug) liveInventoryMap.set(prod.slug, stock);
-              if (prod.sku) liveInventoryMap.set(prod.sku, stock);
-              updateProductDomRealtime(prod.id, { stock, isSoldOut });
-            }
+          if (snapshot.metadata.hasPendingWrites) return;
+          liveInventoryMap.clear();
+          snapshot.docs.forEach(item => {
+            const data = item.data();
+            const stock = Number(data.stock);
+            if (!Number.isFinite(stock)) return;
+            liveInventoryMap.set(item.id, stock);
+            if (data.sku) liveInventoryMap.set(data.sku, stock);
           });
+          if (cloudCatalogueLoaded) syncCloudCatalogue();
         }, (err) => {
           console.warn("[Realtime] Inventory listener note:", err.message);
         });
@@ -2133,18 +2094,9 @@
       // ─── 2. REALTIME PRODUCTS CATALOG SUBSCRIPTION ───
       try {
         onSnapshot(collection(db, "products"), (snapshot) => {
-          snapshot.docChanges().forEach((change) => {
-            const data = change.doc.data();
-            const prodId = change.doc.id;
-            const prod = productMap.get(prodId) || products.find(p => p.id === prodId || p.slug === prodId);
-            if (prod) {
-              const patch = {};
-              if (data.price !== undefined) patch.price = Number(data.price);
-              if (data.title !== undefined) patch.title = data.title;
-              if (data.isSoldOut !== undefined) patch.isSoldOut = Boolean(data.isSoldOut);
-              updateProductDomRealtime(prod.id, patch);
-            }
-          });
+          if (snapshot.metadata.hasPendingWrites) return;
+          cloudProductRecords = snapshot.docs.map(item => ({ ...item.data(), id: item.id }));
+          syncCloudCatalogue();
         }, (err) => {
           console.warn("[Realtime] Products listener note:", err.message);
         });

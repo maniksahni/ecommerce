@@ -13,7 +13,7 @@
         "headers": [
           {
             "key": "X-Shivara-Build",
-            "value": "27252a21762a04d5bc12850c721c3a9cc9ad57e9"
+            "value": "3c23581035ce5c446a42c3ca580a52b070e3184d"
           },
           {
             "key": "X-Shivara-Catalog-Version",
@@ -609,6 +609,12 @@
         "source": "/products/catalog-2026-07-26-089",
         "destination": "/products/stacked-coil-bangle",
         "type": 301
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "/products/**",
+        "destination": "/product.html"
       }
     ]
   },

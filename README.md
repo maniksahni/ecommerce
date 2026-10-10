@@ -5,7 +5,7 @@ A responsive, high-performance e-commerce platform and atelier matched to [@shiv
 Production storefront: https://the-shivara-group-86c9c.web.app
 Executive Admin: https://the-shivara-group-86c9c.web.app/admin
 
-The build compiles static product and collection routes from the curated catalogue, applies real-time Firestore synchronization, and ensures 100% responsive cross-viewport stability.
+The build compiles static product and collection routes from the curated catalogue, applies real-time Firestore synchronization, and supports responsive storefront and admin layouts. Browser layout and workflow checks are documented with their tested viewports; they do not guarantee every physical device.
 
 The site uses the real profile positioning:
 

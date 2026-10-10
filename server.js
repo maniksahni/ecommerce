@@ -1083,9 +1083,8 @@ const server = http.createServer(async (request, response) => {
     }
     const product = catalogApi.getProductBySlug(identifier);
     if (!product) {
-      const sourceEntry = catalog.socialContent.find((item) => item.id === identifier);
-      const page = unavailablePage(sourceEntry ? "Product unavailable" : "Product not found", sourceEntry ? "This social post is not a verified purchasable product." : "We could not find that product.");
-      return sendHtml(response, page.html, page.status);
+      // Cloud-created products are resolved by the shared browser catalogue.
+      return sendHtml(response, fs.readFileSync(path.join(root, "product.html"), "utf8"), 404);
     }
     return sendHtml(response, injectProduct(fs.readFileSync(path.join(root, "product.html"), "utf8"), product));
   }

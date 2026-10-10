@@ -35,7 +35,6 @@ const publicFiles = [
   "catalog-supplement.js",
   "catalog-overrides.js",
   "catalog-data.js",
-  "admin-catalog-snapshot.js",
   "storefront-renderer.js",
   "script.js",
   "video-commerce.js",
@@ -213,7 +212,8 @@ const routeRules = [
   ...catalogApi.getAllProducts()
     .filter((product) => product.sourcePostId && product.sourcePostId !== product.slug)
     .map((product) => `/products/${product.sourcePostId} /products/${product.slug} 301!`),
-  "/wishlist /wishlist/index.html 200!"
+  "/wishlist /wishlist/index.html 200!",
+  "/products/* /product.html 200"
 ];
 write("_redirects", `${routeRules.join("\n")}\n`);
 

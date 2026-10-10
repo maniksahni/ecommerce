@@ -5,8 +5,8 @@ service cloud.firestore {
     // Strict Admin Authorization: Custom admin claim or explicitly approved admin email allowlist
     function isAdmin() {
       return request.auth != null && (
-        request.auth.token.admin == true ||
-        request.auth.token.email in ['maniksahni@gmail.com', 'admin@shivaragroup.com', 'imperialshivam@gmail.com']
+        request.auth.token.get('admin', false) == true ||
+        request.auth.token.get('email', '') in ['maniksahni@gmail.com', 'admin@shivaragroup.com', 'imperialshivam@gmail.com']
       );
     }
 

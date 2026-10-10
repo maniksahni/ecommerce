@@ -22,7 +22,6 @@ COPY catalog-supplement.js ./
 COPY scripts/catalog-lib.js ./scripts/
 COPY admin-inventory.json ./
 COPY admin-orders.json ./
-COPY admin-products.json ./
 COPY admin.html ./
 COPY index.html ./
 COPY product.html ./
@@ -30,6 +29,9 @@ COPY order-confirmation.html ./
 COPY track-order.html ./
 COPY collections ./collections
 COPY wishlist ./wishlist
+COPY src ./src
+COPY assets ./assets
+COPY commerce-stable.css script.js ./
 
 EXPOSE 8080
 

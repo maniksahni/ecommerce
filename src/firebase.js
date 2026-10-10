@@ -23,7 +23,9 @@ const app = initializeApp(firebaseConfig);
 let firestoreInstance;
 try {
   firestoreInstance = initializeFirestore(app, {
-    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+    experimentalForceLongPolling: true,
+    experimentalLongPollingOptions: { timeoutSeconds: 25 }
   });
 } catch (e) {
   firestoreInstance = getFirestore(app);

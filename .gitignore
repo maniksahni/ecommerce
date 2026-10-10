@@ -12,3 +12,5 @@ admin-products.json
 *.key
 service-account*.json
 *.log
+
+artifacts/

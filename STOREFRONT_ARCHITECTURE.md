@@ -11,15 +11,17 @@
 
 - `server.js`: routes, metadata, canonical URLs, build stamps and server rendering from `ShivaraCatalog`.
 - `script.js`: commerce state, collection filters/sorting, search, Quick View, cart and wishlist enhancement.
-- `experience.js`: homepage-only hero, category gallery and product deck.
-- `motion-controller.js`: homepage performance tier, reduced-motion and animation lifecycle.
+- `src/admin-session.js`: approved-account gate, protected server permission check and one credential refresh on rejected writes.
+- Firestore is authoritative after the first snapshot. The shared catalogue replaces static records so additions, edits and deletions reach search, collections, product pages and cart.
 
 ## Styling
 
 - `commerce-stable.css`: reset, typography, shared header/footer, product cards, collection pages, product pages and commerce overlays.
-- `phase-b.css`: homepage signature experiences only.
+Unused legacy styles, motion bundles, Three.js and the duplicate homepage Firestore renderer have been removed.
 
-The older `styles.css`, `storefront-v2.css`, `atelier.css` and `motion.js` files are retained as historical source but are not loaded by production pages.
+Static Hosting rewrites `/products/**` to the product template for cloud-created products. Existing generated routes retain their server-rendered content and receive the same cloud updates.
+
+`npm test` runs non-mutating catalogue, admin unit and source security checks. `npm run test:realtime` runs Chrome/WebKit with an isolated browser Firestore fixture; it creates no production orders. Live browser tests require explicit administrator environment credentials.
 
 ## Homepage Feature Gate
 

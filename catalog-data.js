@@ -119,9 +119,56 @@
 
   function createAccessLayer(catalog) {
     if (!catalog || !Array.isArray(catalog.products)) throw new Error("Curated Shivara catalogue is unavailable");
-    const products = catalog.products;
+    let products = catalog.products;
     const bySlug = new Map(products.map((product) => [product.slug, product]));
     const byLegacyId = new Map(products.map((product) => [product.sourcePostId, product]));
+
+    function replaceProductsFromCloud(records) {
+      const baseline = new Map(catalog.products.flatMap(product => [[product.slug, product], [product.id, product], [product.sku, product]]));
+      const seen = new Set();
+      products = records.flatMap((entry, index) => {
+        const original = baseline.get(entry.slug) || baseline.get(entry.id) || baseline.get(entry.sku) || {};
+        const slug = String(entry.slug || original.slug || entry.id || '').trim();
+        const title = String(entry.title || original.title || '').trim();
+        const price = Number(entry.price ?? original.price);
+        const images = entry.images?.length ? entry.images : entry.imageUrl ? [entry.imageUrl] : original.images || [];
+        if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || !title || !Number.isFinite(price) || price <= 0 || !images.length || seen.has(slug)) return [];
+        seen.add(slug);
+        const category = entry.category || original.category || 'other';
+        return [freezeProduct({
+          ...original, ...entry,
+          id: original.id || slug, slug, title, price,
+          cloudDocId: entry.id, category,
+          contentType: 'product', isPurchasable: true, priceStatus: 'confirmed',
+          isSoldOut: entry.isSoldOut === true,
+          compareAtPrice: Number(entry.compareAtPrice) > price ? Number(entry.compareAtPrice) : null,
+          images: [...images], videos: entry.videos || original.videos || [],
+          variants: entry.variants || original.variants || [],
+          collections: [...new Set([category, ...(entry.collections || original.collections || ['new-arrivals']).filter(value => !(category !== original.category && value === original.category))])],
+          imageAlt: entry.imageAlt || original.imageAlt || title,
+          description: entry.description || original.description || '',
+          sourceIndex: original.sourceIndex ?? (100000 + index),
+          sku: entry.sku || original.sku || slug,
+          sourcePostId: original.sourcePostId || entry.id,
+          currency: 'INR', optionsStatus: entry.optionsStatus || original.optionsStatus || 'none'
+        })];
+      });
+      bySlug.clear();
+      byLegacyId.clear();
+      products.forEach(product => { bySlug.set(product.slug, product); bySlug.set(product.id, product); byLegacyId.set(product.sourcePostId, product); });
+      return getAllProducts();
+    }
+
+    function patchLiveProduct(id, patch) {
+      const current = bySlug.get(id);
+      if (!current) return null;
+      const updated = freezeProduct({ ...current, ...patch });
+      products = products.map(product => product.id === current.id ? updated : product);
+      bySlug.set(updated.slug, updated);
+      bySlug.set(updated.id, updated);
+      byLegacyId.set(updated.sourcePostId, updated);
+      return updated;
+    }
 
     function validateCommerceObject(product, context = "commerce renderer") {
       const valid = Boolean(
@@ -229,6 +276,8 @@
       getBySlug: getProductBySlug,
       getByLegacyId: getProductByLegacyId,
       getAllProducts,
+      replaceProductsFromCloud,
+      patchLiveProduct,
       getProductBySlug,
       getProductByLegacyId,
       getCollection,
