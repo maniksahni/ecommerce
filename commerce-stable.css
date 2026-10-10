@@ -5656,11 +5656,16 @@ body.catalog-stable { background: #fbf8f4; color: #281a14; font-size: 14px; }
 }
 
 @media (min-width: 1101px) {
-  .stable-nav { flex: 1 1 auto; justify-content: flex-start; gap: clamp(5px,.65vw,10px); }
-  .stable-nav a[data-nav-category="neckwear"],
-  .stable-nav a[data-nav-category="evil-eye"],
-  .stable-nav a[data-nav-category="watches"],
-  .stable-nav a[data-nav-category="jewellery-sets"] { display: none; }
+  .stable-nav {
+    min-width: 0;
+    flex: 1 1 0%;
+    justify-content: flex-start;
+    gap: clamp(5px,.65vw,10px);
+    overflow: hidden;
+  }
+  .stable-nav > a[data-nav-category]:not([data-nav-category="new-arrivals"]):not([data-nav-category="earrings"]):not([data-nav-category="rings"]):not([data-nav-category="bracelets"]) {
+    display: none;
+  }
 }
 @media (min-width: 768px) {
   .stable-hero__content { width: min(900px, 92%); }
