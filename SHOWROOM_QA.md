@@ -6,7 +6,7 @@ The homepage uses existing product data, prices, facts and routes. Catalogue sou
 
 Captured the hero, bracelet story, category gallery, craft sequence, product deck, Shivara Edit, editorial cards and concierge at 375, 768 and 1440 px. Repeated the phone review in WebKit. Reviewed additional arrival, ring, brand, social, reassurance and footer panels. Screenshots are in artifacts/light-on-gold/ (generated review files are intentionally not shipped).
 
-Corrections from review: restored light text on dark panels; removed legacy white card backgrounds; replaced editorial lifestyle placeholders with existing jewellery photographs; restored dark header contrast; reduced small-label contrast failures; removed legacy deck positioning and column auto-flow that clipped mobile cards; reduced the initial catalogue to eight cards and arrival/ring previews to four each; retained view-all journeys and all existing catalogue entries.
+Corrections from review: restored light text on dark panels; removed legacy white card backgrounds; replaced editorial lifestyle placeholders with existing jewellery photographs; restored dark header contrast; reduced small-label contrast failures; removed legacy deck positioning and column auto-flow that clipped mobile cards; removed product title clamping and improved keyboard focus on ivory panels; reduced the initial catalogue to eight cards and arrival/ring previews to four each; retained view-all journeys and all existing catalogue entries.
 
 ## Motion and accessibility
 
@@ -18,7 +18,7 @@ Chromium: 375/768/1440 px. WebKit: 375 px. Each loaded eight cards, expanded to 
 
 ## Performance
 
-Lighthouse mobile simulation on a compressed production build: performance 97, accessibility 100, LCP 2467 ms, CLS 0, TBT 100 ms. This is a lab measurement, not a guarantee for every device or connection. Hero uses responsive AVIF with WebP fallback and preload; other presentation images have responsive WebP variants. Display/UI fonts are hosted locally with swap, and the display font is subset. Production CSS and interface JS are minified; homepage CSS is inlined from showroom.css.
+Lighthouse mobile simulation on a compressed production build: performance 97, accessibility 100, LCP 2467 ms, CLS 0, TBT 100 ms. Published Firebase mobile Lighthouse: performance 94, accessibility 100, LCP 1972 ms, CLS 0.000331, TBT 28 ms. These are lab measurements, not a guarantee for every device or connection. Hero uses responsive AVIF with WebP fallback and preload; other presentation images have responsive WebP variants. Display/UI fonts are hosted locally with swap, and the display font is subset. Production CSS and interface JS are minified; homepage CSS is inlined from showroom.css.
 
 ## Remaining verification
 
