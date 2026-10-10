@@ -5435,6 +5435,13 @@ body.stable-modal-open .stable-mobile-dock {
     padding: 20px 8px !important;
   }
 }
+/* Keep the editorial product features on larger screens only. */
+@media (max-width: 767px) {
+  body[data-page="home"] .living-deck,
+  body[data-page="home"] .atelier-split-showcase {
+    display: none !important;
+  }
+}
 
 
 
