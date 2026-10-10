@@ -5450,3 +5450,21 @@ body.stable-modal-open .stable-mobile-dock {
     line-height: 1;
   }
 }
+
+@media (max-width: 767px) {
+  .stable-announcement {
+    height: 40px;
+    min-height: 40px;
+    padding: 4px 12px;
+    white-space: normal;
+    font-size: 10px;
+    letter-spacing: 1px;
+    line-height: 1.4;
+    text-align: center;
+  }
+  .stable-announcement [data-announcement-text] {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+}
