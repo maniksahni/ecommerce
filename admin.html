@@ -1027,6 +1027,10 @@
       border-radius: var(--radius-md);
       box-shadow: var(--shadow-lg);
       text-align: center;
+      max-height: calc(100vh - 40px);
+      max-height: calc(100dvh - 40px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
     }
 
     .modal-title {
@@ -2108,6 +2112,18 @@
     .stat-sub { font-size: 12px; line-height: 1.5; }
     .dashboard-grid-two { gap: 20px; }
     .live-dot { animation: none; }
+    @media (max-width: 640px) {
+      #category-form > div[style*="display:grid"],
+      #create-coupon-form > div[style*="display:grid"] {
+        grid-template-columns: minmax(0, 1fr) !important;
+      }
+      .modal-card input:not([type="checkbox"]),
+      .modal-card select,
+      .modal-card textarea {
+        font-size: 16px;
+        min-width: 0;
+      }
+    }
     @media(max-width:600px) { .stats-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; } .stat-card { padding: 14px; min-width: 0; } .stat-value { font-size: 25px; overflow-wrap: anywhere; } }
   </style>
 </head>

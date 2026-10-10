@@ -5438,3 +5438,15 @@ body.stable-modal-open .stable-mobile-dock {
 
 
 
+
+/* Keep navigation glyphs legible independently of compact button labels. */
+@media (max-width: 767px) {
+  .stable-header__menu .menu-icon {
+    font-size: 20px;
+    line-height: 1;
+  }
+  .stable-header__actions [data-search-open] {
+    font-size: 24px !important;
+    line-height: 1;
+  }
+}
