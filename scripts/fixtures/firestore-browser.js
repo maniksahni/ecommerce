@@ -7,7 +7,8 @@ function snapshot(ref) {
   const docs = Object.entries(db[ref.name] || {}).map(([id, data]) => ({ id, data: () => data }));
   return { docs, empty: !docs.length, size: docs.length, metadata: { fromCache: false, hasPendingWrites: false }, forEach: fn => docs.forEach(fn), docChanges: () => docs.map(doc => ({ type: 'added', doc })) };
 }
-export function onSnapshot(ref, callback) {
+export function onSnapshot(ref, optionsOrCallback, callback) {
+  callback = typeof optionsOrCallback === "function" ? optionsOrCallback : callback;
   const subscription = { ref, callback };
   listeners.push(subscription);
   queueMicrotask(() => callback(snapshot(ref)));

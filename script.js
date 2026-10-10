@@ -2073,7 +2073,7 @@
 
       // ─── 1. REALTIME INVENTORY SUBSCRIPTION ───
       try {
-        onSnapshot(collection(db, "inventory"), (snapshot) => {
+        onSnapshot(collection(db, "inventory"), { includeMetadataChanges: true }, (snapshot) => {
           if (snapshot.metadata.hasPendingWrites) return;
           liveInventoryMap.clear();
           snapshot.docs.forEach(item => {
@@ -2093,7 +2093,7 @@
 
       // ─── 2. REALTIME PRODUCTS CATALOG SUBSCRIPTION ───
       try {
-        onSnapshot(collection(db, "products"), (snapshot) => {
+        onSnapshot(collection(db, "products"), { includeMetadataChanges: true }, (snapshot) => {
           if (snapshot.metadata.hasPendingWrites) return;
           cloudProductRecords = snapshot.docs.map(item => ({ ...item.data(), id: item.id }));
           syncCloudCatalogue();

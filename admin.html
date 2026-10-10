@@ -3837,7 +3837,7 @@
         unsubscribeInventory = null;
       }
       try {
-        unsubscribeInventory = onSnapshot(collection(db, "inventory"), (snapshot) => {
+        unsubscribeInventory = onSnapshot(collection(db, "inventory"), { includeMetadataChanges: true }, (snapshot) => {
           if (snapshot.metadata.hasPendingWrites) return;
           inventoryStore = {};
           snapshot.forEach(docSnap => {
@@ -4943,16 +4943,16 @@
 
       try {
         const q = collection(db, "products");
-        unsubscribeProducts = onSnapshot(q, handleSnapshot, (err) => {
+        unsubscribeProducts = onSnapshot(q, { includeMetadataChanges: true }, handleSnapshot, (err) => {
           console.warn("Ordered query note, listening to base collection:", err.message);
-          unsubscribeProducts = onSnapshot(collection(db, "products"), handleSnapshot, (fallbackErr) => {
+          unsubscribeProducts = onSnapshot(collection(db, "products"), { includeMetadataChanges: true }, handleSnapshot, (fallbackErr) => {
             console.error("Snapshot error:", fallbackErr);
             updateLiveStatus('offline', 'Catalogue access failed');
             showToast('Cannot load cloud products: ' + fallbackErr.message, 'error');
           });
         });
       } catch (err) {
-        unsubscribeProducts = onSnapshot(collection(db, "products"), handleSnapshot);
+        unsubscribeProducts = onSnapshot(collection(db, "products"), { includeMetadataChanges: true }, handleSnapshot);
       }
     }
 
