@@ -2095,6 +2095,20 @@
         display: none !important;
       }
     }
+  
+    /* Calmer dashboard, with readable summaries and less visual noise. */
+    body { background: #f6f7f9; }
+    body::before { display: none; }
+    .admin-header { background: #fff; box-shadow: none; }
+    .stats-grid { gap: 14px; margin-bottom: 24px; }
+    .stat-card { background: #fff; box-shadow: none; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; }
+    .stat-card:hover { transform: none; box-shadow: none; }
+    .stat-label { font-size: 11px; letter-spacing: .5px; }
+    .stat-value { font-family: "DM Sans", sans-serif; font-size: 30px; font-weight: 600; }
+    .stat-sub { font-size: 12px; line-height: 1.5; }
+    .dashboard-grid-two { gap: 20px; }
+    .live-dot { animation: none; }
+    @media(max-width:600px) { .stats-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; } .stat-card { padding: 14px; min-width: 0; } .stat-value { font-size: 25px; overflow-wrap: anywhere; } }
   </style>
 </head>
 <body>
@@ -4986,8 +5000,8 @@
           snapshot.forEach(docSnap => {
             const data = docSnap.data() || {};
             firestoreProducts.push({
-              id: docSnap.id,
               ...data,
+              id: docSnap.id,
               price: Number.isFinite(Number(data.price)) ? Number(data.price) : 499,
               isSoldOut: Boolean(data.isSoldOut)
             });
@@ -5010,27 +5024,9 @@
           allProducts = firestoreProducts;
           window.adminProductsCache = firestoreProducts;
         } else {
-          // If Firestore is completely empty, initialize baseline catalogue once
-          if (!hasCheckedAutoSeed && !isAutoSeeding) {
-            hasCheckedAutoSeed = true;
-            autoSeedMissingBaselineProducts([]);
-          }
-          allProducts = getBaselineCatalogue().map(item => ({
-            id: item.slug || item.id,
-            slug: item.slug || '',
-            title: item.title,
-            category: item.category,
-            price: item.price ? Number(item.price) : 499,
-            priceStatus: item.priceStatus || 'confirmed',
-            currency: 'INR',
-            isSoldOut: false,
-            imageUrl: (item.images && item.images[0]) || '',
-            images: item.images || [],
-            description: item.imageAlt || item.title,
-            sku: item.sku || '',
-            _source: 'baseline'
-          }));
-          window.adminProductsCache = allProducts;
+          // An empty cloud catalogue must remain empty after intentional deletions.
+          allProducts = [];
+          window.adminProductsCache = [];
         }
 
         applyFilters();
@@ -5038,11 +5034,13 @@
       }
 
       try {
-        const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+        const q = collection(db, "products");
         unsubscribeProducts = onSnapshot(q, handleSnapshot, (err) => {
           console.warn("Ordered query note, listening to base collection:", err.message);
           unsubscribeProducts = onSnapshot(collection(db, "products"), handleSnapshot, (fallbackErr) => {
             console.error("Snapshot error:", fallbackErr);
+            updateLiveStatus('offline', 'Catalogue access failed');
+            showToast('Cannot load cloud products: ' + fallbackErr.message, 'error');
           });
         });
       } catch (err) {
@@ -5304,7 +5302,7 @@
           <td class="cell-status">${statusBadge}</td>
           <td class="cell-actions-group">
             <div class="product-card-actions-grid">
-              <button class="btn ${toggleBtnClass} btn-sm toggle-stock-btn" data-action="toggle-stock" data-id="${esc(p.id)}" data-sold="${isSoldOut}">
+              <button class="btn ${toggleBtnClass} btn-sm toggle-stock-btn" data-action="toggle-stock" ${pendingProductUpdates.has(p.id) ? 'disabled aria-busy="true"' : ''} data-id="${esc(p.id)}" data-sold="${isSoldOut}">
                 ${toggleBtnText}
               </button>
               <button class="btn btn-outline btn-sm edit-btn" data-action="open-edit" data-id="${esc(p.id)}">Edit</button>
@@ -5378,6 +5376,8 @@
       }, 100);
     }
 
+    function closePriceModal() { $('#price-modal').classList.remove('is-open'); }
+
     window.openPriceModal = openPriceModal;
     window.closePriceModal = closePriceModal;
 
@@ -5399,27 +5399,10 @@
       saveText.innerHTML = '<span class="spinner"></span> Saving…';
 
       try {
-        // Update local state immediately
-        const target = allProducts.find(p => p.id === docId || p.slug === docId);
-        if (target) {
-          target.price = newPrice;
-          target.priceStatus = 'confirmed';
-        }
+        const saved = await window.updateProductPrice(docId, newPrice);
+        if (saved) closePriceModal();
 
-        applyFilters();
-        updateStats();
-        closePriceModal();
 
-        // Write to Firestore with setDoc merge
-        const targetDocId = target?.id || docId;
-        const docRef = doc(db, "products", String(targetDocId));
-        await setDoc(docRef, {
-          price: newPrice,
-          priceStatus: 'confirmed',
-          updatedAt: serverTimestamp()
-        }, { merge: true });
-
-        showToast(`✓ Price updated to ₹${newPrice.toLocaleString('en-IN')} & saved to cloud`, 'success');
       } catch (err) {
         console.error('Error updating price in Firestore:', err);
         showToast(`Cloud update failed: ${err.message}`, 'error');
@@ -5430,28 +5413,6 @@
     });
 
     /* ─── 5. One-Click Stock Toggle ─── */
-    async function toggleProductStock(docId, newSoldOutState) {
-      const target = allProducts.find(p => p.id === docId || p.slug === docId);
-      if (target) target.isSoldOut = newSoldOutState;
-
-      applyFilters();
-      updateStats();
-
-      try {
-        const targetDocId = target?.id || docId;
-        const docRef = doc(db, "products", String(targetDocId));
-        await setDoc(docRef, {
-          isSoldOut: Boolean(newSoldOutState),
-          updatedAt: serverTimestamp()
-        }, { merge: true });
-
-        showToast(`✓ "${target?.title || 'Product'}" marked as ${newSoldOutState ? 'SOLD OUT' : 'IN STOCK'} (saved to cloud)`, 'success');
-      } catch (err) {
-        console.error('Error toggling stock in Firestore:', err);
-        showToast(`Cloud update failed: ${err.message}`, 'error');
-      }
-    }
-
     /* ─── 6. Add / Edit Product Modal Controller (Instant 0ms) ─── */
     window.openAddProductModal = function() {
       resetFormState();
@@ -5678,11 +5639,16 @@
     }
 
     /* ─── DIRECT FIRESTORE WRITE EXECUTION (executeDirectFirestoreSave) ─── */
+    let productSavePending = false;
     async function executeDirectFirestoreSave() {
+      if (productSavePending) return;
       const title = (document.getElementById('form-title')?.value || '').trim();
-      const category = document.getElementById('form-category')?.value || 'jewellery';
-      const priceRaw = document.getElementById('form-price')?.value || '499';
-      const price = Number(String(priceRaw).replace(/[^0-9.]/g, '')) || 499;
+      const category = document.getElementById('form-category')?.value || '';
+      const sku = (document.getElementById('form-sku')?.value || '').trim();
+      const compareRaw = (document.getElementById('form-compare-price')?.value || '').trim();
+      const compareAtPrice = compareRaw ? Number(compareRaw) : null;
+      const priceRaw = document.getElementById('form-price')?.value || '';
+      const price = Number(priceRaw);
       const desc = (document.getElementById('form-desc')?.value || '').trim();
       const urlInput = (document.getElementById('form-image-url')?.value || '').trim();
       const existingImg = (document.getElementById('form-existing-image')?.value || '').trim();
@@ -5693,6 +5659,15 @@
         return;
       }
 
+      if (!Number.isFinite(price) || price <= 0) {
+        showToast('Enter a valid price greater than zero.', 'error');
+        return;
+      }
+      if (!category) { showToast('Select a product category.', 'error'); return; }
+      if (compareAtPrice !== null && (!Number.isFinite(compareAtPrice) || compareAtPrice <= price)) {
+        showToast('Compare-at price must be higher than the selling price.', 'error'); return;
+      }
+      productSavePending = true;
       const btn = document.getElementById('form-submit-btn') || document.querySelector('.btn-submit-product');
       if (btn) {
         btn.disabled = true;
@@ -5720,16 +5695,20 @@
 
         if (!image) image = urlInput;
         if (!image && isEditing) image = existingImg;
-        if (!image) image = 'assets/instagram-shop/post-002-DYcf1ViBfkI.jpg';
+        if (!image) throw new Error('Add a product image or image URL.');
+        if (!/^(https?:\/\/|assets\/|\/assets\/|data:image\/)/i.test(image)) throw new Error('Enter a valid image URL.');
 
-        const docId = (isEditing && editingDocId) ? editingDocId : ('item-' + Date.now());
-        const baseSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || docId;
+        const docId = (isEditing && editingDocId) ? editingDocId : ('item-' + crypto.randomUUID());
+        const existingProduct = isEditing ? allProducts.find(p => p.id === docId) : null;
+        const baseSlug = existingProduct?.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || docId;
 
         const payload = {
           id: docId,
           title: title,
           slug: baseSlug,
           category: category,
+          sku: sku,
+          compareAtPrice: compareAtPrice,
           price: price,
           priceStatus: 'confirmed',
           currency: 'INR',
@@ -5740,7 +5719,7 @@
           _source: 'admin'
         };
 
-        console.log("Firestore Write Execution:", docId, payload);
+        console.log("Firestore Write Execution:", docId);
         const docRef = doc(db, "products", docId);
 
         if (isEditing && editingDocId) {
@@ -5767,7 +5746,8 @@
             createdAt: serverTimestamp()
           }, { merge: true });
 
-          allProducts.unshift({ ...payload, createdAt: new Date() });
+          allProducts = [{ ...payload, createdAt: new Date() }, ...allProducts.filter(p => p.id !== docId)];
+          window.adminProductsCache = allProducts;
 
           if (typeof applyFilters === 'function') applyFilters();
           if (typeof updateStats === 'function') updateStats();
@@ -5787,6 +5767,7 @@
           showToast('Firestore Error: ' + err.message, 'error');
         }
       } finally {
+        productSavePending = false;
         if (btn) {
           btn.disabled = false;
           btn.innerHTML = '<span id="btn-text">' + (isEditing ? 'Update Product in Firestore' : '+ Add Product') + '</span>';
@@ -5797,79 +5778,63 @@
     // Expose global helper methods for direct and script-driven actions
     window.executeDirectFirestoreSave = executeDirectFirestoreSave;
 
-    window.toggleStockStatus = async function(productId, currentStatus) {
+    const pendingProductUpdates = new Set();
+    async function persistProductUpdate(productId, patch) {
+      const item = allProducts.find(p => p.id === productId || p.slug === productId);
+      if (!item) { showToast('Product not found. Refresh the catalogue.', 'error'); return false; }
+      const id = item.id;
+      if (pendingProductUpdates.has(id)) return false;
+      pendingProductUpdates.add(id);
+      applyFilters();
       try {
-        const item = allProducts.find(p => p.id === productId || p.slug === productId);
-        const targetDocId = item?.id || productId;
-        const newSoldState = typeof currentStatus === 'boolean' ? !currentStatus : !item?.isSoldOut;
-        
-        // Optimistic UI update
-        if (item) item.isSoldOut = newSoldState;
-        updateStats();
-        applyFilters();
-
-        const productRef = doc(db, "products", String(targetDocId));
-        await setDoc(productRef, {
-          isSoldOut: Boolean(newSoldState),
-          updatedAt: serverTimestamp()
-        }, { merge: true });
-
-        showToast(`✓ "${item?.title || 'Product'}" marked as ${newSoldState ? 'SOLD OUT' : 'IN STOCK'} (saved to cloud)`, 'success');
-        return true;
-      } catch (err) {
-        console.error("Failed to update stock in Firestore:", err);
-        showToast("Stock update failed: " + err.message, "error");
-        return false;
-      }
-    };
-
-    window.updateProductPrice = async function(productId, newPrice) {
-      try {
-        const item = allProducts.find(p => p.id === productId || p.slug === productId);
-        const targetDocId = item?.id || productId;
-        const priceVal = Number(newPrice);
-
-        if (item) {
-          item.price = priceVal;
-          item.priceStatus = 'confirmed';
-        }
-        applyFilters();
-        updateStats();
-
-        const productRef = doc(db, "products", String(targetDocId));
-        await setDoc(productRef, {
-          price: priceVal,
-          priceStatus: 'confirmed',
-          updatedAt: serverTimestamp()
-        }, { merge: true });
-
-        showToast(`✓ Price updated to ₹${priceVal.toLocaleString('en-IN')} & saved to cloud`, 'success');
-        return true;
-      } catch (err) {
-        console.error("Failed to update price in Firestore:", err);
-        showToast("Price update failed: " + err.message, "error");
-        return false;
-      }
-    };
-
-    window.deleteAdminProduct = async function(productId) {
-      try {
-        const item = allProducts.find(p => p.id === productId || p.slug === productId);
-        const targetDocId = item?.id || productId;
-
-        allProducts = allProducts.filter(p => p.id !== targetDocId && p.slug !== targetDocId && p.id !== productId);
+        await setDoc(doc(db, 'products', String(id)), { ...patch, updatedAt: serverTimestamp() }, { merge: true });
+        const current = allProducts.find(p => p.id === id);
+        if (current) Object.assign(current, patch);
         window.adminProductsCache = allProducts;
         applyFilters();
         updateStats();
+        return true;
+      } catch (error) {
+        showToast('Cloud update failed: ' + error.message, 'error');
+        return false;
+      } finally { pendingProductUpdates.delete(id); applyFilters(); }
+    }
+    window.toggleStockStatus = async function(productId) {
+      const item = allProducts.find(p => p.id === productId || p.slug === productId);
+      if (!item) return false;
+      const soldOut = !item.isSoldOut;
+      const saved = await persistProductUpdate(productId, { isSoldOut: soldOut });
+      if (saved) showToast(soldOut ? '✓ Product marked sold out' : '✓ Product back in stock', 'success');
+      return saved;
+    };
+    window.updateProductPrice = async function(productId, value) {
+      const price = Number(value);
+      if (!Number.isFinite(price) || price <= 0) { showToast('Enter a valid price greater than zero.', 'error'); return false; }
+      const saved = await persistProductUpdate(productId, { price, priceStatus: 'confirmed' });
+      if (saved) showToast(`✓ Price updated to ₹${price.toLocaleString('en-IN')}`, 'success');
+      return saved;
+    };
 
-        const productRef = doc(db, "products", String(targetDocId));
-        await deleteDoc(productRef);
+    const pendingProductDeletes = new Set();
+    window.deleteAdminProduct = async function(productId) {
+      const item = allProducts.find(p => p.id === productId || p.slug === productId);
+      const targetDocId = item?.id || productId;
+      if (!targetDocId || pendingProductDeletes.has(targetDocId)) return false;
+      pendingProductDeletes.add(targetDocId);
+      try {
+        // Keep the product visible until Firestore confirms the deletion.
+        await deleteDoc(doc(db, "products", String(targetDocId)));
+        allProducts = allProducts.filter(p => p.id !== targetDocId);
+        window.adminProductsCache = allProducts;
+        applyFilters();
+        updateStats();
         showToast('✓ Product deleted live in cloud', 'success');
         return true;
       } catch (err) {
-        console.error('Delete error in Firestore:', err);
         showToast('Delete failed: ' + err.message, 'error');
         return false;
+      } finally {
+        pendingProductDeletes.delete(targetDocId);
       }
     };
 

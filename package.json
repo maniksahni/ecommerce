@@ -21,7 +21,9 @@
     "build": "node scripts/netlify-build.js",
     "build:netlify": "node scripts/netlify-build.js",
     "deploy:firebase": "npm run build && npx --yes firebase-tools deploy --only hosting,firestore:rules",
-    "test:netlify": "npm run build:netlify && node scripts/netlify-build-test.js"
+    "test:netlify": "npm run build:netlify && node scripts/netlify-build-test.js",
+    "test:admin": "node --test --test-reporter=dot scripts/admin-tests/*.test.js",
+    "test:admin:live": "node scripts/admin-tests/live-browser.js"
   },
   "dependencies": {
     "firebase": "^12.18.0",
