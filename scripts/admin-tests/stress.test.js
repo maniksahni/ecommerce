@@ -11,7 +11,7 @@ for (let i = 0; i < 1000; i++) test(`product scenario ${i + 1}: ${['create/edit/
   fields['form-submit-btn'] = {};
   const persisted = new Map();
   let fail = false, gate = null, writes = 0;
-  const c = vm.createContext({ window: {}, document: { getElementById: id=>fields[id], querySelector() {} }, currentUploadedBase64: '', isEditing: false, editingDocId: null, allProducts: [], crypto: {randomUUID:()=>`id-${i}`}, doc: (_db,_collection,id)=>id, db: {}, setDoc: async(id,data)=>{ writes++; if(gate)await gate; if(fail)throw Error('permission-denied'); persisted.set(id,{...persisted.get(id),...data}); }, deleteDoc: async id=>{if(fail)throw Error('permission-denied');persisted.delete(id);}, serverTimestamp:()=>123, applyFilters(){}, updateStats(){}, showToast(){}, closeProductModal(){}, alert(){}, console:{log(){},error(){},warn(){}} });
+  const c = vm.createContext({ window: {}, document: { getElementById: id=>fields[id], querySelector() {} }, inventoryStore: {}, currentUploadedBase64: '', isEditing: false, editingDocId: null, allProducts: [], crypto: {randomUUID:()=>`id-${i}`}, doc: (_db,_collection,id)=>id, db: {}, setDoc: async(id,data)=>{ writes++; if(gate)await gate; if(fail)throw Error('permission-denied'); persisted.set(id,{...persisted.get(id),...data}); }, deleteDoc: async id=>{if(fail)throw Error('permission-denied');persisted.delete(id);}, serverTimestamp:()=>123, applyFilters(){}, updateStats(){}, showToast(){}, closeProductModal(){}, alert(){}, console:{log(){},error(){},warn(){}} });
   vm.runInContext(source,c);
   const save = ()=>vm.runInContext('executeDirectFirestoreSave()',c);
   const id = `item-id-${i}`;

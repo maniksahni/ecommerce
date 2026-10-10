@@ -3838,6 +3838,8 @@
       }
       try {
         unsubscribeInventory = onSnapshot(collection(db, "inventory"), (snapshot) => {
+          if (snapshot.metadata.hasPendingWrites) return;
+          inventoryStore = {};
           snapshot.forEach(docSnap => {
             const data = docSnap.data();
             const sku = data?.sku || docSnap.id;
@@ -5615,7 +5617,7 @@
           isSoldOut: isSoldOut,
           description: desc,
           imageUrl: image,
-          images: [image],
+          images: [image, ...(existingProduct?.images || []).slice(1)],
           _source: 'admin'
         };
 
@@ -5687,7 +5689,16 @@
       pendingProductUpdates.add(id);
       applyFilters();
       try {
-        await setDoc(doc(db, 'products', String(id)), { ...patch, updatedAt: serverTimestamp() }, { merge: true });
+        const productRef = doc(db, 'products', String(id));
+        const sku = item.sku || id;
+        if (patch.isSoldOut === false && inventoryStore[sku] === 0) {
+          const batch = writeBatch(db);
+          batch.set(productRef, { ...patch, updatedAt: serverTimestamp() }, { merge: true });
+          batch.set(doc(db, 'inventory', String(sku)), { sku, stock: 1, updatedAt: serverTimestamp() }, { merge: true });
+          await batch.commit();
+        } else {
+          await setDoc(productRef, { ...patch, updatedAt: serverTimestamp() }, { merge: true });
+        }
         const current = allProducts.find(p => p.id === id);
         if (current) Object.assign(current, patch);
         window.adminProductsCache = allProducts;
