@@ -11,6 +11,7 @@
       slug: "boxed-evil-eye-bracelet",
       videoUrl: "/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg",
       videoPoster: "/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg",
+      instagramUrl: "https://www.instagram.com/p/DW3H_GZDD_4/",
       productId: "boxed-evil-eye-bracelet",
       productTitle: "Boxed Evil Eye Bracelet",
       category: "Bracelets",
@@ -25,6 +26,7 @@
       slug: "pearl-drop-hoops",
       videoUrl: "/assets/instagram-shop/post-005-DYU0BW6h3rQ.jpg",
       videoPoster: "/assets/instagram-shop/post-005-DYU0BW6h3rQ.jpg",
+      instagramUrl: "https://www.instagram.com/p/DYU0BW6h3rQ/",
       productId: "pearl-drop-hoops",
       productTitle: "Pearl Drop Statement Hoops",
       category: "Earrings",
@@ -39,6 +41,7 @@
       slug: "emerald-halo-pendant",
       videoUrl: "/assets/instagram-shop/post-006-DYSSH09hsqL.jpg",
       videoPoster: "/assets/instagram-shop/post-006-DYSSH09hsqL.jpg",
+      instagramUrl: "https://www.instagram.com/p/DYSSH09hsqL/",
       productId: "emerald-halo-pendant",
       productTitle: "Emerald Halo Solitaire Pendant",
       category: "Necklaces",
@@ -53,6 +56,7 @@
       slug: "sculptural-statement-ring",
       videoUrl: "/assets/instagram-shop/post-002-DYcf1ViBfkI.jpg",
       videoPoster: "/assets/instagram-shop/post-002-DYcf1ViBfkI.jpg",
+      instagramUrl: "https://www.instagram.com/p/DYcf1ViBfkI/",
       productId: "sculptural-statement-ring",
       productTitle: "Sculptural Leaf Cocktail Ring",
       category: "Rings",
@@ -67,6 +71,7 @@
       slug: "layered-chain-necklace",
       videoUrl: "/assets/instagram-shop/post-004-DYXLrorhG7w.jpg",
       videoPoster: "/assets/instagram-shop/post-004-DYXLrorhG7w.jpg",
+      instagramUrl: "https://www.instagram.com/p/DYXLrorhG7w/",
       productId: "layered-chain-necklace",
       productTitle: "Dual Layered Paperclip Choker",
       category: "Necklaces",
@@ -81,6 +86,7 @@
       slug: "anti-tarnish",
       videoUrl: "/assets/instagram-shop/post-003-DYZCTo6Rmw4.jpg",
       videoPoster: "/assets/instagram-shop/post-003-DYZCTo6Rmw4.jpg",
+      instagramUrl: "https://www.instagram.com/p/DYZCTo6Rmw4/",
       productId: "everyday-gold-kada",
       productTitle: "Anti-Tarnish Everyday Kada",
       category: "Bracelets",
@@ -95,6 +101,7 @@
       slug: "gifting",
       videoUrl: "/assets/instagram-shop/post-008-DYKVkoiRRKO.jpg",
       videoPoster: "/assets/instagram-shop/post-008-DYKVkoiRRKO.jpg",
+      instagramUrl: "https://www.instagram.com/p/DYKVkoiRRKO/",
       productId: "velvet-keepsake-box",
       productTitle: "Signature Keepsake Velvet Gift Box",
       category: "Gifting",
@@ -109,6 +116,7 @@
       slug: "watches",
       videoUrl: "/assets/instagram-shop/post-009-DYH8S7oRbLk.jpg",
       videoPoster: "/assets/instagram-shop/post-009-DYH8S7oRbLk.jpg",
+      instagramUrl: "https://www.instagram.com/p/DYH8S7oRbLk/",
       productId: "roman-dial-watch",
       productTitle: "Classic Roman Numerals Bracelet Watch",
       category: "Watches",
@@ -150,7 +158,7 @@
           <div class="reels-track" id="reels-track">
             ${REELS_DATA.map((reel, idx) => `
               <div class="reel-card" data-reel-id="${reel.id}" data-product-id="${reel.productId}">
-                <div class="reel-video-container" data-play-reel="${reel.id}">
+                <a class="reel-video-container" href="${reel.instagramUrl}" target="_blank" rel="noopener noreferrer" aria-label="Watch ${reel.productTitle} on Instagram">
                   <img class="reel-poster-img" src="${reel.videoPoster}" alt="${reel.productTitle}" loading="lazy" />
                   <div class="reel-live-pill">
                     <span class="pulse-dot"></span> LIVE REEL
@@ -158,10 +166,10 @@
                   <div class="reel-views-pill">
                     <span class="eye-icon">👁</span> ${reel.views}
                   </div>
-                  <button type="button" class="reel-play-trigger" data-play-reel="${reel.id}" aria-label="Watch ${reel.productTitle} reel">
+                  <span class="reel-play-trigger" aria-hidden="true">
                     <span class="play-icon-triangle">▶</span>
-                  </button>
-                </div>
+                  </span>
+                </a>
 
                 <!-- Floating Mini Product Quick-Buy Card -->
                 <div class="reel-product-card">
@@ -234,89 +242,6 @@
       });
     });
 
-    // Tap to open Reel Modal
-    document.querySelectorAll("[data-play-reel]").forEach(trigger => {
-      trigger.addEventListener("click", () => {
-        const reelId = trigger.getAttribute("data-play-reel");
-        const reel = REELS_DATA.find(r => r.id === reelId);
-        if (reel) openReelModal(reel);
-      });
-    });
-  }
-
-  function openReelModal(reel) {
-    let modal = document.getElementById("reel-modal");
-    if (!modal) {
-      modal = document.createElement("div");
-      modal.id = "reel-modal";
-      modal.className = "reel-modal";
-      modal.innerHTML = `
-        <div class="reel-modal-backdrop" id="reel-modal-backdrop"></div>
-        <div class="reel-modal-content">
-          <button type="button" class="reel-modal-close" id="reel-modal-close" aria-label="Close video reel">✕</button>
-          <div class="reel-modal-media">
-            <img class="reel-modal-img" id="reel-modal-img" src="" alt="" />
-            <div class="reel-modal-overlay">
-              <div class="reel-modal-live-badge">✨ LIVE ATELIER FEED</div>
-              <div class="reel-modal-caption" id="reel-modal-caption"></div>
-              <div class="reel-modal-product-dock" id="reel-modal-product-dock"></div>
-            </div>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(modal);
-
-      document.getElementById("reel-modal-close")?.addEventListener("click", closeReelModal);
-      document.getElementById("reel-modal-backdrop")?.addEventListener("click", closeReelModal);
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && modal.classList.contains("is-active")) {
-          closeReelModal();
-        }
-      });
-    }
-
-    const img = document.getElementById("reel-modal-img");
-    const caption = document.getElementById("reel-modal-caption");
-    const dock = document.getElementById("reel-modal-product-dock");
-
-    if (img) img.src = reel.videoPoster;
-    if (caption) caption.textContent = reel.caption;
-    if (dock) {
-      dock.innerHTML = `
-        <div class="reel-dock-card">
-          <div class="reel-dock-details">
-            <span class="reel-dock-title">${reel.productTitle}</span>
-            <div class="reel-dock-price">
-              <strong>${formatInr(reel.price)}</strong>
-              <s>${formatInr(reel.compareAtPrice)}</s>
-              <span class="reel-dock-discount">${Math.round(((reel.compareAtPrice - reel.price) / reel.compareAtPrice) * 100)}% OFF</span>
-            </div>
-          </div>
-          <div class="reel-dock-actions-row">
-            <a class="reel-dock-view-btn" href="${productUrl(reel)}">View Piece</a>
-            <button type="button" class="reel-dock-buy-btn" data-reel-add="${reel.productId}">
-              Buy Now
-            </button>
-          </div>
-        </div>
-      `;
-      dock.querySelector("[data-reel-add]")?.addEventListener("click", () => {
-        closeReelModal();
-        const cardBtn = document.querySelector(`[data-card-add="${reel.productId}"]`);
-        if (cardBtn) cardBtn.click();
-      });
-    }
-
-    modal.classList.add("is-active");
-    document.body.style.overflow = "hidden";
-  }
-
-  function closeReelModal() {
-    const modal = document.getElementById("reel-modal");
-    if (modal) {
-      modal.classList.remove("is-active");
-      document.body.style.overflow = "";
-    }
   }
 
   // Initialize once DOM is loaded
