@@ -1,11 +1,108 @@
-const test = require('node:test');const assert = require('node:assert/strict');const fs = require('node:fs');const vm = require('node:vm');
-const source = fs.readFileSync(require('node:path').join(__dirname, '../../src/admin-session.js'), 'utf8').replace(/^import .*;\n/gm,'').replace(/export /g,'');
-function setup(claims) { const refresh = []; const user = { uid:'test-uid', getIdTokenResult:async force=>{refresh.push(force);return {claims};} };const c=vm.createContext({auth:{currentUser:user},db:{},doc:()=>({}),getDocFromServer:async()=>({exists:()=>false})});vm.runInContext(source,c);return {c,refresh}; }
-test('public authenticated account cannot unlock admin access',async()=>{const {c}=setup({email:'customer@example.invalid'});await assert.rejects(vm.runInContext('verifyAdminSession()',c),/administrator access/);assert.equal(vm.runInContext('adminSessionReady()',c),false);});
-test('approved admin with no custom claim must prove server access before ready',async()=>{const {c}=setup({email:'imperialshivam@gmail.com'});let probes=0;c.getDocFromServer=async()=>{probes++;};await vm.runInContext('verifyAdminSession(true)',c);assert.equal(probes,1);assert.equal(vm.runInContext('adminSessionReady()',c),true);});
-test('permission denial refreshes token and retries the same idempotent operation exactly once',async()=>{const {c,refresh}=setup({email:'imperialshivam@gmail.com'});let writes=0;c.operation=async()=>{if(++writes===1)throw Object.assign(Error('denied'),{code:'permission-denied'});return 'acknowledged';};assert.equal(await vm.runInContext('runAdminWrite(operation)',c),'acknowledged');assert.equal(writes,2);assert(refresh.includes(true));});
-test('persistent denial remains an error, never a success',async()=>{const {c}=setup({admin:true});let writes=0;c.operation=async()=>{writes++;throw Object.assign(Error('denied'),{code:'permission-denied'});};await assert.rejects(vm.runInContext('runAdminWrite(operation)',c),/denied/);assert.equal(writes,2);});
-test('session changed during permission probe cannot unlock dashboard',async()=>{const {c}=setup({admin:true});c.getDocFromServer=async()=>{c.auth.currentUser={uid:'other'};};await assert.rejects(vm.runInContext('verifyAdminSession(true)',c),/session changed/);});
-test('signed-out user cannot write and no operation executes',async()=>{const {c}=setup({admin:true});c.auth.currentUser=null;let writes=0;c.operation=async()=>writes++;await assert.rejects(vm.runInContext('runAdminWrite(operation)',c),/session has ended/);assert.equal(writes,0);});
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const vm = require("node:vm");
+const source = fs
+  .readFileSync(
+    require("node:path").join(__dirname, "../../src/admin-session.js"),
+    "utf8",
+  )
+  .replace(/^import .*;\n/gm, "")
+  .replace(/export /g, "");
+function setup(claims) {
+  const refresh = [];
+  const user = {
+    uid: "test-uid",
+    getIdTokenResult: async (force) => {
+      refresh.push(force);
+      return { claims };
+    },
+  };
+  const c = vm.createContext({
+    auth: { currentUser: user },
+    db: {},
+    doc: () => ({}),
+    getDocFromServer: async () => ({ exists: () => false }),
+  });
+  vm.runInContext(source, c);
+  return { c, refresh };
+}
+test("public authenticated account cannot unlock admin access", async () => {
+  const { c } = setup({ email: "customer@example.invalid" });
+  await assert.rejects(
+    vm.runInContext("verifyAdminSession()", c),
+    /administrator access/,
+  );
+  assert.equal(vm.runInContext("adminSessionReady()", c), false);
+});
+test("approved admin with no custom claim must prove server access before ready", async () => {
+  const { c } = setup({ email: "imperialshivam@gmail.com" });
+  let probes = 0;
+  c.getDocFromServer = async () => {
+    probes++;
+  };
+  await vm.runInContext("verifyAdminSession(true)", c);
+  assert.equal(probes, 1);
+  assert.equal(vm.runInContext("adminSessionReady()", c), true);
+});
+test("permission denial refreshes token and retries the same idempotent operation exactly once", async () => {
+  const { c, refresh } = setup({ email: "imperialshivam@gmail.com" });
+  let writes = 0;
+  c.operation = async () => {
+    if (++writes === 1)
+      throw Object.assign(Error("denied"), { code: "permission-denied" });
+    return "acknowledged";
+  };
+  assert.equal(
+    await vm.runInContext("runAdminWrite(operation)", c),
+    "acknowledged",
+  );
+  assert.equal(writes, 2);
+  assert(refresh.includes(true));
+});
+test("persistent denial remains an error, never a success", async () => {
+  const { c } = setup({ admin: true });
+  let writes = 0;
+  c.operation = async () => {
+    writes++;
+    throw Object.assign(Error("denied"), { code: "permission-denied" });
+  };
+  await assert.rejects(
+    vm.runInContext("runAdminWrite(operation)", c),
+    /denied/,
+  );
+  assert.equal(writes, 2);
+});
+test("session changed during permission probe cannot unlock dashboard", async () => {
+  const { c } = setup({ admin: true });
+  c.getDocFromServer = async () => {
+    c.auth.currentUser = { uid: "other" };
+  };
+  await assert.rejects(
+    vm.runInContext("verifyAdminSession(true)", c),
+    /session changed/,
+  );
+});
+test("signed-out user cannot write and no operation executes", async () => {
+  const { c } = setup({ admin: true });
+  c.auth.currentUser = null;
+  let writes = 0;
+  c.operation = async () => writes++;
+  await assert.rejects(
+    vm.runInContext("runAdminWrite(operation)", c),
+    /session has ended/,
+  );
+  assert.equal(writes, 0);
+});
 
-test('permission probe uses a Firestore-valid, non-reserved document ID',async()=>{const {c}=setup({admin:true});let probed;c.doc=(_,collection,id)=>{probed={collection,id};return {};};await vm.runInContext('verifyAdminSession(true)',c);assert.equal(probed.collection,'customers');assert(!/^__.*__$/.test(probed.id));});
+test("permission probe uses a Firestore-valid, non-reserved document ID", async () => {
+  const { c } = setup({ admin: true });
+  let probed;
+  c.doc = (_, collection, id) => {
+    probed = { collection, id };
+    return {};
+  };
+  await vm.runInContext("verifyAdminSession(true)", c);
+  assert.equal(probed.collection, "customers");
+  assert(!/^__.*__$/.test(probed.id));
+});

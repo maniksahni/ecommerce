@@ -1,16 +1,253 @@
-const {chromium,webkit}=require('playwright');const fs=require('fs');const path=require('path');
-const base=process.env.MOBILE_BASE_URL||'https://the-shivara-group-86c9c.web.app';const dir=process.env.QA_ARTIFACT_DIR||require('path').resolve('artifacts/full-audit/mobile');fs.mkdirSync(dir,{recursive:true});const results=[];const errors=[];const navigationWarnings=[];let navigating=false;const widths=[[320,700],[360,800],[375,812],[390,844],[393,852],[412,915],[430,932],[768,1024],[844,390],[1024,768],[390,500]];
-function check(ok,label,detail){results.push({ok,label,detail});if(!ok)console.log('FAIL',label,JSON.stringify(detail));}
-async function layout(p,label){await p.waitForTimeout(250);const d=await p.evaluate(()=>({width:innerWidth,client:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth,body:document.body.scrollWidth}));check(d.scroll<=d.client+1&&d.body<=d.client+1,label+' overflow',d);}
-async function shot(p,name){await p.screenshot({path:path.join(dir,name+'.png'),animations:'disabled',timeout:15000});}
-async function reachable(p,selector,label){const el=p.locator(selector).first();await p.waitForTimeout(700);for(let attempt=0;attempt<3;attempt++){try{await el.scrollIntoViewIfNeeded({timeout:5000});break;}catch(e){if(attempt===2)throw e;await p.waitForTimeout(700);}}const d=await el.evaluate(e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,w:innerWidth,h:innerHeight};});check(d.x>=-1&&d.right<=d.w+1&&d.y>=-1&&d.bottom<=d.h+1,label,d);}
-(async()=>{const engine=process.env.QA_BROWSER==='webkit'?webkit:chromium;const b=await engine.launch(engine===webkit?{headless:true}:{headless:true,args:['--disable-quic'],...(process.env.CHROME_PATH?{executablePath:process.env.CHROME_PATH}:{})});try{const c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const p=await c.newPage();p.setDefaultTimeout(60000);p.on('pageerror',e=>{if(navigating&&/firestore\.googleapis\.com.*channel.*due to access control checks/.test(e.message))navigationWarnings.push(e.message.split('?')[0]+' (navigation)');else errors.push(e.message);});const visit=async url=>{navigating=true;try{await p.goto(url,{waitUntil:'domcontentloaded'});await p.waitForTimeout(250);}finally{navigating=false;}};await visit(base);await p.waitForFunction(()=>window.ShivaraCatalog?.getAllProducts().length>0);const products=await p.evaluate(async()=>{const {db}=await import('/src/firebase.js');const {collection,getDocsFromServer}=await import('https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js');const snapshot=await getDocsFromServer(collection(db,'products'));return snapshot.docs.map(d=>({id:d.id,slug:d.data().slug||d.id})).filter(p=>!p.id.startsWith('item-'));});fs.writeFileSync(path.join(dir,'catalog.json'),JSON.stringify(products));
-for(const [width,height] of widths){await p.setViewportSize({width,height});for(const route of ['/', '/collections/all','/collections/rings','/products/tulip-pendant','/track-order.html']){await visit(base+route);await layout(p,`${width}x${height} ${route}`);if([320,390,430].includes(width)&&height>500)await shot(p,`${width}-${route.replace(/[^a-z0-9]/gi,'_')}`);}
-await visit(base);for(const [op,id] of [['[data-menu-open]','#menu-drawer'],['[data-search-open]','#search-drawer'],['[data-cart-open]','#cart-drawer']]){await p.locator('.stable-header '+op).click();await p.locator(id+'.is-open').waitFor();await layout(p,`${width}x${height} ${id}`);await reachable(p,id+' [data-layer-close]',`${width} ${id} close`);await p.locator(id+' [data-layer-close]').first().click();}
-await visit(base+'/products/tulip-pendant');await p.locator('[data-pdp-add]').first().click();await p.locator('#cart-drawer.is-open').waitFor();await reachable(p,'[data-open-checkout]',`${width} checkout CTA`);await p.locator('[data-open-checkout]').click();await p.locator('#checkout-modal.is-open').waitFor();await layout(p,`${width} checkout form`);await reachable(p,'#checkout-details-form button[type=submit]',`${width} checkout submit`);if(width===320||width===390)await shot(p,`${width}-${height}-checkout`);await p.keyboard.press('Escape');await p.evaluate(()=>localStorage.clear());console.log('Viewport complete',width,height);}
-// All catalogue detail pages, including long titles, at the narrowest viewport.
-await p.setViewportSize({width:320,height:700});for(const x of products){await visit(base+'/products/'+(x.slug||x.id));await layout(p,'product '+(x.slug||x.id));await p.locator('.stable-pdp, #product-page .stable-empty').first().waitFor();check(await p.locator('[data-pdp-add], .stable-pdp button[disabled][aria-disabled=true]').count()>0,'product controls '+x.id);}
-// Admin session: read-only tabs and opening/cancelling product forms.
-await visit(base+'/admin');await p.locator('#admin-email').fill(process.env.ADMIN_EMAIL);await p.locator('#admin-passcode').fill(process.env.ADMIN_PASSWORD);await p.locator('#login-form').evaluate(f=>f.requestSubmit());await p.locator('#admin-screen.is-active').waitFor();await p.waitForFunction(()=>window.adminProductsCache?.length>0);for(const [width,height] of widths){await p.setViewportSize({width,height});for(const tab of ['dashboard','products','categories','inventory','orders','customers','coupons','banners','settings']){await p.locator('#tab-btn-'+tab).click();await layout(p,`${width}x${height} admin ${tab}`);if(width===320||width===390&&height===844)await shot(p,`${width}-${height}-admin-${tab}`);}
-await p.evaluate(()=>window.openAddProductModal());await p.locator('#product-modal').waitFor({state:'visible'});await layout(p,`${width} admin add form`);await reachable(p,'#form-submit-btn',`${width} admin save reachable`);if(width===320)await shot(p,`320-${height}-admin-add`);await p.locator('#product-modal-cancel').click();console.log('Admin complete',width,height);}
-check(errors.length===0,'JavaScript page exceptions',errors);console.log('DONE',results.length,'checks',results.filter(x=>!x.ok).length,'failures');if(results.some(x=>!x.ok))process.exitCode=1;}finally{fs.writeFileSync(path.join(dir,'results.json'),JSON.stringify({base,results,errors,navigationWarnings},null,2));await b.close();}})().catch(e=>{console.error(e);process.exitCode=1;});
+const { chromium, webkit } = require("playwright");
+const fs = require("fs");
+const path = require("path");
+const base =
+  process.env.MOBILE_BASE_URL || "https://the-shivara-group-86c9c.web.app";
+const dir =
+  process.env.QA_ARTIFACT_DIR ||
+  require("path").resolve("artifacts/full-audit/mobile");
+fs.mkdirSync(dir, { recursive: true });
+const results = [];
+const errors = [];
+const navigationWarnings = [];
+let navigating = false;
+const widths = [
+  [320, 700],
+  [360, 800],
+  [375, 812],
+  [390, 844],
+  [393, 852],
+  [412, 915],
+  [430, 932],
+  [768, 1024],
+  [844, 390],
+  [1024, 768],
+  [390, 500],
+];
+function check(ok, label, detail) {
+  results.push({ ok, label, detail });
+  if (!ok) console.log("FAIL", label, JSON.stringify(detail));
+}
+async function layout(p, label) {
+  await p.waitForTimeout(250);
+  const d = await p.evaluate(() => ({
+    width: innerWidth,
+    client: document.documentElement.clientWidth,
+    scroll: document.documentElement.scrollWidth,
+    body: document.body.scrollWidth,
+  }));
+  check(
+    d.scroll <= d.client + 1 && d.body <= d.client + 1,
+    label + " overflow",
+    d,
+  );
+}
+async function shot(p, name) {
+  await p.screenshot({
+    path: path.join(dir, name + ".png"),
+    animations: "disabled",
+    timeout: 15000,
+  });
+}
+async function reachable(p, selector, label) {
+  const el = p.locator(selector).first();
+  await p.waitForTimeout(700);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      await el.scrollIntoViewIfNeeded({ timeout: 5000 });
+      break;
+    } catch (e) {
+      if (attempt === 2) throw e;
+      await p.waitForTimeout(700);
+    }
+  }
+  const d = await el.evaluate((e) => {
+    const r = e.getBoundingClientRect();
+    return {
+      x: r.x,
+      y: r.y,
+      right: r.right,
+      bottom: r.bottom,
+      w: innerWidth,
+      h: innerHeight,
+    };
+  });
+  check(
+    d.x >= -1 && d.right <= d.w + 1 && d.y >= -1 && d.bottom <= d.h + 1,
+    label,
+    d,
+  );
+}
+(async () => {
+  const engine = process.env.QA_BROWSER === "webkit" ? webkit : chromium;
+  const b = await engine.launch(
+    engine === webkit
+      ? { headless: true }
+      : {
+          headless: true,
+          args: ["--disable-quic"],
+          ...(process.env.CHROME_PATH
+            ? { executablePath: process.env.CHROME_PATH }
+            : {}),
+        },
+  );
+  try {
+    const c = await b.newContext({
+      viewport: { width: 390, height: 844 },
+      isMobile: true,
+      hasTouch: true,
+    });
+    const p = await c.newPage();
+    p.setDefaultTimeout(60000);
+    p.on("pageerror", (e) => {
+      if (
+        navigating &&
+        /firestore\.googleapis\.com.*channel.*due to access control checks/.test(
+          e.message,
+        )
+      )
+        navigationWarnings.push(e.message.split("?")[0] + " (navigation)");
+      else errors.push(e.message);
+    });
+    const visit = async (url) => {
+      navigating = true;
+      try {
+        await p.goto(url, { waitUntil: "domcontentloaded" });
+        await p.waitForTimeout(250);
+      } finally {
+        navigating = false;
+      }
+    };
+    await visit(base);
+    await p.waitForFunction(
+      () => window.ShivaraCatalog?.getAllProducts().length > 0,
+    );
+    const products = await p.evaluate(async () => {
+      const { db } = await import("/src/firebase.js");
+      const { collection, getDocsFromServer } = await import(
+        "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js"
+      );
+      const snapshot = await getDocsFromServer(collection(db, "products"));
+      return snapshot.docs
+        .map((d) => ({ id: d.id, slug: d.data().slug || d.id }))
+        .filter((p) => !p.id.startsWith("item-"));
+    });
+    fs.writeFileSync(path.join(dir, "catalog.json"), JSON.stringify(products));
+    for (const [width, height] of widths) {
+      await p.setViewportSize({ width, height });
+      for (const route of [
+        "/",
+        "/collections/all",
+        "/collections/rings",
+        "/products/tulip-pendant",
+        "/track-order.html",
+      ]) {
+        await visit(base + route);
+        await layout(p, `${width}x${height} ${route}`);
+        if ([320, 390, 430].includes(width) && height > 500)
+          await shot(p, `${width}-${route.replace(/[^a-z0-9]/gi, "_")}`);
+      }
+      await visit(base);
+      for (const [op, id] of [
+        ["[data-menu-open]", "#menu-drawer"],
+        ["[data-search-open]", "#search-drawer"],
+        ["[data-cart-open]", "#cart-drawer"],
+      ]) {
+        await p.locator(".stable-header " + op).click();
+        await p.locator(id + ".is-open").waitFor();
+        await layout(p, `${width}x${height} ${id}`);
+        await reachable(p, id + " [data-layer-close]", `${width} ${id} close`);
+        await p
+          .locator(id + " [data-layer-close]")
+          .first()
+          .click();
+      }
+      await visit(base + "/products/tulip-pendant");
+      await p.locator("[data-pdp-add]").first().click();
+      await p.locator("#cart-drawer.is-open").waitFor();
+      await reachable(p, "[data-open-checkout]", `${width} checkout CTA`);
+      await p.locator("[data-open-checkout]").click();
+      await p.locator("#checkout-modal.is-open").waitFor();
+      await layout(p, `${width} checkout form`);
+      await reachable(
+        p,
+        "#checkout-details-form button[type=submit]",
+        `${width} checkout submit`,
+      );
+      if (width === 320 || width === 390)
+        await shot(p, `${width}-${height}-checkout`);
+      await p.keyboard.press("Escape");
+      await p.evaluate(() => localStorage.clear());
+      console.log("Viewport complete", width, height);
+    }
+    // All catalogue detail pages, including long titles, at the narrowest viewport.
+    await p.setViewportSize({ width: 320, height: 700 });
+    for (const x of products) {
+      await visit(base + "/products/" + (x.slug || x.id));
+      await layout(p, "product " + (x.slug || x.id));
+      await p
+        .locator(".stable-pdp, #product-page .stable-empty")
+        .first()
+        .waitFor();
+      check(
+        (await p
+          .locator(
+            "[data-pdp-add], .stable-pdp button[disabled][aria-disabled=true]",
+          )
+          .count()) > 0,
+        "product controls " + x.id,
+      );
+    }
+    // Admin session: read-only tabs and opening/cancelling product forms.
+    await visit(base + "/admin");
+    await p.locator("#admin-email").fill(process.env.ADMIN_EMAIL);
+    await p.locator("#admin-passcode").fill(process.env.ADMIN_PASSWORD);
+    await p.locator("#login-form").evaluate((f) => f.requestSubmit());
+    await p.locator("#admin-screen.is-active").waitFor();
+    await p.waitForFunction(() => window.adminProductsCache?.length > 0);
+    for (const [width, height] of widths) {
+      await p.setViewportSize({ width, height });
+      for (const tab of [
+        "dashboard",
+        "products",
+        "categories",
+        "inventory",
+        "orders",
+        "customers",
+        "coupons",
+        "banners",
+        "settings",
+      ]) {
+        await p.locator("#tab-btn-" + tab).click();
+        await layout(p, `${width}x${height} admin ${tab}`);
+        if (width === 320 || (width === 390 && height === 844))
+          await shot(p, `${width}-${height}-admin-${tab}`);
+      }
+      await p.evaluate(() => window.openAddProductModal());
+      await p.locator("#product-modal").waitFor({ state: "visible" });
+      await layout(p, `${width} admin add form`);
+      await reachable(p, "#form-submit-btn", `${width} admin save reachable`);
+      if (width === 320) await shot(p, `320-${height}-admin-add`);
+      await p.locator("#product-modal-cancel").click();
+      console.log("Admin complete", width, height);
+    }
+    check(errors.length === 0, "JavaScript page exceptions", errors);
+    console.log(
+      "DONE",
+      results.length,
+      "checks",
+      results.filter((x) => !x.ok).length,
+      "failures",
+    );
+    if (results.some((x) => !x.ok)) process.exitCode = 1;
+  } finally {
+    fs.writeFileSync(
+      path.join(dir, "results.json"),
+      JSON.stringify({ base, results, errors, navigationWarnings }, null, 2),
+    );
+    await b.close();
+  }
+})().catch((e) => {
+  console.error(e);
+  process.exitCode = 1;
+});

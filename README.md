@@ -14,7 +14,6 @@ The site uses the real profile positioning:
 - Iconic, custom, limited pieces
 - Direct online storefront with PAN India express delivery
 - Feed sections based on recent public reel covers and captions
-- A custom Three.js jewellery motion section with gold rings and evil-eye beads
 - Scroll reveal, hover depth, and mobile sticky order actions
 
 ## Run locally
@@ -27,8 +26,17 @@ Then open `http://localhost:3000`.
 
 ## Deploy
 
-This project is Railway-ready. Railway can run it with:
+Firebase Hosting serves the built storefront; Firestore and Firebase Auth provide live catalogue and admin access.
 
 ```bash
-node server.js
+npm run build
+firebase deploy --only hosting,firestore:rules --project the-shivara-group-86c9c
 ```
+
+## Verification
+
+`npm test` runs the catalogue audit, 1,020 admin unit scenarios and source security checks without resetting live inventory. For isolated Chrome/WebKit commerce tests, start the local server on port 3259 and run `npm run test:realtime`.
+
+Live QA scripts require `ADMIN_EMAIL` and `ADMIN_PASSWORD` environment variables. `scripts/test-live-product-matrix.cjs` runs 15 UI cycles per browser and deletes its temporary products. `QA_EDGE_CASES=1` additionally verifies photo gallery preservation and an atomic restock from zero quantity. `scripts/test-live-order.cjs` creates a QA COD order, verifies OMS/tracking/customer aggregation, and removes its records. Screenshots and results go to the ignored `artifacts/` directory.
+
+Photos selected from the device are compressed before being saved in Firestore. The unused Firebase Storage SDK and retired motion/3D bundles have been removed.
