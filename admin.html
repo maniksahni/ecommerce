@@ -2125,6 +2125,68 @@
       }
     }
     @media(max-width:600px) { .stats-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; } .stat-card { padding: 14px; min-width: 0; } .stat-value { font-size: 25px; overflow-wrap: anywhere; } }
+
+    /* Keep the mobile admin modules in a stable, non-scrolling position. */
+    @media (max-width: 1100px) {
+      .admin-nav-tabs {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+        margin: 0 0 20px;
+        padding: 8px 0 14px;
+        overflow: visible;
+        white-space: normal;
+        border-bottom: 1px solid var(--border);
+        scrollbar-width: none;
+      }
+      .admin-nav-tabs::-webkit-scrollbar { display: none; }
+      .admin-tab-button {
+        min-width: 0;
+        min-height: 54px;
+        margin: 0;
+        padding: 7px 4px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 3px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: rgba(255,255,255,.76);
+        font-size: 9px;
+        line-height: 1.15;
+        letter-spacing: .3px;
+        text-align: center;
+        white-space: normal;
+      }
+      .admin-tab-button > span:first-child { max-width: 100%; overflow-wrap: anywhere; }
+      .admin-tab-button.is-active {
+        color: var(--choco);
+        border-color: var(--gold-border);
+        background: #fff8e9;
+        box-shadow: 0 3px 10px rgba(41,22,12,.07);
+      }
+      .admin-tab-button.is-active .admin-tab-badge { background: var(--gold); }
+      .admin-tab-badge { min-width: 18px; height: 16px; padding: 0 5px; font-size: 9px; }
+    }
+    @media (min-width: 1101px) {
+      .admin-nav-tabs {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+        gap: 6px;
+        overflow: visible;
+        white-space: normal;
+      }
+      .admin-tab-button {
+        min-width: 0;
+        margin: 0;
+        padding: 8px 6px;
+        justify-content: center;
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        font-size: 10px;
+      }
+      .admin-tab-button.is-active { border-color: var(--gold-border); background: #fff8e9; }
+    }
   </style>
 </head>
 <body>
