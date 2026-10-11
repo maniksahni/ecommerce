@@ -260,6 +260,18 @@
     </div>`;
   }
 
+  function shoppingIcon(name) {
+    const shapes = {
+      search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/>',
+      account: '<circle cx="12" cy="8" r="3.5"/><path d="M4.5 21c0-5 3-7 7.5-7s7.5 2 7.5 7"/>',
+      wishlist: '<path d="M12 20.8 4.2 13.5C-1 8.5 6.4 2.1 12 8.1c5.6-6 13 .4 7.8 5.4z"/>',
+      cart: '<path d="M4 8h16l-1 13H5zM8 10V7a4 4 0 0 1 8 0v3"/>',
+      menu: '<path d="M3 6h18M3 12h18M3 18h18"/>',
+      home: '<path d="M3 11 12 3l9 8v10h-6v-7H9v7H3z"/>'
+    };
+    return `<svg viewBox="0 0 24 24" aria-hidden="true">${shapes[name]}</svg>`;
+  }
+
   function sharedHeader() {
     const megaFeatures = [
       ["lavender-bloom-ring", "RINGS"],
@@ -270,7 +282,7 @@
     return `<div class="stable-announcement"><span data-announcement-text>${announcements[0]}</span></div>
       <header class="stable-header">
         <button class="stable-header__menu" type="button" data-menu-open aria-label="Open menu">
-          <span class="menu-icon" aria-hidden="true">☰</span>
+          <span class="menu-icon" aria-hidden="true">${shoppingIcon("menu")}</span>
           <span class="menu-label">Menu</span>
         </button>
         <a class="stable-logo" href="/" aria-label="Shivara home">SHIVARA<small>JEWELLERY ATELIER</small></a>
@@ -310,37 +322,37 @@
           <a href="/track-order.html" class="stable-track-nav-link">Track Order</a>
         </nav>
         <div class="stable-header__actions">
-          <button type="button" class="stable-header__btn stable-header__btn--icon" data-search-open aria-label="Search" title="Search">⌕</button>
+          <button type="button" class="stable-header__btn stable-header__btn--icon" data-search-open aria-label="Search" title="Search">${shoppingIcon("search")}</button>
           <a href="/track-order.html" class="stable-header__btn stable-header__btn--text">Track</a>
-          <button type="button" data-account-open class="stable-header__btn stable-header__btn--account" aria-label="Account">👤 <span data-account-name>${escapeHtml(accountLabel)}</span></button>
-          <a class="stable-header__btn stable-header__btn--wish stable-wish-link" href="/wishlist" aria-label="Wishlist">♡<span class="header-badge" data-wishlist-count>0</span></a>
-          <button type="button" data-cart-open class="stable-header__btn stable-header__btn--bag" aria-label="Open bag"><span>Bag</span><span class="header-badge" data-cart-count>0</span></button>
+          <button type="button" data-account-open class="stable-header__btn stable-header__btn--account" aria-label="Account">${shoppingIcon("account")} <span data-account-name>${escapeHtml(accountLabel)}</span></button>
+          <a class="stable-header__btn stable-header__btn--wish stable-wish-link" href="/wishlist" aria-label="Wishlist">${shoppingIcon("wishlist")}<span class="header-badge" data-wishlist-count>0</span></a>
+          <button type="button" data-cart-open class="stable-header__btn stable-header__btn--bag" aria-label="Open bag">${shoppingIcon("cart")}<span class="bag-label">Bag</span><span class="header-badge" data-cart-count>0</span></button>
         </div>
       </header>
       <div id="storefront-promo-strip" class="storefront-promo-strip" style="display:none;"></div>
       <nav class="stable-mobile-dock" aria-label="Mobile shopping navigation">
         <a href="/" class="stable-dock-item" aria-label="Home">
-          <span class="dock-icon" aria-hidden="true">⌂</span>
+          <span class="dock-icon" aria-hidden="true">${shoppingIcon("home")}</span>
           <span class="dock-label">Home</span>
         </a>
         <button type="button" class="stable-dock-item" data-menu-open aria-label="Explore categories">
-          <span class="dock-icon" aria-hidden="true">☰</span>
+          <span class="dock-icon" aria-hidden="true">${shoppingIcon("menu")}</span>
           <span class="dock-label">Explore</span>
         </button>
         <button type="button" class="stable-dock-item" data-search-open aria-label="Search catalog">
-          <span class="dock-icon" aria-hidden="true">⌕</span>
+          <span class="dock-icon" aria-hidden="true">${shoppingIcon("search")}</span>
           <span class="dock-label">Search</span>
         </button>
         <a href="/wishlist" class="stable-dock-item" aria-label="Wishlist">
           <span class="dock-icon-wrap">
-            <span class="dock-icon" aria-hidden="true">♡</span>
+            <span class="dock-icon" aria-hidden="true">${shoppingIcon("wishlist")}</span>
             <b class="dock-badge" data-wishlist-count>0</b>
           </span>
           <span class="dock-label">Wishlist</span>
         </a>
         <button type="button" class="stable-dock-item" data-cart-open aria-label="Shopping bag">
           <span class="dock-icon-wrap">
-            <span class="dock-icon" aria-hidden="true">👜</span>
+            <span class="dock-icon" aria-hidden="true">${shoppingIcon("cart")}</span>
             <b class="dock-badge" data-cart-count>0</b>
           </span>
           <span class="dock-label">Bag</span>
