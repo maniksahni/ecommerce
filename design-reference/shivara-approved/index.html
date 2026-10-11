@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090807">
+<meta name="description" content="Shivara luxury storefront — approved-design implementation reference, not the live store.">
+<title>SHIVARA · Final Approved Design · Implementation Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="reference-banner"><span><strong>APPROVED DESIGN REFERENCE</strong> — HTML/CSS recreation using crops from the approved image</span><span>Not connected to live Firebase / no orders</span></div>
+<div class="page-frame">
+  <div class="announcement">THE SHIVARA GROUP &nbsp; ✦ &nbsp; DELIVERY: 4–6 BUSINESS DAYS</div>
+  <header class="site-header" id="header">
+   <button class="icon icon-menu" aria-label="Open navigation" id="menu-toggle"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+   <a href="#home" class="wordmark" aria-label="Shivara homepage">SHIVARA</a>
+   <nav class="desktop-links" aria-label="Main categories"><a href="#categories">JEWELLERY</a><a href="#categories">CORD SETS</a><a href="#categories">SAREES</a><a href="#categories">ANARKALI</a><a href="#categories">LEHENGAS</a><a href="#editorial">EDITORIAL</a><a href="#categories">GIFTS</a></nav>
+   <div class="header-actions"><button class="icon" aria-label="Search" id="search-toggle"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg></button><a class="icon account-action" href="#newsletter" aria-label="Account"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 21c0-5 3-7 7.5-7s7.5 2 7.5 7"/></svg></a><button class="icon" aria-label="Wishlist" id="wishlist-toggle"><svg viewBox="0 0 24 24"><path d="M12 20.8 4.2 13.5C-1 8.5 6.4 2.1 12 8.1c5.6-6 13 0.4 7.8 5.4z"/></svg></button><button class="icon bag-button" aria-label="Shopping bag" id="bag-toggle"><svg viewBox="0 0 24 24"><path d="M4 8h16l-1 13H5zM8 10V7a4 4 0 0 1 8 0v3"/></svg><span id="bag-count">0</span></button></div>
+  </header>
+  <main id="home">
+   <section class="hero" aria-labelledby="hero-title">
+    <img class="hero-portrait" src="assets/hero-desktop.webp" alt="Cinematic Shivara jewellery editorial concept photograph">
+    <div class="hero-haze"></div>
+    <div class="hero-numbers" aria-hidden="true"><b>01</b><i></i><span>02</span><i></i><span>03</span></div>
+    <div class="hero-copy"><p class="eyebrow">THE SHIVARA GROUP</p><h1 id="hero-title">JEWELLERY<br>THAT LIVES<br>BEYOND<br>TRENDS</h1><p class="hero-description">Timeless jewellery and ethnic couture for every version of you — crafted with purpose, designed to be remembered.</p><a class="outline-button" href="#categories">EXPLORE THE COLLECTION <span>→</span></a></div>
+    <div class="hero-aside">MORE<br>THAN<br>JEWELLERY<br>A FEELING<i></i></div>
+    <div class="hero-play"><span class="play-disc">▷</span><span>OUR<br>STORY</span></div>
+    <div class="hero-progress">SCROLL <span class="mouse">⌄</span></div>
+    <div class="hero-index">1 / 3</div>
+   </section>
+   <section id="categories" class="categories" aria-labelledby="categories-title"><h2 id="categories-title" class="sr-only">Shop by category</h2><div class="category-rail">
+    <a href="#new-arrivals" class="category-card"><img src="assets/category-jewellery.webp" alt="Jewellery photograph"><span>JEWELLERY</span></a>
+    <a href="#new-arrivals" class="category-card"><img src="assets/category-cordsets.webp" alt="Cord set editorial"><span>CORD SETS</span></a>
+    <a href="#new-arrivals" class="category-card"><img src="assets/category-sarees.webp" alt="Saree fabric"><span>SAREES</span></a>
+    <a href="#new-arrivals" class="category-card"><img src="assets/category-anarkali.webp" alt="Anarkali detail"><span>ANARKALI</span></a>
+    <a href="#new-arrivals" class="category-card"><img src="assets/category-lehengas.webp" alt="Lehenga detail"><span>LEHENGAS</span></a>
+    <a href="#new-arrivals" class="category-card"><img src="assets/category-gifts.webp" alt="Wrapped gifts"><span>GIFTS</span></a>
+   </div></section>
+   <section class="feature-panels" aria-label="Latest curated fashion edits">
+     <a class="feature-panel feature-new" href="#new-arrivals"><img src="assets/campaign-new.webp" alt="New arrivals curated jewellery campaign"><span class="feature-text"><strong>NEW<br>ARRIVALS</strong><small>Fresh designs. Familiar feelings.<br>Always extraordinary.</small><span class="outline-button">SHOP NEW ARRIVALS →</span></span></a>
+     <a class="feature-panel feature-festive" href="#new-arrivals"><img src="assets/campaign-festive.webp" alt="Festive jewellery campaign"><span class="feature-text"><strong>FESTIVE<br>EDIT</strong><small>Looks for your most<br>unforgettable moments.</small><span class="outline-button">EXPLORE FESTIVE EDIT →</span></span></a>
+   </section>
+   <section class="assurances" aria-label="Shopping information"><div><span class="service-symbol">✧</span><span><strong>CURATED CRAFTSMANSHIP</strong><small>Thoughtfully selected</small></span></div><div><span class="service-symbol">♧</span><span><strong>DELIVERY</strong><small>4–6 Business Days</small></span></div><div><span class="service-symbol">↺</span><span><strong>SUPPORT & CARE</strong><small>Details on product pages</small></span></div><div><span class="service-symbol">♙</span><span><strong>SECURE CHECKOUT</strong><small>Via existing store flow</small></span></div></section>
+   <section id="editorial" class="editorial"><img src="assets/campaign-editorial.webp" alt="Shivara editorial fashion photograph"><div class="editorial-content"><span class="eyebrow">THE SHIVARA EDITORIAL</span><h2>TRADITION<br>MEETS TOMORROW</h2><p>Jewellery. Ethnic Wear. A More Expressive You.</p><a class="outline-button" href="#new-arrivals">READ THE EDIT →</a></div></section>
+   <section class="new-arrivals" id="new-arrivals"><header><h2>NEW ARRIVALS</h2><a href="https://the-shivara-group-86c9c.web.app/collections/new-arrivals">See All &nbsp; →</a></header><div class="product-rail">
+    <article class="product-card"><a href="https://the-shivara-group-86c9c.web.app/collections/new-arrivals"><img src="assets/product-necklace.webp" alt="Jewellery necklace example"></a><button class="product-heart" aria-label="Save necklace">♡</button><div class="product-body"><p>Statement Jewellery</p><small>Explore live catalogue for price</small><button class="add-bag" data-product="Statement Jewellery" aria-label="Add statement jewellery to demo bag">+</button></div></article>
+    <article class="product-card"><a href="https://the-shivara-group-86c9c.web.app/collections/new-arrivals"><img src="assets/product-earrings.webp" alt="Jewellery earring example"></a><button class="product-heart" aria-label="Save earrings">♡</button><div class="product-body"><p>Emerald Drop Earrings</p><small>Explore live catalogue for price</small><button class="add-bag" data-product="Emerald Drop Earrings" aria-label="Add earrings to demo bag">+</button></div></article>
+    <article class="product-card"><a href="https://the-shivara-group-86c9c.web.app/collections/new-arrivals"><img src="assets/product-bracelet.webp" alt="Jewellery bracelet example"></a><button class="product-heart" aria-label="Save bracelet">♡</button><div class="product-body"><p>Floral Bracelet</p><small>Explore live catalogue for price</small><button class="add-bag" data-product="Floral Bracelet" aria-label="Add bracelet to demo bag">+</button></div></article>
+   </div></section>
+  </main>
+  <footer class="site-footer" id="newsletter"><div class="footer-brand">SHIVARA <span>EST. IN STYLE</span></div><div>JEWELLERY THAT LIVES BEYOND TRENDS</div><div>Design reference only · Not connected to store checkout</div></footer>
+  <nav class="bottom-nav" aria-label="Mobile quick links"><a href="#home"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8v10h-6v-7H9v7H3z"/></svg><small>Home</small></a><a href="#categories"><svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg><small>Categories</small></a><button id="bottom-search"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg><small>Search</small></button><button id="bottom-wishlist"><svg viewBox="0 0 24 24"><path d="M12 20.8 4.2 13.5C-1 8.5 6.4 2.1 12 8.1c5.6-6 13 0.4 7.8 5.4z"/></svg><small>Wishlist</small></button><button id="bottom-bag"><svg viewBox="0 0 24 24"><path d="M4 8h16l-1 13H5zM8 10V7a4 4 0 0 1 8 0v3"/></svg><small>Cart</small><b id="bottom-count">0</b></button></nav>
+</div>
+<div class="overlay" id="overlay" hidden></div><aside class="drawer" id="drawer" aria-hidden="true"><button class="drawer-close" id="drawer-close" aria-label="Close panel">✕</button><span class="eyebrow">THE SHIVARA GROUP</span><h2 id="drawer-title">THE EDIT</h2><div id="drawer-body"><a href="#categories">Jewellery →</a><a href="#categories">Cord Sets →</a><a href="#categories">Sarees →</a><a href="#categories">Anarkali →</a><a href="#categories">Lehengas →</a><a href="#categories">Gifts →</a></div></aside>
+<script src="preview.js"></script>
+</body></html>
