@@ -31,6 +31,8 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,300..800&family=Italiana&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet" />
     <link rel="preload" as="image" href="/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" />
     <link rel="stylesheet" href="/commerce-stable.css?v=v11-stable" />
+    <link rel="stylesheet" href="/shivara-cinematic.css?v=approved-luxe-1" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&amp;display=swap" rel="stylesheet" />
   </head>
   <body data-page="home" class="catalog-stable">
     <a class="visually-hidden skip-to-content" href="#main">Skip to content</a>
@@ -108,25 +110,62 @@
       <!-- ══════════════════════════════════════════════
            1. CINEMATIC HERO SECTION
       ══════════════════════════════════════════════ -->
-      <section class="stable-hero" data-hero aria-labelledby="hero-title">
+      <section class="stable-hero shivara-cinematic-hero" data-hero aria-labelledby="hero-title">
         <div class="stable-hero__backdrop">
-          <img data-hero-image src="/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" alt="Curated Shivara jewellery" />
+          <img class="shivara-hero-editorial-photo" src="/assets/banners/hero-earrings-banner.jpg" alt="Shivara jewellery editorial campaign" fetchpriority="high" />
+          <img data-hero-image src="/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" alt="Featured Shivara jewellery product" />
         </div>
         <div class="stable-hero__shade" aria-hidden="true"></div>
         <div class="stable-hero__glow" aria-hidden="true"></div>
+        <div class="shivara-hero-index" aria-hidden="true"><strong>01</strong><span>02</span><span>03</span></div>
+        <div class="shivara-hero-vertical" aria-hidden="true">THE ART OF ADORNMENT · SHIVARA 2026</div>
         <div class="stable-hero__content">
-          <p><span>✦</span> THE SHIVARA ATELIER</p>
-          <h1 id="hero-title" data-hero-title>The Art of Everlasting Shine</h1>
-          <p data-hero-copy>Curated luxury jewellery designed for modern expression and timeless elegance.</p>
-          <div>
-            <a class="stable-button stable-button--light" href="/products/boxed-evil-eye-bracelet">Explore the Collection</a>
-            <a class="stable-button stable-button--line" href="/collections/new-arrivals">New Arrivals</a>
+          <p class="shivara-hero-kicker">THE SHIVARA GROUP / THE ATELIER</p>
+          <h1 id="hero-title">JEWELLERY<br>THAT LIVES<br><em>BEYOND TRENDS.</em></h1>
+          <p class="shivara-hero-description">Curated statement jewellery for every version of you — expressive details, contemporary attitude, unforgettable presence.</p>
+          <div class="shivara-hero-buttons">
+            <a class="stable-button stable-button--light" href="/products/boxed-evil-eye-bracelet">Explore Featured Piece ↗</a>
+            <a class="stable-button stable-button--line" href="/collections/all">Discover the Collection →</a>
+          </div>
+          <div class="shivara-featured-product">
+            <small>NOW SHOWING / THE SIGNATURE EDIT</small>
+            <span data-hero-title>Boxed Evil Eye Bracelet</span>
+            <p data-hero-copy>Discover the selected Shivara piece.</p>
           </div>
         </div>
         <div class="stable-hero__progress" aria-label="Featured product position">
           <i aria-hidden="true"><b data-hero-progress></b></i><span data-hero-count>1 / 3</span>
         </div>
       </section>
+
+
+      <!-- Approved cinematic edit: verified catalogue categories and editorial campaigns. -->
+      <nav class="shivara-categories" aria-label="Explore Shivara jewellery collections">
+        <div class="shivara-categories__label">
+          <span>DISCOVER THE SHIVARA WORLD</span>
+          <a href="/collections/all">VIEW ALL OBJECTS ↗</a>
+        </div>
+        <div class="shivara-categories__grid">
+          <a class="shivara-category" href="/collections/neckwear"><span class="shivara-category__media"><img src="/assets/instagram-shop/post-006-DYSSH09hsqL.jpg" alt="" loading="lazy" /></span><strong>Neck Wear</strong><small>01 / THE EDIT</small></a>
+          <a class="shivara-category" href="/collections/earrings"><span class="shivara-category__media"><img src="/assets/instagram-shop/post-005-DYU0BW6h3rQ.jpg" alt="" loading="lazy" /></span><strong>Earrings</strong><small>02 / THE EDIT</small></a>
+          <a class="shivara-category" href="/collections/rings"><span class="shivara-category__media"><img src="/assets/instagram-shop/post-002-DYcf1ViBfkI.jpg" alt="" loading="lazy" /></span><strong>Rings</strong><small>03 / THE EDIT</small></a>
+          <a class="shivara-category" href="/collections/bracelets"><span class="shivara-category__media"><img src="/assets/instagram-shop/post-051-DW3H_GZDD_4.jpg" alt="" loading="lazy" /></span><strong>Bracelets</strong><small>04 / THE EDIT</small></a>
+          <a class="shivara-category" href="/collections/jewellery-sets"><span class="shivara-category__media"><img src="/assets/instagram-shop/post-001-DYfHBFKBXGi.jpg" alt="" loading="lazy" /></span><strong>Jewellery Sets</strong><small>05 / THE EDIT</small></a>
+          <a class="shivara-category" href="/collections/gifting"><span class="shivara-category__media"><img src="/assets/instagram-shop/post-008-DYKVkoiRRKO.jpg" alt="" loading="lazy" /></span><strong>Gifting</strong><small>06 / THE EDIT</small></a>
+        </div>
+      </nav>
+
+      <section class="shivara-duo" aria-label="Shivara editorial collections">
+        <a class="shivara-duo__panel" href="/collections/new-arrivals">
+          <img src="/assets/banners/hero-artwork-banner.jpg" alt="" loading="lazy">
+          <div class="shivara-duo__copy"><small>01 / JUST ARRIVED</small><h2>NEW<br>ARRIVALS.</h2><p>Fresh expressions. Familiar feelings. Always extraordinary.</p><span class="shivara-duo__action">SHOP NEW ARRIVALS ↗</span></div>
+        </a>
+        <a class="shivara-duo__panel" href="/collections/jewellery-sets">
+          <img src="/assets/banners/hero-indowestern-banner.jpg" alt="" loading="lazy">
+          <div class="shivara-duo__copy"><small>02 / THE CELEBRATION EDIT</small><h2>THE<br>FESTIVE EDIT.</h2><p>Details for the moments worth remembering.</p><span class="shivara-duo__action">EXPLORE THE EDIT ↗</span></div>
+        </a>
+      </section>
+      <div class="shivara-ticker" aria-label="Shivara design statement">✦ &nbsp; STATEMENT PIECES &nbsp; · &nbsp; EVERYDAY EXPRESSION &nbsp; · &nbsp; JEWELLERY WITH A POINT OF VIEW &nbsp; ✦</div>
 
       <!-- ══════════════════════════════════════════════
            2. 4-COLUMN ATELIER REASSURANCE PILLARS
@@ -171,7 +210,7 @@
         <div class="stable-section-heading">
           <div>
             <p>ENTER THE JEWELLERY ROOM</p>
-            <h2 id="category-title">Shop by Category</h2>
+            <h2 id="category-title">The curated jewellery rooms.</h2>
           </div>
           <a href="/collections/all">Explore all pieces →</a>
         </div>
@@ -222,7 +261,7 @@
         <div class="stable-section-heading">
           <div>
             <p>CURATED COLLECTION</p>
-            <h2 id="live-products-title">The Shivara Edit</h2>
+            <h2 id="live-products-title">The objects of desire.</h2>
           </div>
         </div>
 
@@ -378,7 +417,7 @@
         <div class="stable-section-heading">
           <div>
             <p>JUST ADDED</p>
-            <h2 id="new-title">New arrivals</h2>
+            <h2 id="new-title">Freshly arrived.</h2>
           </div>
           <a href="/collections/new-arrivals">View all new arrivals →</a>
         </div>

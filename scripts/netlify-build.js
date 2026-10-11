@@ -38,7 +38,8 @@ const publicFiles = [
   "storefront-renderer.js",
   "script.js",
   "video-commerce.js",
-  "commerce-stable.css"
+  "commerce-stable.css",
+  "shivara-cinematic.css"
 ];
 
 const collectionMeta = {

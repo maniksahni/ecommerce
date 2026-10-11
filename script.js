@@ -67,7 +67,7 @@
   ];
   const heroIds = ["boxed-evil-eye-bracelet", "floral-statement-ring", "tulip-pendant"];
   const announcements = [
-    "PAN India express complimentary shipping",
+    "Delivery estimate: 4–6 Business Days",
     "Handcrafted 18K gold-plated anti-tarnish statement edits",
     "Concierge shopping & WhatsApp styling: +91 94570 41215"
   ];
