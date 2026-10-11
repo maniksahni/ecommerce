@@ -24,7 +24,8 @@
     "test:admin": "node --test --test-reporter=dot scripts/admin-tests/*.test.js",
     "test:admin:live": "node scripts/admin-tests/live-browser.js",
     "test:realtime": "node scripts/test-realtime-commerce.cjs",
-    "test:mobile": "node scripts/test-mobile-layout.cjs"
+    "test:mobile": "node scripts/test-mobile-layout.cjs",
+    "test:approved": "node scripts/test-approved-storefront.cjs"
   },
   "dependencies": {
     "firebase": "^12.18.0",

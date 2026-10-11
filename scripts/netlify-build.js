@@ -38,7 +38,9 @@ const publicFiles = [
   "storefront-renderer.js",
   "script.js",
   "video-commerce.js",
-  "commerce-stable.css"
+  "commerce-stable.css",
+  "approved-storefront.css",
+  "approved-storefront.js"
 ];
 
 const collectionMeta = {
