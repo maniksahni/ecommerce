@@ -15,6 +15,16 @@
     document.documentElement.classList.add("catalogue-unavailable");
     return;
   }
+  // Fallback for browsers without native <details name> exclusive-group support.
+  // Listening in capture phase also handles dynamically rendered product pages.
+  document.addEventListener("toggle", (event) => {
+    const opened = event.target;
+    if (!opened.matches?.(".stable-accordions > details") || !opened.open) return;
+    opened.parentElement.querySelectorAll(":scope > details[open]").forEach((section) => {
+      if (section !== opened) section.open = false;
+    });
+  }, true);
+
   let products = catalogApi.getAllProducts();
   let cloudCatalogueLoaded = false;
   let cloudProductRecords = [];
@@ -809,7 +819,7 @@
       const value = pricing(product);
       return `<article class="stable-cart-line">
         <img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(product.imageAlt)}" />
-        <div><a href="${productUrl(product)}">${escapeHtml(product.title)}</a><small>${escapeHtml(product.sku)}${variant ? ` · ${escapeHtml(variant.label)}` : ""}</small><span class="stable-cart-line__mode">Unit price ${formatMoney(value.price)}</span><strong>Line total ${formatMoney(value.price * item.qty)}</strong>
+        <div><a href="${productUrl(product)}">${escapeHtml(product.title)}</a>${variant ? `<small>${escapeHtml(variant.label)}</small>` : ""}<span class="stable-cart-line__mode">Unit price ${formatMoney(value.price)}</span><strong>Line total ${formatMoney(value.price * item.qty)}</strong>
         <div class="stable-qty"><button type="button" data-cart-delta="-1" data-cart-id="${product.id}" data-variant-id="${variant?.id || ""}" aria-label="Decrease quantity">−</button><span>${item.qty}</span><button type="button" data-cart-delta="1" data-cart-id="${product.id}" data-variant-id="${variant?.id || ""}" aria-label="Increase quantity">+</button></div>
         <div class="stable-cart-line__links"><button type="button" data-cart-wishlist="${product.id}" data-variant-id="${variant?.id || ""}">Move to Wishlist</button><button class="stable-remove" type="button" data-cart-remove="${product.id}" data-variant-id="${variant?.id || ""}">Remove</button></div></div>
       </article>`;
@@ -956,7 +966,7 @@
     const modal = document.querySelector("#quick-view");
     modal.innerHTML = `<button class="stable-quick__close" type="button" data-layer-close aria-label="Close Quick View">×</button>
       <div class="stable-quick__stage"><div class="stable-quick__gallery">${gallery}</div>${thumbs}<span class="stable-quick__pagination">1 / ${distinctImages.length}</span></div>
-      <div class="stable-quick__info">${badge}<p>${escapeHtml(categoryMeta[product.category]?.title || product.category)}</p><h2 id="quick-title">${escapeHtml(product.title)}</h2><small>SKU: ${escapeHtml(product.sku)}</small>${priceMarkup(product, "stable-quick__price")}${craftsmanshipBadgesHtml}<p>${escapeHtml(product.description)}</p>
+      <div class="stable-quick__info">${badge}<p>${escapeHtml(categoryMeta[product.category]?.title || product.category)}</p><h2 id="quick-title">${escapeHtml(product.title)}</h2>${priceMarkup(product, "stable-quick__price")}${craftsmanshipBadgesHtml}<p>${escapeHtml(product.description)}</p>
       ${!isSoldOut ? '<div class="stable-qty"><button type="button" data-quick-qty="-1" aria-label="Decrease quantity">−</button><span id="quick-qty">1</span><button type="button" data-quick-qty="1" aria-label="Increase quantity">+</button></div>' : ""}
       <div class="stable-quick__actions">${addControl}<button class="stable-button stable-button--plain ${wishlist.has(product.id) ? "is-active" : ""}" type="button" data-wishlist-toggle="${product.id}">♡ Save to Your Edit</button><a class="stable-button stable-button--plain" href="${productUrl(product)}">View Full Product</a></div><details><summary>Craftsmanship &amp; Specifications</summary><p><strong>Material:</strong> Premium Stainless Steel with 18K Luxury Gold PVD Plating<br><strong>Water Resistance:</strong> 100% Waterproof &amp; Sweatproof<br><strong>Skin Friendly:</strong> Hypoallergenic, Lead &amp; Nickel Free<br><strong>Warranty:</strong> Anti-Tarnish Lifetime Warranty Guarantee</p></details></div>`;
   }
@@ -1037,7 +1047,7 @@
     if (!signatureProducts.length) { mount.innerHTML = ""; return; }
     signatureIndex = (nextIndex + signatureProducts.length) % signatureProducts.length;
     const product = signatureProducts[signatureIndex];
-    mount.innerHTML = `<a class="signature-edit__image" href="${productUrl(product)}"><img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(product.imageAlt)}" loading="lazy" /></a><div><small>${signatureIndex + 1} / ${signatureProducts.length} · ${escapeHtml(product.sku)}</small><h3>${escapeHtml(product.title)}</h3>${priceMarkup(product, "signature-edit__price")}<p>${escapeHtml(product.description)}</p><button class="stable-button stable-button--light" type="button" data-quick-view="${product.id}">Quick View</button></div>`;
+    mount.innerHTML = `<a class="signature-edit__image" href="${productUrl(product)}"><img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(product.imageAlt)}" loading="lazy" /></a><div><small>${signatureIndex + 1} / ${signatureProducts.length}</small><h3>${escapeHtml(product.title)}</h3>${priceMarkup(product, "signature-edit__price")}<p>${escapeHtml(product.description)}</p><button class="stable-button stable-button--light" type="button" data-quick-view="${product.id}">Quick View</button></div>`;
   }
 
   const homeCatalogueState = { category: 'all', search: '', sort: 'featured' };
