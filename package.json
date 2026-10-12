@@ -7,7 +7,7 @@
     "start": "node server.js",
     "audit:catalog": "node scripts/catalog-audit.js",
     "audit:routes": "node scripts/storefront-route-audit.js",
-    "test": "npm run audit:catalog && npm run test:admin && npm run test:security",
+    "test": "npm run audit:catalog && npm run test:admin && npm run test:security && npm run test:reference",
     "test:security": "node scripts/test-production-security.js",
     "test:smoke": "node scripts/smoke-test.js",
     "test:experience": "node scripts/experience-test.js",
@@ -27,7 +27,8 @@
     "test:mobile": "node scripts/test-mobile-layout.cjs",
     "test:approved": "node scripts/test-approved-storefront.cjs",
     "test:cream": "node scripts/test-cream-final.cjs",
-    "test:grpc": "npx firebase-tools emulators:exec --only auth,firestore --project demo-shivara-grpc --config firebase.grpc-test.json \"node scripts/test-firestore-grpc.cjs\""
+    "test:grpc": "npx firebase-tools emulators:exec --only auth,firestore --project demo-shivara-grpc --config firebase.grpc-test.json \"node scripts/test-firestore-grpc.cjs\"",
+    "test:reference": "node scripts/test-reference-match.cjs"
   },
   "dependencies": {
     "firebase": "^12.18.0",

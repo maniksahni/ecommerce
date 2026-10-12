@@ -1,0 +1,498 @@
+/* SHIVARA visual-reference match, v2.
+   Compare against the user-approved cream/ivory still-life composition.
+   REAL catalogue assets and commerce interactions remain authoritative.
+   Override only the final homepage theme; never alter checkout/admin pages. */
+
+body.shivara-cream-final.ref-locked,
+body.shivara-cream-final{--ref-ink:#291c14;--ref-gold:#a57b49;--ref-ivory:#fffdf9;--ref-blush:#f8f0e5}
+body.approved-storefront.shivara-cream-final{
+  padding:9px 18px 0!important;background:#eae5dd!important;
+}
+body.shivara-cream-final #main,
+body.shivara-cream-final #shared-header,
+body.shivara-cream-final #shared-footer{
+  max-width:1420px;border-left:1px solid #e7d8c6;
+  border-right:1px solid #e7d8c6;background:#fffcf7
+}
+body.shivara-cream-final #shared-header{
+  box-shadow:0 -3px 30px #6c493525;border-top:1px solid #e6d2b6
+}
+body.shivara-cream-final .stable-announcement{
+  background:linear-gradient(90deg,#8e6639,#a98250 47%,#926c43)!important;
+  color:#fff9f0!important;min-height:30px;padding:6px 16px!important;
+  font:400 10px/1.5 "DM Sans",sans-serif;letter-spacing:.025em
+}
+body.shivara-cream-final .stable-header{
+  min-height:64px!important;padding:0 4.7%!important;gap:18px!important;
+  background:#fffdfa!important;border-color:#efe6d9!important
+}
+body.shivara-cream-final .stable-logo{
+  font:500 34px/1 "Cormorant Garamond",Georgia,serif!important;
+  letter-spacing:5px!important;color:#2a1d15!important;flex-shrink:0
+}
+body.shivara-cream-final .stable-nav{gap:clamp(10px,1.4vw,21px)!important}
+body.shivara-cream-final .stable-nav>a,
+body.shivara-cream-final .stable-nav button,
+body.shivara-cream-final .stable-nav a{font:500 10px/1.25 "DM Sans",sans-serif!important;letter-spacing:0!important}
+body.shivara-cream-final .stable-header__actions{gap:0!important;flex-shrink:0}
+body.shivara-cream-final .stable-header__btn,
+body.shivara-cream-final .stable-header__menu{
+  height:44px!important;min-height:44px!important;width:43px!important;
+  min-width:43px!important;padding:10px!important;color:#3e3025!important
+}
+body.shivara-cream-final .stable-header__btn svg{width:20px;height:20px}
+@media(min-width:1100px){
+ body.shivara-cream-final .stable-header [data-search-open]{
+   width:clamp(132px,13vw,190px)!important;text-align:left;
+   background:#f8f1e8!important;border-radius:30px!important;
+   display:flex;align-items:center;justify-content:flex-start!important;
+   padding:0 13px!important;margin-right:5px
+ }
+ body.shivara-cream-final .stable-header [data-search-open]:after{
+   content:"Search for jewellery...";font:400 10px/1.4 "DM Sans",sans-serif;
+   color:#907e6b;margin-left:9px;white-space:nowrap
+ }
+ body.shivara-cream-final .stable-header [data-search-open] svg{width:17px;height:17px;flex-shrink:0}
+}
+
+/* REFERENCE HERO: continuous ivory scene instead of four floating square tiles. */
+body.shivara-cream-final .ref-hero{
+  height:clamp(375px,39vw,535px)!important;min-height:375px!important;
+  display:block!important;position:relative;overflow:hidden;isolation:isolate;
+  background:
+    radial-gradient(ellipse at 17% 27%,#fffdf7 0%,#fff8ee 32%,transparent 62%),
+    linear-gradient(116deg,#fdf5e9 0%,#f8ebd9 55%,#eacfaa 100%)!important;
+  border-bottom:1px solid #d7c3aa
+}
+body.shivara-cream-final .ref-hero .ref-hero__light{
+  position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(circle at 6% 5%,#fff9 0%,transparent 30%),
+   linear-gradient(100deg,#fff9f200 38%,#fff5e300 78%)
+}
+body.shivara-cream-final .ref-hero .approved-hero__copy{
+  position:absolute!important;z-index:8;top:11%;bottom:auto;left:5.7%;
+  margin:0!important;padding:0!important;max-width:46%!important;
+  width:46%!important;display:flex;flex-direction:column;align-items:flex-start
+}
+body.shivara-cream-final .ref-hero .cream-eyebrow{
+  color:#665040!important;font:600 10px/1.55 "DM Sans",sans-serif!important;
+  letter-spacing:.18em!important;margin:0 0 17px!important
+}
+body.shivara-cream-final .ref-hero h1{
+  color:#281b13!important;font:500 clamp(49px,5.35vw,79px)/.87 "Cormorant Garamond",Georgia,serif!important;
+  letter-spacing:-.052em!important;max-width:100%;margin:0 0 18px!important;
+  white-space:nowrap
+}
+body.shivara-cream-final .ref-hero h1 em{font-style:normal;font-weight:400}
+body.shivara-cream-final .ref-hero .approved-hero__description{
+  color:#4f4036!important;font:400 12px/1.55 "DM Sans",sans-serif!important;
+  margin:0 0 19px!important;max-width:380px!important;
+  position:static;clip-path:none;width:auto;height:auto;overflow:visible
+}
+body.shivara-cream-final .ref-hero .approved-outline{
+  border-radius:99px!important;color:#fff!important;background:#ab814e!important;
+  border:1px solid #ab814e!important;font:600 10px/1.2 "DM Sans",sans-serif!important;
+  letter-spacing:.08em!important;min-height:43px!important;
+  padding:11px 25px!important;box-shadow:none!important;gap:20px
+}
+body.shivara-cream-final .ref-hero__reasons{
+  display:flex;align-items:flex-start;gap:clamp(18px,2.7vw,43px);
+  margin-top:31px;color:#5c4532
+}
+body.shivara-cream-final .ref-hero__reasons span{
+  display:flex;align-items:center;flex-direction:column;gap:5px;
+  font:500 10px/1.2 "Cormorant Garamond",Georgia,serif;
+  white-space:nowrap
+}
+body.shivara-cream-final .ref-hero__reasons svg{
+  width:23px;height:23px;stroke:#896139;stroke-linecap:round;stroke-linejoin:round
+}
+body.shivara-cream-final .ref-hero .ref-scene{
+  position:absolute!important;inset:0 0 0 38%!important;width:62%!important;
+  height:100%!important;min-height:0!important;z-index:1;
+  background:
+    radial-gradient(ellipse at 61% 20%,#fff7e8 0%,transparent 43%),
+    linear-gradient(122deg,#fcf1e2 0%,#f2e0c5 55%,#e3c9a3 100%)
+}
+body.shivara-cream-final .ref-hero .ref-scene::before{
+  content:"";position:absolute;inset:0;z-index:7;pointer-events:none;
+  background:linear-gradient(90deg,#faf0e6 0%,#faf0e6ad 10%,transparent 35%),
+    linear-gradient(0deg,#fff4e62b,transparent 26%)
+}
+body.shivara-cream-final .ref-scene__arch{
+  position:absolute;z-index:0;top:-6%;left:24%;width:46%;height:87%;
+  border-radius:48% 48% 4% 4%;
+  background:linear-gradient(112deg,#e0c9a8 0%,#fffbef 13%,#e7d1b1 45%,#e0c19a 93%);
+  border:7px solid #fffaf0;box-shadow:inset -16px 0 27px #b58b563c,0 16px 28px #8c602330
+}
+body.shivara-cream-final .ref-scene__stone{
+  display:block;position:absolute;z-index:1;border-radius:50%/14%;
+  background:
+    repeating-linear-gradient(148deg,transparent 0 26px,#d3bca135 28px 29px),
+    linear-gradient(115deg,#fffaf0,#e7d4b7 53%,#d9b98d);
+  box-shadow:0 17px 26px #98734a42,inset 0 5px 4px #fff8ee
+}
+body.shivara-cream-final .ref-scene__stone--front{
+  bottom:4%;left:13%;width:52%;height:40%;transform:rotate(-2deg)
+}
+body.shivara-cream-final .ref-scene__stone--back{
+  bottom:11%;right:6%;width:38%;height:29%;transform:rotate(2deg)
+}
+body.shivara-cream-final .ref-scene__ribbon{
+  position:absolute;z-index:2;bottom:-7%;left:28%;width:73%;height:16%;
+  background:linear-gradient(100deg,#e5c08b,#fff5d8 43%,#c49a61 73%,#f9ead2);
+  border-radius:48% 15% 50% 5%;transform:rotate(-12deg);opacity:.85
+}
+body.shivara-cream-final .ref-scene .cream-hero__product{
+  display:block;position:absolute;z-index:3;padding:0!important;
+  background:transparent!important;border:0!important;box-shadow:none!important;
+  border-radius:0!important;overflow:visible!important;transform:none!important;
+  transition:filter .25s ease
+}
+body.shivara-cream-final .ref-scene .cream-hero__product:hover{
+  transform:none!important;filter:brightness(1.06);box-shadow:none!important
+}
+body.shivara-cream-final .ref-scene .cream-hero__product img{
+  display:block;width:100%;height:100%;object-fit:cover;
+  border-radius:0!important;mix-blend-mode:multiply;
+  -webkit-mask-image:radial-gradient(ellipse 63% 61% at 50% 50%,#000 45%,transparent 99%);
+  mask-image:radial-gradient(ellipse 63% 61% at 50% 50%,#000 45%,transparent 99%)
+}
+body.shivara-cream-final .ref-scene .cream-hero__product--pendant{
+  top:0%;left:22%;width:25%;height:54%;z-index:3
+}
+body.shivara-cream-final .ref-scene .cream-hero__product--ring{
+  top:19%;left:52%;width:24%;height:35%;z-index:4
+}
+body.shivara-cream-final .ref-scene .cream-hero__product--bracelet{
+  top:45%;left:13%;width:54%;height:45%;z-index:6
+}
+body.shivara-cream-final .ref-scene .cream-hero__product--earrings{
+  bottom:7%;right:0%;width:31%;height:45%;z-index:5
+}
+body.shivara-cream-final .ref-scene .cream-hero__brand-card{
+  position:absolute;top:18%;right:0%;width:25%;height:60%;transform:rotate(1deg);
+  z-index:2;border-radius:5px;background:linear-gradient(115deg,#e1bd85,#c69b64 57%,#e8c796);
+  border:2px solid #f6e5c6;box-shadow:13px 12px 24px #98714338;
+  color:#75512b
+}
+body.shivara-cream-final .ref-scene .cream-hero__brand-card>span{font-size:29px}
+body.shivara-cream-final .ref-scene .cream-hero__brand-card strong{
+  font:500 clamp(19px,2.7vw,40px)/1 "Cormorant Garamond",Georgia,serif;
+  letter-spacing:.12em
+}
+body.shivara-cream-final .ref-scene .cream-hero__brand-card small{font-size:8px;letter-spacing:.1em}
+body.shivara-cream-final .ref-scene__flowers{
+  position:absolute;z-index:8;color:#faf2df;text-shadow:0 1px 3px #9d77395c;
+  font-size:clamp(25px,4vw,66px);letter-spacing:-.15em;
+  pointer-events:none
+}
+body.shivara-cream-final .ref-scene__flowers--left{left:5%;top:13%;transform:rotate(-22deg)}
+body.shivara-cream-final .ref-scene__flowers--right{right:1%;bottom:1%;transform:rotate(22deg)}
+body.shivara-cream-final .ref-hero__slide-links{
+  display:flex;gap:6px;position:absolute;left:50%;bottom:10px;z-index:10;
+  transform:translateX(-50%)
+}
+body.shivara-cream-final .ref-hero__slide-links a{
+  display:block;width:7px;height:7px;border-radius:50%;background:#c9b59b;border:1px solid #fff3e5
+}
+body.shivara-cream-final .ref-hero__slide-links a.is-current{background:#956f42}
+
+/* Below the hero: identical hierarchy — circular categories, five compact items, three edits. */
+body.shivara-cream-final .approved-categories{
+  padding:17px 4.5% 7px!important;background:#fffdf9!important;border:0!important
+}
+body.shivara-cream-final .approved-categories .stable-section-heading{
+  position:absolute!important;clip-path:inset(50%)!important;height:1px!important;
+  width:1px!important;overflow:hidden!important
+}
+body.shivara-cream-final .approved-categories .stable-category-rail{
+  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:clamp(13px,2vw,32px)!important;overflow:visible!important;
+  justify-items:center!important;padding:0!important;width:100%
+}
+body.shivara-cream-final .approved-categories .stable-category-rail a{
+  min-width:0!important;max-width:190px!important;min-height:0!important;
+  flex:none!important;width:100%!important;height:auto!important;padding:0!important;
+  border:0!important;box-shadow:none!important
+}
+body.shivara-cream-final .approved-categories .stable-category-rail a>span{
+  position:relative!important;inset:auto!important;width:min(100%,130px)!important;
+  height:auto!important;aspect-ratio:1!important;border-radius:50%!important;
+  padding:0!important;border:0!important;background:#f4e6d6
+}
+body.shivara-cream-final .approved-categories .stable-category-rail img{
+  width:100%;height:100%;object-fit:cover;border-radius:50%!important
+}
+body.shivara-cream-final .approved-categories .stable-category-rail strong{
+  font:500 clamp(14px,1.4vw,18px)/1.1 "Cormorant Garamond",Georgia,serif!important;
+  color:#302118!important;padding:7px 0 0!important;letter-spacing:0
+}
+body.shivara-cream-final .approved-categories .stable-category-rail small{
+  font:400 10px/1.3 "DM Sans",sans-serif;color:#49372a;
+  padding:1px 0 0!important;clip-path:none!important;position:static!important;
+  width:auto!important;height:auto!important;overflow:visible!important
+}
+body.shivara-cream-final .approved-arrivals{
+  padding:13px 4.5% 17px!important;background:#fffdf9!important
+}
+body.shivara-cream-final .approved-arrivals .stable-section-heading{
+  padding:0 0 12px!important;margin:0!important;align-items:baseline!important
+}
+body.shivara-cream-final .approved-arrivals .stable-section-heading h2{
+  font:500 clamp(29px,2.9vw,38px)/1 "Cormorant Garamond",Georgia,serif!important;
+  color:#302219!important;letter-spacing:-.02em;text-transform:none!important
+}
+body.shivara-cream-final .approved-arrivals .commerce-product-grid{
+  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:13px!important;overflow:hidden!important;padding:0!important
+}
+body.shivara-cream-final .approved-arrivals .stable-card{
+  flex:none!important;width:100%!important;max-width:none!important;min-width:0;
+  background:#fffaf3!important;border:none!important;border-radius:5px!important;
+  box-shadow:none!important
+}
+body.shivara-cream-final .approved-arrivals .stable-card__media{
+  aspect-ratio:1.33/1!important;max-height:230px!important;border-radius:5px!important;
+  background:#f9eee3!important;overflow:hidden
+}
+body.shivara-cream-final .approved-arrivals .stable-card__image{
+  width:100%;height:100%;object-fit:contain!important
+}
+body.shivara-cream-final .approved-arrivals .stable-card__body{
+  padding:5px 2px 8px!important;background:#fffdf9!important;gap:2px!important
+}
+body.shivara-cream-final .approved-arrivals .stable-card__title{
+  color:#38261b!important;font:500 11px/1.3 "DM Sans",sans-serif!important;
+  min-height:30px!important;margin:0 0 3px!important;
+  display:-webkit-box!important;-webkit-line-clamp:2!important;line-clamp:2!important;
+  -webkit-box-orient:vertical;overflow:hidden!important
+}
+body.shivara-cream-final .approved-arrivals .stable-card__price{
+  color:#332319!important;font-size:12px!important;min-height:20px!important;margin:0!important
+}
+body.shivara-cream-final .approved-arrivals .stable-card__price strong{
+  font-size:14px!important;color:#38261b!important
+}
+body.shivara-cream-final .approved-arrivals :is(
+  .stable-card__add,.stable-card__quick,.stable-card__best-price,
+  .stable-card__rating-badge,.stable-card__stars-row
+){display:none!important}
+body.shivara-cream-final .approved-arrivals .stable-card__wish{
+  min-width:40px!important;min-height:40px!important;width:40px!important;height:40px!important;
+  background:#fff9f1d9!important
+}
+body.shivara-cream-final .approved-campaigns{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:13px!important;padding:0 2% 19px!important;background:#fffdf9!important
+}
+body.shivara-cream-final .cream-edit{
+  height:clamp(150px,15vw,230px)!important;border:1px solid #ead9bf!important;
+  border-radius:11px!important;background:#f4e5d2!important
+}
+body.shivara-cream-final .cream-edit>img{
+  object-fit:cover!important;object-position:center;width:66%!important;inset:0 0 0 auto!important
+}
+body.shivara-cream-final .cream-edit:before{
+  background:linear-gradient(90deg,#fff8ed 0%,#fff5e8fb 33%,#fff5e8ba 55%,transparent 86%)!important
+}
+body.shivara-cream-final .cream-edit>div{
+  width:75%!important;padding:15px 5%!important;align-items:flex-start!important;
+  justify-content:center!important
+}
+body.shivara-cream-final .cream-edit .cream-edit__kicker{
+  font-size:8px!important;margin:0 0 7px!important
+}
+body.shivara-cream-final .cream-edit h2{
+  font:500 clamp(23px,2.5vw,34px)/.9 "Cormorant Garamond",Georgia,serif!important;
+  color:#322017!important;margin:0 0 7px!important
+}
+body.shivara-cream-final .cream-edit p{
+  color:#49382b!important;font-size:10px!important;margin:0 0 11px!important;
+  line-height:1.4!important
+}
+body.shivara-cream-final .cream-edit .approved-outline{
+  min-height:31px!important;padding:7px 13px!important;
+  font-size:8px!important;background:#936735!important
+}
+body.shivara-cream-final #main>.approved-services{display:none!important}
+body.shivara-cream-final .atelier-edits-section,
+body.shivara-cream-final .signature-edit,
+body.shivara-cream-final .atelier-story-section,
+body.shivara-cream-final .atelier-social-section{
+  background:#fffdf9!important;color:#34251b!important
+}
+body.shivara-cream-final .atelier-edit-card{
+  background:#fff8f1!important;border-color:#e8d8c5!important
+}
+body.shivara-cream-final .atelier-edit-content :is(h3,p),
+body.shivara-cream-final .atelier-edit-cta,
+body.shivara-cream-final .signature-edit :is(h2,h3){
+  color:#543c2c!important
+}
+body.shivara-cream-final :is(.stable-reassurance,.reassurance-card){
+ background:#f7ecdd!important;color:#493223!important
+}
+body.shivara-cream-final .reassurance-card :is(strong,span){color:#493223!important}
+
+/* The screenshot's phone composition: cream top bar, readable headline,
+   bracelet-led hero, four visible circles, two compact product cards, bottom nav. */
+@media(max-width:767px){
+ body.approved-storefront.shivara-cream-final{padding:0!important;background:#fffdf9!important}
+ body.shivara-cream-final #shared-header{box-shadow:none!important}
+ body.shivara-cream-final .stable-announcement{
+  min-height:27px!important;font-size:9px!important;text-align:center!important;
+  letter-spacing:0!important;padding:5px 6px!important
+ }
+ body.shivara-cream-final .stable-header{
+  grid-template-columns:44px minmax(0,1fr) 132px!important;min-height:57px!important;
+  padding:0 8px!important;gap:0!important
+ }
+ body.shivara-cream-final .stable-logo{
+  font:500 clamp(25px,7vw,30px)/1 "Cormorant Garamond",Georgia,serif!important;
+  letter-spacing:3px!important
+ }
+ body.shivara-cream-final .stable-header__actions{width:132px!important}
+ body.shivara-cream-final .stable-header__btn,
+ body.shivara-cream-final .stable-header__menu{width:44px!important;min-width:44px!important}
+ body.shivara-cream-final .ref-hero{
+  height:clamp(357px,100vw,445px)!important;min-height:357px!important;
+  background:linear-gradient(160deg,#fff9ef,#f2dcc0)!important
+ }
+ body.shivara-cream-final .ref-hero .approved-hero__copy{
+  top:7%!important;left:7%!important;width:87%!important;max-width:87%!important;
+  padding:0!important;z-index:8
+ }
+ body.shivara-cream-final .ref-hero .cream-eyebrow{
+  font-size:8px!important;line-height:1.3!important;letter-spacing:.13em!important;
+  margin:0 0 11px!important
+ }
+ body.shivara-cream-final .ref-hero h1{
+  font-size:clamp(35px,9.3vw,51px)!important;line-height:.87!important;
+  white-space:nowrap;margin:0 0 10px!important
+ }
+ body.shivara-cream-final .ref-hero .approved-hero__description{
+  font-size:10px!important;line-height:1.4!important;margin:0 0 13px!important;
+  white-space:normal
+ }
+ body.shivara-cream-final .ref-hero__desktop-br{display:none}
+ body.shivara-cream-final .ref-hero .approved-outline{
+  min-height:34px!important;padding:8px 20px!important;
+  font-size:8px!important;gap:15px!important
+ }
+ body.shivara-cream-final .ref-hero__reasons{display:none!important}
+ body.shivara-cream-final .ref-hero .ref-scene{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  min-height:0!important;background:transparent!important
+ }
+ body.shivara-cream-final .ref-hero .ref-scene::before{
+  background:linear-gradient(180deg,#fff9edfa 0%,#fff9ed93 45%,transparent 62%)!important
+ }
+ body.shivara-cream-final .ref-scene__arch{
+  top:27%;left:27%;width:49%;height:79%;opacity:.75;border-width:5px
+ }
+ body.shivara-cream-final .ref-scene__stone--front{
+  width:76%;height:23%;bottom:0;left:11%
+ }
+ body.shivara-cream-final .ref-scene__stone--back{
+  width:43%;height:21%;bottom:4%;right:0
+ }
+ body.shivara-cream-final .ref-scene .cream-hero__product--bracelet{
+  top:auto!important;bottom:0!important;left:18%!important;
+  width:74%!important;height:39%!important;z-index:6
+ }
+ body.shivara-cream-final .ref-scene .cream-hero__product--ring{
+  top:auto!important;bottom:10%!important;right:2%!important;
+  left:auto!important;width:27%!important;height:22%!important;z-index:7
+ }
+ body.shivara-cream-final .ref-scene .cream-hero__product--pendant{
+  top:auto!important;left:1%!important;bottom:12%!important;
+  width:25%!important;height:25%!important
+ }
+ body.shivara-cream-final .ref-scene .cream-hero__product--earrings{display:none!important}
+ body.shivara-cream-final .ref-scene .cream-hero__brand-card{display:none!important}
+ body.shivara-cream-final .ref-scene__flowers--left{top:auto;bottom:7%;left:0;font-size:24px}
+ body.shivara-cream-final .ref-scene__flowers--right{bottom:0;right:0;font-size:20px}
+ body.shivara-cream-final .ref-hero__slide-links{bottom:8px}
+ body.shivara-cream-final .approved-categories{
+  padding:13px 13px 10px!important;background:#fffdfa!important
+ }
+ body.shivara-cream-final .approved-categories .stable-category-rail{
+  display:flex!important;grid-template-columns:none!important;
+  justify-content:flex-start!important;overflow-x:auto!important;
+  scroll-snap-type:x mandatory;gap:13px!important;padding:0!important
+ }
+ body.shivara-cream-final .approved-categories .stable-category-rail a{
+  flex:0 0 72px!important;width:72px!important;min-width:72px!important;
+  max-width:72px!important;scroll-snap-align:start;overflow:visible!important
+ }
+ body.shivara-cream-final .approved-categories .stable-category-rail a>span{
+  width:72px!important;height:72px!important;aspect-ratio:1!important
+ }
+ body.shivara-cream-final .approved-categories .stable-category-rail strong{
+  font-size:13px!important;padding:7px 0 0!important;white-space:nowrap
+ }
+ body.shivara-cream-final .approved-categories .stable-category-rail small{display:none!important}
+ body.shivara-cream-final .approved-arrivals{
+  padding:17px 13px 18px!important
+ }
+ body.shivara-cream-final .approved-arrivals .stable-section-heading{
+  margin:0 0 10px!important;padding:0!important
+ }
+ body.shivara-cream-final .approved-arrivals .stable-section-heading h2{
+  font-size:27px!important
+ }
+ body.shivara-cream-final .approved-arrivals .stable-section-heading a{
+  font-size:10px!important
+ }
+ body.shivara-cream-final .approved-arrivals .commerce-product-grid{
+  display:flex!important;grid-template-columns:none!important;
+  overflow-x:auto!important;gap:10px!important;scroll-snap-type:x mandatory
+ }
+ body.shivara-cream-final .approved-arrivals .stable-card{
+  flex:0 0 calc((100% - 10px)/2)!important;max-width:none!important;
+  min-width:0!important;border:0!important;box-shadow:none!important
+ }
+ body.shivara-cream-final .approved-arrivals .stable-card__media{
+  aspect-ratio:1.1/1!important;max-height:none!important
+ }
+ body.shivara-cream-final .approved-arrivals .stable-card__body{padding:5px 0 7px!important}
+ body.shivara-cream-final .approved-arrivals .stable-card__title{
+  min-height:28px!important;font-size:10px!important;line-height:1.35!important
+ }
+ body.shivara-cream-final .approved-arrivals .stable-card__price,
+ body.shivara-cream-final .approved-arrivals .stable-card__price strong{font-size:11px!important}
+ body.shivara-cream-final .approved-campaigns{
+  display:flex!important;flex-direction:column;gap:10px!important;
+  padding:0 13px 16px!important
+ }
+ body.shivara-cream-final .cream-edit{
+  height:131px!important;min-height:131px!important;border-radius:9px!important
+ }
+ body.shivara-cream-final .cream-edit>div{width:70%!important;padding:13px 16px!important}
+ body.shivara-cream-final .cream-edit h2{font-size:26px!important;margin:0 0 6px!important}
+ body.shivara-cream-final .cream-edit p{font-size:9px!important;margin:0 0 7px!important}
+ body.shivara-cream-final .cream-edit .cream-edit__kicker{display:none!important}
+ body.shivara-cream-final .cream-edit .approved-outline{
+  min-height:28px!important;padding:7px 10px!important;font-size:7px!important
+ }
+ body.shivara-cream-final .stable-mobile-dock{
+  background:#fffdf9!important;color:#5e4128!important;
+  border-top:1px solid #e6d7c3!important;box-shadow:0 -4px 20px #7c5b3621!important
+ }
+ body.shivara-cream-final .stable-dock-item{color:#624831!important}
+ body.shivara-cream-final .dock-icon svg{stroke:#65472d!important}
+}
+@media(max-width:360px){
+ body.shivara-cream-final .ref-hero{height:356px!important}
+ body.shivara-cream-final .ref-hero h1{font-size:34px!important}
+ body.shivara-cream-final .approved-categories .stable-category-rail a{
+  flex-basis:68px!important;width:68px!important;min-width:68px!important
+ }
+ body.shivara-cream-final .approved-categories .stable-category-rail a>span{
+  width:68px!important;height:68px!important
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body.shivara-cream-final *{transition:none!important;animation:none!important}
+}
