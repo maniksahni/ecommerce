@@ -208,7 +208,9 @@ write("api/banners", JSON.stringify(defaultBanners, null, 2));
 
 write("_headers", `/*\n  X-Shivara-Build: ${buildInfo.commit}\n  X-Shivara-Catalog-Version: ${buildInfo.catalogVersion}\n  X-Shivara-App-Version: ${buildInfo.appVersion}\n  Cache-Control: public, max-age=0, must-revalidate\n`);
 
+const productAliases = { ...catalogApi.duplicateProducts, ...catalogApi.duplicateLegacy };
 const routeRules = [
+  ...Object.entries(productAliases).map(([old, slug]) => `/products/${old} /products/${slug} 301!`),
   ...Object.keys(collectionMeta).map((slug) => `/collections/${slug} /collections/${slug}/index.html 200!`),
   ...catalogApi.getAllProducts().map((product) => `/products/${product.slug} /products/${product.slug}/index.html 200!`),
   ...catalogApi.getAllProducts()
@@ -231,6 +233,7 @@ if (fs.existsSync(firebaseConfigPath)) {
         destination: `/products/${product.slug}`,
         type: 301
       }));
+    firebaseConfig.hosting.redirects.push(...Object.entries(productAliases).map(([old, slug]) => ({ source: `/products/${old}`, destination: `/products/${slug}`, type: 301 })));
     firebaseConfig.hosting.headers = [
       {
         source: "**",

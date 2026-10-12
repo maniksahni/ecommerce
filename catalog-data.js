@@ -10,6 +10,18 @@
     root.ShivaraCatalog = builder.createAccessLayer(catalog);
   }
 })(typeof window !== "undefined" ? window : null, function createCatalogBuilder() {
+  const duplicateLegacy = Object.freeze({"DXb4u1WMs3N":"crystal-butterfly-drop-necklace","DXZqgaJBA9l":"mint-butterfly-earrings","DXWiT4SxF-w":"cherry-drop-pendant","DXUKeYosxOa":"boxed-evil-eye-bracelet","DW0r-SYxASu":"black-floral-cluster-ring","DWqQ5tusfA-":"green-coil-watch","DWlGxA6DBMP":"pastel-crystal-bracelet-set"});
+  // Visually confirmed duplicate listings; keep the clearer catalogue photograph.
+  const duplicateProducts = Object.freeze({
+    'boxed-blue-evil-eye-bracelet':'boxed-evil-eye-bracelet',
+    'butterfly-drop-necklace':'crystal-butterfly-drop-necklace',
+    'green-butterfly-earrings':'mint-butterfly-earrings',
+    'cherry-charm-pendant':'cherry-drop-pendant',
+    'floral-statement-ring':'black-floral-cluster-ring',
+    'green-ad-jewellery-set':'pastel-crystal-bracelet-set',
+    'snake-chain-watch':'green-coil-watch'
+  });
+
   const supportedContentTypes = new Set(["product", "campaign", "packaging", "announcement", "lifestyle", "review", "unavailable"]);
   const moneyFormatter = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 
@@ -37,7 +49,7 @@
       contentType: contentTypeBySourceId.get(post.id) || "unavailable"
     }));
 
-    const products = (overrides?.products || []).map((product) => {
+    const products = (overrides?.products || []).filter(product => !duplicateProducts[product.slug]).map((product) => {
       const sourcePost = sourceMap.get(product.sourcePostId);
       const isDirectSource = product.sourceType === "catalog" || product.sourceType === "direct" || !sourceMap.has(product.sourcePostId);
       if (!sourcePost && !isDirectSource) throw new Error(`Missing Instagram source post for ${product.sourcePostId}`);
@@ -119,7 +131,7 @@
 
   function createAccessLayer(catalog) {
     if (!catalog || !Array.isArray(catalog.products)) throw new Error("Curated Shivara catalogue is unavailable");
-    let products = catalog.products;
+    let products = catalog.products.filter(product => !duplicateProducts[product.slug]);
     const bySlug = new Map(products.map((product) => [product.slug, product]));
     const byLegacyId = new Map(products.map((product) => [product.sourcePostId, product]));
 
@@ -132,7 +144,7 @@
         const title = String(entry.title || original.title || '').trim();
         const price = Number(entry.price ?? original.price);
         const images = entry.images?.length ? entry.images : entry.imageUrl ? [entry.imageUrl] : original.images || [];
-        if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || !title || !Number.isFinite(price) || price <= 0 || !images.length || seen.has(slug)) return [];
+        if (duplicateProducts[slug] || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || !title || !Number.isFinite(price) || price <= 0 || !images.length || seen.has(slug)) return [];
         seen.add(slug);
         const category = entry.category || original.category || 'other';
         return [freezeProduct({
@@ -187,11 +199,13 @@
     }
 
     function getProductBySlug(slug) {
-      return bySlug.get(String(slug || "")) || null;
+      const key = String(slug || "");
+      return bySlug.get(duplicateProducts[key] || key) || null;
     }
 
     function getProductByLegacyId(id) {
-      return byLegacyId.get(String(id || "")) || null;
+      const key = String(id || "");
+      return byLegacyId.get(key) || bySlug.get(duplicateLegacy[key]) || null;
     }
 
     function getCollection(slug) {
@@ -276,6 +290,8 @@
       getBySlug: getProductBySlug,
       getByLegacyId: getProductByLegacyId,
       getAllProducts,
+      duplicateProducts,
+      duplicateLegacy,
       replaceProductsFromCloud,
       patchLiveProduct,
       getProductBySlug,

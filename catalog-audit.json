@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-07T20:06:36.594Z",
+  "generatedAt": "2026-10-12T17:47:42.017Z",
   "source": {
     "totalPosts": 103,
     "contentTypes": {
@@ -24,17 +24,17 @@
     ]
   },
   "catalogue": {
-    "purchasableProducts": 114,
-    "confirmedPriceProducts": 114,
+    "purchasableProducts": 107,
+    "confirmedPriceProducts": 107,
     "priceEnquiryProducts": 0,
     "categories": {
-      "rings": 29,
-      "bracelets": 14,
-      "pendants": 40,
-      "necklaces": 5,
-      "earrings": 18,
-      "watches": 4,
-      "sets": 4
+      "rings": 28,
+      "bracelets": 13,
+      "pendants": 39,
+      "earrings": 17,
+      "sets": 3,
+      "necklaces": 4,
+      "watches": 3
     }
   },
   "checks": {

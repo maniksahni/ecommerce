@@ -1082,6 +1082,10 @@ const server = http.createServer(async (request, response) => {
       return response.end();
     }
     const product = catalogApi.getProductBySlug(identifier);
+    if (product && product.slug !== identifier) {
+      response.writeHead(301, { Location: productUrl(product) });
+      return response.end();
+    }
     if (!product) {
       // Cloud-created products are resolved by the shared browser catalogue.
       return sendHtml(response, fs.readFileSync(path.join(root, "product.html"), "utf8"), 404);

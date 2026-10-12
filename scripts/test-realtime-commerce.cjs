@@ -10,7 +10,7 @@ const baseline = loadCatalog()
       "tulip-pendant",
       "halo-gift-ring",
       "boxed-evil-eye-bracelet",
-      "floral-statement-ring",
+      "black-floral-cluster-ring",
     ].includes(p.id),
   );
 const fixture = fs.readFileSync(

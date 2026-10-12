@@ -36,6 +36,13 @@
     if (p.sourcePostId) productMap.set(p.sourcePostId, p);
     if (p.sku) productMap.set(p.sku, p);
   });
+  registerProductAliases();
+  function registerProductAliases() {
+    Object.entries({ ...catalogApi.duplicateProducts, ...catalogApi.duplicateLegacy }).forEach(([old, slug]) => {
+      const canonical = productMap.get(slug);
+      if (canonical) productMap.set(old, canonical);
+    });
+  }
   const storageKeys = {
     cart: "shivara-cart-v3",
     cartNote: "shivara-cart-note-v1",
@@ -92,7 +99,7 @@
   const wishlistItems = readVersionedItems(storageKeys.wishlist, storageKeys.legacyWishlist);
   let cart = normalizedMigratedCart;
   let cartNote = String(localStorage.getItem(storageKeys.cartNote) || "").slice(0, 240);
-  const wishlist = new Set(wishlistItems.filter((id) => productMap.has(id)));
+  const wishlist = new Set(wishlistItems.filter((id) => productMap.has(id)).map(id => productMap.get(id).id));
   if (migratedCart.length !== cart.length) console.info(`[Shivara] Discarded ${migratedCart.length - cart.length} invalid legacy cart item(s).`);
   if (wishlistItems.length !== wishlist.size) console.info(`[Shivara] Discarded ${wishlistItems.length - wishlist.size} invalid legacy wishlist item(s).`);
   saveStorage(storageKeys.cart, { version: 3, items: cart });
@@ -192,7 +199,7 @@
 
   function normalizeCart(raw) {
     if (!Array.isArray(raw)) return [];
-    return raw.flatMap((entry) => {
+    const migrated = raw.flatMap((entry) => {
       if (!entry || !productMap.has(entry.id)) return [];
       const product = productMap.get(entry.id);
       if (product.priceStatus === "unavailable") return [];
@@ -201,6 +208,14 @@
       if (!product.variants.length && entry.variantId) return [];
       return [{ id: product.id, variantId: variant?.id || null, qty: Math.max(1, Math.floor(Number(entry.qty) || 1)) }];
     });
+    const merged = new Map();
+    migrated.forEach(entry => {
+      const key = `${entry.id}:${entry.variantId || ""}`;
+      const existing = merged.get(key);
+      if (existing) existing.qty += entry.qty;
+      else merged.set(key, { ...entry });
+    });
+    return [...merged.values()];
   }
 
   function priceMarkup(product, className = "") {
@@ -675,6 +690,7 @@
     products.forEach(product => {
       [product.id, product.slug, product.sku, product.sourcePostId, product.cloudDocId].filter(Boolean).forEach(key => productMap.set(key, product));
     });
+    registerProductAliases();
     cart = normalizeCart(cart);
     saveCart();
     renderHome({ force: true });
