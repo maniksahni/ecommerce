@@ -1,0 +1,497 @@
+/* SHIVARA — FINAL CREAM & GOLD
+ * Approved visual direction: A Love Story in Every Design
+ * The homepage is an actual responsive HTML storefront using live catalogue cards.
+ * No products, prices, payment methods or catalogue state are recreated here.
+ */
+body.approved-storefront.shivara-cream-final{
+ --cream-paper:#fffdf9;--cream-ground:#f5ede2;--cream-sand:#eee1cf;
+ --cream-gold:#b48a52;--cream-bronze:#805f3a;--cream-ink:#2e2119;
+ --cream-line:#e4d5bf;--cream-serif:"Cormorant Garamond",Georgia,serif;
+ background:linear-gradient(135deg,#efebe5,#e9e2d8);color:var(--cream-ink);
+ padding:12px 18px 0;overflow-x:clip
+}
+body.approved-storefront.shivara-cream-final #main,
+body.approved-storefront.shivara-cream-final #shared-header,
+body.approved-storefront.shivara-cream-final #shared-footer{
+ background:var(--cream-paper);border-color:#e9ddca;box-shadow:none
+}
+body.shivara-cream-final #main{overflow:hidden}
+body.shivara-cream-final #shared-header{position:relative;z-index:20;overflow:visible}
+body.shivara-cream-final .stable-announcement{
+ color:#fff9ef;background:linear-gradient(105deg,#9d7648,#bd996b 50%,#8e6945);
+ min-height:27px;letter-spacing:.055em;font-size:10px;padding:7px 12px
+}
+body.shivara-cream-final .stable-header{
+ background:#fffdf9!important;color:var(--cream-ink);border-color:#ebdfd2!important;
+ min-height:72px;box-shadow:0 3px 12px #70573e0b
+}
+body.shivara-cream-final .stable-logo{
+ color:#31241d;font:500 36px/1 var(--cream-serif);letter-spacing:5px
+}
+body.shivara-cream-final .stable-header .stable-nav a,
+body.shivara-cream-final .stable-header .stable-nav button{color:#493326;font-size:11px}
+body.shivara-cream-final .stable-header .stable-nav a:hover{color:#a17843}
+body.shivara-cream-final .stable-header__btn,
+body.shivara-cream-final .stable-header__menu{color:var(--cream-ink)!important;background:transparent!important}
+body.shivara-cream-final .stable-header__btn .header-badge{background:#a37d4d;color:#fff}
+body.shivara-cream-final .stable-header [data-cart-open]{display:inline-flex!important}
+body.shivara-cream-final .stable-track-nav-link{color:#735638}
+body.shivara-cream-final #main > .cream-hero{order:0!important}
+body.shivara-cream-final #main > .approved-categories{order:1!important}
+body.shivara-cream-final #main > .approved-arrivals{order:2!important}
+body.shivara-cream-final #main > .approved-campaigns{order:3!important}
+body.shivara-cream-final #main > .approved-services{order:4!important}
+body.shivara-cream-final #main > .approved-editorial{order:5!important}
+
+/* Editorial jewellery stage: genuine catalogue imagery on an ivory marble concept. */
+body.shivara-cream-final .cream-hero{
+ height:clamp(500px,43vw,650px);min-height:500px;
+ display:grid;grid-template-columns:42% minmax(0,58%);
+ isolation:isolate;position:relative;overflow:hidden;
+ background:radial-gradient(ellipse at 79% 23%,#fff9e8 0%,#f4e9d9 42%,#e6d4be 100%);
+ border-bottom:1px solid #d8c4a7
+}
+body.shivara-cream-final .cream-hero:before{
+ content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;
+ background:linear-gradient(126deg,#fffdf9b8 0%,#fffaf500 50%),repeating-linear-gradient(125deg,transparent 0 106px,#ffffff2b 107px 108px);
+}
+body.shivara-cream-final .cream-hero__grain{
+ position:absolute;inset:0;z-index:-1;opacity:.42;
+ background:radial-gradient(circle at 57% 11%,#fff 0 3%,transparent 11%),
+ radial-gradient(circle at 97% 78%,#c7a47725,transparent 30%),
+ radial-gradient(circle at 20% 90%,#dfc49d39,transparent 28%);
+ pointer-events:none
+}
+body.shivara-cream-final .cream-hero .approved-hero__copy{
+ margin:0;max-width:none;align-self:center;padding:52px 0 50px clamp(28px,5.4vw,95px);
+ width:100%;z-index:5;position:relative
+}
+body.shivara-cream-final .cream-hero .cream-eyebrow{
+ color:#80603b;font:600 10px/1.4 "DM Sans",sans-serif;letter-spacing:.24em;
+ margin:0 0 25px;max-width:360px
+}
+body.shivara-cream-final .cream-hero h1{
+ color:var(--cream-ink)!important;
+ font:500 clamp(54px,5.35vw,91px)/.89 var(--cream-serif);
+ letter-spacing:-.035em;margin:0 0 21px;max-width:580px
+}
+body.shivara-cream-final .cream-hero h1 em{
+ font-style:normal;font-weight:400;letter-spacing:-.045em
+}
+body.shivara-cream-final .cream-hero .approved-hero__description{
+ color:#705d4c;max-width:345px;font:400 14px/1.7 "DM Sans",sans-serif;
+ margin:0 0 24px;position:static;width:auto;height:auto;clip-path:none;overflow:visible
+}
+body.shivara-cream-final .cream-hero .approved-outline,
+body.shivara-cream-final .cream-edit .approved-outline,
+body.shivara-cream-final .cream-editorial .approved-outline{
+ background:#a47a49;color:#fffaf2;border:1px solid #a47a49;
+ border-radius:99px;min-height:45px;padding:12px 24px;
+ font:600 10px/1.35 "DM Sans",sans-serif;letter-spacing:.11em;
+ box-shadow:0 8px 20px #a47a4930;text-align:center;white-space:normal
+}
+body.shivara-cream-final .approved-outline:hover{
+ background:#826037!important;color:#fff!important;border-color:#826037!important
+}
+body.shivara-cream-final .cream-hero__note{
+ display:block;font:400 11px/1.4 "DM Sans",sans-serif;color:#977957;
+ margin-top:20px;letter-spacing:.055em
+}
+body.shivara-cream-final .cream-hero__scene{
+ position:relative;min-width:0;min-height:100%;isolation:isolate;
+ background:radial-gradient(ellipse at 43% 50%,#fffcf6 0%,#f4e8d9 50%,#e6cfb4 100%)
+}
+body.shivara-cream-final .cream-hero__scene:before{
+ content:"";position:absolute;width:74%;height:110%;left:14%;top:-18%;
+ border-radius:45% 45% 4% 4%;opacity:.35;
+ background:linear-gradient(115deg,#fffdfd,#e5ceb0 60%,#fffdf9);
+ box-shadow:inset 10px 0 45px #ad81522b,0 10px 75px #c6a57830;z-index:-1
+}
+body.shivara-cream-final .cream-hero__pedestal{
+ position:absolute;display:block;background:linear-gradient(150deg,#fffaf0,#e4d4ba 67%,#c2a17c);
+ border:1px solid #ffffffb5;box-shadow:15px 18px 45px #8c65334a;
+ transform:skewY(-7deg);z-index:-1
+}
+body.shivara-cream-final .cream-hero__pedestal--one{
+ width:66%;height:26%;left:10%;bottom:10%;border-radius:9px
+}
+body.shivara-cream-final .cream-hero__pedestal--two{
+ width:43%;height:19%;right:1%;bottom:6%;border-radius:9px
+}
+body.shivara-cream-final .cream-hero__product{
+ display:block;position:absolute;overflow:hidden;border-radius:12px;
+ background:#f7edde;padding:5px;
+ border:1px solid #f7eee1;box-shadow:0 17px 32px #694c3040;
+ transition:transform .3s ease,box-shadow .3s ease
+}
+body.shivara-cream-final .cream-hero__product img{
+ width:100%;height:100%;display:block;object-fit:cover;object-position:center center;
+ border-radius:8px
+}
+body.shivara-cream-final .cream-hero__product:hover{
+ transform:translateY(-6px) rotate(0deg)!important;box-shadow:0 20px 42px #694c305c
+}
+body.shivara-cream-final .cream-hero__product--bracelet{
+ left:23%;top:41%;width:48%;height:40%;transform:rotate(-2deg);z-index:4
+}
+body.shivara-cream-final .cream-hero__product--ring{
+ right:7%;top:24%;width:29%;height:33%;transform:rotate(5deg);z-index:3
+}
+body.shivara-cream-final .cream-hero__product--pendant{
+ left:10%;top:11%;width:24%;height:34%;transform:rotate(-8deg);z-index:2
+}
+body.shivara-cream-final .cream-hero__product--earrings{
+ right:6%;bottom:7%;width:23%;height:26%;transform:rotate(7deg);z-index:5
+}
+body.shivara-cream-final .cream-hero__brand-card{
+ position:absolute;right:14%;top:6%;z-index:1;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ width:28%;height:31%;border-radius:10px;
+ background:linear-gradient(115deg,#edd5ae,#c9a371 78%,#dfc7a6);color:#70502e;
+ box-shadow:12px 14px 30px #99724242;transform:rotate(6deg)
+}
+body.shivara-cream-final .cream-hero__brand-card>span{font:38px Georgia,serif}
+body.shivara-cream-final .cream-hero__brand-card strong{
+ font:500 clamp(15px,1.9vw,29px)/1 var(--cream-serif);letter-spacing:.18em
+}
+body.shivara-cream-final .cream-hero__brand-card small{
+ margin-top:8px;font:600 7px/1.3 "DM Sans",sans-serif;letter-spacing:.12em;text-align:center
+}
+body.shivara-cream-final .cream-hero__sprig{
+ position:absolute;font:42px Georgia,serif;letter-spacing:12px;color:#c1a06c99;pointer-events:none
+}
+body.shivara-cream-final .cream-hero__sprig--top{top:5%;left:35%;transform:rotate(-25deg)}
+body.shivara-cream-final .cream-hero__sprig--bottom{bottom:4%;right:38%;transform:rotate(18deg)}
+body.shivara-cream-final .cream-hero .approved-hero__mobile-index{display:none}
+
+/* Category gallery: circular, photographic, without fabricated category prices. */
+body.shivara-cream-final .approved-categories{
+ padding:27px 4% 18px!important;background:#fffdf9!important;border:0!important;border-radius:0
+}
+body.shivara-cream-final .approved-categories .stable-section-heading{
+ position:static;display:flex;width:auto;height:auto;overflow:visible;clip-path:none;
+ padding:0;margin:0 0 18px;justify-content:space-between
+}
+body.shivara-cream-final .approved-categories .stable-section-heading p{display:none}
+body.shivara-cream-final .approved-categories .stable-section-heading h2,
+body.shivara-cream-final .approved-arrivals .stable-section-heading h2{
+ color:#302319!important;font:500 clamp(30px,3vw,43px)/1.1 var(--cream-serif);
+ text-transform:none;letter-spacing:-.015em
+}
+body.shivara-cream-final .stable-section-heading>a{
+ color:#8c663d!important;text-decoration:none;font-size:11px;letter-spacing:.045em
+}
+body.shivara-cream-final .approved-categories .stable-category-rail{
+ display:flex!important;gap:clamp(12px,2vw,26px)!important;overflow-x:auto;
+ padding:0 0 8px!important;scrollbar-width:none;justify-content:space-around
+}
+body.shivara-cream-final .approved-categories .stable-category-rail a{
+ flex:1 1 0!important;min-width:105px!important;max-width:215px!important;
+ width:auto!important;height:auto!important;min-height:180px;
+ border:0!important;border-radius:0!important;background:none!important;
+ display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+ padding:0!important;position:relative;box-shadow:none
+}
+body.shivara-cream-final .approved-categories .stable-category-rail a>span{
+ position:relative!important;inset:auto!important;display:block;width:min(100%,155px)!important;
+ aspect-ratio:1!important;height:auto!important;padding:0!important;
+ border-radius:50%!important;border:1px solid #ecdfcc!important;overflow:hidden;
+ background:#f3e7d8
+}
+body.shivara-cream-final .approved-categories .stable-category-rail img{
+ display:block;width:100%;height:100%;object-fit:cover;border-radius:50%!important;
+ transition:transform .3s ease
+}
+body.shivara-cream-final .approved-categories .stable-category-rail a:hover img{transform:scale(1.065)}
+body.shivara-cream-final .approved-categories .stable-category-rail a:after{display:none!important}
+body.shivara-cream-final .approved-categories .stable-category-rail strong{
+ color:#38291f!important;position:static!important;padding:10px 0 0!important;
+ font:500 20px/1.1 var(--cream-serif)!important;
+ text-transform:none;letter-spacing:0;min-height:0
+}
+body.shivara-cream-final .approved-categories .stable-category-rail small{
+ position:static;clip-path:none;height:auto;width:auto;overflow:visible;
+ padding:3px 0;font:400 10px/1.3 "DM Sans",sans-serif;color:#8c7b66
+}
+
+/* Real catalogue feeds. Only appearance changes; commerce JS renders every SKU and price. */
+body.shivara-cream-final .home-products,
+body.shivara-cream-final .atelier-social-section{
+ background:#fffdf9!important;color:#38291f!important;padding:26px 4% 40px!important
+}
+body.shivara-cream-final .stable-section-heading{border:0!important;padding:0 0 17px}
+body.shivara-cream-final .stable-section-heading h2,
+body.shivara-cream-final .atelier-social-header h2{color:#38291f!important}
+body.shivara-cream-final .approved-arrivals .commerce-product-grid{
+ display:flex;flex-wrap:nowrap;overflow-x:auto;gap:13px;scroll-snap-type:x proximity;
+ padding-bottom:12px;scrollbar-width:thin;scrollbar-color:#cfb18c #f7efe3
+}
+body.shivara-cream-final .approved-arrivals .stable-card{
+ flex:0 0 clamp(165px,17.5vw,235px);min-width:0;
+ scroll-snap-align:start;background:#fff9f1!important;
+ border:1px solid #ecdfce!important;border-radius:11px!important;
+ overflow:hidden;box-shadow:0 3px 14px #a3835520!important
+}
+body.shivara-cream-final .stable-card{
+ background:#fffaf4!important;color:#302319!important;border:1px solid #e9dece!important;
+ border-radius:10px!important;box-shadow:0 3px 15px #b29a7c18!important
+}
+body.shivara-cream-final .stable-card__media{aspect-ratio:1/1.02;background:#f8efe2}
+body.shivara-cream-final .stable-card__image{object-fit:contain}
+body.shivara-cream-final .stable-card__body{background:#fffaf4!important;padding:11px!important;min-width:0}
+body.shivara-cream-final .stable-card__title{
+ color:#38291f!important;font:500 12px/1.45 "DM Sans",sans-serif;min-height:32px
+}
+body.shivara-cream-final .stable-card__price,body.shivara-cream-final .stable-card__price strong{
+ color:#302319!important
+}
+body.shivara-cream-final .stable-card__add{
+ background:#ac8759!important;color:#fff!important;
+ border:0!important;border-radius:7px!important;font-size:10px
+}
+body.shivara-cream-final .stable-card__wish{background:#fffaf4;color:#463226}
+body.shivara-cream-final .stable-card__quick{background:#fffaf4;color:#503928}
+body.shivara-cream-final .stable-card__discount-tag{background:#f5e5d8;color:#95613f}
+body.shivara-cream-final .stable-empty{color:#6b5340}
+
+/* Three distinct compact editorial cards: images are real catalogue source media. */
+body.shivara-cream-final .approved-campaigns{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;
+ padding:0 4% 24px;background:#fffdf9!important
+}
+body.shivara-cream-final .cream-edit{
+ height:clamp(205px,17vw,265px);border:1px solid #e9d6bc;
+ background:linear-gradient(130deg,#f5e7d4,#fff8ee);border-radius:12px;
+ isolation:isolate;color:#302319;overflow:hidden
+}
+body.shivara-cream-final .cream-edit>img{
+ inset:0 0 0 auto;width:58%;height:100%;object-fit:cover;object-position:center
+}
+body.shivara-cream-final .cream-edit:before{
+ background:linear-gradient(90deg,#fff8ed 0%,#fff8edea 32%,#fff8eda2 51%,transparent 75%)
+}
+body.shivara-cream-final .cream-edit>div{
+ justify-content:center;width:69%;padding:25px 6%;align-items:flex-start
+}
+body.shivara-cream-final .cream-edit h2{
+ color:#36251b;font:500 clamp(25px,2.6vw,39px)/.98 var(--cream-serif);margin-bottom:9px
+}
+body.shivara-cream-final .cream-edit p{
+ color:#69513b;font:400 11px/1.4 "DM Sans",sans-serif;margin:0 0 13px
+}
+body.shivara-cream-final .cream-edit .cream-edit__kicker{
+ letter-spacing:.14em;color:#9f754d;font-size:8px;font-weight:600
+}
+body.shivara-cream-final .cream-edit .approved-outline{
+ min-height:34px;padding:9px 13px;font-size:8px;letter-spacing:.04em;gap:7px
+}
+
+/* Care and lifestyle content remains part of the existing page. */
+body.shivara-cream-final .approved-services{
+ background:#fffdf9!important;border:1px solid #ebddc9;border-left:0;border-right:0;
+ padding:20px 4%;grid-template-columns:repeat(4,minmax(0,1fr))
+}
+body.shivara-cream-final .approved-services>div+div{border-color:#eadac6}
+body.shivara-cream-final .approved-services strong{color:#5a3f2b;font-weight:700}
+body.shivara-cream-final .approved-services small{color:#78624d}
+body.shivara-cream-final .approved-services svg{stroke:#aa8250}
+body.shivara-cream-final .cream-editorial{
+ margin:0 4% 28px;border-radius:12px;height:clamp(245px,24vw,340px);
+ overflow:hidden;background:linear-gradient(120deg,#f8e8d4,#e8d3b8)
+}
+body.shivara-cream-final .cream-editorial>img{
+ inset:0 0 0 auto;width:58%;object-fit:cover;object-position:center
+}
+body.shivara-cream-final .cream-editorial:before{
+ background:linear-gradient(90deg,#fffaf2 0%,#fffaf2f2 35%,#fffaf2bb 51%,transparent 79%)
+}
+body.shivara-cream-final .cream-editorial>div{padding:clamp(25px,4vw,62px) 5%;width:61%}
+body.shivara-cream-final .cream-editorial h2{
+ color:#34241a;font:500 clamp(32px,4.4vw,59px)/.96 var(--cream-serif)
+}
+body.shivara-cream-final .cream-editorial p{color:#72563f;font-size:12px}
+body.shivara-cream-final #live-storefront-section,
+body.shivara-cream-final .atelier-story-section,
+body.shivara-cream-final .atelier-social-section,
+body.shivara-cream-final .stable-reassurance{
+ background:#fffdf9!important;color:#34241a!important
+}
+body.shivara-cream-final .atelier-story-section{border-color:#eadbc7;padding:50px 6%}
+body.shivara-cream-final .atelier-story-heading,
+body.shivara-cream-final .atelier-story-text{color:#38291f!important}
+body.shivara-cream-final .atelier-story-badge{color:#5b4533!important}
+body.shivara-cream-final .atelier-story-cta{background:#a47a49;color:#fff}
+body.shivara-cream-final .reassurance-card{background:#f8efe2!important;border-color:#e1d0b8!important}
+body.shivara-cream-final .reassurance-card strong,
+body.shivara-cream-final .reassurance-card span{color:#58422d!important}
+body.shivara-cream-final .atelier-social-header a{color:#916e46}
+body.shivara-cream-final .stable-footer{
+ color:#554333!important;background:#f6ede1!important;border-top-color:#e5d2ba!important
+}
+body.shivara-cream-final .stable-footer a{color:#554333!important}
+body.shivara-cream-final .storefront-filter-dock{
+ background:#f7efe4!important;border-color:#e0cbaa!important
+}
+body.shivara-cream-final .storefront-search-input,
+body.shivara-cream-final .storefront-sort-select,
+body.shivara-cream-final .storefront-filter-btn{
+ color:#4c3828!important;background:#fffaf4!important;border-color:#d3bd9d!important
+}
+body.shivara-cream-final .filter-chip{
+ background:#fff9f1!important;border-color:#d8c5a8!important;color:#5c4530!important
+}
+body.shivara-cream-final .filter-chip.is-active{
+ color:#fff!important;background:#9d784e!important;border-color:#9d784e!important
+}
+body.shivara-cream-final .storefront-search-icon{color:#8d653a}
+body.shivara-cream-final :focus-visible{outline:2px solid #a47a49;outline-offset:3px}
+
+/* Native mobile storefront, not a scaled-down desktop poster. */
+@media(max-width:767px){
+ body.approved-storefront.shivara-cream-final{padding:0;background:#fffaf4}
+ body.shivara-cream-final #main,
+ body.shivara-cream-final #shared-header,
+ body.shivara-cream-final #shared-footer{border:0!important;border-radius:0}
+ body.shivara-cream-final .stable-announcement{
+  font-size:9px;min-height:26px;padding:7px 6px;letter-spacing:.015em;
+ }
+ body.shivara-cream-final .stable-header{
+  display:grid;grid-template-columns:44px minmax(0,1fr) 132px;
+  padding:0 8px!important;min-height:61px;gap:0;background:#fffdf9!important
+ }
+ body.shivara-cream-final .stable-logo{
+  font-size:clamp(23px,6vw,30px);letter-spacing:2.3px;justify-self:center
+ }
+ body.shivara-cream-final .stable-header__actions{
+  display:flex;width:132px;justify-content:flex-end
+ }
+ body.shivara-cream-final .stable-header__btn,
+ body.shivara-cream-final .stable-header__menu{min-width:44px;min-height:44px}
+ body.shivara-cream-final .cream-hero{
+  height:auto;min-height:0;display:flex;flex-direction:column;
+  background:linear-gradient(165deg,#fffcf7 0%,#f3e6d6 100%)
+ }
+ body.shivara-cream-final .cream-hero .approved-hero__copy{
+  padding:29px 21px 12px!important;align-self:auto;
+  position:relative;bottom:auto;left:auto;margin:0;width:100%;max-width:none
+ }
+ body.shivara-cream-final .cream-hero .cream-eyebrow{
+  font-size:9px;letter-spacing:.14em;margin:0 0 13px;max-width:320px
+ }
+ body.shivara-cream-final .cream-hero h1{
+  font-size:clamp(43px,11vw,63px);line-height:.89;margin:0 0 12px;
+  max-width:430px
+ }
+ body.shivara-cream-final .cream-hero .approved-hero__description{
+  position:static;clip-path:none;overflow:visible;width:auto;height:auto;
+  font-size:11px;line-height:1.6;max-width:340px;margin:0 0 14px
+ }
+ body.shivara-cream-final .cream-hero .approved-outline{
+  font-size:9px;min-height:44px;padding:11px 19px;gap:16px
+ }
+ body.shivara-cream-final .cream-hero__note{font-size:9px;margin-top:12px}
+ body.shivara-cream-final .cream-hero__scene{
+  flex:0 0 auto;min-height:0;height:clamp(268px,82vw,430px);width:100%
+ }
+ body.shivara-cream-final .cream-hero__product{border-radius:9px;padding:3px}
+ body.shivara-cream-final .cream-hero__product img{border-radius:7px}
+ body.shivara-cream-final .cream-hero__product--bracelet{
+  left:24%;top:37%;width:49%;height:49%
+ }
+ body.shivara-cream-final .cream-hero__product--ring{
+  right:5%;top:24%;width:28%;height:34%
+ }
+ body.shivara-cream-final .cream-hero__product--pendant{
+  left:8%;top:9%;width:26%;height:38%
+ }
+ body.shivara-cream-final .cream-hero__product--earrings{
+  right:5%;bottom:7%;width:23%;height:25%
+ }
+ body.shivara-cream-final .cream-hero__brand-card{top:5%;right:15%;height:28%}
+ body.shivara-cream-final .cream-hero__brand-card>span{font-size:20px}
+ body.shivara-cream-final .cream-hero__brand-card strong{font-size:13px}
+ body.shivara-cream-final .cream-hero__brand-card small{font-size:5px}
+ body.shivara-cream-final .cream-hero__sprig{font-size:19px;letter-spacing:5px}
+ body.shivara-cream-final .approved-categories{padding:19px 13px 15px!important}
+ body.shivara-cream-final .approved-categories .stable-section-heading{margin:0 0 11px}
+ body.shivara-cream-final .approved-categories .stable-section-heading h2,
+ body.shivara-cream-final .approved-arrivals .stable-section-heading h2{
+  font-size:29px
+ }
+ body.shivara-cream-final .approved-categories .stable-category-rail{
+  justify-content:flex-start;gap:12px!important;padding:0 0 7px!important;
+  scroll-snap-type:x mandatory
+ }
+ body.shivara-cream-final .approved-categories .stable-category-rail a{
+  flex:0 0 75px!important;width:75px!important;min-width:75px!important;
+  max-width:75px!important;min-height:0;height:auto!important;
+  scroll-snap-align:start
+ }
+ body.shivara-cream-final .approved-categories .stable-category-rail a>span{
+  width:74px!important;height:74px!important;aspect-ratio:1!important
+ }
+ body.shivara-cream-final .approved-categories .stable-category-rail strong{
+  font:500 14px/1.15 var(--cream-serif)!important;padding:7px 0 0!important
+ }
+ body.shivara-cream-final .approved-categories .stable-category-rail small{
+  font-size:8px;max-width:75px;text-align:center
+ }
+ body.shivara-cream-final .approved-arrivals{padding:16px 13px 25px!important}
+ body.shivara-cream-final .approved-arrivals .commerce-product-grid{
+  gap:10px;overflow-x:auto;scroll-snap-type:x mandatory
+ }
+ body.shivara-cream-final .approved-arrivals .stable-card{
+  flex:0 0 calc((100% - 10px) / 2);min-width:0;max-width:210px
+ }
+ body.shivara-cream-final .stable-card__body{padding:8px!important}
+ body.shivara-cream-final .stable-card__title{font-size:11px}
+ body.shivara-cream-final .stable-card__price{font-size:12px}
+ body.shivara-cream-final .approved-campaigns{
+  display:flex;flex-direction:column;gap:10px;padding:0 13px 21px
+ }
+ body.shivara-cream-final .cream-edit{height:192px;border-radius:10px}
+ body.shivara-cream-final .cream-edit>div{width:70%;padding:16px}
+ body.shivara-cream-final .cream-edit h2{font-size:31px}
+ body.shivara-cream-final .cream-edit p{font-size:9px}
+ body.shivara-cream-final .cream-edit .approved-outline{min-height:33px;font-size:8px;padding:8px 12px}
+ body.shivara-cream-final .approved-services{
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 10px;padding:19px 15px
+ }
+ body.shivara-cream-final .approved-services>div+div{border:0;padding:0}
+ body.shivara-cream-final .cream-editorial{
+  margin:12px 13px 23px;height:240px;border-radius:10px
+ }
+ body.shivara-cream-final .cream-editorial>div{width:69%;padding:27px 18px}
+ body.shivara-cream-final .cream-editorial h2{font-size:35px}
+ body.shivara-cream-final .cream-editorial p{font-size:10px}
+ body.shivara-cream-final .home-products,
+ body.shivara-cream-final .atelier-social-section{padding:22px 13px!important}
+ body.shivara-cream-final .stable-mobile-dock{
+  background:#fffdf9!important;border-top:1px solid #d9c9b5!important;
+  grid-template-columns:repeat(5,minmax(0,1fr));min-height:calc(63px + env(safe-area-inset-bottom));
+  padding:4px 0 calc(4px + env(safe-area-inset-bottom))
+ }
+ body.shivara-cream-final .stable-dock-item{
+  color:#614c35!important;min-height:49px;gap:3px
+ }
+ body.shivara-cream-final .dock-icon svg{stroke:#5d4834!important}
+ body.shivara-cream-final .dock-label{font-size:9px;color:#695640}
+ body.shivara-cream-final .stable-footer{padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+}
+@media(max-width:360px){
+ body.shivara-cream-final .cream-hero .approved-hero__copy{padding:24px 16px 9px!important}
+ body.shivara-cream-final .cream-hero h1{font-size:40px}
+ body.shivara-cream-final .cream-hero__scene{height:265px}
+ body.shivara-cream-final .approved-categories .stable-category-rail a{
+  flex-basis:70px!important;width:70px!important;min-width:70px!important
+ }
+ body.shivara-cream-final .approved-categories .stable-category-rail a>span{
+  width:69px!important;height:69px!important
+ }
+ body.shivara-cream-final .cream-edit>div{width:76%}
+}
+@media(prefers-reduced-motion:reduce){
+ body.shivara-cream-final *,body.shivara-cream-final *:before,body.shivara-cream-final *:after{
+  transition:none!important;animation:none!important;scroll-behavior:auto!important
+ }
+}

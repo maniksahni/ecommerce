@@ -26,6 +26,7 @@
     "test:realtime": "node scripts/test-realtime-commerce.cjs",
     "test:mobile": "node scripts/test-mobile-layout.cjs",
     "test:approved": "node scripts/test-approved-storefront.cjs",
+    "test:cream": "node scripts/test-cream-final.cjs",
     "test:grpc": "npx firebase-tools emulators:exec --only auth,firestore --project demo-shivara-grpc --config firebase.grpc-test.json \"node scripts/test-firestore-grpc.cjs\""
   },
   "dependencies": {

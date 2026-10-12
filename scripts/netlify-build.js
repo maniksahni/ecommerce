@@ -40,6 +40,7 @@ const publicFiles = [
   "video-commerce.js",
   "commerce-stable.css",
   "approved-storefront.css",
+  "shivara-cream-final.css",
   "approved-storefront.js"
 ];
 

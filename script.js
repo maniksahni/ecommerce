@@ -71,16 +71,11 @@
     "new-arrivals": { title: "New Arrivals", kicker: "JUST LANDED", description: "The latest products explicitly included in the curated catalogue." }
   };
   const categoryRail = [
-    ["New Arrivals", "new-arrivals", "halo-gift-ring"],
-    ["Earrings", "earrings", "butterfly-earring-edit"],
-    ["Rings", "rings", "floral-statement-ring"],
-    ["Bracelets", "bracelets", "geometric-boxed-bracelet"],
-    ["Neck Wear", "necklaces", "butterfly-drop-necklace"],
-    ["Evil Eye", "evil-eye", "blue-charm-evil-eye-bracelet"],
-    ["Watches", "watches", "snake-chain-watch"],
-    ["Jewellery Sets", "sets", "halo-gift-ring"],
-    ["Anti Tarnish", "anti-tarnish", "boxed-evil-eye-bracelet"],
-    ["Gifting", "gifting", "cluster-gift-ring"]
+    ["Earrings", "earrings", "bow-love-earrings"],
+    ["Necklaces", "neckwear", "minimal-heart-pendant"],
+    ["Rings", "rings", "cluster-gift-ring"],
+    ["Bracelets", "bracelets", "boxed-blue-evil-eye-bracelet"],
+    ["Gift Sets", "gifting", "boxed-evil-eye-bracelet"]
   ];
   const heroIds = ["boxed-evil-eye-bracelet", "floral-statement-ring", "tulip-pendant"];
   const announcements = [
