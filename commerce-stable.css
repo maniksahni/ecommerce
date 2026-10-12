@@ -6018,3 +6018,6 @@ body.catalog-stable #live-storefront-section .storefront-filter-chips .filter-ch
     font-size: 12px;
   }
 }
+.product-discovery-rail{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:16px;overflow-x:auto;padding-bottom:16px;scroll-snap-type:x proximity}
+.product-discovery-rail .stable-card{scroll-snap-align:start;min-width:0}
+@media(max-width:767px){.product-discovery-rail{grid-auto-columns:72%;gap:12px}}
