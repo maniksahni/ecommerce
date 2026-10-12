@@ -25,7 +25,8 @@
     "test:admin:live": "node scripts/admin-tests/live-browser.js",
     "test:realtime": "node scripts/test-realtime-commerce.cjs",
     "test:mobile": "node scripts/test-mobile-layout.cjs",
-    "test:approved": "node scripts/test-approved-storefront.cjs"
+    "test:approved": "node scripts/test-approved-storefront.cjs",
+    "test:grpc": "npx firebase-tools emulators:exec --only auth,firestore --project demo-shivara-grpc --config firebase.grpc-test.json \"node scripts/test-firestore-grpc.cjs\""
   },
   "dependencies": {
     "firebase": "^12.18.0",
@@ -36,5 +37,10 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "overrides": {
+    "@firebase/firestore": {
+      "@grpc/grpc-js": "1.14.6"
+    }
   }
 }
