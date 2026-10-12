@@ -1006,7 +1006,7 @@
       const product = productMap.get(productId);
       const count = productsForCollection(slug).length;
       if (!product) return "";
-      return `<a href="${collectionUrl(slug)}"><span><img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(label)} collection" loading="lazy" /></span><strong>${escapeHtml(label)}</strong><small>${count} ${count === 1 ? "product" : "products"}</small></a>`;
+      return `<a href="${collectionUrl(slug)}"><span><img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(label)} collection" loading="lazy" /></span><strong>${escapeHtml(label)}</strong><small>${(() => { const prices = productsForCollection(slug).filter(p => p.priceStatus === "confirmed" && p.price > 0).map(p => p.price); return prices.length ? "From ₹" + Math.min(...prices).toLocaleString("en-IN") : count + " pieces"; })()}</small></a>`;
     }).join("");
   }
 
