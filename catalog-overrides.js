@@ -142,7 +142,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-002-DYcf1ViBfkI.jpg"],
+      images: ["assets/restored-catalog/halo-gift-ring.jpg"],
       videos: [],
       imageAlt: "Halo-style ring presented inside a jewellery box",
       description: "A prominent halo-style ring presented as a gift-ready statement piece."
@@ -162,7 +162,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-007-DYPpSpxhPO0.jpg"],
+      images: ["assets/restored-catalog/blue-charm-evil-eye-bracelet.jpg"],
       videos: [],
       imageAlt: "Blue evil-eye charm bracelet worn on a wrist",
       description: "A delicate bracelet arranged with blue evil-eye charms."
@@ -182,7 +182,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-022-DXrYH47xp1H.jpg"],
+      images: ["assets/restored-catalog/cluster-gift-ring.jpg"],
       videos: [],
       imageAlt: "Cluster-style ring displayed inside a jewellery box",
       description: "A raised cluster-style ring shown in gift-ready presentation."
@@ -202,7 +202,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-025-DXhSZihhguK.jpg"],
+      images: ["assets/restored-catalog/heart-pendant-edit.jpg"],
       videos: [],
       imageAlt: "Three heart-shaped pendants held in hand",
       description: "A selection of compact heart-shaped pendants for everyday styling."
@@ -222,7 +222,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-027-DXe3PUnBPyu.jpg"],
+      images: ["assets/restored-catalog/crystal-halo-ring-pair.jpg"],
       videos: [],
       imageAlt: "Two halo-style rings displayed in a red jewellery box",
       description: "Two coordinated halo-style rings presented together in a jewellery box."
@@ -242,7 +242,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-028-DXb4u1WMs3N.jpg"],
+      images: ["assets/restored-catalog/butterfly-drop-necklace.jpg"],
       videos: [],
       imageAlt: "Butterfly drop necklace displayed on a black jewellery stand",
       description: "A fine necklace with a butterfly centre and a short drop detail."
@@ -262,7 +262,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-029-DXbGtV-kd5A.jpg"],
+      images: ["assets/restored-catalog/butterfly-earring-edit.jpg"],
       videos: [],
       imageAlt: "Butterfly earrings arranged in a circular jewellery display",
       description: "A butterfly-themed earring selection offered as individual pairs."
@@ -282,7 +282,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-030-DXZqgaJBA9l.jpg"],
+      images: ["assets/restored-catalog/green-butterfly-earrings.jpg"],
       videos: [],
       imageAlt: "Green butterfly-shaped earrings on a display card",
       description: "Green butterfly-shaped earrings with layered wing details."
@@ -302,7 +302,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-033-DXWiT4SxF-w.jpg"],
+      images: ["assets/restored-catalog/cherry-charm-pendant.jpg"],
       videos: [],
       imageAlt: "Colourful cherry charm pendant on a black display",
       description: "A compact cherry motif pendant with colourful detailing."
@@ -322,7 +322,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-034-DXUKeYosxOa.jpg"],
+      images: ["assets/restored-catalog/boxed-blue-evil-eye-bracelet.jpg"],
       videos: [],
       imageAlt: "Blue evil-eye bracelet displayed inside a Shivara box",
       description: "A blue evil-eye bracelet shown in Shivara gift presentation."
@@ -342,7 +342,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-036-DXRflQ2ARK2.jpg"],
+      images: ["assets/restored-catalog/tulip-pendant.jpg"],
       videos: [],
       imageAlt: "Tulip-shaped pendant with green and amber details",
       description: "A tulip-shaped pendant with contrasting green and amber details."
@@ -362,7 +362,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-037-DXRFDglM27U.jpg"],
+      images: ["assets/restored-catalog/floral-charm-pendant.jpg"],
       videos: [],
       imageAlt: "Small floral charm pendant held in hand",
       description: "A small floral charm pendant with colourful flower detailing."
@@ -382,7 +382,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-038-DXO-ucIBdig.jpg"],
+      images: ["assets/restored-catalog/bow-love-earrings.jpg"],
       videos: [],
       imageAlt: "Bow-shaped earrings with heart-shaped drops",
       description: "Bow-shaped earrings finished with small heart-shaped drops."
@@ -402,7 +402,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-041-DXLqgBTkXIL.jpg"],
+      images: ["assets/restored-catalog/solitaire-promise-ring.jpg"],
       videos: [],
       imageAlt: "Solitaire-style ring displayed in a red jewellery box",
       description: "A solitaire-style ring with a raised centre setting."
@@ -422,7 +422,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-042-DXKG78JhH1P.jpg"],
+      images: ["assets/restored-catalog/infinity-shine-ring.jpg"],
       videos: [],
       imageAlt: "Infinity-shaped ring worn on a hand",
       description: "A ring centred on a curved infinity motif."
@@ -442,7 +442,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-043-DXHUsl9BfJh.jpg"],
+      images: ["assets/restored-catalog/heart-halo-ring.jpg"],
       videos: [],
       imageAlt: "Heart-shaped halo ring displayed among red roses",
       description: "A heart-shaped centre ring framed by a bright halo detail."
@@ -462,7 +462,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-049-DW9Cf8OkWo0.jpg"],
+      images: ["assets/restored-catalog/geometric-boxed-bracelet.jpg"],
       videos: [],
       imageAlt: "Geometric bracelet displayed inside a black Shivara box",
       description: "A structured bracelet with repeating geometric detailing."
@@ -482,7 +482,7 @@
       badge: null,
       optionsStatus: "confirm",
       variants: [],
-      images: ["assets/instagram-shop/post-051-DW3H_GZDD_4.jpg"],
+      images: ["assets/restored-catalog/boxed-evil-eye-bracelet.jpg"],
       videos: [],
       imageAlt: "Blue and gold evil-eye bracelet inside a Shivara box",
       description: "A structured bracelet arranged with blue evil-eye details."
@@ -502,7 +502,7 @@
       badge: null,
       optionsStatus: "confirm",
       variants: [],
-      images: ["assets/instagram-shop/post-054-DW0r-SYxASu.jpg"],
+      images: ["assets/restored-catalog/floral-statement-ring.jpg"],
       videos: [],
       imageAlt: "Dark floral statement ring worn on a hand",
       description: "A floral statement ring with a dark, high-contrast centre."
@@ -522,7 +522,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-060-DWtcQ8OAefp.jpg"],
+      images: ["assets/restored-catalog/gold-rose-pendant.jpg"],
       videos: [],
       imageAlt: "Long-stem rose pendant on a black display",
       description: "A long-stem rose pendant with sculpted leaf detailing."
@@ -542,7 +542,7 @@
       badge: null,
       optionsStatus: "none",
       variants: [],
-      images: ["assets/instagram-shop/post-062-DWss1yNkbcd.jpg"],
+      images: ["assets/restored-catalog/minimal-heart-pendant.jpg"],
       videos: [],
       imageAlt: "Minimal heart pendant on a black jewellery display",
       description: "A compact heart pendant on a fine chain."
@@ -562,7 +562,7 @@
       badge: null,
       optionsStatus: "confirm",
       variants: [],
-      images: ["assets/instagram-shop/post-064-DWqQ5tusfA-.jpg"],
+      images: ["assets/restored-catalog/snake-chain-watch.jpg"],
       videos: [],
       imageAlt: "Green-face watch with a coiled snake-style bracelet",
       description: "A green-face watch with a coiled bracelet-style strap."
@@ -582,7 +582,7 @@
       badge: null,
       optionsStatus: "confirm",
       variants: [],
-      images: ["assets/instagram-shop/post-067-DWlGxA6DBMP.jpg"],
+      images: ["assets/restored-catalog/green-ad-jewellery-set.jpg"],
       videos: [],
       imageAlt: "Green and clear-stone jewellery set arranged on a shell display",
       description: "A coordinated jewellery set with green and clear decorative details."
@@ -602,7 +602,7 @@
       badge: null,
       optionsStatus: "confirm",
       variants: [],
-      images: ["assets/instagram-shop/post-085-DV3atErkWR3.jpg"],
+      images: ["assets/restored-catalog/floral-pendant-trio.jpg"],
       videos: [],
       imageAlt: "Three floral pendants presented as a coordinated trio",
       description: "A coordinated set of three floral pendants."
@@ -611,7 +611,7 @@
       sourcePostId: "DVGLWtPEbN4",
       slug: "nail-motif-bangle",
       sku: "SHV-BRC-005",
-      title: "Nail Motif Bangle",
+      title: "Double Clover Bangle",
       category: "bracelets",
       collections: ["anti-tarnish"],
       price: 299,
@@ -622,10 +622,10 @@
       badge: "Sale",
       optionsStatus: "confirm",
       variants: [],
-      images: ["assets/instagram-shop/post-098-DVGLWtPEbN4.jpg"],
+      images: ["assets/restored-catalog/nail-motif-bangle.jpg"],
       videos: [],
-      imageAlt: "Nail-motif bangle worn on a wrist",
-      description: "A slim bangle shaped around a nail-inspired motif."
+      imageAlt: "Double clover bangle in gold tone with black and white motifs worn on a wrist",
+      description: "A polished gold-tone bangle accented with dual four-leaf clover motifs in contrasting black and white finishes."
     },
     ...supplement
   ];
