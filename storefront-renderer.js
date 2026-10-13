@@ -3,6 +3,10 @@
   if (typeof module === "object" && module.exports) module.exports = renderer;
   if (root) root.ShivaraStorefrontRenderer = renderer;
 })(typeof window !== "undefined" ? window : null, function createStorefrontRenderer() {
+  const goldenMedia = typeof module === "object" && module.exports ? require("./golden-media.js") : (typeof window !== "undefined" ? window.ShivaraGoldenMedia || {} : {});
+  function goldenFrame(atlas, view, alt, extra = "") {
+    return `<span class="golden-frame golden-view-${view}"><img src="${escapeHtml(mediaHref(atlas))}" alt="${escapeHtml(alt)}" decoding="async" ${extra}/></span>`;
+  }
   const allowedBadges = new Set(["New", "Best Seller", "Limited", "Low Stock", "Sale", "Exclusive"]);
   const categoryLabels = {
     earrings: "Earrings",
@@ -59,8 +63,9 @@
       isWishlisted = false
     } = options;
     const isSoldOut = product.isSoldOut === true;
+    const golden = goldenMedia[product.id];
     const primary = product.images[0];
-    const secondary = product.images.find((image) => image !== primary);
+    const secondary = golden ? null : product.images.find((image) => image !== primary);
     const badge = isSoldOut ? null : (allowedBadges.has(product.badge) ? product.badge : null);
     
     const rawPrice = Number(product.price) || 499;
@@ -82,7 +87,8 @@
     return `<article class="stable-card ${isSoldOut ? "is-sold-out" : ""}" data-commerce-renderer="shared-v1" data-product-card="${escapeHtml(product.id)}" data-category="${escapeHtml(product.category)}" itemscope itemtype="https://schema.org/Product">
       <div class="stable-card__media">
         <a href="${productUrl(product)}" aria-label="View ${escapeHtml(product.title)}" itemprop="url">
-          <img class="stable-card__image stable-card__image--primary" src="${escapeHtml(mediaHref(primary))}" alt="${escapeHtml(product.imageAlt)}" width="640" height="800" ${index < 5 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" itemprop="image" />
+          ${golden ? goldenFrame(golden.atlas, 0, `${product.title} — AI-styled product view`, index < 5 ? 'fetchpriority="high"' : 'loading="lazy"') : `<img class="stable-card__image stable-card__image--primary" src="${escapeHtml(mediaHref(primary))}" alt="${escapeHtml(product.imageAlt)}" width="640" height="800" ${index < 5 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" itemprop="image" />`}
+
           ${secondary ? `<img class="stable-card__image stable-card__image--secondary" src="${escapeHtml(mediaHref(secondary))}" alt="" width="640" height="800" loading="lazy" decoding="async" />` : ""}
         </a>
         ${isSoldOut ? `<span class="stable-card__badge stable-card__badge--sold-out">SOLD OUT</span><div class="stable-card__sold-out-overlay" aria-hidden="true"><span>SOLD OUT</span></div>` : (badge ? `<span class="stable-card__badge">${escapeHtml(badge)}</span>` : "")}
@@ -126,20 +132,24 @@
       : `<button class="stable-button stable-button--dark" type="button" data-pdp-add="${escapeHtml(product.id)}">Add to Bag</button>`;
     
     const cardOptions = { origin, context: "shared related product renderer" };
+    const golden = goldenMedia[product.id];
+    const viewLabels = ["Front", "Three-quarter", "Side", "Close-up"];
     const media = [
+      ...(golden ? viewLabels.map((label, index) => ({type:"styled",src:golden.atlas,index,label})) : []),
       ...product.images.map((src, index) => ({ type: "image", src, index })),
       ...(product.videos || []).map((src, index) => ({ type: "video", src, index }))
     ];
-    const mediaThumbs = media.map((item, index) => `<button type="button" data-pdp-thumb="${index}" class="${index === 0 ? "is-active" : ""}" aria-label="${item.type === "video" ? "Play product video" : `View image ${item.index + 1}`}"><img src="${escapeHtml(mediaHref(product.images[Math.min(item.index, product.images.length - 1)]))}" alt="" />${item.type === "video" ? '<span class="stable-pdp__play" aria-hidden="true">▶</span>' : ""}</button>`).join("");
-    const mediaSlides = media.map((item, index) => item.type === "video"
-      ? `<video src="${escapeHtml(mediaHref(item.src))}" aria-label="${escapeHtml(product.title)} product video ${item.index + 1}" controls playsinline preload="metadata"></video>`
-      : `<img src="${escapeHtml(mediaHref(item.src))}" alt="${index === 0 ? escapeHtml(product.imageAlt) : `${escapeHtml(product.title)} detail ${item.index + 1}`}" itemprop="${index === 0 ? "image" : ""}" />`
+    const mediaThumbs = media.map((item, index) => `<button type="button" data-pdp-thumb="${index}" class="${index === 0 ? "is-active" : ""}" aria-label="${item.type === "styled" ? `${item.label} AI-styled view` : item.type === "video" ? "Play product video" : `Original photo ${item.index + 1}`}">${item.type === "styled" ? goldenFrame(item.src,item.index,"") : `<img src="${escapeHtml(mediaHref(item.type === "video" ? product.images[0] : item.src))}" alt=""/>`}${item.type === "video" ? '<span class="stable-pdp__play" aria-hidden="true">▶</span>' : ""}</button>`).join("");
+    const mediaSlides = media.map((item, index) => item.type === "styled"
+      ? goldenFrame(item.src,item.index,`${product.title}: ${item.label}, AI-styled view`)
+      : item.type === "video" ? `<video src="${escapeHtml(mediaHref(item.src))}" aria-label="${escapeHtml(product.title)} product video ${item.index + 1}" controls playsinline preload="metadata"></video>`
+      : `<img src="${escapeHtml(mediaHref(item.src))}" alt="${escapeHtml(product.title)} original photo ${item.index + 1}" itemprop="image"/>`
     ).join("");
     const availabilityLabel = isSoldOut ? "Sold Out" : "In Stock · Available for Express Dispatch";
     return `<div data-shared-product-page="${escapeHtml(product.id)}">
       <nav class="stable-breadcrumb"><a href="/">Home</a><span>/</span><a href="/collections/${escapeHtml(product.category)}">${escapeHtml(category)}</a><span>/</span><span>${escapeHtml(product.title)}</span></nav>
       <article class="stable-pdp" itemscope itemtype="https://schema.org/Product">
-        <div class="stable-pdp__media"><div class="stable-pdp__thumbs">${mediaThumbs}</div><div><div class="stable-pdp__gallery" id="pdp-gallery">${mediaSlides}</div><div class="stable-pdp__gallery-meta"><span data-pdp-gallery-count>1 / ${media.length}</span><small>${media.length > 1 ? "Swipe or use thumbnails" : "Product view"}</small></div></div></div>
+        <div class="stable-pdp__media"><div class="stable-pdp__thumbs">${mediaThumbs}</div><div><div class="stable-pdp__gallery" id="pdp-gallery" tabindex="0" aria-label="Product image gallery">${mediaSlides}</div><div class="stable-pdp__gallery-meta"><button type="button" data-pdp-direction="-1" aria-label="Previous product image">←</button><span data-pdp-gallery-count>1 / ${media.length}</span><small>${media.length > 1 ? "Swipe or use arrows" : "Product view"}</small><button type="button" data-pdp-direction="1" aria-label="Next product image">→</button></div>${golden ? '<p class="golden-gallery-note">AI-styled views · Original photos included</p>' : ""}</div></div>
         <div class="stable-pdp__info"><p>${escapeHtml(category)}</p><h1 itemprop="name">${escapeHtml(product.title)}</h1><div class="stable-pdp__meta"><span><i aria-hidden="true"></i>${escapeHtml(availabilityLabel)}</span></div>${priceMarkup(api, product, "stable-pdp__price")}${product.offerText ? `<p class="stable-offer">${escapeHtml(product.offerText)}</p>` : ""}<p itemprop="description">${escapeHtml(product.description)}</p>${variantMarkup}
         ${!isSoldOut ? '<div class="stable-pdp__qty"><span>Quantity</span><div class="stable-qty"><button type="button" data-pdp-qty="-1" aria-label="Decrease quantity">−</button><span id="pdp-qty">1</span><button type="button" data-pdp-qty="1" aria-label="Increase quantity">+</button></div></div>' : ""}
         <div class="stable-pdp__actions">${commerceAction}<button class="stable-button stable-button--plain ${isWishlisted ? "is-active" : ""}" type="button" data-wishlist-toggle="${escapeHtml(product.id)}" aria-pressed="${isWishlisted}">♡ Wishlist</button><button class="stable-share" type="button" data-share>Share</button></div>

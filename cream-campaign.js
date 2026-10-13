@@ -24,7 +24,12 @@
     document.querySelectorAll('#commerce-category-grid a').forEach(link => {
       const slug = new URL(link.href).pathname.split('/').pop();
       const image = link.querySelector('img');
-      if (categoryImages[slug] && image && image.getAttribute('src') !== categoryImages[slug]) image.src = categoryImages[slug];
+      const categoryIds = {earrings:'bow-love-earrings',necklaces:'heart-pendant-edit',neckwear:'heart-pendant-edit',rings:'pink-blossom-cluster-ring',bracelets:'stacked-coil-bangle',gifting:'rose-cup-ring',sets:'rose-cup-ring','jewellery-sets':'rose-cup-ring'};
+      const atlas = window.ShivaraGoldenMedia?.[categoryIds[slug]];
+      if (atlas && image) {
+        image.parentElement.classList.add('golden-frame','golden-view-0');
+        if (image.getAttribute('src') !== atlas.atlas) image.src = atlas.atlas;
+      } else if (categoryImages[slug] && image && image.getAttribute('src') !== categoryImages[slug]) image.src = categoryImages[slug];
     });
   }
   applyImages();

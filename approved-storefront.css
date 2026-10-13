@@ -16,7 +16,7 @@ body.approved-storefront .stable-logo small{display:none}
 body.approved-storefront .cream-reference-nav{display:flex;justify-content:center;gap:clamp(9px,1.3vw,19px);flex:1;overflow:visible}
 body.approved-storefront .cream-reference-nav>a{display:block!important;font:400 clamp(10px,.85vw,12px)/1 Georgia,serif;letter-spacing:0;text-transform:none;white-space:nowrap;color:#261b12}
 body.approved-storefront .stable-header__actions{gap:1px}
-body.approved-storefront .stable-header__btn{width:28px;min-width:28px;height:30px;min-height:30px;padding:5px;color:#261b12;background:transparent;border:0;box-shadow:none}
+body.approved-storefront .stable-header__btn{width:44px;min-width:44px;height:44px;min-height:44px;padding:5px;color:#261b12;background:transparent;border:0;box-shadow:none}
 body.approved-storefront .stable-header__btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.4}
 body.approved-storefront .stable-header__btn[data-search-open]{width:clamp(115px,15vw,210px);display:flex;align-items:center;gap:7px;background:#f4eee4;border-radius:30px;padding-left:10px}
 .cream-search-label{font-size:10px;white-space:nowrap;color:#7c7164}
@@ -137,3 +137,24 @@ body.approved-storefront .approved-arrivals .stable-card:nth-child(n+6){display:
 .approved-hero:not([data-slide="0"]) .approved-outline span{display:inline}
 body.approved-storefront .approved-arrivals .stable-card__image--primary:hover{transform:none}
 @media(max-width:767px){.cream-slider-controls{bottom:0}.cream-slider-next{width:30px;height:30px;right:3%;top:64%}.approved-hero:not([data-slide="0"]) .cream-hero-photo{inset:50% 0 0;background-size:cover}.approved-hero:not([data-slide="0"]) .approved-hero__copy{width:100%;height:58%;padding:7% 8% 0;background:linear-gradient(180deg,#fbefd9 85%,transparent)}.approved-hero:not([data-slide="0"]) h1{font-size:clamp(31px,9vw,42px);margin-bottom:12px;letter-spacing:-1px}.approved-hero:not([data-slide="0"]) .approved-hero__description{font-size:11px;margin-bottom:13px}.approved-hero:not([data-slide="0"]) .approved-hero__copy>p:first-child{font-size:9px;margin-bottom:12px}.approved-hero:not([data-slide="0"]) .approved-hero__copy>.approved-outline{font-size:9px;padding:9px 18px}}
+
+/* Preserve the reference header with accessible, non-overlapping mobile controls. */
+@media(max-width:767px){
+ body.approved-storefront .stable-header{display:grid;grid-template-columns:88px minmax(0,1fr) 88px;gap:4px;padding:6px 14px;min-height:56px}
+ body.approved-storefront .stable-header__menu{grid-column:1;width:44px;min-width:44px;height:44px;justify-self:start}
+ body.approved-storefront .stable-logo{grid-column:2;position:static;transform:none;justify-self:center;font-size:21px;letter-spacing:2px;min-width:0}
+ body.approved-storefront .stable-header__actions{grid-column:3;margin:0;gap:0;position:static}
+ body.approved-storefront .stable-header__btn{width:44px;min-width:44px;height:44px;min-height:44px}
+ body.approved-storefront .stable-header__btn[data-search-open]{position:absolute;left:58px;top:6px;width:44px;min-width:44px;height:44px;background:none}
+}
+
+body.approved-storefront .cream-reference-nav{min-width:0;gap:clamp(6px,.8vw,12px)}
+body.approved-storefront .cream-reference-nav>a[hidden]{display:none!important}
+.cream-category-menu{position:relative;flex:0 0 auto;font:400 12px/1 Georgia,serif;color:#261b12}
+.cream-category-menu summary{min-height:44px;display:flex;align-items:center;cursor:pointer;list-style:none}
+.cream-category-menu summary::-webkit-details-marker{display:none}
+.cream-category-menu summary::after{content:'⌄';margin-left:4px}
+.cream-category-menu>div{position:absolute;z-index:60;top:100%;left:0;min-width:220px;max-height:70dvh;overflow:auto;padding:12px;background:#fffcf6;box-shadow:0 8px 24px #261b1226}
+.cream-category-menu a{display:block;padding:14px 10px;text-decoration:none;font-size:14px}
+@media(min-width:768px){body.approved-storefront .stable-header{grid-template-columns:max-content minmax(0,1fr) max-content}.cream-reference-nav>a{align-self:center}}
+@media(min-width:768px) and (max-width:1100px){body.approved-storefront .cream-reference-nav{display:none}body.approved-storefront .stable-header__menu{display:flex!important;width:44px;height:44px;min-width:44px}body.approved-storefront .stable-header{grid-template-columns:44px minmax(0,1fr) max-content}}

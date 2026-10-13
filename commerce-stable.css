@@ -3864,3 +3864,15 @@ body.catalog-stable #live-storefront-section .storefront-filter-chips .filter-ch
 body.catalog-stable .watch-and-buy-section{background:var(--shop-bg);color:var(--shop-text)}
 body.catalog-stable .watch-buy-title{color:var(--shop-text);-webkit-text-fill-color:var(--shop-text)}
 body.catalog-stable .watch-buy-subtitle{color:var(--shop-muted)}
+/* Golden product atlases: four individually cropped views, with real originals retained. */
+.golden-frame{display:block;position:relative;overflow:hidden;aspect-ratio:1;background:#ecd4ad;width:100%;height:100%;isolation:isolate}
+body.catalog-stable .golden-frame>img{position:absolute;width:200%!important;height:200%!important;max-width:none!important;object-fit:fill!important;inset:0 auto auto 0;transform:none!important}
+body.catalog-stable .golden-view-1>img,body.catalog-stable .golden-view-3>img{left:-100%}
+body.catalog-stable .golden-view-2>img,body.catalog-stable .golden-view-3>img{top:-100%}
+body.catalog-stable .stable-pdp__gallery>.golden-frame{flex:0 0 100%;min-width:100%;height:auto;aspect-ratio:1;scroll-snap-align:start}
+body.catalog-stable .stable-pdp__thumbs .golden-frame{aspect-ratio:1;height:100%}
+body.catalog-stable .stable-pdp__gallery-meta{align-items:center;gap:10px}
+body.catalog-stable .stable-pdp__gallery-meta button{min-width:44px;min-height:44px;border:1px solid #d7b883;border-radius:50%;background:#fff7e8;color:#694720;font-size:20px;cursor:pointer}
+.golden-gallery-note{margin:8px 0 0;color:var(--shop-muted);font-size:11px;line-height:1.4}
+body.catalog-stable:not(.approved-storefront){--shop-bg:#fffcf6;--shop-panel:#fff9ef;--shop-raised:#f2e6d4;--shop-text:#261b12;--shop-muted:#76634f;--shop-gold:#a67b43;--shop-border:#e3d3bc;--stable-ink:#261b12;--stable-paper:#fffcf6;--stable-surface:#fff9ef;--stable-muted:#76634f;color-scheme:light;background:#fffcf6;color:#261b12}
+body.catalog-stable .stable-pdp__gallery-meta button:focus-visible{outline:2px solid #825d2c;outline-offset:2px}

@@ -302,6 +302,7 @@
         </button>
         <a class="stable-logo" href="/" aria-label="Shivara home">SHIVARA<small>JEWELLERY ATELIER</small></a>
         ${approvedHome ? `<nav class="stable-nav cream-reference-nav" aria-label="Main navigation">
+<details class="cream-category-menu"><summary>Shop</summary><div>${categoryRail.map(([label, slug]) => `<a href="${collectionUrl(slug)}">${escapeHtml(label)}</a>`).join("")}</div></details>
 <a href="/collections/new-arrivals">New Arrivals</a><a href="/collections/earrings">Earrings</a><a href="/collections/neckwear">Necklaces</a><a href="/collections/rings">Rings</a><a href="/collections/bracelets">Bracelets</a><a href="/collections/gifting">Gift Sets</a><a href="/collections/all">Collections</a><a href="#atelier-story-title">About</a>
 </nav>` : `        <nav class="stable-nav" aria-label="Main navigation">
           <div class="stable-nav__mega-wrap">
@@ -1248,6 +1249,11 @@
       scheduled = true;
       requestAnimationFrame(update);
     }, { passive: true });
+    gallery.addEventListener('keydown', event => {
+      if (!['ArrowLeft','ArrowRight'].includes(event.key)) return;
+      event.preventDefault();
+      document.querySelector(`[data-pdp-direction="${event.key === 'ArrowLeft' ? '-1' : '1'}"]`)?.click();
+    });
     update();
   }
 
@@ -1467,6 +1473,16 @@
     if (pdpAdd) {
       const product = productMap.get(pdpAdd.dataset.pdpAdd);
       if (addToCart(product.id, selectedPdpVariant(product)?.id || null, pdpQuantity())) openLayer("#cart-drawer", pdpAdd);
+      return;
+    }
+    const direction = target.closest("[data-pdp-direction]");
+    if (direction) {
+      const gallery = document.querySelector("#pdp-gallery");
+      if (gallery) {
+        const current = Math.round(gallery.scrollLeft / Math.max(1, gallery.clientWidth));
+        const next = (current + Number(direction.dataset.pdpDirection) + gallery.children.length) % gallery.children.length;
+        gallery.scrollTo({left:gallery.clientWidth * next, behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
+      }
       return;
     }
     const thumb = target.closest("[data-pdp-thumb]");
@@ -1973,7 +1989,19 @@
 
     // 2. Update top navbar direct collection links
     const stableNav = document.querySelector(".stable-nav");
-    if (stableNav) {
+    if (stableNav?.classList.contains("cream-reference-nav")) {
+      let menu = stableNav.querySelector(".cream-category-menu");
+      if (!menu) {
+        menu = document.createElement("details");
+        menu.className = "cream-category-menu";
+        stableNav.prepend(menu);
+      }
+      menu.innerHTML = '<summary>Shop</summary><div>' + activeCats.filter(c => c.showInNav !== false).map(c => `<a href="${collectionUrl(c.slug || c.id)}">${escapeHtml(c.name || c.title || c.slug)}</a>`).join("") + '</div>';
+      categoriesList.forEach(c => {
+        const link = [...stableNav.children].find(el => el.tagName === "A" && el.getAttribute("href") === collectionUrl(c.slug || c.id));
+        if (link) link.toggleAttribute("hidden", c.isActive === false || c.showInNav === false);
+      });
+    } else if (stableNav) {
       categoriesList.forEach(c => {
         const slug = c.slug || c.id;
         const navLink = stableNav.querySelector(`a[data-nav-category="${slug}"], a[href="/collections/${slug}"]:not(.stable-nav__mega a)`);

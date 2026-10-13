@@ -14,7 +14,7 @@ RUN npm ci --omit=dev
 COPY server.js ./
 COPY server-firebase.js ./
 COPY admin-store.js ./
-COPY storefront-renderer.js ./
+COPY storefront-renderer.js golden-media.js ./
 COPY shop-data.js ./
 COPY catalog-data.js ./
 COPY catalog-overrides.js ./
