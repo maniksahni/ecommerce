@@ -3883,3 +3883,47 @@ body.catalog-stable .stable-footer{background:#f7efe2;color:#261b12}
 body.catalog-stable .stable-footer :is(.stable-logo--footer,a,p,span,small,strong){color:#4d3a24!important;-webkit-text-fill-color:#4d3a24}
 body.catalog-stable .stable-footer .stable-logo--footer{color:#261b12!important;-webkit-text-fill-color:#261b12}
 body.catalog-stable .stable-footer a:hover{color:#8b622e!important;-webkit-text-fill-color:#8b622e}
+
+/* Keep legacy commerce components on the same warm palette as the catalogue. */
+body.catalog-stable :is(.stable-cart-footer,.stable-cart-lines,.stable-drawer--search,.stable-search-box,.stable-search-discovery,.luxury-checkout-card,.stable-checkout-modal){
+  background-color:var(--shop-panel)!important;
+  color:var(--shop-text)!important;
+  color-scheme:light;
+}
+body.catalog-stable :is(.stable-search-box,.stable-cart-note textarea,.cart-coupon-box input,.luxury-checkout-card input,.luxury-checkout-card textarea,.luxury-checkout-card select){
+  background:#fffdf8!important;
+  color:var(--shop-text)!important;
+  border-color:var(--shop-border)!important;
+  box-shadow:none!important;
+  color-scheme:light;
+}
+body.catalog-stable .stable-search-box input::placeholder,
+body.catalog-stable .stable-cart-note textarea::placeholder,
+body.catalog-stable .cart-coupon-box input::placeholder,
+body.catalog-stable .luxury-checkout-card :is(input,textarea)::placeholder{color:#806b53!important;opacity:1}
+body.catalog-stable .stable-search-discovery{background:#fff9ef!important;border-color:var(--shop-border)!important}
+body.catalog-stable .stable-search-discovery :is(button,a){background:#fffdf8!important;color:var(--shop-text)!important;border-color:var(--shop-border)!important}
+body.catalog-stable .stable-search-discovery :is(button,a):hover{background:#f2e6d4!important}
+body.catalog-stable .stable-cart-note>span,
+body.catalog-stable .stable-cart-note>span small,
+body.catalog-stable .stable-cart-footer p{color:var(--shop-text)!important}
+body.catalog-stable .luxury-packaging-bar{background:#f2e6d4!important;border-color:#dfc9a5!important}
+body.catalog-stable .luxury-packaging-track{background:#cdbb9f!important}
+body.catalog-stable .luxury-packaging-text{color:var(--shop-text)!important}
+body.catalog-stable .luxury-packaging-text>span,
+body.catalog-stable .luxury-packaging-text small{color:#8c632e!important}
+body.catalog-stable .stable-checkout-modal{background:rgba(42,30,18,.54)!important}
+
+/* Give product gallery controls a single, unambiguous hit area on narrow screens. */
+body.catalog-stable .stable-pdp__gallery-meta{display:grid;grid-template-columns:44px auto minmax(0,1fr) 44px;align-items:center;gap:8px}
+body.catalog-stable .stable-pdp__gallery-meta button{position:relative;z-index:1;display:grid;place-items:center;flex:0 0 44px;width:44px;min-width:44px;height:44px;min-height:44px;padding:0;line-height:1}
+body.catalog-stable .stable-pdp__gallery-meta [data-pdp-gallery-count]{min-width:42px;text-align:center;font-variant-numeric:tabular-nums}
+body.catalog-stable .stable-pdp__gallery-meta small{min-width:0;text-align:center}
+body.catalog-stable .stable-pdp__gallery{scroll-padding-inline:0;overscroll-behavior-inline:contain;scrollbar-width:none}
+body.catalog-stable .stable-pdp__gallery::-webkit-scrollbar{display:none}
+@media(max-width:767px){
+  body.catalog-stable .stable-pdp__gallery-meta{grid-template-columns:44px 52px minmax(0,1fr) 44px;gap:6px;padding:8px 10px 0}
+  body.catalog-stable .stable-pdp__gallery-meta small{font-size:10px}
+  body.catalog-stable .stable-pdp__gallery-meta button{z-index:2;box-shadow:0 2px 8px rgba(93,64,30,.12)}
+  body.catalog-stable .stable-cart-note textarea{min-height:88px}
+}
