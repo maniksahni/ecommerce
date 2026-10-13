@@ -11,6 +11,8 @@ const fs = require("fs");
   ]) {
     const b = await engine.launch();
     const p = await b.newPage();
+    // Test a genuine mobile first render, not only desktop -> phone resizing.
+    await p.setViewportSize({ width: 320, height: 844 });
     const errors = [];
     p.on("pageerror", (e) => errors.push(e.message));
     await p.goto(process.env.APPROVED_BASE_URL || "http://localhost:3000", {
@@ -59,6 +61,8 @@ const fs = require("fs");
               left: Number(rectangle.left.toFixed(2)),
               right: Number(rectangle.right.toFixed(2)),
               visible: style.display !== "none" && style.visibility !== "hidden",
+              inlineWidth: element.style.getPropertyValue("width"),
+              inlineWidthPriority: element.style.getPropertyPriority("width"),
               ok: rectangle.width >= 43.5 && rectangle.height >= 43.5 &&
                   rectangle.left >= -0.5 && rectangle.right <= innerWidth + 0.5 &&
                   style.display !== "none" && style.visibility !== "hidden",
