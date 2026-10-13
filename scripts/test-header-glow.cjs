@@ -25,6 +25,8 @@ for(const token of ["grid-template-columns: max-content minmax(0, 1fr) max-conte
   '[data-nav-category="rings"]',
   '[data-nav-category="bracelets"]',
   ".stable-nav > a[data-nav-category]:not(",
+  "nth-of-type(n+9)",
+  "nth-of-type(n+6)",
   "min-width: 1101px",
   "max-width: 767px",
   "mix-blend-mode: screen",

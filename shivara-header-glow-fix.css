@@ -80,6 +80,11 @@
   body.shivara-cream-final .stable-nav > a.stable-track-nav-link {
     display: none !important;
   }
+  /* Defensive cap for older/custom navigation links without data attributes.
+     Regardless of CMS additions, 9th+ links cannot collide with the wordmark. */
+  body.shivara-cream-final .stable-nav > a:nth-of-type(n+9) {
+    display: none !important;
+  }
   body.shivara-cream-final .stable-nav > a[data-nav-category="new-arrivals"] { order: 1; }
   body.shivara-cream-final .stable-nav > a[data-nav-category="earrings"] { order: 2; }
   body.shivara-cream-final .stable-nav > a[data-nav-category="neckwear"] { order: 3; }
@@ -152,6 +157,9 @@
     gap: 7px !important;
   }
   body.shivara-cream-final .stable-nav > a[data-nav-category="jewellery-sets"] {
+    display: none !important;
+  }
+  body.shivara-cream-final .stable-nav > a:nth-of-type(n+6) {
     display: none !important;
   }
   body.shivara-cream-final .stable-header__actions [data-search-open] {
