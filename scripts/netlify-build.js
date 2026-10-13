@@ -98,7 +98,13 @@ for (const file of publicFiles) {
 
 for (const directory of ["assets", "src"]) {
   const source = path.join(root, directory);
-  if (fs.existsSync(source)) fs.cpSync(source, path.join(output, directory), { recursive: true });
+  if (fs.existsSync(source)) {
+    const generatedGoldenProducts = path.join(root, "assets", "golden-products");
+    fs.cpSync(source, path.join(output, directory), {
+      recursive: true,
+      filter: (entry) => entry !== generatedGoldenProducts && !entry.startsWith(`${generatedGoldenProducts}${path.sep}`),
+    });
+  }
 }
 
 const adminPage = fs.readFileSync(path.join(output, "admin.html"), "utf8");

@@ -22,6 +22,7 @@ check(fs.existsSync(path.join(dist, "products/tulip-pendant/index.html")), "read
 check(fs.existsSync(path.join(dist, "collections/rings/index.html")), "readable collection routes are generated");
 check(!fs.existsSync(path.join(dist, "products/packaging-little-happiness/index.html")), "social content cannot receive a product route");
 check(fs.existsSync(path.join(dist, "404.html")), "static 404 page is generated");
+check(!fs.existsSync(path.join(dist, "assets/golden-products")), "unapproved generated golden product images are excluded from hosting output");
 check(fs.existsSync(path.join(dist, "_headers")), "Netlify deployment headers are generated");
 const redirects = fs.readFileSync(path.join(dist, "_redirects"), "utf8");
 check(redirects.includes("/collections/rings /collections/rings/index.html 200!"), "collection routes bypass directory redirects");
