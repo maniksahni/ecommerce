@@ -29,6 +29,11 @@ for(const token of ["grid-template-columns: max-content minmax(0, 1fr) max-conte
   "nth-of-type(n+6)",
   "min-width: 1101px",
   "max-width: 767px",
+  "320px tap-target recovery",
+  "grid-template-columns: 44px minmax(0, 1fr) 132px",
+  ".stable-wish-link",
+  "flex: 0 0 44px !important",
+  "min-height: 44px !important",
   "mix-blend-mode: screen",
   "brightness(1.12)"]){
   assert(css.includes(token),"Missing a header/glow fix rule: "+token);
