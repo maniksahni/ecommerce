@@ -31,7 +31,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,300..800&family=Italiana&family=Cormorant+Garamond:wght@400;500;600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet" />
     <link rel="preload" as="image" href="/assets/shivara-final/hero-still-life.webp" />
     <link rel="stylesheet" href="/commerce-stable.css?v=v11-stable" />
-  <link rel="stylesheet" href="/approved-storefront.css?v=cream-reference-3">
+  <link rel="stylesheet" href="/approved-storefront.css?v=gold-glow-4">
 </head>
   <body data-page="home" class="catalog-stable approved-storefront">
     <a class="visually-hidden skip-to-content" href="#main">Skip to content</a>
@@ -41,10 +41,19 @@
       <!-- ══════════════════════════════════════════════
            1. CINEMATIC HERO SECTION
       ══════════════════════════════════════════════ -->
-<section class="approved-hero" aria-labelledby="hero-title">
+<section class="approved-hero" data-slide="0" aria-roledescription="carousel" aria-label="Shivara jewellery campaigns" aria-labelledby="hero-title">
 <div class="cream-hero-photo" aria-hidden="true"></div>
 <div class="approved-hero__copy"><p>MODERN JEWELLERY<br>FOR A BRIGHTER YOU</p><h1 id="hero-title">A Love Story<br>in Every Design</h1><p class="approved-hero__description">Thoughtfully crafted jewellery for<br>your everyday moments and forever ones.</p><a href="/collections/new-arrivals" class="approved-outline">SHOP NEW ARRIVALS <span aria-hidden="true">→</span></a></div>
 
+<button type="button" class="cream-slider-next" data-hero-next aria-label="Next campaign">›</button>
+<div class="cream-slider-controls" aria-label="Choose campaign">
+<button type="button" data-hero-slide="0" aria-label="Campaign 1: A Love Story" aria-current="true"><span></span></button>
+<button type="button" data-hero-slide="1" aria-label="Campaign 2: Everyday Luxury"><span></span></button>
+<button type="button" data-hero-slide="2" aria-label="Campaign 3: Modern Colour"><span></span></button>
+<button type="button" data-hero-slide="3" aria-label="Campaign 4: Meaningful Gifting"><span></span></button>
+</div>
+<button type="button" class="cream-slider-pause" data-hero-pause aria-label="Pause slideshow">Ⅱ</button>
+<p class="visually-hidden" data-hero-status aria-live="polite"></p>
 </section>
       <section class="category-rail-section approved-categories" aria-labelledby="category-title">
         <div class="stable-section-heading">
@@ -297,6 +306,7 @@
     <script src="/storefront-renderer.js?v=v9-purge"></script>
     <script src="/script.js?v=v9-purge"></script>
     <script src="/video-commerce.js?v=v1-live"></script>
+    <script src="/cream-campaign.js?v=gold-glow-4"></script>
 
 
   </body>

@@ -39,7 +39,8 @@ const publicFiles = [
   "script.js",
   "video-commerce.js",
   "commerce-stable.css",
-  "approved-storefront.css"
+  "approved-storefront.css",
+  "cream-campaign.js"
 ];
 
 const collectionMeta = {
