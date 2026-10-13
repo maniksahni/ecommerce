@@ -10,6 +10,7 @@ const page=read("index.html");
 const build=read("scripts/netlify-build.js");
 const css=read("shivara-header-glow-fix.css");
 const application=read("script.js");
+const presentation=read("approved-storefront.js");
 assert.match(page,/shivara-header-glow-fix\.css\?v=\d+/,"homepage hotfix stylesheet missing");
 assert(build.includes('"shivara-header-glow-fix.css"'),"production build omits hotfix stylesheet");
 assert(page.indexOf("shivara-header-glow-fix.css")>page.indexOf("shivara-cream-final.css"),
@@ -38,6 +39,9 @@ for(const token of ["grid-template-columns: max-content minmax(0, 1fr) max-conte
   "brightness(1.12)"]){
   assert(css.includes(token),"Missing a header/glow fix rule: "+token);
 }
+assert(presentation.includes("enforceMobileHeaderTargets") &&
+  presentation.includes('element.style.setProperty(property, value, "important")'),
+  "WebKit 44px inline resize fallback missing");
 assert(application.includes("renderCategoriesNavigationRealtime"),
   "Existing realtime category functionality must remain intact");
 assert(page.includes("A Love Story<br><em>in Every Design</em>"),

@@ -42,9 +42,62 @@
           )),
       );
   }
-  decorate();
-  new MutationObserver(decorate).observe(
-    document.getElementById("shared-header"),
-    { childList: true },
-  );
+  // Safari/WebKit can retain the 125x39 desktop search-pill sizing while
+  // evaluating a 320px mobile viewport. Inline !important provides a reliable
+  // 44x44 *clickable* target without changing click handlers or desktop layout.
+  function enforceMobileHeaderTargets() {
+    const header = document.querySelector(".stable-header");
+    if (!header) return;
+    const mobile = window.matchMedia("(max-width: 767px)").matches;
+    const controls = [
+      header.querySelector("[data-menu-open]"),
+      header.querySelector("[data-search-open]"),
+      header.querySelector(".stable-wish-link"),
+      header.querySelector("[data-cart-open]"),
+    ].filter(Boolean);
+    const declarations = {
+      width: "44px",
+      "min-width": "44px",
+      "max-width": "44px",
+      height: "44px",
+      "min-height": "44px",
+      "max-height": "44px",
+      "flex-basis": "44px",
+      "flex-shrink": "0",
+      transform: "none",
+    };
+    for (const element of controls) {
+      if (mobile) {
+        if (!element.hasAttribute("data-shivara-touch-sized")) {
+          const savedStyle = element.getAttribute("style");
+          element.dataset.shivaraTouchOriginalStyle =
+            savedStyle === null ? "" : savedStyle;
+        }
+        for (const [property, value] of Object.entries(declarations)) {
+          element.style.setProperty(property, value, "important");
+        }
+        element.dataset.shivaraTouchSized = "true";
+      } else if (element.dataset.shivaraTouchSized === "true") {
+        // Restore the exact previous inline declaration set on desktop, so
+        // media changes never leave the mobile touch sizing behind.
+        const original = element.dataset.shivaraTouchOriginalStyle;
+        delete element.dataset.shivaraTouchSized;
+        delete element.dataset.shivaraTouchOriginalStyle;
+        if (original) element.setAttribute("style", original);
+        else element.removeAttribute("style");
+      }
+    }
+  }
+  function syncPresentation() {
+    decorate();
+    enforceMobileHeaderTargets();
+  }
+  syncPresentation();
+  const headerMount = document.getElementById("shared-header");
+  if (headerMount) {
+    new MutationObserver(syncPresentation).observe(headerMount, {
+      childList: true,
+    });
+  }
+  window.addEventListener("resize", enforceMobileHeaderTargets, { passive: true });
 })();
