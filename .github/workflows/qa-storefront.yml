@@ -1,0 +1,62 @@
+name: SHIVARA pre-deploy mobile QA
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shivara-visual-qa
+  cancel-in-progress: true
+
+jobs:
+  storefront-qa:
+    name: Mobile touch targets and storefront assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run application and asset audits
+        run: npm test
+      - name: Build Firebase Hosting content
+        run: npm run build
+      - name: Install real browser engines
+        run: npx playwright install --with-deps chromium webkit
+      - name: Start local Hosting preview
+        run: |
+          python3 -m http.server 3000 --directory dist >/tmp/shivara-preview.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:3000/ >/dev/null; then
+              echo "Static Hosting preview ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/shivara-preview.log
+          exit 1
+      - name: Test 320px Search/Wishlist/Bag and desktop/mobile layout
+        env:
+          APPROVED_BASE_URL: http://127.0.0.1:3000
+        run: npm run test:approved
+      - name: Save browser screenshots and geometry results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shivara-mobile-visual-qa
+          path: artifacts/approved-storefront/
+          if-no-files-found: ignore
+          retention-days: 7
+
+# This job is TEST ONLY. Firebase deploy requires authorized credentials
+# and passing checks; never deploy Firestore rules from this workflow.
