@@ -31,7 +31,7 @@ COPY collections ./collections
 COPY wishlist ./wishlist
 COPY src ./src
 COPY assets ./assets
-COPY commerce-stable.css script.js ./
+COPY commerce-stable.css approved-storefront.css script.js video-commerce.js ./
 
 EXPOSE 8080
 

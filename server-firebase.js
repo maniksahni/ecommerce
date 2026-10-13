@@ -138,57 +138,8 @@ async function processOrderTransaction({
   });
 }
 
-/**
- * Backward compatibility sync function
- */
-async function syncOrderToFirestore(orderDocument, trackingDocument, inventoryUpdates = []) {
-  try {
-    const db = getAdminFirestore();
-    const orderRef = orderDocument.orderId || orderDocument.id;
-
-    if (orderRef) {
-      await db.collection("orders").doc(orderRef).set({
-        ...orderDocument,
-        createdAt: FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp()
-      }, { merge: true });
-
-      if (trackingDocument) {
-        await db.collection("order_tracking").doc(orderRef).set({
-          ...trackingDocument,
-          createdAt: FieldValue.serverTimestamp()
-        }, { merge: true });
-      }
-    }
-
-    for (const item of inventoryUpdates) {
-      if (item.invKey) {
-        await db.collection("inventory").doc(item.invKey).set({
-          stock: item.nextStock,
-          isSoldOut: item.isSoldOut,
-          updatedAt: FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        if (item.isSoldOut && item.productId) {
-          try {
-            await db.collection("products").doc(item.productId).set({
-              isSoldOut: true,
-              updatedAt: FieldValue.serverTimestamp()
-            }, { merge: true });
-          } catch {}
-        }
-      }
-    }
-    return true;
-  } catch (err) {
-    console.warn("[Firebase Admin Sync]:", err.message);
-    return false;
-  }
-}
-
 module.exports = {
   getAdminFirestore,
   processOrderTransaction,
-  syncOrderToFirestore,
   PROJECT_ID
 };

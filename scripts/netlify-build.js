@@ -39,8 +39,7 @@ const publicFiles = [
   "script.js",
   "video-commerce.js",
   "commerce-stable.css",
-  "approved-storefront.css",
-  "approved-storefront.js"
+  "approved-storefront.css"
 ];
 
 const collectionMeta = {
@@ -95,7 +94,7 @@ for (const file of publicFiles) {
   write(file, file.endsWith(".html") ? stamp(content.toString("utf8")) : content);
 }
 
-for (const directory of ["assets", "vendor", "src"]) {
+for (const directory of ["assets", "src"]) {
   const source = path.join(root, directory);
   if (fs.existsSync(source)) fs.cpSync(source, path.join(output, directory), { recursive: true });
 }

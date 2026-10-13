@@ -82,16 +82,13 @@
     ["Anti Tarnish", "anti-tarnish", "boxed-evil-eye-bracelet"],
     ["Gifting", "gifting", "cluster-gift-ring"]
   ];
-  const heroIds = ["boxed-evil-eye-bracelet", "floral-statement-ring", "tulip-pendant"];
   const announcements = [
     "PAN India express complimentary shipping",
     "Handcrafted 18K gold-plated anti-tarnish statement edits",
     "Concierge shopping & WhatsApp styling: +91 94570 41215"
   ];
   const rotationDelays = Object.freeze({
-    announcement: 6000,
-    hero: 8000,
-    signature: 12000
+    announcement: 6000
   });
 
   const migratedCart = readVersionedItems(storageKeys.cart, storageKeys.legacyCart);
@@ -112,12 +109,8 @@
   let activeLayer = null;
   let lastFocus = null;
   let quickState = { product: null, quantity: 1, image: 0 };
-  let heroIndex = 0;
-  let signatureIndex = 0;
   let announcementIndex = 0;
   let announcementTimer = 0;
-  let heroTimer = 0;
-  let signatureTimer = 0;
   let searchTimer = 0;
   let collectionVisible = 24;
   const liveCouponsMap = new Map();
@@ -191,10 +184,6 @@
   function validVariant(product, variantId) {
     if (!variantId) return null;
     return product.variants.find((variant) => variant.id === variantId && variant.available) || null;
-  }
-
-  function canAddDirectly(product) {
-    return product && product.isSoldOut !== true;
   }
 
   function normalizeCart(raw) {
@@ -292,26 +281,29 @@
       wishlist: '<path d="M12 20.8 4.2 13.5C-1 8.5 6.4 2.1 12 8.1c5.6-6 13 .4 7.8 5.4z"/>',
       cart: '<path d="M4 8h16l-1 13H5zM8 10V7a4 4 0 0 1 8 0v3"/>',
       menu: '<path d="M3 6h18M3 12h18M3 18h18"/>',
+      play: '<circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4z"/>',
       home: '<path d="M3 11 12 3l9 8v10h-6v-7H9v7H3z"/>'
     };
     return `<svg viewBox="0 0 24 24" aria-hidden="true">${shapes[name]}</svg>`;
   }
 
   function sharedHeader() {
+    const approvedHome = document.body.classList.contains("approved-storefront");
     const megaFeatures = [
       ["lavender-bloom-ring", "RINGS"],
       ["mint-butterfly-earrings", "EARRINGS"],
       ["green-coil-watch", "WATCHES"]
     ].map(([id, label]) => [productMap.get(id), label]).filter(([product]) => product);
     const accountLabel = customerSession ? (customerSession.name ? customerSession.name.split(" ")[0] : "Account") : "Sign In";
-    return `<div class="stable-announcement"><span data-announcement-text>${announcements[0]}</span></div>
+    return `<div class="stable-announcement"><span data-announcement-text>${announcements[0]}</span>${approvedHome ? '<span class="cream-announcement-extra">Elegant Gifting. Always</span><a class="cream-track" href="/track-order.html">India (INR) &nbsp; · &nbsp; Track Order</a>' : ""}</div>
       <header class="stable-header">
         <button class="stable-header__menu" type="button" data-menu-open aria-label="Open menu">
-          <span class="menu-icon" aria-hidden="true">${shoppingIcon("menu")}</span>
-          <span class="menu-label">Menu</span>
+          ${approvedHome ? shoppingIcon("menu") : `<span class="menu-icon" aria-hidden="true">${shoppingIcon("menu")}</span><span class="menu-label">Menu</span>`}
         </button>
         <a class="stable-logo" href="/" aria-label="Shivara home">SHIVARA<small>JEWELLERY ATELIER</small></a>
-        <nav class="stable-nav" aria-label="Main navigation">
+        ${approvedHome ? `<nav class="stable-nav cream-reference-nav" aria-label="Main navigation">
+<a href="/collections/new-arrivals">New Arrivals</a><a href="/collections/earrings">Earrings</a><a href="/collections/neckwear">Necklaces</a><a href="/collections/rings">Rings</a><a href="/collections/bracelets">Bracelets</a><a href="/collections/gifting">Gift Sets</a><a href="/collections/all">Collections</a><a href="#atelier-story-title">About</a>
+</nav>` : `        <nav class="stable-nav" aria-label="Main navigation">
           <div class="stable-nav__mega-wrap">
             <button type="button" aria-haspopup="true">Shop</button>
             <div class="stable-nav__mega">
@@ -346,16 +338,23 @@
           <a href="/collections/jewellery-sets" data-nav-category="jewellery-sets">Sets</a>
           <a href="/track-order.html" class="stable-track-nav-link">Track Order</a>
         </nav>
+`}
         <div class="stable-header__actions">
-          <button type="button" class="stable-header__btn stable-header__btn--icon" data-search-open aria-label="Search" title="Search">${shoppingIcon("search")}</button>
+          <button type="button" class="stable-header__btn stable-header__btn--icon" data-search-open aria-label="Search" title="Search">${shoppingIcon("search")}${approvedHome ? '<span class="cream-search-label">Search for jewellery...</span>' : ""}</button>
           <a href="/track-order.html" class="stable-header__btn stable-header__btn--text">Track</a>
           <button type="button" data-account-open class="stable-header__btn stable-header__btn--account" aria-label="Account">${shoppingIcon("account")} <span data-account-name>${escapeHtml(accountLabel)}</span></button>
           <a class="stable-header__btn stable-header__btn--wish stable-wish-link" href="/wishlist" aria-label="Wishlist">${shoppingIcon("wishlist")}<span class="header-badge" data-wishlist-count>0</span></a>
-          <button type="button" data-cart-open class="stable-header__btn stable-header__btn--bag" aria-label="Open bag">${shoppingIcon("cart")}<span class="bag-label">Bag</span><span class="header-badge" data-cart-count>0</span></button>
+          <button type="button" data-cart-open class="stable-header__btn stable-header__btn--bag" aria-label="Open bag">${shoppingIcon("cart")}${approvedHome ? "" : '<span class="bag-label">Bag</span>'}<span class="header-badge" data-cart-count>0</span></button>
         </div>
       </header>
       <div id="storefront-promo-strip" class="storefront-promo-strip" style="display:none;"></div>
-      <nav class="stable-mobile-dock" aria-label="Mobile shopping navigation">
+      ${approvedHome ? `<nav class="stable-mobile-dock" aria-label="Mobile shopping navigation">
+<a href="/" class="stable-dock-item" aria-label="Home"><span class="dock-icon">${shoppingIcon("home")}</span><span class="dock-label">Home</span></a>
+<button type="button" class="stable-dock-item" data-menu-open aria-label="Shop categories"><span class="dock-icon">${shoppingIcon("menu")}</span><span class="dock-label">Shop</span></button>
+<a href="/#watch-and-buy-container" class="stable-dock-item" aria-label="Watch and buy"><span class="dock-icon">${shoppingIcon("play")}</span><span class="dock-label">Live</span></a>
+<a href="/wishlist" class="stable-dock-item" aria-label="Wishlist"><span class="dock-icon">${shoppingIcon("wishlist")}</span><span class="dock-label">Wishlist</span></a>
+<button type="button" class="stable-dock-item" data-account-open aria-label="Account"><span class="dock-icon">${shoppingIcon("account")}</span><span class="dock-label">Account</span></button>
+</nav>` : `      <nav class="stable-mobile-dock" aria-label="Mobile shopping navigation">
         <a href="/" class="stable-dock-item" aria-label="Home">
           <span class="dock-icon" aria-hidden="true">${shoppingIcon("home")}</span>
           <span class="dock-label">Home</span>
@@ -382,7 +381,7 @@
           </span>
           <span class="dock-label">Bag</span>
         </button>
-      </nav>`;
+      </nav>`}`;
   }
 
   function sharedFooter() {
@@ -549,26 +548,6 @@
       if (isVisibleInViewport(bar) && !bar.matches(":hover") && !bar.contains(document.activeElement)) advanceAnnouncement();
       scheduleAnnouncementRotation();
     }, rotationDelays.announcement);
-  }
-
-  function scheduleHeroRotation() {
-    window.clearTimeout(heroTimer);
-    const hero = document.querySelector("[data-hero]");
-    if (document.hidden || window.matchMedia("(prefers-reduced-motion: reduce)").matches || !hero) return;
-    heroTimer = window.setTimeout(() => {
-      if (isVisibleInViewport(hero) && !hero.matches(":hover") && !hero.contains(document.activeElement)) renderHero(heroIndex + 1);
-      scheduleHeroRotation();
-    }, rotationDelays.hero);
-  }
-
-  function scheduleSignatureRotation() {
-    window.clearTimeout(signatureTimer);
-    const edit = document.querySelector(".signature-edit");
-    if (document.hidden || window.matchMedia("(prefers-reduced-motion: reduce)").matches || !edit) return;
-    signatureTimer = window.setTimeout(() => {
-      if (isVisibleInViewport(edit) && !edit.matches(":hover") && !edit.contains(document.activeElement)) renderSignature(signatureIndex + 1);
-      scheduleSignatureRotation();
-    }, rotationDelays.signature);
   }
 
   function openLayer(selector, trigger) {
@@ -1007,63 +986,17 @@
   function renderCategoryRail() {
     const mount = document.querySelector("#commerce-category-grid");
     if (!mount) return;
-    mount.innerHTML = categoryRail.map(([label, slug, productId]) => {
+    const creamHome = document.body.classList.contains("approved-storefront");
+    const rail = creamHome ? ["earrings", "necklaces", "rings", "bracelets", "gifting"].map(slug => categoryRail.find(item => item[1] === slug)).filter(Boolean) : categoryRail;
+    mount.innerHTML = rail.map(([label, slug, productId]) => {
+      if (creamHome) label = ({ necklaces: "Necklaces", gifting: "Gift Sets" }[slug] || label);
       const product = productMap.get(productId);
-      const count = productsForCollection(slug).length;
+      const collection = productsForCollection(slug);
+      const count = collection.length;
+      const starting = Math.min(...collection.map(item => Number(item.price)).filter(price => price > 0));
       if (!product) return "";
-      return `<a href="${collectionUrl(slug)}"><span><img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(label)} collection" loading="lazy" /></span><strong>${escapeHtml(label)}</strong><small>${count} ${count === 1 ? "product" : "products"}</small></a>`;
+      return `<a href="${collectionUrl(slug)}"><span><img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(label)} collection" loading="lazy" /></span><strong>${escapeHtml(label)}</strong><small>${creamHome && Number.isFinite(starting) ? `From ₹${starting.toLocaleString("en-IN")} →` : `${count} ${count === 1 ? "product" : "products"}`}</small></a>`;
     }).join("");
-  }
-
-  function renderLivingDeck() {
-    const mount = document.querySelector("#living-product-deck");
-    if (!mount) return;
-    const deckIds = ["lavender-bloom-ring", "boxed-evil-eye-bracelet", "tulip-pendant"];
-    mount.innerHTML = deckIds.map((id, index) => {
-      const product = productMap.get(id);
-      if (!catalogApi.validateCommerceObject(product, "living product deck")) return "";
-      const value = pricing(product);
-      return `<article class="living-card living-card--${index + 1}">
-        <a class="living-card__media" href="${productUrl(product)}">
-          <img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(product.imageAlt)}" loading="${index ? "lazy" : "eager"}" />
-          <span>${String(index + 1).padStart(2, "0")}</span>
-        </a>
-        <div class="living-card__copy">
-          <small>${escapeHtml(categoryMeta[product.category]?.kicker || product.category)}</small>
-          <h3><a href="${productUrl(product)}">${escapeHtml(product.title)}</a></h3>
-          <div><strong>${formatMoney(value.price || 499)}</strong></div>
-          <button type="button" data-quick-view="${escapeHtml(product.id)}">Quick view <span aria-hidden="true">↗</span></button>
-        </div>
-      </article>`;
-    }).join("");
-  }
-
-  function renderHero(nextIndex = heroIndex) {
-    const mount = document.querySelector("[data-hero]");
-    if (!mount) return;
-    heroIndex = (nextIndex + heroIds.length) % heroIds.length;
-    const product = productMap.get(heroIds[heroIndex]) || products[0];
-    if (!product) return;
-    mount.querySelector("[data-hero-image]").src = `/${product.images[0]}`;
-    mount.querySelector("[data-hero-image]").alt = product.imageAlt;
-    mount.querySelector("[data-hero-title]").textContent = product.title;
-    mount.querySelector("[data-hero-copy]").textContent = product.description;
-    mount.querySelector("[data-hero-count]").textContent = `${heroIndex + 1} / ${heroIds.length}`;
-    mount.style.setProperty("--hero-progress", `${((heroIndex + 1) / heroIds.length) * 100}%`);
-    mount.dataset.heroIndex = String(heroIndex);
-    const productLink = mount.querySelector(".stable-hero__content .stable-button--light");
-    productLink.href = productUrl(product);
-    productLink.textContent = pricing(product).confirmed ? `Shop ${product.title}` : `View ${product.title}`;
-  }
-
-  function renderSignature(nextIndex = signatureIndex) {
-    const mount = document.querySelector("#signature-product");
-    if (!mount) return;
-    const signatureProducts = catalogApi.getFeaturedProducts(12).filter((product) => pricing(product).confirmed).slice(0, 6);
-    if (!signatureProducts.length) { mount.innerHTML = ""; return; }
-    signatureIndex = (nextIndex + signatureProducts.length) % signatureProducts.length;
-    const product = signatureProducts[signatureIndex];
-    mount.innerHTML = `<a class="signature-edit__image" href="${productUrl(product)}"><img src="${escapeHtml(mediaHref(product.images[0]))}" alt="${escapeHtml(product.imageAlt)}" loading="lazy" /></a><div><small>${signatureIndex + 1} / ${signatureProducts.length}</small><h3>${escapeHtml(product.title)}</h3>${priceMarkup(product, "signature-edit__price")}<p>${escapeHtml(product.description)}</p><button class="stable-button stable-button--light" type="button" data-quick-view="${product.id}">Quick View</button></div>`;
   }
 
   const homeCatalogueState = { category: 'all', search: '', sort: 'featured' };
@@ -1102,13 +1035,9 @@
   function renderHome({ force = false } = {}) {
     if (document.body.dataset.page !== "home") return;
     renderCategoryRail();
-    renderLivingDeck();
     renderHomeCatalogue();
     [
-      ["new-arrivals", productsForCollection("new-arrivals").slice(0, 12)],
-      ["all", products.slice(12, 24)],
-      ["rings", productsForCollection("rings").slice(0, 8)],
-      ["neck-wear", productsForCollection("necklaces").slice(0, 10)]
+      ["new-arrivals", productsForCollection("new-arrivals").slice(0, 12)]
     ].forEach(([section, source]) => {
       const mount = document.querySelector(`[data-product-section="${section}"]`);
       if (!mount) return;
@@ -1118,8 +1047,6 @@
       if (!serverMarkupMatches || force) renderGrid(mount, source);
     });
     syncWishlistControls();
-    renderHero();
-    renderSignature();
   }
 
   /* ─── Lightweight Stable Motion Engine ─── */
@@ -1135,7 +1062,7 @@
         });
       }, { threshold: 0.05, rootMargin: "0px 0px -4% 0px" });
 
-      document.querySelectorAll(".category-rail-section, .living-deck, .home-products, .signature-edit, .stable-reassurance, .stable-editorial").forEach((section) => {
+      document.querySelectorAll(".category-rail-section, .home-products, .stable-reassurance").forEach((section) => {
         section.classList.add("motion-reveal");
         observer.observe(section);
       });
@@ -1994,8 +1921,6 @@
   document.addEventListener("visibilitychange", () => {
     document.body.classList.toggle("stable-page-hidden", document.hidden);
     scheduleAnnouncementRotation();
-    scheduleHeroRotation();
-    scheduleSignatureRotation();
   });
 
   // ─────────────────────────────────────────────────────────────
@@ -2085,10 +2010,14 @@
     // 4. Update homepage category rail
     const railContainer = document.querySelector("#commerce-category-grid");
     if (railContainer) {
-      const railCats = activeCats.filter(c => c.showInRail !== false);
+      let railCats = activeCats.filter(c => c.showInRail !== false);
+      if (document.body.classList.contains("approved-storefront")) {
+        const groups = [["earrings"], ["neckwear", "necklaces"], ["rings"], ["bracelets"], ["gifting", "jewellery-sets", "sets"]];
+        railCats = groups.map(slugs => railCats.find(c => slugs.includes(c.slug))).filter(Boolean);
+      }
       railContainer.innerHTML = railCats.map(c => {
         const slug = c.slug;
-        const label = c.name || c.title || slug;
+        const label = document.body.classList.contains("approved-storefront") ? ({ neckwear: "Necklaces", necklaces: "Necklaces", gifting: "Gift Sets", "jewellery-sets": "Gift Sets", sets: "Gift Sets" }[slug] || c.name || c.title || slug) : c.name || c.title || slug;
         const prod = productsForCollection(slug)[0] || products[0];
         const count = productsForCollection(slug).length;
         const imgUrl = c.image || (prod ? mediaHref(prod.images[0]) : "");
@@ -2209,14 +2138,7 @@
                 node.textContent = announcements[announcementIndex % announcements.length];
               }
             }
-            if (bData.hero?.title) {
-              const heroTitle = document.querySelector("[data-hero-title]");
-              if (heroTitle) heroTitle.textContent = bData.hero.title;
-            }
-            if (bData.hero?.kicker) {
-              const heroKicker = document.querySelector("[data-hero-kicker]");
-              if (heroKicker) heroKicker.textContent = bData.hero.kicker;
-            }
+
           }
         }, (err) => {
           console.warn("[Realtime] Banners listener note:", err.message);
@@ -2262,8 +2184,6 @@
     scheduleAnnouncementRotation();
     renderHome();
     initialisePremiumMotion();
-    scheduleHeroRotation();
-    scheduleSignatureRotation();
     renderCollection({ hydrateServerMarkup: true });
     renderProductPage();
     renderWishlist();

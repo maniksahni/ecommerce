@@ -1,0 +1,87 @@
+/* SHIVARA — STRICT APPROVED ARTWORK PATCH
+   Install only after copying assets/shivara-final/hero-still-life.webp.
+   This fixes the inaccurate 4-floating-cards hero in PR #5.
+   Reference desktop 1009px/ mobile 355px. It is illustrative editorial art;
+   individual product purchase imagery must come from verified live catalogue. */
+body.shivara-cream-final .ref-hero {
+  position:relative!important;
+  height:clamp(375px,39vw,535px)!important;
+  min-height:375px!important;
+  background:linear-gradient(90deg,#fff9ef 0%,#f7eddf 46%,#eee0ca 100%)!important;
+  isolation:isolate;
+}
+body.shivara-cream-final .ref-hero .ref-scene {
+  inset:0 0 0 37%!important;
+  width:63%!important;
+  height:100%!important;
+  background:#f7eddf url('/assets/shivara-final/hero-still-life.webp') center / cover no-repeat!important;
+}
+body.shivara-cream-final .ref-hero .ref-scene::before {
+  content:'';position:absolute;inset:0;z-index:8;pointer-events:none;
+  background:linear-gradient(90deg,#f8f0e7 0%,#f8f0e700 13%,transparent 31%)!important;
+}
+/* The image already contains real artwork. Never draw additional objects over it. */
+body.shivara-cream-final .ref-hero :is(
+ .ref-scene__arch,.ref-scene__stone,.ref-scene__ribbon,
+ .cream-hero__product,.cream-hero__brand-card,.ref-scene__flowers
+){display:none!important}
+body.shivara-cream-final .ref-hero .approved-hero__copy {
+  top:10%!important;left:6%!important;width:38%!important;max-width:38%!important;
+  padding:0!important;z-index:10;
+}
+body.shivara-cream-final .ref-hero h1 {
+  font-size:clamp(46px,5.5vw,76px)!important;
+  line-height:.92!important;letter-spacing:-.044em!important;
+  white-space:normal!important;
+}
+body.shivara-cream-final .ref-hero .cream-eyebrow{
+  margin-bottom:13px!important;font-size:10px!important;letter-spacing:.13em!important;
+}
+body.shivara-cream-final .ref-hero .approved-hero__description {
+  font-size:12px!important;line-height:1.5!important;
+  margin-bottom:17px!important;max-width:350px!important;
+}
+body.shivara-cream-final .ref-hero .approved-outline {
+  background:#aa7e49!important;border:0!important;color:#fff!important;
+  min-height:39px!important;font-size:10px!important;padding:11px 20px!important;
+}
+body.shivara-cream-final .ref-hero__reasons {margin-top:28px!important;gap:26px!important}
+@media(max-width:767px){
+ body.shivara-cream-final .ref-hero {
+   height:clamp(360px,105vw,440px)!important;
+   min-height:360px!important;
+   background:linear-gradient(180deg,#fffbf6,#f7e7d0)!important;
+ }
+ body.shivara-cream-final .ref-hero .approved-hero__copy {
+   top:7%!important;left:7%!important;width:86%!important;
+   max-width:86%!important;padding:0!important;z-index:10;
+ }
+ body.shivara-cream-final .ref-hero h1 {
+   font-size:clamp(38px,10.4vw,49px)!important;
+   line-height:.91!important;white-space:normal!important;
+   margin:0 0 10px!important;
+ }
+ body.shivara-cream-final .ref-hero .cream-eyebrow {
+   font-size:8px!important;margin:0 0 11px!important;
+ }
+ body.shivara-cream-final .ref-hero .approved-hero__description {
+   font-size:10px!important;line-height:1.38!important;
+   max-width:290px!important;margin-bottom:13px!important;
+ }
+ body.shivara-cream-final .ref-hero .approved-outline {
+   font-size:9px!important;min-height:36px!important;padding:9px 19px!important;
+ }
+ body.shivara-cream-final .ref-hero .ref-scene {
+   inset:auto 0 0 0!important;width:100%!important;height:54%!important;
+   background-size:cover!important;background-position:50% 68%!important;
+ }
+ body.shivara-cream-final .ref-hero .ref-scene::before {
+   background:linear-gradient(180deg,#f9eddb 0%,transparent 26%)!important;
+ }
+ body.shivara-cream-final .ref-hero__reasons {display:none!important}
+ body.shivara-cream-final .ref-hero__slide-links{bottom:8px!important}
+}
+@media(max-width:360px){
+ body.shivara-cream-final .ref-hero h1{font-size:37px!important}
+ body.shivara-cream-final .ref-hero .ref-scene{height:51%!important}
+}

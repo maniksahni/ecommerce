@@ -251,18 +251,6 @@
       box-shadow: var(--shadow-sm);
     }
 
-    .admin-header-row-1 {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .admin-header-row-2 {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
     .admin-brand {
       display: flex; align-items: center; gap: 10px;
       text-decoration: none;
@@ -285,14 +273,6 @@
       letter-spacing: 1.4px;
       text-transform: uppercase;
       border-radius: 2px;
-    }
-
-    .logout-btn-mobile {
-      display: none;
-    }
-
-    .logout-btn-desktop {
-      display: inline-flex;
     }
 
     .admin-header-actions {
@@ -410,26 +390,6 @@
       color: var(--choco);
       transition: all 0.3s ease;
       user-select: none;
-    }
-
-    .live-connection-chip .live-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 8px rgba(31, 107, 59, 0.6);
-      animation: pulseDot 2s infinite ease-in-out;
-    }
-
-    .live-connection-chip.is-syncing .live-dot {
-      background: var(--gold);
-      box-shadow: 0 0 8px rgba(184, 134, 45, 0.7);
-    }
-
-    .live-connection-chip.is-offline .live-dot {
-      background: var(--red);
-      box-shadow: 0 0 8px rgba(163, 34, 39, 0.7);
-      animation: none;
     }
 
     @keyframes pulseDot {
@@ -821,37 +781,8 @@
     }
 
     /* Action triggers */
-    .table-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
 
     /* Add/Edit Product Card */
-    .form-card {
-      background: var(--ivory-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 36px 36px 42px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .edit-alert-banner {
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 14px 20px;
-      background: #fdf5e2;
-      border: 1px solid var(--gold);
-      border-left: 4px solid var(--gold);
-      border-radius: var(--radius-sm);
-      margin-bottom: 24px;
-    }
-
-    .edit-alert-banner.is-active { display: flex; }
-    .edit-alert-banner strong { font-size: 13px; color: var(--choco); }
-    .edit-alert-banner p { font-size: 11px; color: var(--muted); }
 
     .form-grid {
       display: grid;
@@ -910,41 +841,6 @@
       margin-top: 2px;
     }
 
-    .form-divider {
-      grid-column: 1 / -1;
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--gold-dark);
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-      margin-top: 6px;
-    }
-
-    .img-upload-box {
-      display: flex;
-      align-items: flex-start;
-      gap: 20px;
-      padding: 16px;
-      background: var(--ivory);
-      border: 1px dashed var(--gold-border);
-      border-radius: var(--radius-sm);
-    }
-
-    .img-preview-thumb {
-      display: none;
-      width: 84px;
-      height: 104px;
-      object-fit: cover;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: #fff;
-      flex-shrink: 0;
-    }
-
-    .img-preview-thumb.is-visible { display: block; }
-
     .img-upload-controls {
       flex: 1;
       display: flex;
@@ -977,7 +873,7 @@
 
     .img-divider-line::before,
     .img-divider-line::after {
-      content: '';
+      content: "";
       flex: 1;
       border-bottom: 1px solid var(--border);
     }
@@ -1127,65 +1023,9 @@
       vertical-align: middle;
     }
 
-    .spinner-gold {
-      border: 2px solid rgba(212, 168, 67, 0.3);
-      border-top-color: var(--gold);
-    }
-
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* Shimmering Skeleton Cards */
-    .skeleton-container {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 12px 0;
-    }
-
-    .skeleton-card {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      background: var(--ivory-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 14px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .skeleton-thumb {
-      width: 72px;
-      height: 72px;
-      background: #ebdccf;
-      border-radius: var(--radius-sm);
-      flex-shrink: 0;
-    }
-
-    .skeleton-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .skeleton-line {
-      height: 12px;
-      background: #ebdccf;
-      border-radius: 4px;
-    }
-
-    .skeleton-line.w-70 { width: 70%; }
-    .skeleton-line.w-40 { width: 40%; }
-    .skeleton-line.w-20 { width: 20%; }
-
-    .skeleton-shimmer {
-      position: absolute;
-      inset: 0;
-      transform: translateX(-100%);
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
-      animation: shimmer 1.4s infinite;
-    }
 
     @keyframes shimmer {
       100% { transform: translateX(100%); }
@@ -1576,13 +1416,6 @@
       /* ════════════════════════════════════════
          3. FULL-WIDTH RESPONSIVE FORM
       ════════════════════════════════════════ */
-      .form-card {
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 20px 14px !important;
-        box-sizing: border-box !important;
-        border-radius: var(--radius-md);
-      }
 
       .form-grid {
         display: flex !important;
@@ -1605,25 +1438,6 @@
         font-size: 16px !important; /* Eliminates iOS auto-zoom */
         min-height: 48px !important;
         box-sizing: border-box !important;
-      }
-
-      .img-upload-box {
-        flex-direction: column !important;
-        align-items: center !important;
-        text-align: center !important;
-        gap: 14px !important;
-        padding: 14px !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-      }
-
-      .img-preview-thumb {
-        width: 100% !important;
-        max-width: 120px !important;
-        height: 120px !important;
-        object-fit: cover !important;
-        border-radius: 8px !important;
-        margin: 0 auto !important;
       }
 
       .img-upload-controls {
@@ -1920,27 +1734,6 @@
       box-shadow: 0 6px 18px rgba(0,0,0,0.06);
       border-color: var(--gold);
     }
-    .admin-cat-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--gold-dim);
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      flex-shrink: 0;
-    }
-    .admin-cat-info h4 {
-      margin: 0 0 4px 0;
-      font-size: 14px;
-      color: var(--choco);
-    }
-    .admin-cat-info p {
-      margin: 0;
-      font-size: 12px;
-      color: var(--muted);
-    }
 
     /* ─── Inventory Steppers ─── */
     .stock-stepper {
@@ -2099,7 +1892,7 @@
         display: none !important;
       }
     }
-  
+
     /* Calmer dashboard, with readable summaries and less visual noise. */
     body { background: #f6f7f9; }
     body::before { display: none; }
@@ -2111,7 +1904,7 @@
     .stat-value { font-family: "DM Sans", sans-serif; font-size: 30px; font-weight: 600; }
     .stat-sub { font-size: 12px; line-height: 1.5; }
     .dashboard-grid-two { gap: 20px; }
-    .live-dot { animation: none; }
+
     @media (max-width: 640px) {
       #category-form > div[style*="display:grid"],
       #create-coupon-form > div[style*="display:grid"] {
@@ -2938,7 +2731,7 @@
           <!-- Smart Dual Image Ingestion Section -->
           <div class="form-group full">
             <label class="img-main-label">Product Image Ingestion <span id="img-required-star" style="color:var(--rose);">*</span></label>
-            
+
             <div class="dual-image-container">
               <div class="img-preview-box" id="img-preview-box">
                 <div class="preview-empty" id="preview-empty">
@@ -2954,7 +2747,7 @@
                   <input type="file" id="form-image-file" class="form-control" accept="image/*,.heic,.heif,.jpg,.jpeg,.png,.webp" style="background:#fff" />
                   <div class="form-hint">⚡ Client-side compression (&lt; 80KB) for instant cloud save.</div>
                 </div>
-                
+
                 <div class="img-divider-line">
                   <span>— OR ENTER DIRECT IMAGE URL —</span>
                 </div>
@@ -5018,10 +4811,6 @@
       }
     }
 
-    function loadProducts() {
-      subscribeToFirestoreProducts();
-    }
-
     function updateCategoryCounts() {
       const counts = {
         all: allProducts.length,
@@ -5476,7 +5265,7 @@
       if ($('#form-existing-image')) $('#form-existing-image').value = '';
       if ($('#form-image-url')) $('#form-image-url').value = '';
       if ($('#form-image-file')) $('#form-image-file').value = '';
-      
+
       const preview = $('#img-preview');
       const emptyBox = $('#preview-empty');
       if (preview) {
@@ -5489,13 +5278,13 @@
 
       if ($('#form-heading')) $('#form-heading').textContent = '+ Add New Product';
       if ($('#form-subheading')) $('#form-subheading').textContent = 'Add a bespoke jewellery piece directly to your live Firestore catalogue';
-      
+
       const btn = document.getElementById('form-submit-btn') || document.querySelector('.btn-submit-product');
       if (btn) {
         btn.disabled = false;
         btn.innerHTML = '<span id="btn-text">+ Add Product</span>';
       }
-      
+
       if ($('#img-required-star')) $('#img-required-star').style.display = '';
     }
 
@@ -5542,7 +5331,7 @@
         }
 
         console.log('[Admin Debug] Processing selected file:', file.name, `(${Math.round(file.size / 1024)} KB)`);
-        
+
         // Immediate preview & fail-safe Base64 generation via FileReader
         const reader = new FileReader();
         reader.onload = async (e) => {

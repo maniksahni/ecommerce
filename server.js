@@ -23,7 +23,7 @@ const {
   saveAdminInventoryStore,
   computeCustomersFromOrders
 } = require("./admin-store");
-const { syncOrderToFirestore, processOrderTransaction, getAdminFirestore } = require("./server-firebase");
+const { processOrderTransaction, getAdminFirestore } = require("./server-firebase");
 const packageInfo = require("./package.json");
 
 const root = __dirname;
@@ -275,10 +275,6 @@ function adminProductSummary(product) {
   };
 }
 
-function money(value) {
-  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value);
-}
-
 function pricing(product) {
   return catalogApi.formatPrice(product);
 }
@@ -291,12 +287,6 @@ function collectionProducts(slug) {
   if (slug === "neckwear") return catalogApi.getCollection("necklaces");
   if (slug === "jewellery-sets") return catalogApi.getCollection("sets");
   return catalogApi.getCollection(slug);
-}
-
-function priceHtml(product, className) {
-  const rawPrice = (product && Number.isFinite(Number(product.price)) && Number(product.price) > 0) ? Number(product.price) : 499;
-  const compareAt = (product && product.compareAtPrice && Number(product.compareAtPrice) > rawPrice) ? Number(product.compareAtPrice) : null;
-  return `<div class="${className}"><strong>${money(rawPrice)}</strong>${compareAt ? `<s>${money(compareAt)}</s>` : ""}</div>`;
 }
 
 function productCard(product, index = 0) {
@@ -328,11 +318,7 @@ function stampHtml(html) {
 
 function injectHome(html) {
   const selections = {
-    "new-arrivals": collectionProducts("new-arrivals").slice(0, 12),
-    bestsellers: catalogApi.getFeaturedProducts(10),
-    all: products.slice(12, 24),
-    rings: collectionProducts("rings").slice(0, 8),
-    "neck-wear": collectionProducts("necklaces").slice(0, 10)
+    "new-arrivals": collectionProducts("new-arrivals").slice(0, 12)
   };
   html = html.replace(/<div class="commerce-product-grid" data-product-section="([^"]+)"><\/div>/g, (match, section) => {
     const selected = selections[section] || [];

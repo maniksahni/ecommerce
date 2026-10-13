@@ -23,14 +23,15 @@ Static Hosting rewrites `/products/**` to the product template for cloud-created
 
 `npm test` runs non-mutating catalogue, admin unit and source security checks. `npm run test:realtime` runs Chrome/WebKit with an isolated browser Firestore fixture; it creates no production orders. Live browser tests require explicit administrator environment credentials.
 
-## Homepage Feature Gate
+## Current homepage
 
-Production currently enables:
+- Approved black/champagne hero, category gallery, new arrivals, campaigns and editorial.
+- Live catalogue filters and shared product cards.
+- Product-only Instagram discovery with matching post/reel links.
+- Reassurance, footer and mobile shopping navigation.
 
-- Floating Atelier hero
-- Category gallery
-- Shivara Product Deck
-- Curated catalogue grid
-- Reassurance and footer
+Retired hero rotation, signature slider, product deck and reel-overlay code/styles have been removed. Header and dock icons are rendered once by the shared storefront runtime.
 
-Most Wanted, product story, Evil Eye Orbit, Stacking Studio, Ring Constellation, Shop the Look and Watch & Shop remain implemented but disabled through `STOREFRONT_FEATURES` until the compact storefront is proven stable.
+## Isolated layout QA
+
+With the local server running, use `QA_ISOLATED=1 MOBILE_BASE_URL=http://localhost:3000 npm run test:mobile`. The test fixture intercepts Firebase data/authentication imports and blocks production Firestore/Auth endpoints. Catalogue, admin tabs and product forms are exercised without production writes or real credentials. These layout fixtures complement the admin unit/security suites; they do not prove production Firebase authorization.

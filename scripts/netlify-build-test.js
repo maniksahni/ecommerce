@@ -31,5 +31,11 @@ check(
   "every curated product has a static route"
 );
 
+// A page must not link to a deleted or omitted stylesheet/script in the release.
+const linkedAssets = [...home.matchAll(/(?:src|href)="(\/[^"?#]+\.(?:js|css))(?:[?#][^"]*)?"/g)]
+  .map(match => match[1]);
+check(linkedAssets.every(asset => fs.existsSync(path.join(dist, asset.slice(1)))),
+  "every homepage script and stylesheet is included in the release");
+
 if (failures) process.exitCode = 1;
 else console.log(`Netlify build verification passed for ${catalogApi.getAllProducts().length} products.`);

@@ -3,6 +3,10 @@ const fs = require("fs");
 const path = require("path");
 const base =
   process.env.MOBILE_BASE_URL || "https://the-shivara-group-86c9c.web.app";
+const isolated = process.env.QA_ISOLATED === "1";
+if (isolated && !["localhost", "127.0.0.1"].includes(new URL(base).hostname)) {
+  throw new Error("Isolated mobile QA requires a localhost base URL");
+}
 const dir =
   process.env.QA_ARTIFACT_DIR ||
   require("path").resolve("artifacts/full-audit/mobile");
@@ -97,6 +101,7 @@ async function reachable(p, selector, label) {
       isMobile: true,
       hasTouch: true,
     });
+    if (isolated) await require("./fixtures/isolated-browser.cjs").install(c);
     const p = await c.newPage();
     p.setDefaultTimeout(60000);
     p.on("pageerror", (e) => {
@@ -200,8 +205,8 @@ async function reachable(p, selector, label) {
     }
     // Admin session: read-only tabs and opening/cancelling product forms.
     await visit(base + "/admin");
-    await p.locator("#admin-email").fill(process.env.ADMIN_EMAIL);
-    await p.locator("#admin-passcode").fill(process.env.ADMIN_PASSWORD);
+    await p.locator("#admin-email").fill(process.env.ADMIN_EMAIL || (isolated ? "isolated@example.test" : ""));
+    await p.locator("#admin-passcode").fill(process.env.ADMIN_PASSWORD || (isolated ? "isolated-only" : ""));
     await p.locator("#login-form").evaluate((f) => f.requestSubmit());
     await p.locator("#admin-screen.is-active").waitFor();
     await p.waitForFunction(() => window.adminProductsCache?.length > 0);

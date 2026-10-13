@@ -13,7 +13,7 @@
         "headers": [
           {
             "key": "X-Shivara-Build",
-            "value": "3c23581035ce5c446a42c3ca580a52b070e3184d"
+            "value": "7f0672a2dddc03b864ecea48c67b7fecb320be13"
           },
           {
             "key": "X-Shivara-Catalog-Version",
@@ -66,28 +66,8 @@
         "type": 301
       },
       {
-        "source": "/products/DXb4u1WMs3N",
-        "destination": "/products/butterfly-drop-necklace",
-        "type": 301
-      },
-      {
         "source": "/products/DXbGtV-kd5A",
         "destination": "/products/butterfly-earring-edit",
-        "type": 301
-      },
-      {
-        "source": "/products/DXZqgaJBA9l",
-        "destination": "/products/green-butterfly-earrings",
-        "type": 301
-      },
-      {
-        "source": "/products/DXWiT4SxF-w",
-        "destination": "/products/cherry-charm-pendant",
-        "type": 301
-      },
-      {
-        "source": "/products/DXUKeYosxOa",
-        "destination": "/products/boxed-blue-evil-eye-bracelet",
         "type": 301
       },
       {
@@ -131,11 +111,6 @@
         "type": 301
       },
       {
-        "source": "/products/DW0r-SYxASu",
-        "destination": "/products/floral-statement-ring",
-        "type": 301
-      },
-      {
         "source": "/products/DWtcQ8OAefp",
         "destination": "/products/gold-rose-pendant",
         "type": 301
@@ -143,16 +118,6 @@
       {
         "source": "/products/DWss1yNkbcd",
         "destination": "/products/minimal-heart-pendant",
-        "type": 301
-      },
-      {
-        "source": "/products/DWqQ5tusfA-",
-        "destination": "/products/snake-chain-watch",
-        "type": 301
-      },
-      {
-        "source": "/products/DWlGxA6DBMP",
-        "destination": "/products/green-ad-jewellery-set",
         "type": 301
       },
       {
@@ -608,6 +573,76 @@
       {
         "source": "/products/catalog-2026-07-26-089",
         "destination": "/products/stacked-coil-bangle",
+        "type": 301
+      },
+      {
+        "source": "/products/boxed-blue-evil-eye-bracelet",
+        "destination": "/products/boxed-evil-eye-bracelet",
+        "type": 301
+      },
+      {
+        "source": "/products/butterfly-drop-necklace",
+        "destination": "/products/crystal-butterfly-drop-necklace",
+        "type": 301
+      },
+      {
+        "source": "/products/green-butterfly-earrings",
+        "destination": "/products/mint-butterfly-earrings",
+        "type": 301
+      },
+      {
+        "source": "/products/cherry-charm-pendant",
+        "destination": "/products/cherry-drop-pendant",
+        "type": 301
+      },
+      {
+        "source": "/products/floral-statement-ring",
+        "destination": "/products/black-floral-cluster-ring",
+        "type": 301
+      },
+      {
+        "source": "/products/green-ad-jewellery-set",
+        "destination": "/products/pastel-crystal-bracelet-set",
+        "type": 301
+      },
+      {
+        "source": "/products/snake-chain-watch",
+        "destination": "/products/green-coil-watch",
+        "type": 301
+      },
+      {
+        "source": "/products/DXb4u1WMs3N",
+        "destination": "/products/crystal-butterfly-drop-necklace",
+        "type": 301
+      },
+      {
+        "source": "/products/DXZqgaJBA9l",
+        "destination": "/products/mint-butterfly-earrings",
+        "type": 301
+      },
+      {
+        "source": "/products/DXWiT4SxF-w",
+        "destination": "/products/cherry-drop-pendant",
+        "type": 301
+      },
+      {
+        "source": "/products/DXUKeYosxOa",
+        "destination": "/products/boxed-evil-eye-bracelet",
+        "type": 301
+      },
+      {
+        "source": "/products/DW0r-SYxASu",
+        "destination": "/products/black-floral-cluster-ring",
+        "type": 301
+      },
+      {
+        "source": "/products/DWqQ5tusfA-",
+        "destination": "/products/green-coil-watch",
+        "type": 301
+      },
+      {
+        "source": "/products/DWlGxA6DBMP",
+        "destination": "/products/pastel-crystal-bracelet-set",
         "type": 301
       }
     ],
