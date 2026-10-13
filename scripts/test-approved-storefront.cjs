@@ -18,7 +18,7 @@ const fs = require("fs");
     });
     await p.locator(".stable-header [data-search-open] svg").first().waitFor();
     await p.locator("[data-product-card]").first().waitFor();
-    for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440]) {
+    for (const width of [320, 340, 350, 360, 375, 390, 430, 768, 1024, 1280, 1440]) {
       await p.setViewportSize({ width, height: width < 768 ? 844 : 1000 });
       await p.evaluate(() => scrollTo(0, 0));
       await p.screenshot({
@@ -36,13 +36,44 @@ const fs = require("fs");
           search: inside(".stable-header [data-search-open]"),
           wishlist: inside(".stable-header .stable-wish-link"),
           cta: inside(".approved-hero .approved-outline"),
-          touch: [
-            ...document.querySelectorAll(
-              ".stable-header__actions>button,.stable-header__actions>a",
-            ),
-          ]
-            .filter((e) => getComputedStyle(e).display !== "none")
-            .every((e) => e.getBoundingClientRect().width >= 44),
+          /* The mobile header must expose real >=44x44 clickable rectangles,
+             not just 21px SVG glyphs inside 28px buttons. */
+          touchTargets: [...[
+            [".stable-header [data-menu-open]", "menu"],
+            [".stable-header [data-search-open]", "search"],
+            [".stable-header .stable-wish-link", "wishlist"],
+            [".stable-header [data-cart-open]", "bag"],
+          ].map(([selector, label]) => {
+            const element = document.querySelector(selector);
+            if (!element) return { label, found: false, ok: false };
+            const rectangle = element.getBoundingClientRect();
+            const style = getComputedStyle(element);
+            return {
+              label, found: true,
+              width: Number(rectangle.width.toFixed(2)),
+              height: Number(rectangle.height.toFixed(2)),
+              left: Number(rectangle.left.toFixed(2)),
+              right: Number(rectangle.right.toFixed(2)),
+              visible: style.display !== "none" && style.visibility !== "hidden",
+              ok: rectangle.width >= 43.5 && rectangle.height >= 43.5 &&
+                  rectangle.left >= -0.5 && rectangle.right <= innerWidth + 0.5 &&
+                  style.display !== "none" && style.visibility !== "hidden",
+            };
+          })],
+          touch: innerWidth > 767 || [...[
+            ".stable-header [data-menu-open]",
+            ".stable-header [data-search-open]",
+            ".stable-header .stable-wish-link",
+            ".stable-header [data-cart-open]",
+          ].map((selector) => document.querySelector(selector))]
+            .every((element) => {
+              if (!element) return false;
+              const rect = element.getBoundingClientRect();
+              const style = getComputedStyle(element);
+              return rect.width >= 43.5 && rect.height >= 43.5 &&
+                rect.left >= -0.5 && rect.right <= innerWidth + 0.5 &&
+                style.display !== "none" && style.visibility !== "hidden";
+            }),
           badImages: [
             ...document.querySelectorAll(
               ".approved-hero img,.approved-campaign img,.approved-editorial img",
