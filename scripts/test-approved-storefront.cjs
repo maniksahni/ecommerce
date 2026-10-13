@@ -31,6 +31,10 @@ const fs = require("fs");
         };
         return {
           width: innerWidth,
+          media: {
+            mobile: matchMedia("(max-width: 767px)").matches,
+            desktop: matchMedia("(min-width: 1101px)").matches,
+          },
           overflow: document.documentElement.scrollWidth > innerWidth,
           cart: inside(".stable-header [data-cart-open]"),
           search: inside(".stable-header [data-search-open]"),
