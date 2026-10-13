@@ -181,6 +181,10 @@
     return catalogApi.getCollection(slug);
   }
 
+  function availableProductsFirst(source) {
+    return [...source].sort((a, b) => Number(a.isSoldOut === true) - Number(b.isSoldOut === true));
+  }
+
   function validVariant(product, variantId) {
     if (!variantId) return null;
     return product.variants.find((variant) => variant.id === variantId && variant.available) || null;
@@ -223,7 +227,7 @@
 
   function renderGrid(mount, source) {
     if (!mount) return;
-    mount.innerHTML = source.filter((product) => catalogApi.validateCommerceObject(product, "renderGrid")).map(productCard).join("");
+    mount.innerHTML = availableProductsFirst(source).filter((product) => catalogApi.validateCommerceObject(product, "renderGrid")).map(productCard).join("");
   }
 
   function renderAccountContent() {
@@ -797,7 +801,7 @@
                 </div>
                 <div style="display:flex; gap:6px;">
                   <button type="button" class="btn-copy-code" data-copy-coupon="${escapeHtml(c.code)}" style="background:transparent; border:1px solid #d4af37; color:#8c6d23; font-size:10px; font-weight:600; padding:2px 6px; border-radius:3px; cursor:pointer;">Copy Code</button>
-                  <button type="button" class="btn-apply-code" data-apply-coupon="${escapeHtml(c.code)}" style="background:#1a1512; border:none; color:#fff; font-size:10px; font-weight:600; padding:2px 8px; border-radius:3px; cursor:pointer;">Apply</button>
+                  <button type="button" class="btn-apply-code" data-apply-coupon="${escapeHtml(c.code)}" style="background:#d2b27d; border:none; color:#24180c; font-size:10px; font-weight:600; padding:2px 8px; border-radius:3px; cursor:pointer;">Apply</button>
                 </div>
               </div>
             `).join('')}
@@ -850,7 +854,7 @@
               </div>
               <div style="display:flex; gap:6px;">
                 <button type="button" class="btn-copy-code" data-copy-coupon="${escapeHtml(c.code)}" style="background:transparent; border:1px solid #d4af37; color:#8c6d23; font-size:10px; font-weight:600; padding:2px 6px; border-radius:3px; cursor:pointer;">Copy Code</button>
-                <button type="button" class="btn-apply-code" data-apply-coupon="${escapeHtml(c.code)}" style="background:#1a1512; border:none; color:#fff; font-size:10px; font-weight:600; padding:2px 8px; border-radius:3px; cursor:pointer;">Apply</button>
+                <button type="button" class="btn-apply-code" data-apply-coupon="${escapeHtml(c.code)}" style="background:#d2b27d; border:none; color:#24180c; font-size:10px; font-weight:600; padding:2px 8px; border-radius:3px; cursor:pointer;">Apply</button>
               </div>
             </div>
           `).join('')}
@@ -1010,6 +1014,7 @@
     if (homeCatalogueState.sort === 'price-asc') list.sort((a, b) => a.price - b.price);
     if (homeCatalogueState.sort === 'price-desc') list.sort((a, b) => b.price - a.price);
     if (homeCatalogueState.sort === 'ready') list = list.filter(p => !p.isSoldOut);
+    list = availableProductsFirst(list);
     renderGrid(grid, list);
     if (!list.length) grid.innerHTML = '<p class="stable-empty">No products match these filters.</p>';
     document.querySelectorAll('#storefront-category-filters [data-cat]').forEach(button => {
@@ -1038,7 +1043,7 @@
     renderCategoryRail();
     renderHomeCatalogue();
     [
-      ["new-arrivals", productsForCollection("new-arrivals").slice(0, 12)]
+      ["new-arrivals", availableProductsFirst(productsForCollection("new-arrivals")).slice(0, 12)]
     ].forEach(([section, source]) => {
       const mount = document.querySelector(`[data-product-section="${section}"]`);
       if (!mount) return;
@@ -1114,6 +1119,7 @@
     if (state.sort === "price-low") selected.sort((a, b) => (pricing(a).price ?? Infinity) - (pricing(b).price ?? Infinity));
     if (state.sort === "price-high") selected.sort((a, b) => (pricing(b).price ?? -1) - (pricing(a).price ?? -1));
     if (state.sort === "title") selected.sort((a, b) => a.title.localeCompare(b.title));
+    selected = availableProductsFirst(selected);
     document.body.dataset.collection = slug;
     document.querySelector("[data-collection-kicker]").textContent = meta.kicker;
     document.querySelector("[data-collection-title]").textContent = meta.title;
@@ -1957,7 +1963,7 @@
 
     strip.style.display = "block";
     strip.innerHTML = `
-      <div class="storefront-promo-strip__content" style="background: linear-gradient(90deg, #1f1b14 0%, #29241b 100%); border-bottom: 1px solid rgba(197, 160, 89, 0.35); padding: 7px 16px; display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; font-size: 0.82rem; color: #f5ede1;">
+      <div class="storefront-promo-strip__content" style="background: linear-gradient(90deg, #f4e8d3 0%, #fffaf2 50%, #f4e8d3 100%); border-bottom: 1px solid #ddc79f; padding: 7px 16px; display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; font-size: 0.82rem; color: #49351c;">
         ${activeList.map(c => {
           const discountDesc = c.discountType === "percent"
             ? `${c.discountValue}% off`
@@ -1965,9 +1971,9 @@
           const minText = Number(c.minOrderValue) > 0 ? ` on orders above ₹${c.minOrderValue}` : "";
           return `
             <div class="promo-strip-offer" data-coupon-strip="${escapeHtml(c.code)}" style="display:inline-flex; align-items:center; gap:8px;">
-              <span style="background:#c5a059; color:#121212; font-weight:700; font-size:0.75rem; padding:2px 7px; border-radius:3px; letter-spacing:0.04em;">${escapeHtml(c.code)}</span>
+              <span style="background:#d2b27d; color:#24180c; font-weight:700; font-size:0.75rem; padding:2px 7px; border-radius:3px; letter-spacing:0.04em;">${escapeHtml(c.code)}</span>
               <span style="letter-spacing:0.02em;">Get <strong>${discountDesc}</strong>${minText}</span>
-              <button type="button" class="promo-strip-copy-btn" data-copy-coupon="${escapeHtml(c.code)}" style="background:transparent; border:1px solid #c5a059; color:#c5a059; padding:2px 8px; border-radius:3px; font-size:0.72rem; font-weight:600; cursor:pointer; text-transform:uppercase; letter-spacing:0.05em; transition:all 0.2s ease;">Copy Code</button>
+              <button type="button" class="promo-strip-copy-btn" data-copy-coupon="${escapeHtml(c.code)}" style="background:transparent; border:1px solid #a67b43; color:#765326; padding:2px 8px; border-radius:3px; font-size:0.72rem; font-weight:600; cursor:pointer; text-transform:uppercase; letter-spacing:0.05em; transition:all 0.2s ease;">Copy Code</button>
             </div>
           `;
         }).join('<span style="color:rgba(197,160,89,0.4); user-select:none;">•</span>')}

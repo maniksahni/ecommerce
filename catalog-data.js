@@ -208,24 +208,28 @@
       return byLegacyId.get(key) || bySlug.get(duplicateLegacy[key]) || null;
     }
 
+    function availableProductsFirst(items) {
+      return [...items].sort((a, b) => Number(a.isSoldOut === true) - Number(b.isSoldOut === true));
+    }
+
     function getCollection(slug) {
       const key = String(slug || "all");
-      if (key === "all") return getAllProducts();
+      if (key === "all") return availableProductsFirst(getAllProducts());
       if (key === "new-arrivals") {
-        return products
+        return availableProductsFirst(products
           .filter((product) => product.collections.includes("new-arrivals"))
-          .sort((a, b) => b.sourceIndex - a.sourceIndex);
+          .sort((a, b) => b.sourceIndex - a.sourceIndex));
       }
-      if (key === "necklaces") return products.filter((product) => product.category === "necklaces" || product.category === "pendants");
-      return products.filter((product) => product.category === key || product.collections.includes(key));
+      if (key === "necklaces") return availableProductsFirst(products.filter((product) => product.category === "necklaces" || product.category === "pendants"));
+      return availableProductsFirst(products.filter((product) => product.category === key || product.collections.includes(key)));
     }
 
     function search(query) {
       const term = String(query || "").trim().toLowerCase();
       if (!term) return [];
-      return products.filter((product) =>
+      return availableProductsFirst(products.filter((product) =>
         [product.title, product.sku, product.category, ...product.collections].join(" ").toLowerCase().includes(term)
-      );
+      ));
     }
 
     function formatPrice(product) {
@@ -252,8 +256,8 @@
     }
 
     function getFeaturedProducts(limit = 7) {
-      return [...products]
-        .sort((a, b) => Number(formatPrice(b).confirmed) - Number(formatPrice(a).confirmed) || a.sourceIndex - b.sourceIndex)
+      return availableProductsFirst([...products]
+        .sort((a, b) => Number(formatPrice(b).confirmed) - Number(formatPrice(a).confirmed) || a.sourceIndex - b.sourceIndex))
         .slice(0, Math.max(0, limit));
     }
 
@@ -279,7 +283,7 @@
           return { item, score };
         })
         .filter(({ score }) => score > 0)
-        .sort((a, b) => b.score - a.score || a.item.sourceIndex - b.item.sourceIndex)
+        .sort((a, b) => Number(a.item.isSoldOut === true) - Number(b.item.isSoldOut === true) || b.score - a.score || a.item.sourceIndex - b.item.sourceIndex)
         .slice(0, Math.max(0, limit))
         .map(({ item }) => item);
     }

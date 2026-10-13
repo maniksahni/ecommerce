@@ -3543,8 +3543,8 @@ body.catalog-stable :is(.stable-layer__head>button,.stable-quick__close,.stable-
 body.catalog-stable :is(.stable-menu a,.stable-nav__mega a,.stable-nav__mega button,.stable-menu-feature strong,.stable-menu-feature em,.stable-menu-help a,.stable-menu-help p){color:var(--shop-text)}
 body.catalog-stable :is(.stable-search-box,.stable-search-discovery,.stable-search-discovery>div,.stable-search-discovery button,.stable-search-discovery a,.stable-cart-complement,.stable-qty,.luxury-packaging-bar,.account-details-box,.account-perks,.checkout-order-summary,.payment-methods-box,.payment-option,.quick-craftsmanship-tags .spec-tag){background:var(--shop-raised)!important;color:var(--shop-text);border-color:var(--shop-border)!important;box-shadow:none}
 body.catalog-stable :is(.stable-search-count,.stable-search-discovery span,.stable-cart-line small,.stable-cart-line__mode,.stable-cart-note small,.stable-cart-service,.account-phone,.account-email,.account-perks,.checkout-header p,.stable-quick__info>small,.stable-quick__info>p,.checkout-order-summary){color:var(--shop-muted)!important}
-body.catalog-stable :is(.stable-drawer,.stable-quick,.luxury-checkout-card) :is(input,textarea,select),body.catalog-stable :is(.storefront-search-input,.storefront-sort-select,.stable-sort select,.collection-toolbar select){background:#0d0c09!important;color:var(--shop-text)!important;border-color:var(--shop-border)!important;box-shadow:none;color-scheme:dark}
-body.catalog-stable :is(input,textarea)::placeholder{color:#bbaf9c;opacity:1}
+body.catalog-stable :is(.stable-drawer,.stable-quick,.luxury-checkout-card) :is(input,textarea,select),body.catalog-stable :is(.storefront-search-input,.storefront-sort-select,.stable-sort select,.collection-toolbar select){background:#fffdf8!important;color:var(--shop-text)!important;border-color:var(--shop-border)!important;box-shadow:none;color-scheme:light}
+body.catalog-stable :is(input,textarea)::placeholder{color:#806b53;opacity:1}
 body.catalog-stable :is(.stable-button--dark,.checkout-submit-btn,.track-submit-btn,#cart-coupon-apply,.btn-apply-code){background:linear-gradient(105deg,#c2a06a,#ebd4a9)!important;color:#181109!important;border-color:#d2b27d!important;box-shadow:none!important;-webkit-text-fill-color:#181109!important}
 body.catalog-stable :is(.stable-button--light,.stable-button--line,.stable-button--plain){background:transparent!important;color:var(--shop-text)!important;border-color:var(--shop-gold)!important;box-shadow:none!important;-webkit-text-fill-color:var(--shop-text)!important}
 body.catalog-stable :is(.stable-button,.stable-header__btn,.stable-header__menu,.stable-cart-complement>button):hover{filter:brightness(1.12)}
@@ -3558,7 +3558,7 @@ body.catalog-stable :is(.btn-copy-code,.coupon-remove-btn,.account-logout-btn){c
 body.catalog-stable :is(.cart-total-row strong,.stable-cart-footer>strong,.stable-quick__price strong,.checkout-order-summary strong){color:var(--shop-text)!important}
 body.catalog-stable :is(.cart-discount-row span,.cart-breakdown-row span[style],.checkout-order-summary div[style*="color"]){color:#91d7ae!important}
 body.catalog-stable :is(.payment-option small,.payment-option__content,.checkout-form label,.stable-account-container label){color:var(--shop-text)!important}
-body.catalog-stable .payment-option--disabled{background:#1a1711!important;border-color:#7a674b!important;opacity:.8!important}
+body.catalog-stable .payment-option--disabled{background:#f0e7d8!important;border-color:#cbb894!important;opacity:.8!important}
 body.catalog-stable :is(.account-avatar,.account-actions-grid .stable-button){color:var(--shop-text);border-color:var(--shop-border)}
 body.catalog-stable :is(.stable-page,.collection-page,.collection-hero,.collection-toolbar,.collection-layout,.stable-products,.home-products,.stable-reassurance){background:var(--shop-bg);color:var(--shop-text);border-color:var(--shop-border)}
 body.catalog-stable :is(.collection-hero h1,.stable-section-heading h2,.product-page__title,.stable-pdp h1,.stable-empty h1,.stable-empty h2,.stable-empty h3){background:none!important;-webkit-text-fill-color:var(--shop-text)!important;color:var(--shop-text)!important;animation:none}
@@ -3574,7 +3574,7 @@ body.catalog-stable :is(.stable-card__wish,.stable-card__quick){color:#22190f;ba
 body.catalog-stable :is(.track-hero,.confirmation-hero,.track-search-card,.track-result-card,.confirmation-card,.shipping-detail-block,.assurance-pill-box,.cost-breakdown,.order-status-pill){background:var(--shop-panel)!important;color:var(--shop-text)!important;border-color:var(--shop-border)!important;box-shadow:none!important}
 body.catalog-stable :is(.track-title,.confirmation-title,.track-head h2,.confirmation-card h2,.confirmation-card h3,.track-details-grid strong,.order-meta-row strong,.item-info h4,.item-price,.cost-row strong,.shipping-detail-block strong){color:var(--shop-text)!important}
 body.catalog-stable :is(.track-subtitle,.confirmation-subtitle,.step-label,.step-desc,.order-meta-row,.item-info,.cost-row,.shipping-detail-block,.track-details-grid){color:var(--shop-muted)!important}
-body.catalog-stable .track-input{background:#0d0c09!important;color:var(--shop-text)!important;border-color:var(--shop-border)!important}
+body.catalog-stable .track-input{background:#fffdf8!important;color:var(--shop-text)!important;border-color:var(--shop-border)!important}
 body.catalog-stable .stable-page article[style]{color:var(--shop-text)}
 body.catalog-stable .stable-page article[style] :is(h1,p){color:var(--shop-text)!important}
 body.catalog-stable :is(.stable-toast,.pincode-status-msg){background:var(--shop-raised);color:var(--shop-text);border-color:var(--shop-border)}
@@ -3609,10 +3609,10 @@ body.catalog-stable #search-drawer .stable-search-discovery {
   grid-template-columns: minmax(0, 1fr);
   gap: 14px;
   padding: 14px !important;
-  border: 1px solid #504130 !important;
+  border: 1px solid #e1cfb0 !important;
   border-radius: 12px;
   margin-bottom: 16px;
-  background: #1c1711 !important;
+  background: #fff9ef !important;
 }
 body.catalog-stable #search-drawer .stable-search-discovery > div {
   display: flex;
@@ -3630,7 +3630,7 @@ body.catalog-stable #search-drawer .stable-search-discovery span {
   line-height: 1.3;
   font-weight: 700;
   letter-spacing: 0.09em;
-  color: #d5c09d !important;
+  color: #705533 !important;
 }
 body.catalog-stable #search-drawer .stable-search-discovery :is(a, button) {
   display: inline-flex;
@@ -3641,9 +3641,9 @@ body.catalog-stable #search-drawer .stable-search-discovery :is(a, button) {
   max-width: 100%;
   padding: 7px 11px;
   border-radius: 999px;
-  border: 1px solid #63513b !important;
-  background: #251f18 !important;
-  color: #f2e6d6 !important;
+  border: 1px solid #ddcba9 !important;
+  background: #fffdf8 !important;
+  color: #332619 !important;
   font: 500 11px/1.2 var(--font-sans, sans-serif);
   letter-spacing: 0;
   white-space: nowrap;
@@ -3651,16 +3651,16 @@ body.catalog-stable #search-drawer .stable-search-discovery :is(a, button) {
   text-decoration: none;
 }
 body.catalog-stable #search-drawer .stable-search-discovery :is(a, button):is(:hover, :focus-visible) {
-  background: #34291e !important;
-  border-color: #ad9067 !important;
+  background: #f2e5d0 !important;
+  border-color: #ad8751 !important;
 }
 
-/* A restrained matte dark/bronze catalogue toolbar, consistent in all states. */
+/* Warm ivory and gold catalogue toolbar, consistent in all states. */
 body.catalog-stable #live-storefront-section .storefront-filter-dock {
   padding: 12px;
-  border: 1px solid #453829 !important;
+  border: 1px solid #dfcfb2 !important;
   border-radius: 14px;
-  background: #16120e !important;
+  background: linear-gradient(100deg,#fffaf2,#f6ead5) !important;
   gap: 10px;
   box-shadow: none !important;
 }
@@ -3671,9 +3671,9 @@ body.catalog-stable #live-storefront-section :is(
 ) {
   min-width: 0;
   height: 42px;
-  color: #f3e8d7 !important;
-  background-color: #1e1813 !important;
-  border: 1px solid #67543c !important;
+  color: #35281a !important;
+  background-color: #fffdf8 !important;
+  border: 1px solid #ddc79f !important;
   box-shadow: none !important;
   transform: none;
   font-size: 11px;
@@ -3685,15 +3685,15 @@ body.catalog-stable #live-storefront-section :is(
   .storefront-filter-btn,
   .storefront-sort-select
 ):is(:hover, :focus-visible) {
-  color: #fff2e0 !important;
-  background-color: #261e17 !important;
-  border-color: #b6986b !important;
+  color: #261b12 !important;
+  background-color: #f7ecd9 !important;
+  border-color: #a67b43 !important;
   box-shadow: none !important;
   transform: none;
 }
 body.catalog-stable #live-storefront-section .storefront-search-icon,
 body.catalog-stable #live-storefront-section .storefront-filter-btn svg {
-  color: #d2b58c;
+  color: #8a622d;
 }
 body.catalog-stable #live-storefront-section .storefront-sort-wrap,
 body.catalog-stable #live-storefront-section .storefront-search-wrap {
@@ -3702,9 +3702,9 @@ body.catalog-stable #live-storefront-section .storefront-search-wrap {
 body.catalog-stable #live-storefront-section .storefront-filter-chips .filter-chip {
   min-height: 35px;
   padding: 7px 12px;
-  background: #211a14 !important;
-  color: #e5d5bd !important;
-  border: 1px solid #52412f !important;
+  background: #fff9ef !important;
+  color: #604729 !important;
+  border: 1px solid #e0cfb0 !important;
   font-size: 10px;
   letter-spacing: 0.025em;
   transform: none;
@@ -3712,16 +3712,16 @@ body.catalog-stable #live-storefront-section .storefront-filter-chips .filter-ch
 }
 body.catalog-stable #live-storefront-section .storefront-filter-chips .filter-chip.is-active {
   background: #d2b27d !important;
-  color: #1b130b !important;
+  color: #24180c !important;
   border-color: #d2b27d !important;
 }
 body.catalog-stable #live-storefront-section .storefront-filter-chips .filter-chip.is-active .chip-count {
-  color: #1b130b !important;
+  color: #24180c !important;
   background: rgba(33, 24, 13, .12);
 }
 body.catalog-stable #live-storefront-section .storefront-filter-chips .filter-chip:not(.is-active):is(:hover, :focus-visible) {
-  border-color: #ae9065 !important;
-  background: #2a2119 !important;
+  border-color: #a67b43 !important;
+  background: #f2e5d0 !important;
 }
 @media (max-width: 767px) {
   body.catalog-stable #search-drawer {
@@ -3874,5 +3874,12 @@ body.catalog-stable .stable-pdp__thumbs .golden-frame{aspect-ratio:1;height:100%
 body.catalog-stable .stable-pdp__gallery-meta{align-items:center;gap:10px}
 body.catalog-stable .stable-pdp__gallery-meta button{min-width:44px;min-height:44px;border:1px solid #d7b883;border-radius:50%;background:#fff7e8;color:#694720;font-size:20px;cursor:pointer}
 .golden-gallery-note{margin:8px 0 0;color:var(--shop-muted);font-size:11px;line-height:1.4}
-body.catalog-stable:not(.approved-storefront){--shop-bg:#fffcf6;--shop-panel:#fff9ef;--shop-raised:#f2e6d4;--shop-text:#261b12;--shop-muted:#76634f;--shop-gold:#a67b43;--shop-border:#e3d3bc;--stable-ink:#261b12;--stable-paper:#fffcf6;--stable-surface:#fff9ef;--stable-muted:#76634f;color-scheme:light;background:#fffcf6;color:#261b12}
+body.catalog-stable{--shop-bg:#fffcf6;--shop-panel:#fff9ef;--shop-raised:#f2e6d4;--shop-text:#261b12;--shop-muted:#76634f;--shop-gold:#a67b43;--shop-border:#e3d3bc;--stable-ink:#261b12;--stable-paper:#fffcf6;--stable-surface:#fff9ef;--stable-muted:#76634f;color-scheme:light;background:#fffcf6;color:#261b12}
 body.catalog-stable .stable-pdp__gallery-meta button:focus-visible{outline:2px solid #825d2c;outline-offset:2px}
+body.catalog-stable .account-avatar{background:linear-gradient(135deg,#f1e2c8,#c9a466);color:#422f17;box-shadow:0 4px 18px #b18b4a33}
+body.catalog-stable .dock-badge{background:#a67b43;color:#fffaf0}
+body.catalog-stable .atelier-story-cta:hover{background:#d4b47d;color:#24180c}
+body.catalog-stable .stable-footer{background:#f7efe2;color:#261b12}
+body.catalog-stable .stable-footer :is(.stable-logo--footer,a,p,span,small,strong){color:#4d3a24!important;-webkit-text-fill-color:#4d3a24}
+body.catalog-stable .stable-footer .stable-logo--footer{color:#261b12!important;-webkit-text-fill-color:#261b12}
+body.catalog-stable .stable-footer a:hover{color:#8b622e!important;-webkit-text-fill-color:#8b622e}
