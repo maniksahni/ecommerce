@@ -262,7 +262,7 @@ const defaultBanners = {
       title: "Floral Statement Ring",
       subtitle: "Intricate floral craftsmanship cast with radiant gold finish for everyday luxury.",
       kicker: "ICONIC STATEMENTS",
-      image: "assets/instagram-shop/post-050-DW3GB-dDA3M.jpg",
+      image: "assets/catalog-2026-07-26/item-081.jpg",
       primaryCtaText: "Explore Rings",
       primaryCtaLink: "/collections/rings",
       secondaryCtaText: "View Collection",

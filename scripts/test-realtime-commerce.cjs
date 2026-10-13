@@ -26,8 +26,7 @@ const reports = [];
         : {
             headless: true,
             args: ["--disable-quic"],
-            executablePath:
-              "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            ...(fs.existsSync("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome") ? { executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" } : {}),
           },
     );
     try {

@@ -2,6 +2,12 @@ const { chromium } = require("playwright");
 const assert = require("node:assert");
 const path = require("node:path");
 
+const base = process.env.CART_BASE_URL || 'http://127.0.0.1:3338';
+async function fixturePage(browser, options) {
+  const context = await browser.newContext(options);
+  await require('./fixtures/isolated-browser.cjs').install(context);
+  return context.newPage();
+}
 const VIEWPORTS = [
   { name: "Mobile 320x568 (iPhone SE1)", width: 320, height: 568 },
   { name: "Mobile 360x780 (Galaxy S21)", width: 360, height: 780 },
@@ -19,35 +25,29 @@ const VIEWPORTS = [
 const TEST_ITEMS_4 = [
   { id: "halo-gift-ring", qty: 1 },
   { id: "tulip-pendant", qty: 2 },
-  { id: "floral-statement-ring", qty: 1 },
+  { id: "black-floral-cluster-ring", qty: 1 },
   { id: "boxed-evil-eye-bracelet", qty: 1 }
 ];
 
-const TEST_ITEMS_8 = [
-  { id: "halo-gift-ring", qty: 1 },
-  { id: "tulip-pendant", qty: 1 },
-  { id: "floral-statement-ring", qty: 1 },
-  { id: "boxed-evil-eye-bracelet", qty: 1 },
-  { id: "cluster-gift-ring", qty: 1 },
-  { id: "snake-chain-watch", qty: 1 },
-  { id: "cherry-charm-pendant", qty: 1 },
-  { id: "butterfly-drop-necklace", qty: 1 }
-];
+const TEST_ITEMS_8 = require('./catalog-lib').loadCatalog().catalogApi.getAllProducts().filter(p=>!p.variants.length).slice(0,8).map(p=>({id:p.id,qty:1}));
 
 async function runCartDrawerMatrix() {
   console.log("══════════════════════════════════════════════════════════");
   console.log("SHIVARA LUXE CART DRAWER MATRIX & RESPONSIVENESS QA SUITE");
   console.log("══════════════════════════════════════════════════════════\n");
 
+  require("node:fs").mkdirSync("artifacts/deploy-audit", {recursive:true});
   const browser = await chromium.launch();
   let totalAssertions = 0;
 
   for (const vp of VIEWPORTS) {
     console.log(`Testing Viewport: ${vp.name}...`);
-    const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height } });
+    const page = await fixturePage(browser, { viewport: { width: vp.width, height: vp.height } });
     
     // Set up cart with 4 items
-    await page.goto("http://localhost:3000", { waitUntil: "domcontentloaded" });
+    await page.goto(base, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => window.ShivaraCatalog?.getAllProducts().length > 0);
+    await page.waitForTimeout(500);
     await page.evaluate((items) => {
       localStorage.setItem("shivara-cart-v3", JSON.stringify({ version: 3, items }));
       localStorage.setItem("shivara-cart-note-v1", "Complimentary Gift Wrapping Please");
@@ -150,7 +150,7 @@ async function runCartDrawerMatrix() {
     assert(isClosed, `[${vp.name}] Cart drawer closes cleanly`);
     totalAssertions++;
 
-    await page.close();
+    await page.context().close();
     console.log(`  ✓ ${vp.name} passed all 7 checks.\n`);
   }
 
@@ -159,15 +159,17 @@ async function runCartDrawerMatrix() {
   // ─────────────────────────────────────────────────────────────
   console.log("Running High-Density 8-Item Stress Test (Mobile 390x844)...");
   {
-    const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
-    await page.goto("http://localhost:3000", { waitUntil: "domcontentloaded" });
+    const page = await fixturePage(browser, { viewport: { width: 390, height: 844 } });
+    await page.goto(base, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => window.ShivaraCatalog?.getAllProducts().length > 0);
+    await page.waitForTimeout(500);
     await page.evaluate((items) => {
       localStorage.setItem("shivara-cart-v3", JSON.stringify({ version: 3, items }));
     }, TEST_ITEMS_8);
     await page.reload({ waitUntil: "domcontentloaded" });
     await page.waitForTimeout(300);
 
-    await page.evaluate(() => document.querySelector(".stable-dock-item[data-cart-open]").click());
+    await page.evaluate(() => (document.querySelector(".stable-dock-item[data-cart-open]") || document.querySelector(".stable-header [data-cart-open]")).click());
     await page.waitForSelector("#cart-drawer.is-open", { timeout: 3000 });
     await page.waitForTimeout(300);
 
@@ -184,8 +186,8 @@ async function runCartDrawerMatrix() {
     const midScrollTop = await page.$eval("#cart-drawer", el => el.scrollTop);
     assert(midScrollTop >= 700, "Smooth internal scroll through 8 items works");
 
-    await page.screenshot({ path: path.join(__dirname, "../scratch-8-items-mobile.png") });
-    await page.close();
+    await page.screenshot({ path: path.join(__dirname, "../artifacts/deploy-audit/cart-stress.png") });
+    await page.context().close();
     totalAssertions += 3;
     console.log("  ✓ High-density 8-item stress test passed.\n");
   }
@@ -193,8 +195,10 @@ async function runCartDrawerMatrix() {
   // Empty Bag Test
   console.log("Running Empty Bag Verification (Mobile 390x844 & Laptop 1440x900)...");
   for (const vp of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
-    const page = await browser.newPage({ viewport: vp });
-    await page.goto("http://localhost:3000", { waitUntil: "domcontentloaded" });
+    const page = await fixturePage(browser, { viewport: vp });
+    await page.goto(base, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => window.ShivaraCatalog?.getAllProducts().length > 0);
+    await page.waitForTimeout(500);
     await page.evaluate(() => {
       localStorage.setItem("shivara-cart-v3", JSON.stringify({ version: 3, items: [] }));
     });
@@ -208,7 +212,7 @@ async function runCartDrawerMatrix() {
     await page.waitForSelector("#cart-drawer.is-open", { timeout: 3000 });
     const emptyText = await page.$eval("#cart-lines", el => el.innerText);
     assert(emptyText.includes("Your bag is empty"), "Empty cart messaging rendered correctly");
-    await page.close();
+    await page.context().close();
     totalAssertions++;
   }
   console.log("  ✓ Empty bag states verified.\n");

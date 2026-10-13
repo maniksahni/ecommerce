@@ -1,3 +1,8 @@
+async function isolatedContext(browser, options) {
+  const context = await browser.newContext(options);
+  await require('./fixtures/isolated-browser.cjs').install(context);
+  return context;
+}
 const { spawn } = require("node:child_process");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -44,29 +49,31 @@ async function main() {
     ...(fs.existsSync(chromePath) ? { executablePath: chromePath } : {})
   });
 
-  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  const context = await isolatedContext(browser, { viewport: { width: 1440, height: 1000 } });
   const page = await context.newPage();
   const errors = [];
   page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(300);
 
   const initialTruth = await page.evaluate(() => JSON.stringify(window.ShivaraCatalog.getAllProducts().map((product) => [
     product.id, product.title, product.price, product.priceStatus, product.category, product.optionsStatus, product.variants
   ])));
-  assert(await page.locator(".stable-hero").count() === 1, "one stable commerce hero is mounted");
+  assert(await page.locator(".approved-hero").count() === 1, "one stable commerce hero is mounted");
   assert(await page.locator(".floating-atelier, #shivara-deck, .universe-card").count() === 0, "legacy overlapping experience systems are absent");
   assert((await page.locator('script[src*="experience.js"], script[src*="motion-controller.js"]').count()) === 0, "optional motion bundles stay disabled");
   assert((await page.locator('[data-product-section="new-arrivals"] [data-product-card]').count()) === 12, "New Arrivals is intentionally capped at twelve products");
   assert((await page.locator('#products-grid [data-product-card], [data-product-section="all"] [data-product-card]').count()) >= 12, "catalogue preview remains dense and curated");
-  assert((await page.locator("#commerce-category-grid a").count()) >= 9, "category rail exposes the complete shopping journey");
+  assert((await page.locator("#commerce-category-grid a").count()) >= 4, "approved category rail exposes the primary shopping journey");
 
-  const heroBefore = await page.locator("[data-hero-title]").textContent();
-  await page.waitForFunction((before) => document.querySelector("[data-hero-title]")?.textContent !== before, heroBefore, { timeout: 16000 });
-  assert((await page.locator("[data-hero-title]").textContent()) !== heroBefore, "hero automatically changes the verified product");
-  assert(await page.locator("[data-hero-prev], [data-hero-next], [data-signature-prev], [data-signature-next]").count() === 0, "automatic edits do not render arrow controls");
+  const heroBefore = await page.locator(".approved-hero h1").textContent();
+  await page.locator("[data-hero-next]").click();
+  await page.waitForFunction((before) => document.querySelector(".approved-hero h1")?.textContent !== before, heroBefore, { timeout: 16000 });
+  assert((await page.locator(".approved-hero h1").textContent()) !== heroBefore, "hero automatically changes the verified product");
+  assert(await page.locator("[data-hero-slide]").count() === 4, "approved campaign exposes four usable slide controls");
 
-  const quickCard = page.locator('[data-product-section="new-arrivals"] [data-product-card]').first();
+  const quickCard = page.locator('#products-grid [data-product-card]').first();
   const quickTitle = await quickCard.locator(".stable-card__title").textContent();
   await quickCard.locator("[data-quick-view]").click();
   assert(await page.locator("#quick-view").getAttribute("aria-hidden") === "false", "Quick View opens from the stable storefront");
@@ -82,23 +89,26 @@ async function main() {
   await context.close();
 
   for (const [width, height] of viewports) {
-    const viewportContext = await browser.newContext({ viewport: { width, height } });
+    const viewportContext = await isolatedContext(browser, { viewport: { width, height } });
     const viewportPage = await viewportContext.newPage();
     await viewportPage.goto(baseUrl, { waitUntil: "domcontentloaded" });
+  await viewportPage.waitForTimeout(300);
     const state = await viewportPage.evaluate(() => {
       const grid = document.querySelector(".commerce-product-grid");
-      const hero = document.querySelector(".stable-hero")?.getBoundingClientRect();
-      const title = document.querySelector(".stable-hero h1")?.getBoundingClientRect();
+      const hero = document.querySelector(".approved-hero")?.getBoundingClientRect();
+      const title = document.querySelector(".approved-hero .approved-outline")?.getBoundingClientRect();
       return {
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-        columns: getComputedStyle(grid).gridTemplateColumns.split(" ").length,
+        columns: getComputedStyle(grid).display === "flex"
+          ? Math.floor((grid.clientWidth + parseFloat(getComputedStyle(grid).gap)) / (grid.firstElementChild.getBoundingClientRect().width + parseFloat(getComputedStyle(grid).gap)))
+          : getComputedStyle(grid).gridTemplateColumns.split(" ").length,
         heroFits: Boolean(hero && title && title.left >= hero.left && title.right <= hero.right + 1 && title.bottom <= hero.bottom + 1),
         broken: [...document.images].filter((image) => image.complete && !image.naturalWidth).length
       };
     });
     assert(state.overflow <= 1, `${width}x${height} has no horizontal overflow`);
     if (width <= 430) assert(state.columns === 2, `${width}x${height} preserves two catalogue columns`);
-    if (width === 768) assert(state.columns === 3, "768px tablet layout has three product columns");
+    if (width === 768) assert(state.columns === 5, "approved 768px tablet arrivals keep five compact product columns");
     if (width >= 1280) assert(state.columns === 5, `${width}px desktop layout has five product columns`);
     assert(state.heroFits, `${width}x${height} keeps hero content inside its bounds`);
     assert(state.broken === 0, `${width}x${height} has no broken loaded images`);

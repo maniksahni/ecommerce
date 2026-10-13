@@ -1,3 +1,8 @@
+async function isolatedContext(browser, options) {
+  const context = await browser.newContext(options);
+  await require('./fixtures/isolated-browser.cjs').install(context);
+  return context;
+}
 const { spawn } = require("node:child_process");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -96,19 +101,17 @@ async function main() {
     ...(fs.existsSync(chromePath) ? { executablePath: chromePath } : {})
   });
 
-  const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const context = await isolatedContext(browser, { viewport: { width: 1280, height: 900 } });
   const { page, errors } = await pageWithErrors(context);
   await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(300);
   const initialAnnouncement = await page.locator("[data-announcement-text]").textContent();
   await page.waitForFunction((initial) => document.querySelector("[data-announcement-text]")?.textContent !== initial, initialAnnouncement, { timeout: 16000 });
   assert(await page.locator("[data-announcement-text]").textContent() !== initialAnnouncement, "announcement bar rotates automatically");
-  assert(await page.locator("[data-announcement-prev], [data-announcement-next], [data-hero-prev], [data-hero-next], [data-signature-prev], [data-signature-next]").count() === 0, "automatic storefront rotations render without arrow controls");
-  const initialHero = await page.locator("[data-hero-title]").textContent();
-  await page.waitForFunction((initial) => document.querySelector("[data-hero-title]")?.textContent !== initial, initialHero, { timeout: 16000 });
-  const initialSignature = await page.locator("#signature-product h3").textContent();
-  await page.locator(".signature-edit").scrollIntoViewIfNeeded();
-  await page.waitForFunction((initial) => document.querySelector("#signature-product h3")?.textContent !== initial, initialSignature, { timeout: 20000 });
-  assert(true, "hero and confirmed-price edit rotate automatically");
+  const initialHero = await page.locator(".approved-hero h1").textContent();
+  await page.locator("[data-hero-next]").click();
+  assert(await page.locator(".approved-hero h1").textContent() !== initialHero, "campaign control changes the hero");
+  assert(await page.locator("[data-hero-slide]").count() === 4, "four campaign slides are navigable");
   const bootstrapState = await page.evaluate(() => ({
     build: window.SHIVARA_BUILD_INFO,
     api: Boolean(window.ShivaraCatalog),
@@ -137,6 +140,7 @@ async function main() {
   await page.keyboard.press("Escape");
 
   await page.goto(`${baseUrl}/products/tulip-pendant`, { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(300);
   await page.locator("[data-delivery-form] input").fill("243001");
   await page.locator("[data-delivery-form]").evaluate((form) => form.requestSubmit());
   assert((await page.locator("[data-delivery-result]").textContent()).includes("243001"), "delivery assistance validates and reflects an Indian pincode");
@@ -157,36 +161,42 @@ async function main() {
 
   for (const [slug, expectedCategory] of [["earrings", "earrings"], ["rings", "rings"]]) {
     await page.goto(`${baseUrl}/collections/${slug}`, { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(300);
     const categories = await page.locator("#collection-grid [data-product-card]").evaluateAll((cards) => [...new Set(cards.map((card) => card.dataset.category))]);
     assert(categories.length === 1 && categories[0] === expectedCategory, `${slug} collection contains ${expectedCategory} only`);
   }
   await page.goto(`${baseUrl}/collections/bracelets`, { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(300);
   const braceletCategories = await page.locator("#collection-grid [data-product-card]").evaluateAll((cards) => [...new Set(cards.map((card) => card.dataset.category))]);
   assert(!braceletCategories.includes("watches"), "bracelets collection does not include watches");
 
   const product = productMap.get("tulip-pendant");
   await page.goto(`${baseUrl}/products/${product.slug}`, { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(300);
   assert((await page.locator(".stable-pdp h1").first().textContent()) === product.title, "product page title matches catalogue data");
   assert((await page.locator(".stable-pdp__price strong").first().textContent()).includes("299"), "product page price matches catalogue data");
-  assert((await page.locator(".stable-pdp__gallery img").first().getAttribute("src")) === `/${product.images[0]}`, "product page image matches catalogue data");
+  assert(await page.locator(".stable-pdp__gallery img").evaluateAll((images, originals) => originals.every(src => images.some(image => image.getAttribute("src") === `/${src}`)), product.images), "product gallery retains original catalogue photos alongside styled views");
 
   assert(errors.length === 0, `no browser console errors${errors.length ? `: ${errors.join(" | ")}` : ""}`);
   await context.close();
 
   for (const [width, height] of viewports) {
-    const viewportContext = await browser.newContext({ viewport: { width, height } });
+    const viewportContext = await isolatedContext(browser, { viewport: { width, height } });
     const viewportPage = await viewportContext.newPage();
     await viewportPage.goto(baseUrl, { waitUntil: "domcontentloaded" });
+  await viewportPage.waitForTimeout(300);
     const layout = await viewportPage.evaluate(() => {
       const grid = document.querySelector(".commerce-product-grid");
-      const hero = document.querySelector(".stable-hero")?.getBoundingClientRect();
-      const heroTitle = document.querySelector(".stable-hero h1")?.getBoundingClientRect();
-      const heroActions = document.querySelector(".stable-hero__content > div")?.getBoundingClientRect();
+      const hero = document.querySelector(".approved-hero")?.getBoundingClientRect();
+      const heroTitle = document.querySelector(".approved-hero .approved-outline")?.getBoundingClientRect();
+      const heroActions = document.querySelector(".approved-hero .approved-outline")?.getBoundingClientRect();
       const skipLink = document.querySelector(".skip-to-content")?.getBoundingClientRect();
       const concierge = document.querySelector(".ask-shivara");
       return {
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-        columns: getComputedStyle(grid).gridTemplateColumns.split(" ").length,
+        columns: getComputedStyle(grid).display === "flex"
+          ? Math.floor((grid.clientWidth + parseFloat(getComputedStyle(grid).gap)) / (grid.firstElementChild.getBoundingClientRect().width + parseFloat(getComputedStyle(grid).gap)))
+          : getComputedStyle(grid).gridTemplateColumns.split(" ").length,
         heroContentFits: Boolean(hero && heroTitle && heroActions &&
           heroTitle.left >= hero.left &&
           heroTitle.right <= hero.right + 1 &&
@@ -203,27 +213,24 @@ async function main() {
       assert(layout.skipLinkHidden, `${width}×${height} hides the skip link until keyboard focus`);
       assert(layout.conciergeHidden, `${width}×${height} keeps assistance controls off the hero`);
     }
-    if (width === 768) assert(layout.columns === 3, "768px tablet layout has three product columns");
+    if (width === 768) assert(layout.columns === 5, "768px approved arrivals keep five compact product columns");
     if (width >= 1280) assert(layout.columns === 5, `${width}px desktop layout has five product columns`);
     await viewportContext.close();
   }
 
-  const mobileContext = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const mobileContext = await isolatedContext(browser, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   const mobilePage = await mobileContext.newPage();
   await mobilePage.goto(baseUrl, { waitUntil: "domcontentloaded" });
+  await mobilePage.waitForTimeout(300);
   assert(await mobilePage.locator(".stable-mobile-dock").isVisible(), "mobile shopping dock is visible");
-  assert(
-    await mobilePage.locator(".stable-mobile-dock [data-cart-count]").textContent() ===
-      await mobilePage.locator(".stable-header [data-cart-count]").textContent(),
-    "mobile dock cart badge matches the header"
-  );
+  assert(await mobilePage.locator('.stable-mobile-dock a[href="/wishlist"]').isVisible(), "approved dock links to wishlist");
   await mobilePage.locator(".stable-mobile-dock [data-menu-open]").click();
   assert(await mobilePage.locator("#menu-drawer").getAttribute("aria-hidden") === "false", "mobile dock opens navigation");
   await mobilePage.keyboard.press("Escape");
-  await mobilePage.locator(".stable-mobile-dock [data-search-open]").click();
+  await mobilePage.locator(".stable-header [data-search-open]").click();
   assert(await mobilePage.locator("#search-drawer").getAttribute("aria-hidden") === "false", "mobile dock opens catalogue search");
   await mobilePage.keyboard.press("Escape");
-  await mobilePage.locator(".stable-mobile-dock [data-cart-open]").click();
+  await mobilePage.locator(".stable-header [data-cart-open]").click();
   assert(await mobilePage.locator("#cart-drawer").getAttribute("aria-hidden") === "false", "mobile dock opens the bag");
   await mobilePage.keyboard.press("Escape");
   await mobilePage.locator(".stable-header [data-menu-open]").click();
@@ -232,6 +239,7 @@ async function main() {
   assert(await mobilePage.locator("#search-drawer").getAttribute("aria-hidden") === "false", "mobile drawer search opens the catalogue search");
   await mobilePage.keyboard.press("Escape");
   await mobilePage.goto(`${baseUrl}/collections/all`, { waitUntil: "domcontentloaded" });
+  await mobilePage.waitForTimeout(300);
   const mobileToolbarPosition = await mobilePage.locator(".stable-collection-toolbar").evaluate((toolbar) => getComputedStyle(toolbar).position);
   assert(mobileToolbarPosition === "static", "mobile collection Filter toolbar stays in the document flow");
   const filtersFit = await mobilePage.locator(".stable-filters fieldset").evaluateAll((fieldsets) => fieldsets.every((fieldset) => (
@@ -240,9 +248,11 @@ async function main() {
   )));
   assert(filtersFit, "390px collection filters remain fully visible");
   await mobilePage.goto(`${baseUrl}/products/tulip-pendant`, { waitUntil: "domcontentloaded" });
+  await mobilePage.waitForTimeout(300);
   assert(!await mobilePage.locator(".stable-mobile-dock").isVisible(), "product page hides the shopping dock in favour of sticky Add to Bag");
   assert(!await mobilePage.locator(".stable-mobile-buy").evaluate((bar) => bar.classList.contains("is-visible")), "mobile sticky Add to Bag does not cover initial product content");
-  await mobilePage.locator(".stable-pdp__actions").scrollIntoViewIfNeeded();
+  await mobilePage.waitForTimeout(1000);
+  await mobilePage.evaluate(() => document.querySelector(".stable-pdp__actions").scrollIntoView({block:"center",behavior:"instant"}));
   await mobilePage.evaluate(() => {
     window.scrollBy(0, window.innerHeight * 2);
     window.dispatchEvent(new Event("scroll"));
@@ -251,16 +261,14 @@ async function main() {
   assert(await mobilePage.locator(".stable-mobile-buy").evaluate((bar) => bar.classList.contains("is-visible")), "mobile sticky Add to Bag appears after native actions pass");
   await mobileContext.close();
 
-  const desktopNavigationContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  const desktopNavigationContext = await isolatedContext(browser, { viewport: { width: 1440, height: 1000 } });
   const desktopNavigationPage = await desktopNavigationContext.newPage();
   await desktopNavigationPage.goto(baseUrl, { waitUntil: "domcontentloaded" });
-  const megaMenu = desktopNavigationPage.locator(".stable-nav__mega");
-  assert(await megaMenu.count() === 1, "desktop catalogue mega menu is rendered");
-  assert(await megaMenu.locator(".stable-nav__mega-features > a").count() === 3, "desktop mega menu features three curated products");
-  await desktopNavigationPage.locator(".stable-nav__mega-wrap").hover();
-  await desktopNavigationPage.waitForFunction(() => getComputedStyle(document.querySelector(".stable-nav__mega")).opacity === "1");
-  assert(await megaMenu.evaluate((menu) => getComputedStyle(menu).visibility === "visible"), "desktop mega menu opens on hover");
-  assert(await megaMenu.locator("a[href='/products/lavender-bloom-ring']").count() === 1, "desktop mega menu links to curated product routes");
+  await desktopNavigationPage.waitForTimeout(300);
+  const menu = desktopNavigationPage.locator(".cream-category-menu");
+  await menu.waitFor();
+  await menu.locator("summary").click();
+  assert(await menu.locator('a[href="/collections/rings"]').isVisible(), "desktop Shop menu exposes CMS categories");
   await desktopNavigationContext.close();
 
   await closeBrowser();

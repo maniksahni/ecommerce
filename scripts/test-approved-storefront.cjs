@@ -10,7 +10,7 @@ const fs = require("fs");
     ["webkit", webkit],
   ]) {
     const b = await engine.launch();
-    const p = await b.newPage();
+    const p = await b.newPage({ viewport: { width: 320, height: 844 } });
     const errors = [];
     p.on("pageerror", (e) => errors.push(e.message));
     await p.goto(process.env.APPROVED_BASE_URL || "http://localhost:3000", {
@@ -18,7 +18,7 @@ const fs = require("fs");
     });
     await p.locator(".stable-header [data-search-open] svg").first().waitFor();
     await p.locator("[data-product-card]").first().waitFor();
-    for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440]) {
+    for (const width of [320, 340, 350, 360, 375, 390, 430, 768, 1024, 1280, 1440]) {
       await p.setViewportSize({ width, height: width < 768 ? 844 : 1000 });
       await p.evaluate(() => scrollTo(0, 0));
       await p.screenshot({
@@ -36,6 +36,11 @@ const fs = require("fs");
           search: inside(".stable-header [data-search-open]"),
           wishlist: inside(".stable-header .stable-wish-link"),
           cta: inside(".approved-hero .approved-outline"),
+          headerClear: (() => {
+            const nodes = [...document.querySelectorAll('.stable-header__menu,.stable-header>.stable-logo,.cream-reference-nav,.stable-header__actions>button,.stable-header__actions>a')].filter(e => getComputedStyle(e).display !== 'none' && e.getBoundingClientRect().width);
+            const boxes=nodes.map(e=>e.getBoundingClientRect());
+            return boxes.every((a,i)=>boxes.every((b,j)=>i===j||a.right<=b.left+1||b.right<=a.left+1||a.bottom<=b.top+1||b.bottom<=a.top+1));
+          })(),
           touch: [
             ...document.querySelectorAll(
               ".stable-header__actions>button,.stable-header__actions>a",
@@ -54,6 +59,7 @@ const fs = require("fs");
       console.log(name, width, JSON.stringify(result));
       if (
         result.overflow ||
+        !result.headerClear ||
         !result.cart ||
         !result.search ||
         !result.wishlist ||
@@ -66,7 +72,7 @@ const fs = require("fs");
         for (const [section, selector] of [
           ["arrivals", ".approved-arrivals"],
           ["campaigns", ".approved-campaigns"],
-          ["editorial", ".approved-editorial"],
+          ["services", ".approved-services"],
         ]) {
           await p.locator(selector).scrollIntoViewIfNeeded();
           await p.screenshot({
