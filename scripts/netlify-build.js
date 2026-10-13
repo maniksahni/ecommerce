@@ -42,6 +42,7 @@ const publicFiles = [
   "approved-storefront.css",
   "shivara-cream-final.css",
   "shivara-reference-match.css",
+  "shivara-header-glow-fix.css",
   "approved-storefront.js"
 ];
 
