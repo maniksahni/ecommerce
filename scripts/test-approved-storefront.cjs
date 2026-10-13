@@ -18,6 +18,7 @@ const fs = require("fs");
     });
     await p.locator(".stable-header [data-search-open] svg").first().waitFor();
     await p.locator("[data-product-card]").first().waitFor();
+    await p.locator(".product-discovery-rail .stable-card").first().waitFor();
     for (const width of [320, 340, 350, 360, 375, 390, 430, 768, 1024, 1280, 1440]) {
       await p.setViewportSize({ width, height: width < 768 ? 844 : 1000 });
       await p.evaluate(() => scrollTo(0, 0));
@@ -36,6 +37,12 @@ const fs = require("fs");
           search: inside(".stable-header [data-search-open]"),
           wishlist: inside(".stable-header .stable-wish-link"),
           cta: inside(".approved-hero .approved-outline"),
+          heroPhotoGlow: getComputedStyle(document.querySelector(".cream-hero-photo")).filter,
+          watchBuyStockOrder: (() => {
+            const cards = [...document.querySelectorAll(".product-discovery-rail .stable-card")];
+            const firstSoldOut = cards.findIndex((card) => card.classList.contains("is-sold-out"));
+            return firstSoldOut < 0 || cards.slice(firstSoldOut).every((card) => card.classList.contains("is-sold-out"));
+          })(),
           headerClear: (() => {
             const nodes = [...document.querySelectorAll('.stable-header__menu,.stable-header>.stable-logo,.cream-reference-nav,.stable-header__actions>button,.stable-header__actions>a')].filter(e => getComputedStyle(e).display !== 'none' && e.getBoundingClientRect().width);
             const boxes=nodes.map(e=>e.getBoundingClientRect());
@@ -64,6 +71,8 @@ const fs = require("fs");
         !result.search ||
         !result.wishlist ||
         !result.cta ||
+        !result.heroPhotoGlow.includes("brightness(1.08)") ||
+        !result.watchBuyStockOrder ||
         !result.touch ||
         result.badImages
       )
