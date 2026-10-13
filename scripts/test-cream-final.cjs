@@ -28,7 +28,7 @@ assert.ok(!html.includes("hero-desktop.webp"),"old ethnic model hero remains");
 assert.ok(!html.includes("TRADITION<br>MEETS TOMORROW"),"old editorial remains");
 const srcs=[...html.matchAll(/(?:src|srcset)="(\/assets\/[^"]+)"/g)].map(m=>m[1]);
 for(const src of srcs)assert.ok(fs.existsSync(path.join(root,src.slice(1))),"Missing local image: "+src);
-for(const slug of ["boxed-blue-evil-eye-bracelet","cluster-gift-ring","minimal-heart-pendant","bow-love-earrings","boxed-evil-eye-bracelet"]){
+for(const slug of ["boxed-evil-eye-bracelet","cluster-gift-ring","minimal-heart-pendant","bow-love-earrings"]){
  assert.ok(catalog.includes('slug: "'+slug+'"'),"Missing referenced catalogue item: "+slug);
 }
 for(const label of ["Earrings","Necklaces","Rings","Bracelets","Gift Sets"]){

@@ -74,7 +74,7 @@
     ["Earrings", "earrings", "bow-love-earrings"],
     ["Necklaces", "neckwear", "minimal-heart-pendant"],
     ["Rings", "rings", "cluster-gift-ring"],
-    ["Bracelets", "bracelets", "boxed-blue-evil-eye-bracelet"],
+    ["Bracelets", "bracelets", "boxed-evil-eye-bracelet"],
     ["Gift Sets", "gifting", "boxed-evil-eye-bracelet"]
   ];
   const heroIds = ["boxed-evil-eye-bracelet", "floral-statement-ring", "tulip-pendant"];
