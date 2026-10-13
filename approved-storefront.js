@@ -100,4 +100,17 @@
     });
   }
   window.addEventListener("resize", enforceMobileHeaderTargets, { passive: true });
+  // Some WebKit versions update matchMedia before dispatching resize; listen
+  // directly to the breakpoint and visual viewport as well.
+  const mobileBreakpoint = window.matchMedia("(max-width: 767px)");
+  if (mobileBreakpoint.addEventListener) {
+    mobileBreakpoint.addEventListener("change", enforceMobileHeaderTargets);
+  } else if (mobileBreakpoint.addListener) {
+    mobileBreakpoint.addListener(enforceMobileHeaderTargets);
+  }
+  window.visualViewport?.addEventListener(
+    "resize",
+    enforceMobileHeaderTargets,
+    { passive: true },
+  );
 })();
