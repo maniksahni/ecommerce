@@ -2,6 +2,7 @@
   'use strict';
   if (!document.body.classList.contains('approved-storefront')) return;
   const styled = {
+    'green-white-floral-ring': '/assets/golden-products/green-white-floral-ring.png',
     'stacked-coil-bangle': '/assets/golden-products/stacked-coil-bangle.png',
     'blue-white-pebble-ring': '/assets/golden-products/blue-white-pebble-ring.png',
     'pink-blossom-cluster-ring': '/assets/golden-products/pink-blossom-cluster-ring.png',
